@@ -88,31 +88,41 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public static FiniteField Neg(FiniteField a)
     {
-        FiniteField res = new();
+        FiniteField res = new()
+        {
+            Modulus = a.Modulus
+        };
         UInt256.SubtractMod(UInt256.Zero, a.Value, a.Modulus, out res.Value);
-        res.Modulus = a.Modulus;
         return res;
     }
 
     public FiniteField Add(FiniteField a)
     {
-        FiniteField res = new();
+        FiniteField res = new()
+        {
+            Modulus = a.Modulus
+        };
         UInt256.AddMod(Value, a.Value, Modulus, out res.Value);
-        res.Modulus = a.Modulus;
         return res;
     }
 
     public static FiniteField Add(FiniteField a, FiniteField b)
     {
-        FiniteField res = new();
+        FiniteField res = new()
+        {
+            Modulus = a.Modulus
+        };
         UInt256.AddMod(a.Value, b.Value, a.Modulus, out res.Value);
-        res.Modulus = a.Modulus;
         return res;
     }
 
     public FiniteField Sub(FiniteField a)
     {
-        UInt256.SubtractMod(Value, a.Value, Modulus, out Value);
+        FiniteField res = new()
+        {
+            Modulus = a.Modulus
+        };
+        UInt256.SubtractMod(Value, a.Value, Modulus, out res.Value);
         return this;
     }
 
@@ -126,18 +136,22 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public static FiniteField Mul(FiniteField a, FiniteField b)
     {
-        UInt256 x;
-        UInt256.MultiplyMod(a.Value, b.Value, a.Modulus, out x);
-        FiniteField result = new();
-        result.Value = x;
-        result.Modulus = a.Modulus;
+        FiniteField result = new()
+        {
+            Modulus = a.Modulus
+        };
+        UInt256.MultiplyMod(a.Value, b.Value, a.Modulus, out result.Value);
         return result;
     }
 
     public FiniteField Mul(FiniteField a)
     {
-        UInt256.MultiplyMod(Value, a.Value, Modulus, out Value);
-        return this;
+        FiniteField result = new()
+        {
+            Modulus = a.Modulus
+        };
+        UInt256.MultiplyMod(Value, a.Value, Modulus, out result.Value);
+        return result;
     }
 
     public static FiniteField? Div(FiniteField a, FiniteField b)
@@ -148,8 +162,10 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public static FiniteField? ExpMod(FiniteField a, UInt256 b)
     {
-        FiniteField result = new();
-        result.Modulus = a.Modulus;
+        FiniteField result = new()
+        {
+            Modulus = a.Modulus
+        };
         UInt256.ExpMod(a.Value, b, a.Modulus, out result.Value);
         return result;
     }
@@ -172,18 +188,23 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
     public FiniteField? Inverse()
     {
         if (Value.IsZero) return null;
-
-        UInt256.ExpMod(Value, Modulus - 2, Modulus, out Value);
-        return this;
+        FiniteField result = new()
+        {
+            Modulus = Modulus
+        };
+        UInt256.ExpMod(Value, Modulus - 2, Modulus, out result.Value);
+        return result;
     }
 
     public static FiniteField? Inverse(FiniteField a)
     {
         if (a.Value.IsZero) return null;
         
-        FiniteField inv = new FiniteField();
+        var inv = new FiniteField
+        {
+            Modulus = a.Modulus
+        };
         UInt256.ExpMod(a.Value, a.Modulus - 2, a.Modulus, out inv.Value);
-        inv.Modulus = a.Modulus;
         return inv;
     }
 
@@ -196,31 +217,22 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
         var zero = Zero(modulus);
         var one = One(modulus);
 
-        List<FiniteField> partials = new(values.Length);
-        partials.Add(one);
-
+        FiniteField[] partials = new FiniteField[values.Length + 1];
+        partials[0] = one;
         for (int i = 0; i < values.Length; i++)
         {
-            FiniteField x = Mul(partials[^1], values[i]);
-            partials.Add(x.IsZero ? one : x);
+            var x = Mul(partials[i], values[i]);
+            partials[i + 1] = x.IsZero ? one : x;
         }
 
-        var inverse = FiniteField.Inverse(partials[^1]);
+        var inverse = Inverse(partials[^1]);
 
         FiniteField[] outputs = new FiniteField[values.Length];
         outputs[0] = zero;
-        for (int i = values.Length; i > 0; i--)
+        for (int i = values.Length - 1; i >= 0; i--)
         {
-            if (values[i - 1].IsZero)
-            {
-                outputs[i - 1] = zero;
-            }
-            else
-            {
-                outputs[i - 1] = Mul(partials[i - 1], inverse);
-            }
-
-            inverse = inverse.Mul(values[i - 1]);
+            outputs[i] = values[i].IsZero ? zero : Mul(partials[i], inverse);
+            inverse = inverse.Mul(values[i]);
             inverse = inverse.IsZero ? one : inverse;
         }
 
@@ -235,8 +247,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
         };
 
         var val = FieldMethods.ModSqrt(a.Value, a.Modulus);
-        if (val is null)
-            return null;
+        if (val is null) return null;
         res.Value = (UInt256) val;
         return res;
     }

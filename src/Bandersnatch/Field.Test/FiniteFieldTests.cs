@@ -6,7 +6,6 @@ namespace Field.Test;
 
 public class FiniteFieldTests
 {
-
     [Test]
     public void TestAddition()
     {
@@ -127,6 +126,4 @@ public class FiniteFieldTests
     {
         return values.Select(t => FiniteField.Inverse(t)).ToArray();
     }
-
-
 }

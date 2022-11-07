@@ -30,13 +30,13 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
         }
     }
 
-    public FixedFiniteField()
+    private FixedFiniteField()
     {
         Modulus = new T().FieldMod;
     }
 
-    public new static FixedFiniteField<T> Zero => new FixedFiniteField<T>((UInt256) 0);
-    public new static FixedFiniteField<T> One => new FixedFiniteField<T>((UInt256) 1);
+    public static FixedFiniteField<T> Zero => new ((UInt256) 0);
+    public static FixedFiniteField<T> One => new ((UInt256) 1);
     
     public static FixedFiniteField<T>? FromBytes(byte[] byteEncoded)
     {
@@ -80,8 +80,9 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
 
     public FixedFiniteField<T> Add(FixedFiniteField<T> a)
     {
-        UInt256.AddMod(Value, a.Value, Modulus, out Value);
-        return this;
+        FixedFiniteField<T> res = new();
+        UInt256.AddMod(Value, a.Value, Modulus, out res.Value);
+        return res;
     }
 
     public static FixedFiniteField<T> Add(FixedFiniteField<T> a, FixedFiniteField<T> b)
@@ -93,8 +94,9 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
 
     public FixedFiniteField<T> Sub(FixedFiniteField<T> a)
     {
-        UInt256.SubtractMod(Value, a.Value, Modulus, out Value);
-        return this;
+        FixedFiniteField<T> res = new();
+        UInt256.SubtractMod(Value, a.Value, Modulus, out res.Value);
+        return res;
     }
 
     public static FixedFiniteField<T> Sub(FixedFiniteField<T> a, FixedFiniteField<T> b)
@@ -106,17 +108,16 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
 
     public static FixedFiniteField<T> Mul(FixedFiniteField<T> a, FixedFiniteField<T> b)
     {
-        UInt256 x;
-        UInt256.MultiplyMod(a.Value, b.Value, a.Modulus, out x);
         FixedFiniteField<T> result = new();
-        result.Value = x;
+        UInt256.MultiplyMod(a.Value, b.Value, a.Modulus, out result.Value);
         return result;
     }
 
     public FixedFiniteField<T> Mul(FixedFiniteField<T> a)
     {
-        UInt256.MultiplyMod(Value, a.Value, Modulus, out Value);
-        return this;
+        FixedFiniteField<T> result = new();
+        UInt256.MultiplyMod(Value, a.Value, Modulus, out result.Value);
+        return result;
     }
 
     public static FixedFiniteField<T>? Div(FixedFiniteField<T> a, FixedFiniteField<T> b)
@@ -150,9 +151,9 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
     public new FixedFiniteField<T>? Inverse()
     {
         if (Value.IsZero) return null;
-
-        UInt256.ExpMod(Value, Modulus - 2, Modulus, out Value);
-        return this;
+        FixedFiniteField<T> result = new();
+        UInt256.ExpMod(Value, Modulus - 2, Modulus, out result.Value);
+        return result;
     }
 
     public static FixedFiniteField<T>? Inverse(FixedFiniteField<T> a)
@@ -165,34 +166,23 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
 
     public static FixedFiniteField<T>[] MultiInverse(FixedFiniteField<T>[] values)
     {
-        var partials = new List<FixedFiniteField<T>>(values.Length);
-        partials.Add(One);
-
+        FixedFiniteField<T>[] partials = new FixedFiniteField<T>[values.Length + 1];
+        partials[0] = One;
         for (int i = 0; i < values.Length; i++)
         {
-            FixedFiniteField<T> x = Mul(partials[^1], values[i]);
-            partials.Add(x.IsZero ? One : x);
+            FixedFiniteField<T> x = Mul(partials[i], values[i]);
+            partials[i + 1] = x.IsZero ? One : x;
         }
 
         var inverse = Inverse(partials[^1]);
 
         FixedFiniteField<T>[] outputs = new FixedFiniteField<T>[values.Length];
-        outputs[0] = Zero;
-        for (int i = values.Length; i > 0; i--)
+        for (int i = values.Length - 1; i >= 0; i--)
         {
-            if (values[i - 1].IsZero)
-            {
-                outputs[i - 1] = Zero;
-            }
-            else
-            {
-                outputs[i - 1] = Mul(partials[i - 1], inverse);
-            }
-
-            inverse = inverse.Mul(values[i - 1]);
+            outputs[i] = values[i].IsZero ? Zero : Mul(partials[i], inverse);
+            inverse = inverse.Mul(values[i]);
             inverse = inverse.IsZero ? One : inverse;
         }
-
         return outputs;
     }
 
