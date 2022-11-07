@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{70B362E0-594F-40D3-A97B-B47335654175}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Int256", "..\int256\src\Nethermind.Int256\Nethermind.Int256.csproj", "{2DAAA82C-CA48-4570-8FDD-F6F13F3A4CF7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DAAA82C-CA48-4570-8FDD-F6F13F3A4CF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DAAA82C-CA48-4570-8FDD-F6F13F3A4CF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DAAA82C-CA48-4570-8FDD-F6F13F3A4CF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DAAA82C-CA48-4570-8FDD-F6F13F3A4CF7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
