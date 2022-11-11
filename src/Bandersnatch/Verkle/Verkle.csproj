@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\int256\src\Nethermind.Int256\Nethermind.Int256.csproj" />
+      <ProjectReference Include="..\Curve\Curve.csproj" />
+      <ProjectReference Include="..\Field\Field.csproj" />
+      <ProjectReference Include="..\Polynomial\Polynomial.csproj" />
+      <ProjectReference Include="..\Proofs\Proofs.csproj" />
+    </ItemGroup>
+
+</Project>
