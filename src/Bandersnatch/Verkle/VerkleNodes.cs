@@ -26,6 +26,8 @@ public struct Suffix: IVerkleNode
     public readonly Commitment ExtensionCommitment;
     public NodeType NodeType;
 
+    public Fr InitCommitmentHash = Fr.Zero;
+
     public Suffix(byte[] stem)
     {
         Stem = stem;
@@ -36,6 +38,15 @@ public struct Suffix: IVerkleNode
         Encoded = new byte[] { };
         Data = null;
         Key = new byte[] { };
+        SetInitialCommitment();
+    }
+
+    private void SetInitialCommitment()
+    {
+        var stemCommitment = Committer.ScalarMul(Fr.One, 0) +
+                             Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
+        ExtensionCommitment.AddPoint(stemCommitment);
+        InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
     }
 
     public Fr UpdateCommitment(Banderwagon deltaLeafCommitment, byte index)

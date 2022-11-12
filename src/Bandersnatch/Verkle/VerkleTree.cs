@@ -1,3 +1,4 @@
+using System.Data;
 using Curve;
 using Field;
 
@@ -20,6 +21,11 @@ public class VerkleTree
     {
         (Fr newValLow, Fr newValHigh) = VerkleUtils.BreakValueInLowHigh(newValue);
         (Fr oldValLow, Fr oldValHigh) = VerkleUtils.BreakValueInLowHigh(oldValue);
+        
+        Console.WriteLine(string.Join(", ", (newValLow - oldValLow).ToBytes()));
+        Console.WriteLine(Convert.ToHexString((newValLow - oldValLow).ToBytes()));
+        Console.WriteLine(string.Join(", ", (newValHigh - oldValHigh).ToBytes()));
+        Console.WriteLine(Convert.ToHexString((newValHigh - oldValHigh).ToBytes()));
 
         var posMod128 = index % 128;
 
@@ -30,11 +36,18 @@ public class VerkleTree
         var deltaHigh = Committer.ScalarMul(newValHigh - oldValHigh, highIndex);
         return deltaLow + deltaHigh;
     }
+
+    public void Insert(byte[] key, byte[] value)
+    {
+        _db.LeafTable.TryGetValue(key, out var oldValue);
+        Banderwagon leafDelta = GetLeafDelta(oldValue, value, key[31]);
+        _db.LeafTable[key] = value;
+        StartRun(key, value, leafDelta);
+    }
     
-    private void StartRun(byte[] key, byte[] value)
+    private void StartRun(byte[] key, byte[] value, Banderwagon leafUpdateDelta )
     {
         // calculate this by update the leafs and calculating the delta - simple enough
-        Banderwagon leafUpdateDelta = Banderwagon.Identity();
         TraverseContext context = new TraverseContext(key, value, leafUpdateDelta);
         Banderwagon rootDelta = TraverseBranch(context);
         RootNode.AddPoint(rootDelta);
@@ -176,8 +189,8 @@ public class VerkleTree
         
         Fr deltaFr = oldNode.UpdateCommitment(leafUpdateDelta, suffixLeafIndex);
         _db.StemTable[stemKey] = oldNode;
-        if (insertNew) return (deltaFr, oldNode.ExtensionCommitment.Dup());
-        return (deltaFr, null);
+        // add the init commitment, because while calculating diff, we subtract the initCommitment in new nodes.
+        return insertNew ? (deltaFr + oldNode.InitCommitmentHash, oldNode.ExtensionCommitment.Dup()) : (deltaFr, null);
     }
     
     private ref struct TraverseContext

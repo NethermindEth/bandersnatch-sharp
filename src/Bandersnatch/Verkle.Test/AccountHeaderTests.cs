@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace Verkle.Test;
 
+[TestFixture]
 public class AccountHeaderTests
 {
     [Test]

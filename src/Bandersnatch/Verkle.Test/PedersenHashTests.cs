@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace Verkle.Test;
 
+[TestFixture]
 public class PedersenHashTests
 {
     private readonly byte[] _treeKeyPrefixIndexZero =
