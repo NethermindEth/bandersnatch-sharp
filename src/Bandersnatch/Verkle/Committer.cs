@@ -18,7 +18,7 @@ public struct Committer
 
         return elem;
     }
-
+    
     public static Banderwagon ScalarMul(Fr value, int index)
     {
         return Constants.BasisG[index] * value;
@@ -28,7 +28,16 @@ public struct Committer
 public class Commitment
 {
     public Banderwagon Point;
-    public Fr? PointAsField;
+    private Fr? _pointAsField;
+    public Fr PointAsField
+    {
+        get
+        {
+            if (_pointAsField is null) SetCommitmentToField();
+            return _pointAsField;
+        }
+        private set => _pointAsField = value;
+    }
 
     public Commitment(Banderwagon point)
     {
@@ -40,19 +49,17 @@ public class Commitment
         Point = Banderwagon.Identity();
     }
 
-    public Fr CommitmentToField()
+    private void SetCommitmentToField()
     {
-        if (PointAsField is not null) return PointAsField;
-        byte[] mapToBytes = Point.MapToField();
+        var mapToBytes = Point.MapToField();
         PointAsField = Fr.FromBytesReduced(mapToBytes);
-        return PointAsField;
     }
 
     public void AddPoint(Banderwagon point)
     {
         Point += point;
-        PointAsField = null;
-        CommitmentToField();
+        _pointAsField = null;
+        SetCommitmentToField();
     }
 }
 
