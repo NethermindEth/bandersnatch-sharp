@@ -119,14 +119,14 @@ public struct InternalNode: IVerkleNode
         }
     }
 
-    public InternalNode(byte[] stem)
+    public InternalNode(byte[] stem, Commitment suffixCommitment)
     {
         NodeType = NodeType.Stem; 
         _stem = stem;
         Encoded = new byte[] { };
         Data = null;
         Key = new byte[] { };
-        InternalCommitment = new Commitment();
+        InternalCommitment = suffixCommitment;
     }
 
     public InternalNode(bool isInternal)
