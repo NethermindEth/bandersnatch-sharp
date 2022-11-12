@@ -108,7 +108,12 @@ public struct Suffix: IVerkleNode
 
 public struct InternalNode: IVerkleNode
 {
-    public byte[] Key { get; set; }
+    public byte[] Key
+    {
+        get => _stem;
+        set => _stem = value;
+    }
+
     public bool IsSuffix => NodeType == NodeType.Suffix;
     public bool IsStem => NodeType == NodeType.Stem;
     public bool IsBranchNode => NodeType == NodeType.BranchNode;
@@ -133,7 +138,6 @@ public struct InternalNode: IVerkleNode
         _stem = stem;
         Encoded = new byte[] { };
         Data = null;
-        Key = new byte[] { };
         InternalCommitment = suffixCommitment;
     }
 
@@ -143,7 +147,6 @@ public struct InternalNode: IVerkleNode
         NodeType = NodeType.BranchNode;
         Encoded = new byte[] { };
         Data = null;
-        Key = new byte[] { };
         InternalCommitment = new Commitment();
     }
     
