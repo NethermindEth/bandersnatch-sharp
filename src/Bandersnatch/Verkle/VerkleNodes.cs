@@ -49,24 +49,21 @@ public struct Suffix: IVerkleNode
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
     }
 
-    public Fr UpdateCommitment(Banderwagon deltaLeafCommitment, byte index)
+    public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment, byte index)
     {
         var prevCommit = ExtensionCommitment.PointAsField.Dup();
-        Banderwagon deltaCommit;
-        if (index < 128)
-        {
-            var oldValue = C1.PointAsField.Dup();
-            C1.AddPoint(deltaLeafCommitment);
-            var delta = C1.PointAsField - oldValue;
-            deltaCommit = Committer.ScalarMul(delta, 2);
-        }
-        else
-        {
-            var oldValue = C2.PointAsField.Dup();
-            C2.AddPoint(deltaLeafCommitment);
-            var delta = C2.PointAsField - oldValue;
-            deltaCommit = Committer.ScalarMul(delta, 3);
-        }
+        
+        var oldC1Value = C1.PointAsField.Dup();
+        var oldC2Value = C2.PointAsField.Dup();
+        if(deltaLeafCommitment.DeltaC1 is not null) C1.AddPoint(deltaLeafCommitment.DeltaC1);
+        if(deltaLeafCommitment.DeltaC2 is not null) C2.AddPoint(deltaLeafCommitment.DeltaC2);
+
+        var deltaC1Commit = C1.PointAsField - oldC1Value;
+        var deltaC2Commit = C2.PointAsField - oldC2Value;
+
+        var deltaCommit = Committer.ScalarMul(deltaC1Commit, 2) 
+                          + Committer.ScalarMul(deltaC2Commit, 3);
+        
         ExtensionCommitment.AddPoint(deltaCommit);
         return ExtensionCommitment.PointAsField - prevCommit;
     }

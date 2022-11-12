@@ -1,4 +1,3 @@
-using System.Data;
 using Curve;
 using Field;
 
@@ -35,15 +34,17 @@ public class VerkleTree
     public void Insert(byte[] key, byte[] value)
     {
         _db.LeafTable.TryGetValue(key, out var oldValue);
-        Banderwagon leafDelta = GetLeafDelta(oldValue, value, key[31]);
+        Banderwagon leafDeltaCommitment = GetLeafDelta(oldValue, value, key[31]);
         _db.LeafTable[key] = value;
-        StartRun(key, value, leafDelta);
+        LeafUpdateDelta leafDelta = new();
+        leafDelta.UpdateDelta(leafDeltaCommitment, key[31]);
+        UpdateTreeCommitments(key, leafDelta);
     }
     
-    private void StartRun(byte[] key, byte[] value, Banderwagon leafUpdateDelta )
+    private void UpdateTreeCommitments(byte[] key, LeafUpdateDelta leafUpdateDelta)
     {
         // calculate this by update the leafs and calculating the delta - simple enough
-        TraverseContext context = new TraverseContext(key, value, leafUpdateDelta);
+        TraverseContext context = new TraverseContext(key, leafUpdateDelta);
         Banderwagon rootDelta = TraverseBranch(context);
         RootNode.AddPoint(rootDelta);
     }
@@ -176,7 +177,7 @@ public class VerkleTree
         return _db.BranchTable.TryGetValue(pathWithIndex, out var child) ? child : null;
     }
     
-    public (Fr, Commitment?) UpdateSuffixNode(byte[] stemKey, Banderwagon leafUpdateDelta, byte suffixLeafIndex, bool insertNew = false)
+    public (Fr, Commitment?) UpdateSuffixNode(byte[] stemKey, LeafUpdateDelta leafUpdateDelta, byte suffixLeafIndex, bool insertNew = false)
     {
         Suffix oldNode;
         if (insertNew) oldNode = new Suffix(stemKey);
@@ -190,29 +191,18 @@ public class VerkleTree
     
     private ref struct TraverseContext
     {
-        public readonly Banderwagon LeafUpdateDelta;
+        public readonly LeafUpdateDelta LeafUpdateDelta;
         public Span<byte> Key { get; }
-        public Span<byte> Value { get; }
         public Span<byte> Stem => Key[..31];
         public int CurrentIndex { get; set; }
-
-        public List<byte> CurrentPath;
-
+        
         public TraverseContext(
             Span<byte> key,
-            Span<byte> updateValue,
-            Banderwagon point)
+            LeafUpdateDelta delta)
         {
             Key = key;
-            if (updateValue.Length == 0)
-            {
-                updateValue = null;
-            }
-
-            Value = updateValue;
             CurrentIndex = 0;
-            LeafUpdateDelta = point;
-            CurrentPath = new();
+            LeafUpdateDelta = delta;
         }
     }
 }
