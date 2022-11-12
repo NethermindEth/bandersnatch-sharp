@@ -40,6 +40,22 @@ public class VerkleTree
         leafDelta.UpdateDelta(leafDeltaCommitment, key[31]);
         UpdateTreeCommitments(key, leafDelta);
     }
+
+    public void InsertStemBatch(byte[] stem, Dictionary<byte, byte[]> leafIndexValueMap)
+    {
+        LeafUpdateDelta leafDelta = new();
+        byte[] key = new byte[32];
+        stem.CopyTo(key,0);
+        foreach (var indexVal in leafIndexValueMap)
+        {
+            key[31] = indexVal.Key;
+            _db.LeafTable.TryGetValue(key, out var oldValue);
+            Banderwagon leafDeltaCommitment = GetLeafDelta(oldValue, indexVal.Value, indexVal.Key);
+            leafDelta.UpdateDelta(leafDeltaCommitment, indexVal.Key);
+            _db.LeafTable[key] = indexVal.Value;
+        }
+        UpdateTreeCommitments(key, leafDelta);
+    }
     
     private void UpdateTreeCommitments(byte[] key, LeafUpdateDelta leafUpdateDelta)
     {
