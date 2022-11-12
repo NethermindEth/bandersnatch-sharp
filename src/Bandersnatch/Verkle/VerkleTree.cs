@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Curve;
 using Field;
 
@@ -77,13 +78,15 @@ public class VerkleTree
             // 2. update the C1 or C2 - we already know the leafDelta - traverseContext.LeafUpdateDelta
             // 3. update ExtensionCommitment
             // 4. get the delta for commitment - ExtensionCommitment - 0;
-            (Fr deltaHash, Commitment? suffixCommitment) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta,
+            (Fr deltaHash, _) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta,
                 traverseContext.Key[31], true);
             
             // 1. Add internal.stem node
             // 2. return delta from ExtensionCommitment
             Banderwagon point = Committer.ScalarMul(deltaHash, pathIndex);
-            _db.BranchTable[absolutePath] = new InternalNode(traverseContext.Stem.ToArray(), suffixCommitment);
+            var commitment = new Commitment();
+            commitment.AddPoint(point);
+            _db.BranchTable[absolutePath] = new InternalNode(traverseContext.Stem.ToArray(), commitment);
             return point;
         }
 
@@ -172,7 +175,7 @@ public class VerkleTree
         var deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta, traverseContext.Key[31]);
         _db.StemTable[traverseContext.Key[..31].ToArray()] = oldValue;
         
-        return (Committer.ScalarMul(deltaFr, traverseContext.Key[traverseContext.CurrentIndex]), false);
+        return (Committer.ScalarMul(deltaFr, traverseContext.Key[traverseContext.CurrentIndex - 1]), false);
     }
      
      public Banderwagon FillSpaceWithInternalBranchNodes(byte[] path, int length, Banderwagon deltaPoint)
