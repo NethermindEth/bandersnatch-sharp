@@ -21,11 +21,6 @@ public class VerkleTree
     {
         (Fr newValLow, Fr newValHigh) = VerkleUtils.BreakValueInLowHigh(newValue);
         (Fr oldValLow, Fr oldValHigh) = VerkleUtils.BreakValueInLowHigh(oldValue);
-        
-        Console.WriteLine(string.Join(", ", (newValLow - oldValLow).ToBytes()));
-        Console.WriteLine(Convert.ToHexString((newValLow - oldValLow).ToBytes()));
-        Console.WriteLine(string.Join(", ", (newValHigh - oldValHigh).ToBytes()));
-        Console.WriteLine(Convert.ToHexString((newValHigh - oldValHigh).ToBytes()));
 
         var posMod128 = index % 128;
 
