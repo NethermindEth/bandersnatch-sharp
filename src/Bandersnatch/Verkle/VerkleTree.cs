@@ -16,9 +16,24 @@ public class VerkleTree
         RootNode = new Commitment();
     }
     
+    public Banderwagon GetLeafDelta(byte[]? oldValue, byte[] newValue, byte index)
+    {
+        (Fr newValLow, Fr newValHigh) = VerkleUtils.BreakValueInLowHigh(newValue);
+        (Fr oldValLow, Fr oldValHigh) = VerkleUtils.BreakValueInLowHigh(oldValue);
+
+        var posMod128 = index % 128;
+
+        var lowIndex = 2 * posMod128;
+        var highIndex = lowIndex + 1;
+        
+        var deltaLow = Committer.ScalarMul(newValLow - oldValLow, lowIndex);
+        var deltaHigh = Committer.ScalarMul(newValHigh - oldValHigh, highIndex);
+        return deltaLow + deltaHigh;
+    }
+    
     private void StartRun(byte[] key, byte[] value)
     {
-        // calculate this by update the lafs and calculting the delta - simple enought
+        // calculate this by update the leafs and calculating the delta - simple enough
         Banderwagon leafUpdateDelta = Banderwagon.Identity();
         TraverseContext context = new TraverseContext(key, value, leafUpdateDelta);
         Banderwagon rootDelta = TraverseBranch(context);
@@ -87,7 +102,8 @@ public class VerkleTree
      private (Banderwagon, bool) TraverseStem(IVerkleNode node, TraverseContext traverseContext)
     {
         // replace this node.key by node.Stem
-        (List<byte> sharedPath, byte? pathDiffIndexOld, byte? pathDiffIndexNew) = PathDifference(node.Key, traverseContext.Key[..31].ToArray());
+        (List<byte> sharedPath, byte? pathDiffIndexOld, byte? pathDiffIndexNew) =
+            VerkleUtils.GetPathDifference(node.Key, traverseContext.Key[..31].ToArray());
 
         if (sharedPath.Count != 31)
         {
@@ -147,23 +163,7 @@ public class VerkleTree
          return deltaPoint;
      }
 
-     public (List<byte>, byte?, byte?) PathDifference(byte[] existingNodeKey, byte[] newNodeKey)
-     {
-         List<byte> samePathIndices = new();
-
-         foreach (var (first, second) in existingNodeKey.Zip(newNodeKey))
-         {
-             if (first != second)
-             {
-                 return (samePathIndices, first, second);
-             }
-             samePathIndices.Add(first);
-         }
-
-         return (samePathIndices, null, null);
-     }
-    
-    public InternalNode? GetBranchChild(byte[] pathWithIndex)
+     public InternalNode? GetBranchChild(byte[] pathWithIndex)
     {
         return _db.BranchTable.TryGetValue(pathWithIndex, out var child) ? child : null;
     }
@@ -182,7 +182,7 @@ public class VerkleTree
     
     private ref struct TraverseContext
     {
-        public Banderwagon LeafUpdateDelta;
+        public readonly Banderwagon LeafUpdateDelta;
         public Span<byte> Key { get; }
         public Span<byte> Value { get; }
         public Span<byte> Stem => Key[..31];

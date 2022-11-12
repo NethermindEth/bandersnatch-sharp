@@ -18,35 +18,28 @@ public readonly struct AccountHeader
     private static readonly UInt256 CodeOffset = 128;
     private static readonly UInt256 VerkleNodeWidth = 256;
 
-    public static byte[] ToAddress32(byte[] address20)
-    {
-        byte[] address32 = new byte[32];
-        address20.CopyTo(address32, 0);
-        return address32;
-    }
-
     public static byte[] GetTreeKeyPrefix(byte[] address20, UInt256 treeIndex)
     {
-        byte[] address32 = ToAddress32(address20);
+        var address32 = VerkleUtils.ToAddress32(address20);
         return PedersenHash.Hash(address32, treeIndex);
     }
-
+    
     public static byte[] GetTreeKeyPrefixAccount(byte[] address) => GetTreeKeyPrefix(address, 0);
-
+    
     public static byte[] GetTreeKey(byte[] address, UInt256 treeIndex, byte subIndexBytes)
     {
         byte[] treeKeyPrefix = GetTreeKeyPrefix(address, treeIndex);
         treeKeyPrefix[31] = subIndexBytes;
         return treeKeyPrefix;
     }
-
+    
     public static byte[] GetTreeKeyForVersion(byte[] address) => GetTreeKey(address, UInt256.Zero, Version);
     public static byte[] GetTreeKeyForBalance(byte[] address) => GetTreeKey(address, UInt256.Zero, Balance);
     public static byte[] GetTreeKeyForNonce(byte[] address) => GetTreeKey(address, UInt256.Zero, Nonce);
     public static byte[] GetTreeKeyForCodeKeccak(byte[] address) => GetTreeKey(address, UInt256.Zero, CodeHash);
     public static byte[] GetTreeKeyForCodeSize(byte[] address) => GetTreeKey(address, UInt256.Zero, CodeSize);
-
-
+    
+    
     public static byte[] GetTreeKeyForCodeChunk(byte[] address, UInt256 chunk)
     {
         UInt256 chunkOffset = CodeOffset + chunk;
@@ -58,7 +51,7 @@ public readonly struct AccountHeader
     public static byte[] GetTreeKeyForStorageSlot(byte[] address, UInt256 storageKey)
     {
         UInt256 pos;
-
+        
         if (storageKey < CodeOffset - HeaderStorageOffset) pos = HeaderStorageOffset + storageKey;
         else pos = MainStorageOffset + storageKey;
 
@@ -162,7 +155,7 @@ public readonly struct AccountHeader
                         }
                         break;
                 }
-
+                
                 // move to next chunk
                 _code = _code.Slice(31);
             }

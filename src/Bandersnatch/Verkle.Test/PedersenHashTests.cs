@@ -17,26 +17,18 @@ public class PedersenHashTests
         183, 112, 90, 228, 198, 248, 27, 102, 205, 179, 35, 198, 95, 78, 129, 51, 105, 15, 192, 153
     };
 
-
+    
     [Test]
     public void PedersenHashTreeKeys()
     {
-        byte[] address32 = ToAddress32(_testAddressBytes);
+        var address32 = VerkleUtils.ToAddress32(_testAddressBytes);
         Assert.IsTrue(PedersenHash.Hash(address32, UInt256.Zero)[..31].SequenceEqual(_treeKeyPrefixIndexZero));
     }
-
+    
     [Test]
     public void PedersenHashTreeKeysGeneralized()
     {
-        byte[] address32 = ToAddress32(_testAddressBytes);
-        Assert.IsTrue(PedersenHash.Hash(new UInt256[] { new UInt256(address32), UInt256.Zero })[..31].SequenceEqual(_treeKeyPrefixIndexZero));
+        var address32 = VerkleUtils.ToAddress32(_testAddressBytes);
+        Assert.IsTrue(PedersenHash.Hash(new UInt256[]{new UInt256(address32), UInt256.Zero})[..31].SequenceEqual(_treeKeyPrefixIndexZero));
     }
-
-    private static byte[] ToAddress32(byte[] address20)
-    {
-        byte[] address32 = new byte[32];
-        address20.CopyTo(address32, 0);
-        return address32;
-    }
-
 }

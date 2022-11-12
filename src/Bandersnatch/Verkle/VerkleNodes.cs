@@ -194,34 +194,6 @@ public struct InternalNode: IVerkleNode
     }
 }
 
-
-public struct VerkleValue
-{
-    public static Fr ValueExistsMarker
-    {
-        get
-        {
-            new UInt256(2).Exp(128, out var res);
-            return new Fr(res);
-        }
-    }
-    
-    public static (Fr ,Fr) LowHigh(byte[]? value)
-    {
-        if (value is null) return (Fr.Zero, Fr.Zero);
-        if (value.Length != 32) throw new ArgumentException();
-        var lowFr = (Fr.FromBytes(value[..16]) ?? throw new ArgumentException()) + ValueExistsMarker;
-        var highFr = Fr.FromBytes(value[16..]) ?? throw new AggregateException();
-        return (lowFr, highFr);
-    }
-
-    public static Fr ValueExistMarker()
-    {
-        new UInt256(2).Exp(128, out var res);
-        return new Fr(res);
-    }
-}
-
 public interface IVerkleNode
 {
     public NodeType NodeType { get; protected internal set; }
