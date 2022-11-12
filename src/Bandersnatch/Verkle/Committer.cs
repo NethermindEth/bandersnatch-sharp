@@ -44,6 +44,11 @@ public class Commitment
         Point = point;
     }
 
+    public Commitment Dup()
+    {
+        return new Commitment(Point.Dup());
+    }
+
     public Commitment()
     {
         Point = Banderwagon.Identity();
