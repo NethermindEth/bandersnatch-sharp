@@ -26,8 +26,8 @@ public static class VerkleUtils
     {
         if (value is null) return (Fr.Zero, Fr.Zero);
         if (value.Length != 32) throw new ArgumentException();
-        Fr lowFr = (Fr.FromBytes(value[..16]) ?? throw new ArgumentException()) + ValueExistsMarker;
-        Fr highFr = Fr.FromBytes(value[16..]) ?? throw new AggregateException();
+        Fr lowFr = (Fr.FromBytes(value[..16].Reverse().ToArray()) ?? throw new ArgumentException()) + ValueExistsMarker;
+        Fr highFr = Fr.FromBytes(value[16..].Reverse().ToArray()) ?? throw new AggregateException();
         return (lowFr, highFr);
     }
 
