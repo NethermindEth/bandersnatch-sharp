@@ -16,6 +16,15 @@ public class VerkleTree
         RootNode = new Commitment();
     }
     
+    private void StartRun(byte[] key, byte[] value)
+    {
+        // calculate this by update the lafs and calculting the delta - simple enought
+        Banderwagon leafUpdateDelta = Banderwagon.Identity();
+        TraverseContext context = new TraverseContext(key, value, leafUpdateDelta);
+        Banderwagon rootDelta = TraverseBranch(context);
+        RootNode.AddPoint(rootDelta);
+    }
+    
     private Banderwagon TraverseBranch(TraverseContext traverseContext)
     {
         var pathIndex = traverseContext.Key[traverseContext.CurrentIndex];
