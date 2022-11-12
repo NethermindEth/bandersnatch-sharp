@@ -16,6 +16,22 @@ public class VerkleTree
         RootNode = new Commitment();
     }
     
+    public InternalNode? GetBranchChild(byte[] pathWithIndex)
+    {
+        return _db.BranchTable.TryGetValue(pathWithIndex, out var child) ? child : null;
+    }
+    
+    public Fr UpdateSuffixNode(byte[] stemKey, Banderwagon leafUpdateDelta, byte suffixLeafIndex, bool insertNew = false)
+    {
+        Suffix oldNode;
+        if (insertNew) oldNode = new Suffix(stemKey);
+        else _db.StemTable.TryGetValue(stemKey, out oldNode);
+        
+        Fr deltaFr = oldNode.UpdateCommitment(leafUpdateDelta, suffixLeafIndex);
+        _db.StemTable[stemKey] = oldNode;
+        return deltaFr;
+    }
+    
     private ref struct TraverseContext
     {
         public Banderwagon LeafUpdateDelta;
