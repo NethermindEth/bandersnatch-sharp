@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using Curve;
 using Field;
-using Nethermind.Int256;
 
 namespace Verkle;
 
@@ -43,26 +43,26 @@ public struct Suffix: IVerkleNode
 
     private void SetInitialCommitment()
     {
-        var stemCommitment = Committer.ScalarMul(Fr.One, 0) +
-                             Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
+        Banderwagon stemCommitment = Committer.ScalarMul(Fr.One, 0) +
+                                     Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
         ExtensionCommitment.AddPoint(stemCommitment);
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
     }
 
     public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment)
     {
-        var prevCommit = ExtensionCommitment.PointAsField.Dup();
+        Fr prevCommit = ExtensionCommitment.PointAsField.Dup();
         
-        var oldC1Value = C1.PointAsField.Dup();
-        var oldC2Value = C2.PointAsField.Dup();
+        Fr oldC1Value = C1.PointAsField.Dup();
+        Fr oldC2Value = C2.PointAsField.Dup();
         if(deltaLeafCommitment.DeltaC1 is not null) C1.AddPoint(deltaLeafCommitment.DeltaC1);
         if(deltaLeafCommitment.DeltaC2 is not null) C2.AddPoint(deltaLeafCommitment.DeltaC2);
 
-        var deltaC1Commit = C1.PointAsField - oldC1Value;
-        var deltaC2Commit = C2.PointAsField - oldC2Value;
+        Fr deltaC1Commit = C1.PointAsField - oldC1Value;
+        Fr deltaC2Commit = C2.PointAsField - oldC2Value;
 
-        var deltaCommit = Committer.ScalarMul(deltaC1Commit, 2) 
-                          + Committer.ScalarMul(deltaC2Commit, 3);
+        Banderwagon deltaCommit = Committer.ScalarMul(deltaC1Commit, 2) 
+                                  + Committer.ScalarMul(deltaC2Commit, 3);
         
         ExtensionCommitment.AddPoint(deltaCommit);
         return ExtensionCommitment.PointAsField - prevCommit;
@@ -70,11 +70,10 @@ public struct Suffix: IVerkleNode
 
     public Commitment RecalculateSuffixCommitment(Func<Fr[], Banderwagon> verkleCommitter)
     {
-        var c1Field = C1.PointAsField;
-        var c2Field = C2.PointAsField;
+        Fr c1Field = C1.PointAsField;
+        Fr c2Field = C2.PointAsField;
 
-        Fr[] extCommit = new Fr[]
-        {
+        Fr[] extCommit = {
             Fr.One, Fr.FromBytes(Stem) ?? throw new ArgumentException(), c1Field, c2Field
         };
 
@@ -110,14 +109,18 @@ public struct InternalNode: IVerkleNode
 {
     public byte[] Key
     {
-        get => _stem;
+        get
+        {
+            Debug.Assert(_stem != null, nameof(_stem) + " != null");
+            return _stem;
+        }
         set => _stem = value;
     }
 
     public bool IsSuffix => NodeType == NodeType.Suffix;
     public bool IsStem => NodeType == NodeType.Stem;
     public bool IsBranchNode => NodeType == NodeType.BranchNode;
-    public Commitment InternalCommitment;
+    public readonly Commitment InternalCommitment;
 
     private byte[]? _stem = null;
     public NodeType NodeType;
@@ -168,7 +171,7 @@ public struct InternalNode: IVerkleNode
     public Fr UpdateCommitment(Banderwagon[] points)
     {
         Fr prevCommit = InternalCommitment.PointAsField.Dup();
-        foreach (var point in points)
+        foreach (Banderwagon point in points)
         {
             InternalCommitment.AddPoint(point);
         }

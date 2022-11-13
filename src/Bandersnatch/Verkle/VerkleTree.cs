@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Curve;
 using Field;
 
@@ -22,23 +21,23 @@ public class VerkleTree
         };
     }
     
-    public Banderwagon GetLeafDelta(byte[]? oldValue, byte[] newValue, byte index)
+    public static Banderwagon GetLeafDelta(byte[]? oldValue, byte[] newValue, byte index)
     {
         (Fr newValLow, Fr newValHigh) = VerkleUtils.BreakValueInLowHigh(newValue);
         (Fr oldValLow, Fr oldValHigh) = VerkleUtils.BreakValueInLowHigh(oldValue);
 
-        var posMod128 = index % 128;
+        int posMod128 = index % 128;
 
-        var lowIndex = 2 * posMod128;
-        var highIndex = lowIndex + 1;
-        var deltaLow = Committer.ScalarMul(newValLow - oldValLow, lowIndex);
-        var deltaHigh = Committer.ScalarMul(newValHigh - oldValHigh, highIndex);
+        int lowIndex = 2 * posMod128;
+        int highIndex = lowIndex + 1;
+        Banderwagon deltaLow = Committer.ScalarMul(newValLow - oldValLow, lowIndex);
+        Banderwagon deltaHigh = Committer.ScalarMul(newValHigh - oldValHigh, highIndex);
         return deltaLow + deltaHigh;
     }
 
     public void Insert(byte[] key, byte[] value)
     {
-        _db.LeafTable.TryGetValue(key, out var oldValue);
+        _db.LeafTable.TryGetValue(key, out byte[]? oldValue);
         Banderwagon leafDeltaCommitment = GetLeafDelta(oldValue, value, key[31]);
         _db.LeafTable[key] = value;
         LeafUpdateDelta leafDelta = new();
@@ -51,10 +50,10 @@ public class VerkleTree
         LeafUpdateDelta leafDelta = new();
         byte[] key = new byte[32];
         stem.CopyTo(key,0);
-        foreach (var indexVal in leafIndexValueMap)
+        foreach (KeyValuePair<byte, byte[]> indexVal in leafIndexValueMap)
         {
             key[31] = indexVal.Key;
-            _db.LeafTable.TryGetValue(key, out var oldValue);
+            _db.LeafTable.TryGetValue(key, out byte[]? oldValue);
             Banderwagon leafDeltaCommitment = GetLeafDelta(oldValue, indexVal.Value, indexVal.Key);
             leafDelta.UpdateDelta(leafDeltaCommitment, indexVal.Key);
             _db.LeafTable[key] = indexVal.Value;
@@ -65,21 +64,21 @@ public class VerkleTree
     private void UpdateTreeCommitments(byte[] key, LeafUpdateDelta leafUpdateDelta)
     {
         // calculate this by update the leafs and calculating the delta - simple enough
-        TraverseContext context = new TraverseContext(key, leafUpdateDelta);
+        TraverseContext context = new(key, leafUpdateDelta);
         Banderwagon rootDelta = TraverseBranch(context);
         UpdateRootNode(rootDelta);
     }
 
     private void UpdateRootNode(Banderwagon rootDelta)
     {
-        _db.BranchTable.TryGetValue(Array.Empty<byte>(), out var root);
+        _db.BranchTable.TryGetValue(Array.Empty<byte>(), out InternalNode root);
         root.InternalCommitment.AddPoint(rootDelta);
     }
     
     private Banderwagon TraverseBranch(TraverseContext traverseContext)
     {
-        var pathIndex = traverseContext.Key[traverseContext.CurrentIndex];
-        var absolutePath = traverseContext.Key[..(traverseContext.CurrentIndex + 1)].ToArray();
+        byte pathIndex = traverseContext.Key[traverseContext.CurrentIndex];
+        byte[] absolutePath = traverseContext.Key[..(traverseContext.CurrentIndex + 1)].ToArray();
         InternalNode? child = GetBranchChild(absolutePath);
         
         if (child is null)
@@ -94,7 +93,7 @@ public class VerkleTree
             // 1. Add internal.stem node
             // 2. return delta from ExtensionCommitment
             Banderwagon point = Committer.ScalarMul(deltaHash, pathIndex);
-            _db.BranchTable[absolutePath] = new InternalNode(traverseContext.Stem.ToArray(), suffixCommitment);
+            _db.BranchTable[absolutePath] = new InternalNode(traverseContext.Stem.ToArray(), suffixCommitment!);
             return point;
         }
 
@@ -116,7 +115,7 @@ public class VerkleTree
             traverseContext.CurrentIndex -= 1;
             if (changeStemToBranch)
             {
-                var newChild = new InternalNode(true);
+                InternalNode newChild = new InternalNode(true);
                 newChild.InternalCommitment.AddPoint(child.Value.InternalCommitment.Point);
                 // since this is a new child, this would be just the parentDeltaHash.PointToField
                 // now since there was a node before and that value is deleted - we need to subtract
@@ -160,12 +159,12 @@ public class VerkleTree
             
             // creating the stem node for the new suffix node 
             _db.BranchTable[sharedPath.ToArray().Concat(new[] {newLeafIndex}).ToArray()] =
-                new InternalNode(traverseContext.Stem.ToArray(), suffixCommitment);
+                new InternalNode(traverseContext.Stem.ToArray(), suffixCommitment!);
             Banderwagon newSuffixCommitmentDelta = Committer.ScalarMul(deltaHash, newLeafIndex);
             
             
             // instead on declaring new node here - use the node that is input in the function
-            _db.StemTable.TryGetValue(node.Key, out var oldSuffixNode);
+            _db.StemTable.TryGetValue(node.Key, out Suffix oldSuffixNode);
             _db.BranchTable[sharedPath.ToArray().Concat(new[] {oldLeafIndex}).ToArray()] =
                 new InternalNode(node.Key, oldSuffixNode.ExtensionCommitment);
             
@@ -174,13 +173,13 @@ public class VerkleTree
 
             Banderwagon deltaCommitment = oldSuffixCommitmentDelta + newSuffixCommitmentDelta;
 
-            var internalCommitment = FillSpaceWithInternalBranchNodes(sharedPath.ToArray(), relativePathLength, deltaCommitment);
+            Banderwagon internalCommitment = FillSpaceWithInternalBranchNodes(sharedPath.ToArray(), relativePathLength, deltaCommitment);
             
             return (internalCommitment - oldSuffixNode.ExtensionCommitment.Point, true);
         }
 
-        _db.StemTable.TryGetValue(traverseContext.Key[..31].ToArray(), out var oldValue);
-        var deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta);
+        _db.StemTable.TryGetValue(traverseContext.Key[..31].ToArray(), out Suffix oldValue);
+        Fr deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta);
         _db.StemTable[traverseContext.Key[..31].ToArray()] = oldValue;
         
         return (Committer.ScalarMul(deltaFr, traverseContext.Key[traverseContext.CurrentIndex - 1]), false);
@@ -190,8 +189,8 @@ public class VerkleTree
      {
          for (int i = 0; i < length; i++)
          {
-             var newInternalNode = new InternalNode(true);
-             var upwardsDelta = newInternalNode.UpdateCommitment(deltaPoint);
+             InternalNode newInternalNode = new(true);
+             Fr upwardsDelta = newInternalNode.UpdateCommitment(deltaPoint);
              _db.BranchTable[path[..(path.Length - i)]] = newInternalNode;
              deltaPoint = Committer.ScalarMul(upwardsDelta, path[path.Length - i - 1]);
          }
@@ -201,7 +200,7 @@ public class VerkleTree
 
      public InternalNode? GetBranchChild(byte[] pathWithIndex)
     {
-        return _db.BranchTable.TryGetValue(pathWithIndex, out var child) ? child : null;
+        return _db.BranchTable.TryGetValue(pathWithIndex, out InternalNode child) ? child : null;
     }
     
     public (Fr, Commitment?) UpdateSuffixNode(byte[] stemKey, LeafUpdateDelta leafUpdateDelta, byte suffixLeafIndex, bool insertNew = false)

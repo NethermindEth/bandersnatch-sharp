@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using Curve;
 using Field;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 
 namespace Verkle.Test;
@@ -16,7 +14,7 @@ public class VerkleTreeTests
     public void InsertKey0Value0()
     {
         VerkleTree tree = new();
-        var key = new byte[32];
+        byte[] key = new byte[32];
 
         tree.Insert(key, key);
         AssertRootNode(tree.RootHash,
@@ -27,7 +25,7 @@ public class VerkleTreeTests
     public void InsertKey1Value1()
     {
         VerkleTree tree = new();
-        var key = new byte[]
+        byte[] key = new byte[]
         {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
             25, 26, 27, 28, 29, 30, 31, 32,
@@ -42,13 +40,13 @@ public class VerkleTreeTests
     public void InsertSameStemTwoLeaves()
     {
         VerkleTree tree = new();
-        var keyA = new byte[]
+        byte[] keyA = new byte[]
         {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
             25, 26, 27, 28, 29, 30, 31, 32,
         };
         
-        var keyB = new byte[]
+        byte[] keyB = new byte[]
         {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
             25, 26, 27, 28, 29, 30, 31, 128,
@@ -66,8 +64,8 @@ public class VerkleTreeTests
     public void InsertKey1Val1Key2Val2()
     {
         VerkleTree tree = new();
-        var keyA = new byte[32];
-        var keyB = new byte[32];
+        byte[] keyA = new byte[32];
+        byte[] keyB = new byte[32];
         for (int i = 0; i < 32; i++)
         {
             keyB[i] = 1;
@@ -85,8 +83,8 @@ public class VerkleTreeTests
     public void InsertLongestPath()
     {
         VerkleTree tree = new();
-        var keyA = new byte[32];
-        var keyB = new byte[32];
+        byte[] keyA = new byte[32];
+        byte[] keyB = new byte[32];
         keyB[30] = 1;
         
         tree.Insert(keyA, keyA);
@@ -101,18 +99,18 @@ public class VerkleTreeTests
     public void InsertAndTraverseLongestPath()
     {
         VerkleTree tree = new();
-        var keyA = new byte[32];
+        byte[] keyA = new byte[32];
         tree.Insert(keyA, keyA);
         AssertRootNode(tree.RootHash,
             "ff00a9f3f2d4f58fc23bceebf6b2310419ceac2c30445e2f374e571487715015");
         
-        var keyB = new byte[32];
+        byte[] keyB = new byte[32];
         keyB[30] = 1;
         tree.Insert(keyB, keyB);
         AssertRootNode(tree.RootHash,
             "fe2e17833b90719eddcad493c352ccd491730643ecee39060c7c1fff5fcc621a");
         
-        var keyC = new byte[32];
+        byte[] keyC = new byte[32];
         keyC[29] = 1;
         tree.Insert(keyC, keyC);
         AssertRootNode(tree.RootHash,

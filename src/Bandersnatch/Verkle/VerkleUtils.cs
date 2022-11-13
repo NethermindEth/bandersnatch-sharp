@@ -35,7 +35,7 @@ public static class VerkleUtils
     {
         get
         {
-            new UInt256(2).Exp(128, out var res);
+            new UInt256(2).Exp(128, out UInt256 res);
             return new Fr(res);
         }
     }
@@ -58,7 +58,7 @@ public static class VerkleUtils
     public static (List<byte>, byte?, byte?) GetPathDifference(IEnumerable<byte> existingNodeKey, IEnumerable<byte> newNodeKey)
     {
         List<byte> samePathIndices = new();
-        foreach (var (first, second) in existingNodeKey.Zip(newNodeKey))
+        foreach ((byte first, byte second) in existingNodeKey.Zip(newNodeKey))
         {
             if (first != second) return (samePathIndices, first, second);
             samePathIndices.Add(first);

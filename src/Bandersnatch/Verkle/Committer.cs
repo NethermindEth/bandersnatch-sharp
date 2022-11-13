@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Curve;
 using Field;
 
@@ -34,6 +35,7 @@ public class Commitment
         get
         {
             if (_pointAsField is null) SetCommitmentToField();
+            Debug.Assert(_pointAsField is not null, nameof(_pointAsField) + " != null");
             return _pointAsField;
         }
         private set => _pointAsField = value;
@@ -56,7 +58,7 @@ public class Commitment
 
     private void SetCommitmentToField()
     {
-        var mapToBytes = Point.MapToField();
+        byte[] mapToBytes = Point.MapToField();
         PointAsField = Fr.FromBytesReduced(mapToBytes);
     }
 

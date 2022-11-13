@@ -12,7 +12,7 @@ public class ByteArrayComparer : IEqualityComparer<byte[]>
 
     public int GetHashCode(byte[] value)
     {
-        var hash = new HashCode();
+        HashCode hash = new();
         hash.AddBytes(value);
         return hash.ToHashCode();
     }
