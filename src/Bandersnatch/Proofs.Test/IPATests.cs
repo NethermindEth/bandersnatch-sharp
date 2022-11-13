@@ -48,7 +48,7 @@ public class IPATests
         new Fr((UInt256) 31),
         new Fr((UInt256) 32),
     };
-    
+
 
     [Test]
     public void TestBasicIpaProof()
@@ -56,10 +56,10 @@ public class IPATests
         Fr[] domain = new Fr[256];
         for (int i = 0; i < 256; i++)
         {
-            domain[i] = new Fr((UInt256) i);
+            domain[i] = new Fr((UInt256)i);
         }
 
-        var weights = PreComputeWeights.Init(domain);
+        PreComputeWeights? weights = PreComputeWeights.Init(domain);
 
         List<Fr> lagrangePoly = new();
 
@@ -68,17 +68,17 @@ public class IPATests
             lagrangePoly.AddRange(_poly);
         }
 
-        var crs = CRS.Default();
-        var commitment = crs.Commit(lagrangePoly.ToArray());
+        CRS? crs = CRS.Default();
+        Banderwagon? commitment = crs.Commit(lagrangePoly.ToArray());
 
         Assert.IsTrue(Convert.ToHexString(commitment.ToBytes()).ToLower()
             .SequenceEqual("1b9dff8f5ebbac250d291dfe90e36283a227c64b113c37f1bfb9e7a743cdb128"));
 
-        var proverTranscript = new Transcript("test");
+        Transcript? proverTranscript = new Transcript("test");
 
-        var inputPoint = new Fr((UInt256) 2101);
-        var b = weights.BarycentricFormulaConstants(inputPoint);
-        var query = new ProverQuery(lagrangePoly.ToArray(), commitment, inputPoint, b);
+        Fr? inputPoint = new Fr((UInt256)2101);
+        Fr[]? b = weights.BarycentricFormulaConstants(inputPoint);
+        ProverQuery query = new ProverQuery(lagrangePoly.ToArray(), commitment, inputPoint, b);
 
         byte[] hash =
         {
@@ -86,29 +86,29 @@ public class IPATests
             150, 5, 145, 25, 202, 179, 251, 7, 191
         };
         List<byte> cache = new();
-        foreach (var i in lagrangePoly)
+        foreach (Fr? i in lagrangePoly)
         {
             cache.AddRange(i.ToBytes());
         }
         cache.AddRange(commitment.ToBytes());
         cache.AddRange(inputPoint.ToBytes());
-        foreach (var i in b)
+        foreach (Fr? i in b)
         {
             cache.AddRange(i.ToBytes());
         }
 
-        var (outputPoint, proof) = IPA.MakeIpaProof(crs, proverTranscript, query);
-        var pChallenge = proverTranscript.ChallengeScalar("state");
+        (Fr? outputPoint, ProofStruct proof) = IPA.MakeIpaProof(crs, proverTranscript, query);
+        Fr? pChallenge = proverTranscript.ChallengeScalar("state");
 
         Assert.IsTrue(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
             .SequenceEqual("0a81881cbfd7d7197a54ebd67ed6a68b5867f3c783706675b34ece43e85e7306"));
 
-        var verifierTranscript = new Transcript("test");
+        Transcript? verifierTranscript = new Transcript("test");
 
-        var queryX = new VerifierQuery(commitment, inputPoint, b, outputPoint, proof);
+        VerifierQuery queryX = new VerifierQuery(commitment, inputPoint, b, outputPoint, proof);
 
-        var ok = IPA.CheckIpaProof(crs, verifierTranscript, queryX);
-        
+        bool ok = IPA.CheckIpaProof(crs, verifierTranscript, queryX);
+
         Assert.IsTrue(ok);
     }
 
@@ -123,7 +123,7 @@ public class IPATests
             new Fr((UInt256) 4),
             new Fr((UInt256) 5),
         };
-        
+
         Fr[] b =
         {
             new Fr((UInt256) 10),
@@ -133,9 +133,9 @@ public class IPATests
             new Fr((UInt256) 15),
         };
 
-        var expectedResult = new Fr((UInt256)204);
+        Fr? expectedResult = new Fr((UInt256)204);
 
-        var gotResult = IPA.InnerProduct(a, b);
+        Fr? gotResult = IPA.InnerProduct(a, b);
         Assert.IsTrue(gotResult == expectedResult);
     }
 }

@@ -12,21 +12,21 @@ public static class FieldMethods
             return UInt256.Zero;
         if (a == 2)
             return UInt256.Zero;
-        UInt256.Mod(a, 4, out var res);
+        UInt256.Mod(a, 4, out UInt256 res);
         if (res == 4)
         {
-            UInt256.Divide(a + 1, 4, out var exp);
-            UInt256.ExpMod(a, exp, p, out var ls);
+            UInt256.Divide(a + 1, 4, out UInt256 exp);
+            UInt256.ExpMod(a, exp, p, out UInt256 ls);
             return ls;
         }
 
         UInt256 s = p - 1;
         UInt256 e = 0;
 
-        UInt256.Mod(s, 2, out var loopVar);
+        UInt256.Mod(s, 2, out UInt256 loopVar);
         while (loopVar.IsZero)
         {
-            UInt256.Divide(s, 2, out var ss);
+            UInt256.Divide(s, 2, out UInt256 ss);
             s = ss;
             e += 1;
             UInt256.Mod(s, 2, out loopVar);
@@ -36,11 +36,11 @@ public static class FieldMethods
         while (LegendreSymbol(n, p) != -1)
             n += 1;
 
-        UInt256.Divide(s + 1, 2, out var expX);
-        UInt256.ExpMod(a, expX, p, out var x);
+        UInt256.Divide(s + 1, 2, out UInt256 expX);
+        UInt256.ExpMod(a, expX, p, out UInt256 x);
 
-        UInt256.ExpMod(a, s, p, out var b);
-        UInt256.ExpMod(n, s, p, out var g);
+        UInt256.ExpMod(a, s, p, out UInt256 b);
+        UInt256.ExpMod(n, s, p, out UInt256 g);
 
         UInt256 r = e;
 
@@ -56,15 +56,15 @@ public static class FieldMethods
                     break;
                 }
 
-                UInt256.ExpMod(t, 2, p, out var tt);
+                UInt256.ExpMod(t, 2, p, out UInt256 tt);
                 t = tt;
             }
 
             if (m.IsZero)
                 return x;
 
-            UInt256.Exp(2, r - m - 1, out var expGS);
-            UInt256.ExpMod(g, expGS, p, out var gs);
+            UInt256.Exp(2, r - m - 1, out UInt256 expGS);
+            UInt256.ExpMod(g, expGS, p, out UInt256 gs);
 
             UInt256.MultiplyMod(gs, gs, p, out g);
             UInt256.MultiplyMod(x, gs, p, out x);
@@ -75,8 +75,8 @@ public static class FieldMethods
     }
     public static int LegendreSymbol(UInt256 a, UInt256 p)
     {
-        UInt256.Divide(p - 1, 2, out var exp);
-        UInt256.ExpMod(a, exp, p, out var ls);
+        UInt256.Divide(p - 1, 2, out UInt256 exp);
+        UInt256.ExpMod(a, exp, p, out UInt256 ls);
         return ls == (p - 1) ? -1 : 1;
     }
 }

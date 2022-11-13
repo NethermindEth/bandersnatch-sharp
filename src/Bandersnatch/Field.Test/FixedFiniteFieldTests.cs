@@ -5,14 +5,14 @@ using NUnit.Framework;
 namespace Field.Test;
 using Ft = FixedFiniteField<TestBandersnatchScalarFieldStruct>;
 
-public struct TestBandersnatchScalarFieldStruct: IFieldDefinition
+public struct TestBandersnatchScalarFieldStruct : IFieldDefinition
 {
     private static readonly byte[] ModBytes =
     {
         225, 231, 118, 40, 181, 6, 253, 116, 113, 4, 25, 116, 0, 135, 143, 255, 0, 118, 104, 2, 2, 118, 206, 12, 82, 95,
         103, 202, 212, 105, 251, 28
     };
-    public readonly UInt256 FieldMod => new (ModBytes);
+    public readonly UInt256 FieldMod => new(ModBytes);
 }
 
 public class FixedFiniteFieldTests
@@ -20,44 +20,44 @@ public class FixedFiniteFieldTests
     [Test]
     public void TestAddition()
     {
-        var a = new Ft((UInt256)10);
-        var b = new Ft((UInt256)30);
+        Ft? a = new Ft((UInt256)10);
+        Ft? b = new Ft((UInt256)30);
 
-        var got = a + b;
-        var expected = new Ft((UInt256)40);
+        Ft? got = a + b;
+        Ft? expected = new Ft((UInt256)40);
         Assert.True(got == expected);
     }
 
     [Test]
     public void TestSubtraction()
     {
-        var a = new Ft((UInt256)10);
-        var b = new Ft((UInt256)30);
+        Ft? a = new Ft((UInt256)10);
+        Ft? b = new Ft((UInt256)30);
 
-        var got = a - b;
-        var expected = new Ft(-20);
+        Ft? got = a - b;
+        Ft? expected = new Ft(-20);
         Assert.True(got == expected);
     }
 
     [Test]
     public void TestMultiplication()
     {
-        var a = new Ft((UInt256)200);
-        var b = new Ft((UInt256)3);
+        Ft? a = new Ft((UInt256)200);
+        Ft? b = new Ft((UInt256)3);
 
-        var got = a * b;
-        var expected = new Ft((UInt256)600);
+        Ft? got = a * b;
+        Ft? expected = new Ft((UInt256)600);
         Assert.True(got == expected);
     }
 
     [Test]
     public void TestDivisionInversion()
     {
-        var a = new Ft((UInt256)200);
-        var b = new Ft((UInt256)3);
+        Ft? a = new Ft((UInt256)200);
+        Ft? b = new Ft((UInt256)3);
 
-        var got = a / b;
-        var expected = Ft.Inverse(b);
+        Ft? got = a / b;
+        Ft? expected = Ft.Inverse(b);
         expected = expected * a;
 
         Assert.True(got == expected);
@@ -66,12 +66,12 @@ public class FixedFiniteFieldTests
     [Test]
     public void TestInversion()
     {
-        var b = new Ft((UInt256)3);
+        Ft? b = new Ft((UInt256)3);
 
-        var bInverse = Ft.Inverse(b);
-        var result = b * bInverse;
+        Ft? bInverse = Ft.Inverse(b);
+        Ft? result = b * bInverse;
 
-        var expected = new Ft((UInt256)1);
+        Ft? expected = new Ft((UInt256)1);
 
         Assert.True(result == expected);
     }
@@ -79,12 +79,12 @@ public class FixedFiniteFieldTests
     [Test]
     public void TestSqrtSqr()
     {
-        var b = new Ft((UInt256)3);
+        Ft? b = new Ft((UInt256)3);
         Assert.True(b.Legendre() == 1);
 
-        var bSqrt = Ft.Sqrt(b);
+        Ft? bSqrt = Ft.Sqrt(b);
 
-        var result = Ft.ExpMod(bSqrt, 2);
+        Ft? result = Ft.ExpMod(bSqrt, 2);
 
         Assert.True(result == b);
     }
@@ -92,12 +92,12 @@ public class FixedFiniteFieldTests
     [Test]
     public void TestNegative()
     {
-        var b = new Ft((UInt256)3);
+        Ft? b = new Ft((UInt256)3);
         Assert.True(b.Legendre() == 1);
 
-        var bNeg = Ft.Neg(b);
+        Ft? bNeg = Ft.Neg(b);
 
-        var expected = new Ft(-3);
+        Ft? expected = new Ft(-3);
 
         Assert.True(expected == bNeg);
     }
@@ -105,10 +105,10 @@ public class FixedFiniteFieldTests
     [Test]
     public void TestSerialize()
     {
-        var b = new Ft((UInt256)3);
+        Ft? b = new Ft((UInt256)3);
 
-        var bytes = b.ToBytes();
-        var desbytes = Ft.FromBytes(bytes, 13);
+        byte[]? bytes = b.ToBytes();
+        FiniteField? desbytes = Ft.FromBytes(bytes, 13);
 
         Assert.True(desbytes == b);
     }
@@ -123,8 +123,8 @@ public class FixedFiniteFieldTests
             new Ft((UInt256) 3)
         };
 
-        var gotInverse = Ft.MultiInverse(values);
-        var expectedInverse = NaiveMultiInverse(values);
+        Ft[]? gotInverse = Ft.MultiInverse(values);
+        Ft?[]? expectedInverse = NaiveMultiInverse(values);
 
         Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
         for (int i = 0; i < gotInverse.Length; i++)

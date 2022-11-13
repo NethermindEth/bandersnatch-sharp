@@ -5,11 +5,11 @@ namespace Field;
 
 public interface IFieldDefinition
 {
-    UInt256 FieldMod { get; } 
+    UInt256 FieldMod { get; }
 }
 
-public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>, IEqualityComparer<FixedFiniteField<T>> 
-    where T: struct, IFieldDefinition
+public class FixedFiniteField<T> : FiniteField, IComparable<FixedFiniteField<T>>, IEqualityComparer<FixedFiniteField<T>>
+    where T : struct, IFieldDefinition
 {
     public FixedFiniteField(UInt256 value)
     {
@@ -22,11 +22,11 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
         Modulus = new T().FieldMod;
         if (value.Sign < 0)
         {
-            UInt256.SubtractMod(UInt256.Zero, (UInt256) (-value), Modulus, out Value);
+            UInt256.SubtractMod(UInt256.Zero, (UInt256)(-value), Modulus, out Value);
         }
         else
         {
-            UInt256.Mod((UInt256) value, Modulus, out Value);
+            UInt256.Mod((UInt256)value, Modulus, out Value);
         }
     }
 
@@ -35,9 +35,9 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
         Modulus = new T().FieldMod;
     }
 
-    public static FixedFiniteField<T> Zero => new ((UInt256) 0);
-    public static FixedFiniteField<T> One => new ((UInt256) 1);
-    
+    public static FixedFiniteField<T> Zero => new((UInt256)0);
+    public static FixedFiniteField<T> One => new((UInt256)1);
+
     public static FixedFiniteField<T>? FromBytes(byte[] byteEncoded)
     {
         UInt256 value = new UInt256(byteEncoded);
@@ -48,7 +48,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
     {
         return new FixedFiniteField<T>(new UInt256(byteEncoded));
     }
-    
+
     public new static FixedFiniteField<T> FromBytesReduced(byte[] byteEncoded, UInt256 modulus)
     {
         throw new Exception("cannot get field with different modulus");
@@ -58,7 +58,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
     {
         return x.Value > qMinOneDiv2;
     }
-    
+
     public bool LexicographicallyLargest()
     {
         return Value > QMinOneDiv2;
@@ -66,7 +66,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
 
     public new FixedFiniteField<T> Neg()
     {
-        var result = new FixedFiniteField<T>();
+        FixedFiniteField<T>? result = new FixedFiniteField<T>();
         UInt256.SubtractMod(UInt256.Zero, Value, Modulus, out result.Value);
         return result;
     }
@@ -122,7 +122,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
 
     public static FixedFiniteField<T>? Div(FixedFiniteField<T> a, FixedFiniteField<T> b)
     {
-        var bInv = Inverse(b);
+        FixedFiniteField<T>? bInv = Inverse(b);
         return bInv is null ? null : Mul(a, bInv);
     }
 
@@ -174,7 +174,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
             partials[i + 1] = x.IsZero ? One : x;
         }
 
-        var inverse = Inverse(partials[^1]);
+        FixedFiniteField<T>? inverse = Inverse(partials[^1]);
 
         FixedFiniteField<T>[] outputs = new FixedFiniteField<T>[values.Length];
         for (int i = values.Length - 1; i >= 0; i--)
@@ -190,10 +190,10 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
     {
         FixedFiniteField<T> res = new();
 
-        var val = FieldMethods.ModSqrt(a.Value, a.Modulus);
+        UInt256? val = FieldMethods.ModSqrt(a.Value, a.Modulus);
         if (val is null)
             return null;
-        res.Value = (UInt256) val;
+        res.Value = (UInt256)val;
         return res;
     }
 
@@ -232,7 +232,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((FixedFiniteField<T>) obj);
+        return Equals((FixedFiniteField<T>)obj);
     }
 
     public override int GetHashCode()
@@ -243,7 +243,7 @@ public class FixedFiniteField<T>: FiniteField, IComparable<FixedFiniteField<T>>,
     public new int CompareTo(object? obj) => obj is not FixedFiniteField<T> fixedFiniteField
         ? throw new InvalidOperationException()
         : CompareTo(fixedFiniteField);
-    
+
     public int CompareTo(FixedFiniteField<T>? other)
     {
         return Value.CompareTo(other!.Value);

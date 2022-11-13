@@ -16,11 +16,11 @@ public static class IPA
 
     public static Fr InnerProduct(Fr[] a, Fr[] b)
     {
-        var result = new Fr((UInt256)0);
+        Fr? result = new Fr((UInt256)0);
 
-        foreach (var (aI, bI) in Enumerable.Zip(a,b))
+        foreach ((Fr? aI, Fr? bI) in Enumerable.Zip(a, b))
         {
-            var term = Fr.Mul(aI, bI);
+            Fr? term = Fr.Mul(aI, bI);
             result += term;
         }
 
@@ -32,47 +32,47 @@ public static class IPA
     {
         transcript.DomainSep("ipa");
 
-        var n = query.Polynomial.Length;
-        var m = n / 2;
-        var a = query.Polynomial;
-        var b = query.PointEvaluations;
-        var y = InnerProduct(a, b);
+        int n = query.Polynomial.Length;
+        int m = n / 2;
+        Fr[]? a = query.Polynomial;
+        Fr[]? b = query.PointEvaluations;
+        Fr? y = InnerProduct(a, b);
 
-        var proof = new ProofStruct(new (), Fr.Zero, new());
+        ProofStruct proof = new ProofStruct(new(), Fr.Zero, new());
 
         transcript.AppendPoint(query.Commitment, Encoding.ASCII.GetBytes("C"));
         transcript.AppendScalar(query.Point, Encoding.ASCII.GetBytes("input point"));
         transcript.AppendScalar(y, Encoding.ASCII.GetBytes("output point"));
-        var w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
+        Fr? w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
 
-        var q = crs.BasisQ * w;
+        Banderwagon? q = crs.BasisQ * w;
 
-        var currentBasis = crs.BasisG;
+        Banderwagon[]? currentBasis = crs.BasisG;
 
         while (n > 1)
         {
-            var aL = a[..m];
-            var aR = a[m..];
-            var bL = b[..m];
-            var bR = b[m..];
-            var zL = InnerProduct(aR, bL);
-            var zR = InnerProduct(aL, bR);
+            Fr[]? aL = a[..m];
+            Fr[]? aR = a[m..];
+            Fr[]? bL = b[..m];
+            Fr[]? bR = b[m..];
+            Fr? zL = InnerProduct(aR, bL);
+            Fr? zR = InnerProduct(aL, bR);
 
-            var cL = VarBaseCommit(aR, currentBasis[..m]) + (q * zL);
-            var cR = VarBaseCommit(aL, currentBasis[m..]) + (q * zR);
+            Banderwagon? cL = VarBaseCommit(aR, currentBasis[..m]) + (q * zL);
+            Banderwagon? cR = VarBaseCommit(aL, currentBasis[m..]) + (q * zR);
 
             proof.L.Add(cL);
             proof.R.Add(cR);
 
             transcript.AppendPoint(cL, Encoding.ASCII.GetBytes("L"));
             transcript.AppendPoint(cR, Encoding.ASCII.GetBytes("R"));
-            var x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
+            Fr? x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
 
-            var xinv = Fr.Inverse(x);
+            Fr? xinv = Fr.Inverse(x);
 
             a = new Fr[aL.Length];
             int i = 0;
-            foreach (var (V, W) in Enumerable.Zip(aL, aR))
+            foreach ((Fr? V, Fr? W) in Enumerable.Zip(aL, aR))
             {
                 a[i] = V + x * W;
                 i++;
@@ -80,15 +80,15 @@ public static class IPA
 
             b = new Fr[aL.Length];
             i = 0;
-            foreach (var (V, W) in Enumerable.Zip(bL, bR))
+            foreach ((Fr? V, Fr? W) in Enumerable.Zip(bL, bR))
             {
                 b[i] = V + xinv * W;
                 i++;
             }
-            
+
             Banderwagon[] currentBasisN = new Banderwagon[m];
             i = 0;
-            foreach (var (V, W) in Enumerable.Zip(currentBasis[..m], currentBasis[m..]))
+            foreach ((Banderwagon? V, Banderwagon? W) in Enumerable.Zip(currentBasis[..m], currentBasis[m..]))
             {
                 currentBasisN[i] = V + W * xinv;
                 i++;
@@ -103,46 +103,46 @@ public static class IPA
 
         return (y, proof);
     }
-    
+
     public static bool CheckIpaProof(CRS crs, Transcript transcript,
         VerifierQuery query)
     {
         transcript.DomainSep(Encoding.ASCII.GetBytes("ipa"));
 
-        var n = query.PointEvaluations.Length;
-        var m = n / 2;
+        int n = query.PointEvaluations.Length;
+        int m = n / 2;
 
 
-        var C = query.Commitment;
-        var z = query.Point;
-        var b = query.PointEvaluations;
-        var proof = query.Proof;
-        var y = query.OutputPoint;
+        Banderwagon? C = query.Commitment;
+        Fr? z = query.Point;
+        Fr[]? b = query.PointEvaluations;
+        ProofStruct proof = query.Proof;
+        Fr? y = query.OutputPoint;
 
         transcript.AppendPoint(C, Encoding.ASCII.GetBytes("C"));
         transcript.AppendScalar(z, Encoding.ASCII.GetBytes("input point"));
         transcript.AppendScalar(y, Encoding.ASCII.GetBytes("output point"));
-        var w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
+        Fr? w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
 
-        var q = crs.BasisQ * w;
+        Banderwagon? q = crs.BasisQ * w;
 
-        var currentCommitment = C + (q * y);
+        Banderwagon? currentCommitment = C + (q * y);
 
-        var i = 0;
-        var xs = new List<Fr>();
-        var xinvs = new List<Fr>();
-        
+        int i = 0;
+        List<Fr>? xs = new List<Fr>();
+        List<Fr>? xinvs = new List<Fr>();
+
 
         while (n > 1)
         {
-            var C_L = proof.L[i];
-            var C_R = proof.R[i];
+            Banderwagon? C_L = proof.L[i];
+            Banderwagon? C_R = proof.R[i];
 
             transcript.AppendPoint(C_L, Encoding.ASCII.GetBytes("L"));
             transcript.AppendPoint(C_R, Encoding.ASCII.GetBytes("R"));
-            var x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
+            Fr? x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
 
-            var xinv = Fr.Inverse(x);
+            Fr? xinv = Fr.Inverse(x);
 
             xs.Add(x);
             xinvs.Add(xinv);
@@ -153,14 +153,14 @@ public static class IPA
             i = i + 1;
         }
 
-        var currentBasis = crs.BasisG;
+        Banderwagon[]? currentBasis = crs.BasisG;
 
         for (int j = 0; j < xs.Count; j++)
         {
-            var (G_L, G_R) = SplitPoints(currentBasis);
-            var (b_L, b_R) = SplitScalars(b);
+            (Banderwagon[]? G_L, Banderwagon[]? G_R) = SplitPoints(currentBasis);
+            (Fr[]? b_L, Fr[]? b_R) = SplitScalars(b);
 
-            var x_inv = xinvs[j];
+            Fr? x_inv = xinvs[j];
 
             b = FoldScalars(b_L, b_R, x_inv);
             currentBasis = FoldPoints(G_L, G_R, x_inv);
@@ -172,10 +172,10 @@ public static class IPA
 
         if (b.Length != 1)
             throw new Exception();
-        var b0 = b[0];
-        var g0 = currentBasis[0];
+        Fr? b0 = b[0];
+        Banderwagon? g0 = currentBasis[0];
 
-        var gotCommitment = g0 * proof.A + q * (proof.A * b0);
+        Banderwagon? gotCommitment = g0 * proof.A + q * (proof.A * b0);
 
         return currentCommitment == gotCommitment;
     }
@@ -193,7 +193,7 @@ public static class IPA
     {
         return SplitListInHalf(x);
     }
-    
+
     public static (Fr[] firstHalf, Fr[] secondHalf) SplitScalars(Fr[] x)
     {
         return SplitListInHalf(x);
@@ -212,7 +212,7 @@ public static class IPA
 
         return result;
     }
-    
+
     public static Banderwagon[] FoldPoints(Banderwagon[] a, Banderwagon[] b, Fr foldingChallenge)
     {
         if (a.Length != b.Length)
@@ -226,7 +226,7 @@ public static class IPA
 
         return result;
     }
-    
+
 }
 
 public struct ProverQuery

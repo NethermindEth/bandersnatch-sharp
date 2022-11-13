@@ -10,7 +10,7 @@ public class ExtendedPoint
     public readonly Fp Y;
     public readonly Fp T;
     public readonly Fp Z;
-    
+
     private static Fp A => CurveParams.A;
     private static Fp D => CurveParams.D;
 
@@ -39,11 +39,11 @@ public class ExtendedPoint
     }
 
     public bool IsZero => X.IsZero && Y == Z && !Y.IsZero && T.IsZero;
-    public static ExtendedPoint Identity() => new (AffinePoint.Identity());
-    
-    public static ExtendedPoint Generator() => new (AffinePoint.Generator());
+    public static ExtendedPoint Identity() => new(AffinePoint.Identity());
+
+    public static ExtendedPoint Generator() => new(AffinePoint.Generator());
     public ExtendedPoint Dup() => new(X.Dup(), Y.Dup(), T.Dup(), Z.Dup());
-    
+
     public static bool Equals(ExtendedPoint p, ExtendedPoint q)
     {
         if (p.IsZero) return q.IsZero;
@@ -51,34 +51,34 @@ public class ExtendedPoint
 
         return (p.X * q.Z == p.Z * q.X) && (p.Y * q.Z == q.Y * p.Z);
     }
-    
-    public static ExtendedPoint Neg(ExtendedPoint p) => new (p.X.Neg(), p.Y, p.T.Neg(), p.Z);
+
+    public static ExtendedPoint Neg(ExtendedPoint p) => new(p.X.Neg(), p.Y, p.T.Neg(), p.Z);
     public static ExtendedPoint Add(ExtendedPoint p, ExtendedPoint q)
     {
-        var x1 = p.X;
-        var y1 = p.Y;
-        var t1 = p.T;
-        var z1 = p.Z;
+        Fp? x1 = p.X;
+        Fp? y1 = p.Y;
+        Fp? t1 = p.T;
+        Fp? z1 = p.Z;
 
-        var x2 = q.X;
-        var y2 = q.Y;
-        var t2 = q.T;
-        var z2 = q.Z;
+        Fp? x2 = q.X;
+        Fp? y2 = q.Y;
+        Fp? t2 = q.T;
+        Fp? z2 = q.Z;
 
-        var a = x1 * x2;
-        var b = y1 * y2;
+        Fp? a = x1 * x2;
+        Fp? b = y1 * y2;
 
-        var c = D * t1 * t2;
+        Fp? c = D * t1 * t2;
 
-        var d = z1 * z2;
+        Fp? d = z1 * z2;
 
-        var h = b - (a * A);
+        Fp? h = b - (a * A);
 
-        var e = (x1 + y1) * (x2 + y2) - a - b;
+        Fp? e = (x1 + y1) * (x2 + y2) - a - b;
 
-        var f = d - c;
+        Fp? f = d - c;
 
-        var g = d + c;
+        Fp? g = d + c;
 
         return new ExtendedPoint(e * f, g * h, e * h, f * g);
     }
@@ -87,27 +87,27 @@ public class ExtendedPoint
 
     public static ExtendedPoint ScalarMultiplication(ExtendedPoint point, Fr scalar)
     {
-        var result = Identity();
-        var temp = point.Dup();
+        ExtendedPoint? result = Identity();
+        ExtendedPoint? temp = point.Dup();
 
-        var bytes = scalar.ToBytes();
+        byte[]? bytes = scalar.ToBytes();
         // TODO: use BitLen to simplify this
-        var carry = 0;
-        foreach (var elem in bytes)
+        int carry = 0;
+        foreach (byte elem in bytes)
         {
             if (elem == 0)
             {
                 carry += 8;
                 continue;
             }
-            
+
             for (int i = carry; i > 0; i--)
             {
                 temp = Double(temp);
             }
-            
-            var binaryString = Convert.ToString(elem, 2);
-            var binLength = binaryString.Length;
+
+            string? binaryString = Convert.ToString(elem, 2);
+            int binLength = binaryString.Length;
             for (int i = binLength - 1; i >= 0; i--)
             {
                 if (binaryString[i] == '1')
@@ -129,10 +129,10 @@ public class ExtendedPoint
         if (Z.IsZero) throw new Exception();
         if (Z.IsOne) return new AffinePoint(X, Y);
 
-        var zInv = Fp.Inverse(Z)?? throw new Exception();
+        Fp? zInv = Fp.Inverse(Z) ?? throw new Exception();
 
-        var xAff = X * zInv;
-        var yAff = Y * zInv;
+        Fp? xAff = X * zInv;
+        Fp? yAff = Y * zInv;
 
         return new AffinePoint(xAff, yAff);
     }
@@ -153,12 +153,12 @@ public class ExtendedPoint
     {
         return ScalarMultiplication(a, b);
     }
-    
+
     public static ExtendedPoint operator *(in Fr a, in ExtendedPoint b)
     {
         return ScalarMultiplication(b, a);
     }
-    
+
     public static bool operator ==(in ExtendedPoint a, in ExtendedPoint b)
     {
         return Equals(a, b);
@@ -168,7 +168,7 @@ public class ExtendedPoint
     {
         return !(a == b);
     }
-    
+
     private bool Equals(ExtendedPoint other)
     {
         return X.Equals(other.X) && Y.Equals(other.Y) && T.Equals(other.T) && Z.Equals(other.Z);
@@ -178,7 +178,7 @@ public class ExtendedPoint
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        return obj.GetType() == this.GetType() && Equals((ExtendedPoint) obj);
+        return obj.GetType() == this.GetType() && Equals((ExtendedPoint)obj);
     }
 
     public override int GetHashCode() => HashCode.Combine(X, Y, T, Z);

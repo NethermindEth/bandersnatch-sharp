@@ -3,7 +3,7 @@ using Nethermind.Int256;
 
 namespace Field;
 
-public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityComparer<FiniteField>
+public class FiniteField : IComparable<FiniteField>, IComparable, IEqualityComparer<FiniteField>
 {
     protected UInt256 Value;
     protected UInt256 Modulus;
@@ -20,11 +20,11 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
         Modulus = modulus;
         if (value.Sign < 0)
         {
-            UInt256.SubtractMod(UInt256.Zero, (UInt256) (-value), modulus, out Value);
+            UInt256.SubtractMod(UInt256.Zero, (UInt256)(-value), modulus, out Value);
         }
         else
         {
-            UInt256.Mod((UInt256) value, modulus, out Value);
+            UInt256.Mod((UInt256)value, modulus, out Value);
         }
     }
 
@@ -32,8 +32,8 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
     {
     }
 
-    private static FiniteField Zero(UInt256 modulus) => new (UInt256.Zero, modulus);
-    private static FiniteField One(UInt256 modulus) => new (UInt256.One, modulus);
+    private static FiniteField Zero(UInt256 modulus) => new(UInt256.Zero, modulus);
+    private static FiniteField One(UInt256 modulus) => new(UInt256.One, modulus);
 
 
     public bool IsConstant(UInt256 constant)
@@ -61,7 +61,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
     {
         return x.Value > qMinOneDiv2;
     }
-    
+
     public bool LexicographicallyLargest(UInt256 qMinOneDiv2)
     {
         return Value > qMinOneDiv2;
@@ -78,7 +78,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public FiniteField Neg()
     {
-        var result = new FiniteField
+        FiniteField? result = new FiniteField
         {
             Modulus = Modulus
         };
@@ -156,7 +156,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public static FiniteField? Div(FiniteField a, FiniteField b)
     {
-        var bInv = Inverse(b);
+        FiniteField? bInv = Inverse(b);
         return bInv is null ? null : Mul(a, bInv);
     }
 
@@ -177,7 +177,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public FiniteField Dup()
     {
-        var ret = new FiniteField
+        FiniteField? ret = new FiniteField
         {
             Modulus = Modulus,
             Value = Value
@@ -199,8 +199,8 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
     public static FiniteField? Inverse(FiniteField a)
     {
         if (a.Value.IsZero) return null;
-        
-        var inv = new FiniteField
+
+        FiniteField? inv = new FiniteField
         {
             Modulus = a.Modulus
         };
@@ -212,20 +212,20 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public static FiniteField[] MultiInverse(FiniteField[] values)
     {
-        var modulus = values[0].Modulus;
+        UInt256 modulus = values[0].Modulus;
 
-        var zero = Zero(modulus);
-        var one = One(modulus);
+        FiniteField? zero = Zero(modulus);
+        FiniteField? one = One(modulus);
 
         FiniteField[] partials = new FiniteField[values.Length + 1];
         partials[0] = one;
         for (int i = 0; i < values.Length; i++)
         {
-            var x = Mul(partials[i], values[i]);
+            FiniteField? x = Mul(partials[i], values[i]);
             partials[i + 1] = x.IsZero ? one : x;
         }
 
-        var inverse = Inverse(partials[^1]);
+        FiniteField? inverse = Inverse(partials[^1]);
 
         FiniteField[] outputs = new FiniteField[values.Length];
         outputs[0] = zero;
@@ -246,9 +246,9 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
             Modulus = a.Modulus
         };
 
-        var val = FieldMethods.ModSqrt(a.Value, a.Modulus);
+        UInt256? val = FieldMethods.ModSqrt(a.Value, a.Modulus);
         if (val is null) return null;
-        res.Value = (UInt256) val;
+        res.Value = (UInt256)val;
         return res;
     }
 
@@ -295,7 +295,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((FiniteField) obj);
+        return Equals((FiniteField)obj);
     }
 
     public override int GetHashCode()
@@ -306,7 +306,7 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
     public int CompareTo(object? obj) => obj is not FiniteField finiteField
         ? throw new InvalidOperationException()
         : CompareTo(finiteField);
-    
+
     public int CompareTo(FiniteField? other)
     {
         EnsureSameModulus(this, other);
@@ -324,6 +324,6 @@ public class FiniteField: IComparable<FiniteField>, IComparable, IEqualityCompar
 
     public int ToInt()
     {
-        return (int) Value;
+        return (int)Value;
     }
 }

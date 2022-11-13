@@ -27,13 +27,13 @@ public readonly struct CurveParams
         187, 153, 128, 178, 147, 191, 59, 160, 253, 39, 168, 37, 209, 37, 113, 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0
     };
-    
-    public static readonly Fp A = new (-5);
-    
-    public static readonly Fp YTe = new (new UInt256(NumY));
-    public static readonly Fp XTe = new (new UInt256(NumX));
-    
-    public static readonly Fp DNum = new (new UInt256(Num));
+
+    public static readonly Fp A = new(-5);
+
+    public static readonly Fp YTe = new(new UInt256(NumY));
+    public static readonly Fp XTe = new(new UInt256(NumX));
+
+    public static readonly Fp DNum = new(new UInt256(Num));
 
     public static readonly Fp DDen = Fp.Inverse(new Fp(new UInt256(Den))) ??
                                      throw new Exception("This should not be null");

@@ -34,34 +34,34 @@ public class BanderwagonTests
         };
 
         List<Banderwagon> points = new();
-        var point = Banderwagon.Generator();
+        Banderwagon? point = Banderwagon.Generator();
 
-        foreach (var bitString in expectedBitStrings)
+        foreach (string? bitString in expectedBitStrings)
         {
-            var bytes = point.ToBytes();
+            byte[]? bytes = point.ToBytes();
             Convert.ToHexString(bytes).Should().BeEquivalentTo(bitString);
-            
+
             points.Add(point.Dup());
             point = Banderwagon.Double(point);
         }
 
         for (int i = 0; i < expectedBitStrings.Length; i++)
         {
-            var bitString = expectedBitStrings[i];
-            var expectedPoint = points[i];
-            var decodedPoint = new Banderwagon(Convert.FromHexString(bitString), null);
+            string? bitString = expectedBitStrings[i];
+            Banderwagon? expectedPoint = points[i];
+            Banderwagon? decodedPoint = new Banderwagon(Convert.FromHexString(bitString), null);
             Assert.NotNull(point);
             Assert.IsTrue(decodedPoint == expectedPoint);
         }
     }
-    
+
     [Test]
     public void TestTwoTorsion()
     {
-        var gen = Banderwagon.Generator();
-        var twoTorsion = Banderwagon.TwoTorsionPoint();
-        var result = Banderwagon.Add(gen, twoTorsion);
-        
+        Banderwagon? gen = Banderwagon.Generator();
+        Banderwagon? twoTorsion = Banderwagon.TwoTorsionPoint();
+        Banderwagon? result = Banderwagon.Add(gen, twoTorsion);
+
         Assert.IsTrue(result == gen);
     }
 
