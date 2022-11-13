@@ -15,7 +15,7 @@ public class VerkleTreeTests
         var key = new byte[32];
 
         tree.Insert(key, key);
-        AssertRootNode(tree.RootNode.PointAsField.ToBytes(),
+        AssertRootNode(tree.RootHash,
             "ff00a9f3f2d4f58fc23bceebf6b2310419ceac2c30445e2f374e571487715015");
     }
     
@@ -30,7 +30,7 @@ public class VerkleTreeTests
         };
 
         tree.Insert(key, key);
-        AssertRootNode(tree.RootNode.PointAsField.ToBytes(),
+        AssertRootNode(tree.RootHash,
             "029b6c4c8af9001f0ac76472766c6579f41eec84a73898da06eb97ebdab80a09");
     }
     
@@ -45,7 +45,7 @@ public class VerkleTreeTests
         };
 
         tree.Insert(key, key);
-        AssertRootNode(tree.RootNode.PointAsField.ToBytes(),
+        AssertRootNode(tree.RootHash,
             "b35b4add297834fba0b5160a46d8098a35b6961a875c44cae935507e05704707");
     }
     
@@ -66,10 +66,10 @@ public class VerkleTreeTests
         };
 
         tree.Insert(keyA, keyA);
-        AssertRootNode(tree.RootNode.PointAsField.ToBytes(),
+        AssertRootNode(tree.RootHash,
             "029b6c4c8af9001f0ac76472766c6579f41eec84a73898da06eb97ebdab80a09");
         tree.Insert(keyB, keyB);
-        AssertRootNode(tree.RootNode.PointAsField.ToBytes(),
+        AssertRootNode(tree.RootHash,
             "51e3b2b1b4e4fa85098c91c269af56b06a4474b69128dce99846f0549267fd09");
     }
 
