@@ -9,12 +9,17 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 public class VerkleTree
 {
     private readonly MemoryDb _db;
-    public Commitment RootNode { get; private set; }
-
+    public byte[] RootHash => _db.BranchTable[Array.Empty<byte>()].InternalCommitment.PointAsField.ToBytes();
+    
     public VerkleTree()
     {
-        _db = new MemoryDb();
-        RootNode = new Commitment();
+        _db = new MemoryDb
+        {
+            BranchTable =
+            {
+                [Array.Empty<byte>()] = new InternalNode(true)
+            }
+        };
     }
     
     public Banderwagon GetLeafDelta(byte[]? oldValue, byte[] newValue, byte index)
@@ -26,7 +31,6 @@ public class VerkleTree
 
         var lowIndex = 2 * posMod128;
         var highIndex = lowIndex + 1;
-        
         var deltaLow = Committer.ScalarMul(newValLow - oldValLow, lowIndex);
         var deltaHigh = Committer.ScalarMul(newValHigh - oldValHigh, highIndex);
         return deltaLow + deltaHigh;
@@ -63,7 +67,13 @@ public class VerkleTree
         // calculate this by update the leafs and calculating the delta - simple enough
         TraverseContext context = new TraverseContext(key, leafUpdateDelta);
         Banderwagon rootDelta = TraverseBranch(context);
-        RootNode.AddPoint(rootDelta);
+        UpdateRootNode(rootDelta);
+    }
+
+    private void UpdateRootNode(Banderwagon rootDelta)
+    {
+        _db.BranchTable.TryGetValue(Array.Empty<byte>(), out var root);
+        root.InternalCommitment.AddPoint(rootDelta);
     }
     
     private Banderwagon TraverseBranch(TraverseContext traverseContext)
@@ -119,9 +129,10 @@ public class VerkleTree
             }
             else
             {
-                Fr deltaHash = child.Value.UpdateCommitment(parentDeltaHash);
+                // in case of stem, no need to update the child commitment - because this commitment is the suffix commitment
+                // pass on the update to upper level
                 _db.BranchTable[absolutePath] = child.Value;
-                deltaPoint = Committer.ScalarMul(deltaHash, pathIndex);
+                deltaPoint = parentDeltaHash;
             }
         }
         return deltaPoint;
@@ -172,7 +183,7 @@ public class VerkleTree
         }
 
         _db.StemTable.TryGetValue(traverseContext.Key[..31].ToArray(), out var oldValue);
-        var deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta, traverseContext.Key[31]);
+        var deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta);
         _db.StemTable[traverseContext.Key[..31].ToArray()] = oldValue;
         
         return (Committer.ScalarMul(deltaFr, traverseContext.Key[traverseContext.CurrentIndex - 1]), false);
@@ -202,7 +213,7 @@ public class VerkleTree
         if (insertNew) oldNode = new Suffix(stemKey);
         else _db.StemTable.TryGetValue(stemKey, out oldNode);
         
-        Fr deltaFr = oldNode.UpdateCommitment(leafUpdateDelta, suffixLeafIndex);
+        Fr deltaFr = oldNode.UpdateCommitment(leafUpdateDelta);
         _db.StemTable[stemKey] = oldNode;
         // add the init commitment, because while calculating diff, we subtract the initCommitment in new nodes.
         return insertNew ? (deltaFr + oldNode.InitCommitmentHash, oldNode.ExtensionCommitment.Dup()) : (deltaFr, null);

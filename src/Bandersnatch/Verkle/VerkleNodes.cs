@@ -49,7 +49,7 @@ public struct Suffix: IVerkleNode
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
     }
 
-    public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment, byte index)
+    public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment)
     {
         var prevCommit = ExtensionCommitment.PointAsField.Dup();
         
