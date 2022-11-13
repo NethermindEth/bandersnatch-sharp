@@ -12,7 +12,7 @@ public class MonomialBasisTests
     [Test]
     public void test_vanishing_poly()
     {
-        Fr[]? xs = new Fr[]
+        Fr[]? xs = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -33,14 +33,14 @@ public class MonomialBasisTests
     [Test]
     public void test_poly_div()
     {
-        Fr[]? aL = new Fr[]
+        Fr[]? aL = new[]
         {
             new Fr((UInt256)2),
             new Fr((UInt256)3),
             new Fr((UInt256)1),
         };
         MonomialBasis? a = new MonomialBasis(aL);
-        Fr[]? bL = new Fr[]
+        Fr[]? bL = new[]
         {
             new Fr((UInt256)1),
             new Fr((UInt256)1),
@@ -55,7 +55,7 @@ public class MonomialBasisTests
     [Test]
     public void test_derivative()
     {
-        Fr[]? aL = new Fr[]
+        Fr[]? aL = new[]
         {
             new Fr((UInt256)9),
             new Fr((UInt256)20),
@@ -64,7 +64,7 @@ public class MonomialBasisTests
             new Fr((UInt256)6),
         };
         MonomialBasis? a = new MonomialBasis(aL);
-        Fr[]? bL = new Fr[]
+        Fr[]? bL = new[]
         {
             new Fr((UInt256)20),
             new Fr((UInt256)20),

@@ -14,7 +14,7 @@ public enum NodeType : byte
     Unknown
 }
 
-public struct Suffix: IVerkleNode
+public struct Suffix : IVerkleNode
 {
     public byte[] Key { get; set; }
     public bool IsSuffix => NodeType == NodeType.Suffix;
@@ -52,18 +52,18 @@ public struct Suffix: IVerkleNode
     public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment)
     {
         Fr prevCommit = ExtensionCommitment.PointAsField.Dup();
-        
+
         Fr oldC1Value = C1.PointAsField.Dup();
         Fr oldC2Value = C2.PointAsField.Dup();
-        if(deltaLeafCommitment.DeltaC1 is not null) C1.AddPoint(deltaLeafCommitment.DeltaC1);
-        if(deltaLeafCommitment.DeltaC2 is not null) C2.AddPoint(deltaLeafCommitment.DeltaC2);
+        if (deltaLeafCommitment.DeltaC1 is not null) C1.AddPoint(deltaLeafCommitment.DeltaC1);
+        if (deltaLeafCommitment.DeltaC2 is not null) C2.AddPoint(deltaLeafCommitment.DeltaC2);
 
         Fr deltaC1Commit = C1.PointAsField - oldC1Value;
         Fr deltaC2Commit = C2.PointAsField - oldC2Value;
 
-        Banderwagon deltaCommit = Committer.ScalarMul(deltaC1Commit, 2) 
+        Banderwagon deltaCommit = Committer.ScalarMul(deltaC1Commit, 2)
                                   + Committer.ScalarMul(deltaC2Commit, 3);
-        
+
         ExtensionCommitment.AddPoint(deltaCommit);
         return ExtensionCommitment.PointAsField - prevCommit;
     }
@@ -105,7 +105,7 @@ public struct Suffix: IVerkleNode
     }
 }
 
-public struct InternalNode: IVerkleNode
+public struct InternalNode : IVerkleNode
 {
     public byte[] Key
     {
@@ -137,7 +137,7 @@ public struct InternalNode: IVerkleNode
 
     public InternalNode(byte[] stem, Commitment suffixCommitment)
     {
-        NodeType = NodeType.Stem; 
+        NodeType = NodeType.Stem;
         _stem = stem;
         Encoded = new byte[] { };
         Data = null;
@@ -152,7 +152,7 @@ public struct InternalNode: IVerkleNode
         Data = null;
         InternalCommitment = new Commitment();
     }
-    
+
     public Fr UpdateCommitment(Fr deltaHash, byte index)
     {
         Banderwagon point = Committer.ScalarMul(deltaHash, index);
@@ -160,14 +160,14 @@ public struct InternalNode: IVerkleNode
         InternalCommitment.AddPoint(point);
         return InternalCommitment.PointAsField - prevCommit;
     }
-    
+
     public Fr UpdateCommitment(Banderwagon point)
     {
         Fr prevCommit = InternalCommitment.PointAsField.Dup();
         InternalCommitment.AddPoint(point);
         return InternalCommitment.PointAsField - prevCommit;
     }
-    
+
     public Fr UpdateCommitment(Banderwagon[] points)
     {
         Fr prevCommit = InternalCommitment.PointAsField.Dup();
@@ -177,7 +177,7 @@ public struct InternalNode: IVerkleNode
         }
         return InternalCommitment.PointAsField - prevCommit;
     }
-    
+
     NodeType IVerkleNode.NodeType
     {
         get => NodeType;
@@ -212,13 +212,13 @@ public interface IVerkleNode
 {
     public NodeType NodeType { get; protected internal set; }
     byte[] Key { get; set; }
-    
+
     public bool IsSuffix => NodeType == NodeType.Suffix;
     public bool IsStem => NodeType == NodeType.Stem;
     public bool IsBranchNode => NodeType == NodeType.BranchNode;
-    
-    public byte[]? Encoded {get; set;}
-    public object? Data {get; set;}
+
+    public byte[]? Encoded { get; set; }
+    public object? Data { get; set; }
     Fr UpdateCommitment(Banderwagon deltaPoint, byte[] key, byte index);
     byte[] Serialize();
     IVerkleNode Deserialize(byte[] node);

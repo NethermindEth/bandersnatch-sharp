@@ -19,7 +19,7 @@ public struct Committer
 
         return elem;
     }
-    
+
     public static Banderwagon ScalarMul(Fr value, int index)
     {
         return Constants.BasisG[index] * value;

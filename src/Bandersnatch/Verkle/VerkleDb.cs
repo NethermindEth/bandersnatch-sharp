@@ -4,7 +4,8 @@ public class ByteArrayComparer : IEqualityComparer<byte[]>
 {
     public bool Equals(byte[]? x, byte[]? y)
     {
-        if ( x == null || y == null ) {
+        if (x == null || y == null)
+        {
             return x == y;
         }
         return x.SequenceEqual(y);

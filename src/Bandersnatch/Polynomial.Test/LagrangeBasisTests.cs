@@ -12,7 +12,7 @@ public class LagrangeBasisTests
     [Test]
     public void test_add_sub()
     {
-        Fr[]? domain = new Fr[]
+        Fr[]? domain = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -22,7 +22,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)5)
         };
 
-        Fr[]? domainSq = new Fr[]
+        Fr[]? domainSq = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -32,7 +32,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)25)
         };
 
-        Fr[]? domain_2 = new Fr[]
+        Fr[]? domain_2 = new[]
         {
             new Fr((UInt256)2),
             new Fr((UInt256)3),
@@ -45,7 +45,7 @@ public class LagrangeBasisTests
         LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
         LagrangeBasis? b = new LagrangeBasis(domain_2, domain);
 
-        Fr[]? expected = new Fr[]
+        Fr[]? expected = new[]
         {
             new Fr((UInt256)2),
             new Fr((UInt256)4),
@@ -71,7 +71,7 @@ public class LagrangeBasisTests
     [Test]
     public void test_mul()
     {
-        Fr[]? domain = new Fr[]
+        Fr[]? domain = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -81,7 +81,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)5)
         };
 
-        Fr[]? domainSq = new Fr[]
+        Fr[]? domainSq = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -90,7 +90,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)16),
             new Fr((UInt256)25)
         };
-        Fr[]? domainPow4 = new Fr[]
+        Fr[]? domainPow4 = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -115,7 +115,7 @@ public class LagrangeBasisTests
     [Test]
     public void test_scale()
     {
-        Fr[]? domain = new Fr[]
+        Fr[]? domain = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -125,7 +125,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)5)
         };
 
-        Fr[]? domainSq = new Fr[]
+        Fr[]? domainSq = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -140,7 +140,7 @@ public class LagrangeBasisTests
         LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
         LagrangeBasis? result = a * constant;
 
-        Fr[]? expected = new Fr[]
+        Fr[]? expected = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)10),
@@ -160,7 +160,7 @@ public class LagrangeBasisTests
     [Test]
     public void test_interpolation()
     {
-        Fr[]? domain = new Fr[]
+        Fr[]? domain = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -170,7 +170,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)5)
         };
 
-        Fr[]? domainSq = new Fr[]
+        Fr[]? domainSq = new[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -184,7 +184,7 @@ public class LagrangeBasisTests
         MonomialBasis? xSquaredCoeff = xSquaredLagrange.Interpolate();
 
         MonomialBasis? expectedXSquaredCoeff = new MonomialBasis(
-            new Fr[] { Fr.Zero, Fr.Zero, Fr.One });
+            new[] { Fr.Zero, Fr.Zero, Fr.One });
 
         for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
         {

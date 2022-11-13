@@ -45,8 +45,8 @@ public static class VerkleUtils
         address20.CopyTo(address32, 0);
         return address32;
     }
-    
-    public static (Fr ,Fr) BreakValueInLowHigh(byte[]? value)
+
+    public static (Fr, Fr) BreakValueInLowHigh(byte[]? value)
     {
         if (value is null) return (Fr.Zero, Fr.Zero);
         if (value.Length != 32) throw new ArgumentException();
@@ -65,5 +65,5 @@ public static class VerkleUtils
         }
         return (samePathIndices, null, null);
     }
-    
+
 }
