@@ -16,25 +16,25 @@ public class PreComputeWeights
 
     private PreComputeWeights()
     {
-        
+
     }
 
     public static PreComputeWeights Init(Fr[] domain)
     {
-        var res = new PreComputeWeights();
+        PreComputeWeights? res = new PreComputeWeights();
         res.Domain = domain;
-        var domainSize = domain.Length;
+        int domainSize = domain.Length;
 
         res.A = MonomialBasis.VanishingPoly(domain);
         res.APrime = MonomialBasis.FormalDerivative(res.A);
 
-        var aPrimeDom = new Fr?[domain.Length];
-        var aPrimeDomInv = new Fr?[domain.Length];
+        Fr?[]? aPrimeDom = new Fr?[domain.Length];
+        Fr?[]? aPrimeDomInv = new Fr?[domain.Length];
 
         for (int i = 0; i < domain.Length; i++)
         {
-            var aPrimeX = res.APrime.Evaluate(new Fr(i));
-            var aPrimeXInv = Fr.Inverse(aPrimeX);
+            Fr? aPrimeX = res.APrime.Evaluate(new Fr(i));
+            Fr? aPrimeXInv = Fr.Inverse(aPrimeX);
             aPrimeDom[i] = aPrimeX;
             aPrimeDomInv[i] = aPrimeXInv;
         }
@@ -50,7 +50,7 @@ public class PreComputeWeights
             res.DomainInv[index] = Fr.Inverse(new Fr(i));
             index++;
         }
-        
+
         for (int i = 1 - domainSize; i < 0; i++)
         {
             res.DomainInv[index] = Fr.Inverse(new Fr(i));
@@ -62,7 +62,7 @@ public class PreComputeWeights
 
     public Fr[] BarycentricFormulaConstants(Fr z)
     {
-        var Az = A.Evaluate(z);
+        Fr? Az = A.Evaluate(z);
 
         Fr[] elems = new Fr[Domain.Length];
         for (int i = 0; i < Domain.Length; i++)
@@ -70,8 +70,8 @@ public class PreComputeWeights
             elems[i] = z - Domain[i];
         }
 
-        var inverses = Fr.MultiInverse(elems);
-        
+        Fr[]? inverses = Fr.MultiInverse(elems);
+
         Fr[] r = new Fr[inverses.Length];
 
         for (int i = 0; i < inverses.Length; i++)

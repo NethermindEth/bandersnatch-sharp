@@ -54,22 +54,22 @@ public class MultiProofTests
     {
         List<Fr> polyEvalA = new();
         List<Fr> polyEvalB = new();
-        
+
         for (int i = 0; i < 8; i++)
         {
             polyEvalA.AddRange(_poly);
             polyEvalB.AddRange(_poly.Reverse());
         }
-        var crs = CRS.Default();
-        var cA = crs.Commit(polyEvalA.ToArray());
-        var cB = crs.Commit(polyEvalB.ToArray());
+        CRS? crs = CRS.Default();
+        Banderwagon? cA = crs.Commit(polyEvalA.ToArray());
+        Banderwagon? cB = crs.Commit(polyEvalB.ToArray());
 
         Fr[] zs =
         {
             Fr.Zero,
             Fr.Zero
         };
-        Fr[] ys = {new Fr((UInt256) 1), new Fr((UInt256) 32)};
+        Fr[] ys = { new Fr((UInt256)1), new Fr((UInt256)32) };
         Fr[][] fs =
         {
             polyEvalA.ToArray(), polyEvalB.ToArray()
@@ -83,37 +83,37 @@ public class MultiProofTests
         Fr[] domain = new Fr[256];
         for (int i = 0; i < 256; i++)
         {
-            domain[i] = new Fr((UInt256) i);
+            domain[i] = new Fr((UInt256)i);
         }
-        
-        var queryA = new MultiProofProverQuery(new LagrangeBasis(fs[0], domain), cs[0], zs[0], ys[0]);
-        var queryB = new MultiProofProverQuery(new LagrangeBasis(fs[1], domain), cs[1], zs[1], ys[1]);
 
-        var multiproof = new MultiProof(domain, crs);
+        MultiProofProverQuery queryA = new MultiProofProverQuery(new LagrangeBasis(fs[0], domain), cs[0], zs[0], ys[0]);
+        MultiProofProverQuery queryB = new MultiProofProverQuery(new LagrangeBasis(fs[1], domain), cs[1], zs[1], ys[1]);
 
-        var proverTranscript = new Transcript("test");
+        MultiProof? multiproof = new MultiProof(domain, crs);
+
+        Transcript? proverTranscript = new Transcript("test");
         MultiProofProverQuery[] queries =
         {
             queryA, queryB
         };
-        var proof = multiproof.MakeMultiProof(proverTranscript, queries);
-        var pChallenge = proverTranscript.ChallengeScalar("state");
+        MultiProofStruct proof = multiproof.MakeMultiProof(proverTranscript, queries);
+        Fr? pChallenge = proverTranscript.ChallengeScalar("state");
 
         Assert.IsTrue(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
             .SequenceEqual("eee8a80357ff74b766eba39db90797d022e8d6dee426ded71234241be504d519"));
 
-        var verifierTranscript = new Transcript("test");
-        var queryAx = new MultiProofVerifierQuery(cs[0], zs[0], ys[0]);
-        var queryBx = new MultiProofVerifierQuery(cs[1], zs[1], ys[1]);
-        
+        Transcript? verifierTranscript = new Transcript("test");
+        MultiProofVerifierQuery queryAx = new MultiProofVerifierQuery(cs[0], zs[0], ys[0]);
+        MultiProofVerifierQuery queryBx = new MultiProofVerifierQuery(cs[1], zs[1], ys[1]);
+
         MultiProofVerifierQuery[] queriesX =
         {
             queryAx, queryBx
         };
-        var ok = multiproof.CheckMultiProof(verifierTranscript, queriesX, proof);
+        bool ok = multiproof.CheckMultiProof(verifierTranscript, queriesX, proof);
         Assert.IsTrue(ok);
 
-        var vChallenge = verifierTranscript.ChallengeScalar("state");
+        Fr? vChallenge = verifierTranscript.ChallengeScalar("state");
         Assert.IsTrue(vChallenge == pChallenge);
     }
 }

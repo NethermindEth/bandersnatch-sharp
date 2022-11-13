@@ -9,13 +9,13 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class Transcript
 {
-    public List<byte> CurrentHash = new ();
-    
+    public List<byte> CurrentHash = new();
+
     public Transcript(IEnumerable<byte> label)
     {
         CurrentHash.AddRange(label);
     }
-    
+
     public Transcript(string label)
     {
         CurrentHash.AddRange(Encoding.ASCII.GetBytes(label));
@@ -50,10 +50,10 @@ public class Transcript
     public Fr ChallengeScalar(byte[] label)
     {
         DomainSep(label);
-        var hash = SHA256.Create().ComputeHash(CurrentHash.ToArray());
-        var challenge = ByteToField(hash);
+        byte[]? hash = SHA256.Create().ComputeHash(CurrentHash.ToArray());
+        Fr? challenge = ByteToField(hash);
         CurrentHash = new List<byte>();
-        
+
         AppendScalar(challenge, label);
         return challenge;
     }

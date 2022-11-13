@@ -5,7 +5,7 @@ namespace Polynomial;
 using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
 using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
-public class MonomialBasis: IEqualityComparer<MonomialBasis>
+public class MonomialBasis : IEqualityComparer<MonomialBasis>
 {
     public readonly Fr?[] Coeffs;
 
@@ -14,11 +14,11 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
         Coeffs = coeffs;
     }
 
-    public static MonomialBasis Empty() => new (new Fr?[]{});
+    public static MonomialBasis Empty() => new(new Fr?[] { });
 
     private static MonomialBasis Mul(MonomialBasis a, MonomialBasis b)
     {
-        var output = new Fr[a.Length() + b.Length() - 1];
+        Fr[]? output = new Fr[a.Length() + b.Length() - 1];
         for (int i = 0; i < a.Length(); i++)
         {
             for (int j = 0; j < b.Length(); j++)
@@ -36,16 +36,16 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
             throw new Exception();
         }
 
-        var x = a.Coeffs.ToArray();
+        Fr?[]? x = a.Coeffs.ToArray();
         List<Fr> output = new();
 
-        var aPos = a.Length() - 1;
-        var bPos = b.Length() - 1;
+        int aPos = a.Length() - 1;
+        int bPos = b.Length() - 1;
 
-        var diff = aPos - bPos;
+        int diff = aPos - bPos;
         while (diff >= 0)
         {
-            var quot = x[aPos]! / b.Coeffs[bPos]!;
+            Fr? quot = x[aPos]! / b.Coeffs[bPos]!;
             output.Insert(0, quot!);
             for (int i = bPos; i > -1; i--)
             {
@@ -61,9 +61,9 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
 
     public Fr Evaluate(Fr x)
     {
-        var y = Fr.Zero;
-        var powerOfX = Fr.One;
-        foreach (var pCoeff in Coeffs)
+        Fr? y = Fr.Zero;
+        Fr? powerOfX = Fr.One;
+        foreach (Fr? pCoeff in Coeffs)
         {
             y += powerOfX * pCoeff!;
             powerOfX *= x;
@@ -74,19 +74,19 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
 
     public static MonomialBasis FormalDerivative(MonomialBasis f)
     {
-        var derivative = new Fr?[f.Length() - 1];
+        Fr?[]? derivative = new Fr?[f.Length() - 1];
         for (int i = 1; i < f.Length(); i++)
         {
-            var x = new Fr(i) * f.Coeffs[i]!;
-            derivative[i-1] = x;
+            Fr? x = new Fr(i) * f.Coeffs[i]!;
+            derivative[i - 1] = x;
         }
         return new MonomialBasis(derivative.ToArray());
     }
 
     public static MonomialBasis VanishingPoly(IEnumerable<Fr> xs)
     {
-        List<Fr> root = new() {Fr.One};
-        foreach (var x in xs)
+        List<Fr> root = new() { Fr.One };
+        foreach (Fr? x in xs)
         {
             root.Insert(0, Fr.Zero);
             for (int i = 0; i < root.Count - 1; i++)
@@ -102,7 +102,7 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
     {
         return Coeffs.Length;
     }
-    
+
     public static MonomialBasis operator /(in MonomialBasis a, in MonomialBasis b)
     {
         return Div(a, b);
@@ -112,7 +112,7 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
     {
         return Mul(a, b);
     }
-    
+
     public static bool operator ==(in MonomialBasis a, in MonomialBasis b)
     {
         return a.Coeffs == b.Coeffs;
@@ -122,7 +122,7 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
     {
         return !(a == b);
     }
-    
+
     public bool Equals(MonomialBasis? x, MonomialBasis? y)
     {
         return x!.Coeffs.SequenceEqual(y!.Coeffs);
@@ -143,7 +143,7 @@ public class MonomialBasis: IEqualityComparer<MonomialBasis>
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != this.GetType()) return false;
-        return Equals((MonomialBasis) obj);
+        return Equals((MonomialBasis)obj);
     }
 
     public override int GetHashCode()

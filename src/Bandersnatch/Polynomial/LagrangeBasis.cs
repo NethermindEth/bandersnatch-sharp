@@ -5,15 +5,15 @@ namespace Polynomial;
 using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
 using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
-public class LagrangeBasis: IEqualityComparer<LagrangeBasis>
+public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
 {
     public Fr?[] Evaluations;
     public Fr[] Domain;
 
     private LagrangeBasis()
     {
-        Evaluations = new Fr?[]{};
-        Domain = new Fr[]{};
+        Evaluations = new Fr?[] { };
+        Domain = new Fr[] { };
     }
     private static LagrangeBasis Empty()
     {
@@ -51,12 +51,12 @@ public class LagrangeBasis: IEqualityComparer<LagrangeBasis>
     {
         return arithmetic_op(lhs, rhs, (field, scalarField) => field + scalarField);
     }
-    
+
     public static LagrangeBasis Sub(LagrangeBasis lhs, LagrangeBasis rhs)
     {
         return arithmetic_op(lhs, rhs, (field, scalarField) => field - scalarField);
     }
-    
+
     public static LagrangeBasis Mul(LagrangeBasis lhs, LagrangeBasis rhs)
     {
         return arithmetic_op(lhs, rhs, (field, scalarField) => field * scalarField);
@@ -75,25 +75,25 @@ public class LagrangeBasis: IEqualityComparer<LagrangeBasis>
 
     public Fr evaluate_outside_domain(LagrangeBasis precomputed_weights, Fr z)
     {
-        var r = Fr.Zero;
-        var A = MonomialBasis.VanishingPoly(Domain);
-        var Az = A.Evaluate(z);
+        Fr? r = Fr.Zero;
+        MonomialBasis? A = MonomialBasis.VanishingPoly(Domain);
+        Fr? Az = A.Evaluate(z);
 
         if (Az.IsZero == true)
             throw new Exception("vanishing polynomial evaluated to zero. z is therefore a point on the domain");
 
 
-        var inner = new List<Fr>();
-        foreach (var x in Domain)
+        List<Fr>? inner = new List<Fr>();
+        foreach (Fr? x in Domain)
         {
-            inner.Add(z-x);
+            inner.Add(z - x);
         }
 
-        var inverses = Fr.MultiInverse(inner.ToArray());
+        Fr[]? inverses = Fr.MultiInverse(inner.ToArray());
 
         for (int i = 0; i < inverses.Length; i++)
         {
-            var x = inverses[i];
+            Fr? x = inverses[i];
             r += Evaluations[i] * precomputed_weights.Evaluations[i] * x;
         }
 
@@ -105,29 +105,29 @@ public class LagrangeBasis: IEqualityComparer<LagrangeBasis>
 
     public MonomialBasis Interpolate()
     {
-        var xs = Domain;
-        var ys = Evaluations;
+        Fr[]? xs = Domain;
+        Fr?[]? ys = Evaluations;
 
-        var root = MonomialBasis.VanishingPoly(xs);
+        MonomialBasis? root = MonomialBasis.VanishingPoly(xs);
         if (root.Length() != ys.Length + 1)
             throw new Exception();
 
-        var nums = new List<MonomialBasis>();
-        foreach (var x in xs)
+        List<MonomialBasis>? nums = new List<MonomialBasis>();
+        foreach (Fr? x in xs)
         {
-            var s = new Fr[] { x.Neg(), Fr.One};
-            var elem = root / new MonomialBasis(s);
+            Fr[]? s = new Fr[] { x.Neg(), Fr.One };
+            MonomialBasis? elem = root / new MonomialBasis(s);
             nums.Add(elem);
         }
 
-        var denoms = new List<Fr>();
+        List<Fr>? denoms = new List<Fr>();
         for (int i = 0; i < xs.Length; i++)
         {
             denoms.Add(nums[i].Evaluate(xs[i]));
         }
-        var invdenoms = Fr.MultiInverse(denoms.ToArray());
+        Fr[]? invdenoms = Fr.MultiInverse(denoms.ToArray());
 
-        var b = new Fr[ys.Length];
+        Fr[]? b = new Fr[ys.Length];
         for (int i = 0; i < b.Length; i++)
         {
             b[i] = Fr.Zero;
@@ -135,7 +135,7 @@ public class LagrangeBasis: IEqualityComparer<LagrangeBasis>
 
         for (int i = 0; i < xs.Length; i++)
         {
-            var ySlice = ys[i] * invdenoms[i];
+            Fr? ySlice = ys[i] * invdenoms[i];
             for (int j = 0; j < ys.Length; j++)
             {
                 if (nums[i].Coeffs[j] is not null && ys[i] is not null)
@@ -167,12 +167,12 @@ public class LagrangeBasis: IEqualityComparer<LagrangeBasis>
     {
         return Mul(a, b);
     }
-    
+
     public static LagrangeBasis operator *(in LagrangeBasis a, in Fr b)
     {
         return scale(a, b);
     }
-    
+
     public static LagrangeBasis operator *(in Fr a, in LagrangeBasis b)
     {
         return scale(b, a);

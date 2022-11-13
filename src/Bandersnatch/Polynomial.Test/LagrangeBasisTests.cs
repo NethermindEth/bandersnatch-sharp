@@ -12,7 +12,7 @@ public class LagrangeBasisTests
     [Test]
     public void test_add_sub()
     {
-        var domain = new Fr[]
+        Fr[]? domain = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -21,8 +21,8 @@ public class LagrangeBasisTests
             new Fr((UInt256)4),
             new Fr((UInt256)5)
         };
-        
-        var domainSq = new Fr[]
+
+        Fr[]? domainSq = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -31,8 +31,8 @@ public class LagrangeBasisTests
             new Fr((UInt256)16),
             new Fr((UInt256)25)
         };
-        
-        var domain_2 = new Fr[]
+
+        Fr[]? domain_2 = new Fr[]
         {
             new Fr((UInt256)2),
             new Fr((UInt256)3),
@@ -42,10 +42,10 @@ public class LagrangeBasisTests
             new Fr((UInt256)7)
         };
 
-        var a = new LagrangeBasis(domainSq, domain);
-        var b = new LagrangeBasis(domain_2, domain);
+        LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
+        LagrangeBasis? b = new LagrangeBasis(domain_2, domain);
 
-        var expected = new Fr[]
+        Fr[]? expected = new Fr[]
         {
             new Fr((UInt256)2),
             new Fr((UInt256)4),
@@ -54,8 +54,8 @@ public class LagrangeBasisTests
             new Fr((UInt256)22),
             new Fr((UInt256)32)
         };
-        var ex = new LagrangeBasis(expected, domain);
-        var result = a + b;
+        LagrangeBasis? ex = new LagrangeBasis(expected, domain);
+        LagrangeBasis? result = a + b;
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
@@ -67,11 +67,11 @@ public class LagrangeBasisTests
             Assert.IsTrue(ex.Evaluations[i] == a.Evaluations[i]);
         }
     }
-    
+
     [Test]
     public void test_mul()
     {
-        var domain = new Fr[]
+        Fr[]? domain = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -80,8 +80,8 @@ public class LagrangeBasisTests
             new Fr((UInt256)4),
             new Fr((UInt256)5)
         };
-        
-        var domainSq = new Fr[]
+
+        Fr[]? domainSq = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -90,7 +90,7 @@ public class LagrangeBasisTests
             new Fr((UInt256)16),
             new Fr((UInt256)25)
         };
-        var domainPow4 = new Fr[]
+        Fr[]? domainPow4 = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -101,21 +101,21 @@ public class LagrangeBasisTests
         };
 
 
-        var a = new LagrangeBasis(domainSq, domain);
-        var result = a * a;
-        
-        var ex = new LagrangeBasis(domainPow4, domain);
-        
+        LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
+        LagrangeBasis? result = a * a;
+
+        LagrangeBasis? ex = new LagrangeBasis(domainPow4, domain);
+
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
             Assert.IsTrue(ex.Evaluations[i] == result.Evaluations[i]);
         }
     }
-    
+
     [Test]
     public void test_scale()
     {
-        var domain = new Fr[]
+        Fr[]? domain = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -124,8 +124,8 @@ public class LagrangeBasisTests
             new Fr((UInt256)4),
             new Fr((UInt256)5)
         };
-        
-        var domainSq = new Fr[]
+
+        Fr[]? domainSq = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -135,12 +135,12 @@ public class LagrangeBasisTests
             new Fr((UInt256)25)
         };
 
-        var constant = new Fr((UInt256) 10);
+        Fr? constant = new Fr((UInt256)10);
 
-        var a = new LagrangeBasis(domainSq, domain);
-        var result = a * constant;
+        LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
+        LagrangeBasis? result = a * constant;
 
-        var expected = new Fr[]
+        Fr[]? expected = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)10),
@@ -149,18 +149,18 @@ public class LagrangeBasisTests
             new Fr((UInt256)160),
             new Fr((UInt256)250)
         };
-        var ex = new LagrangeBasis(expected, domain);
-        
+        LagrangeBasis? ex = new LagrangeBasis(expected, domain);
+
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
             Assert.IsTrue(ex.Evaluations[i] == result.Evaluations[i]);
         }
     }
-    
+
     [Test]
     public void test_interpolation()
     {
-        var domain = new Fr[]
+        Fr[]? domain = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -169,8 +169,8 @@ public class LagrangeBasisTests
             new Fr((UInt256)4),
             new Fr((UInt256)5)
         };
-        
-        var domainSq = new Fr[]
+
+        Fr[]? domainSq = new Fr[]
         {
             new Fr((UInt256)0),
             new Fr((UInt256)1),
@@ -179,12 +179,12 @@ public class LagrangeBasisTests
             new Fr((UInt256)16),
             new Fr((UInt256)25)
         };
-        
-        var xSquaredLagrange = new LagrangeBasis(domainSq, domain);
-        var xSquaredCoeff = xSquaredLagrange.Interpolate();
 
-        var expectedXSquaredCoeff = new MonomialBasis(
-            new Fr[]{Fr.Zero, Fr.Zero, Fr.One});
+        LagrangeBasis? xSquaredLagrange = new LagrangeBasis(domainSq, domain);
+        MonomialBasis? xSquaredCoeff = xSquaredLagrange.Interpolate();
+
+        MonomialBasis? expectedXSquaredCoeff = new MonomialBasis(
+            new Fr[] { Fr.Zero, Fr.Zero, Fr.One });
 
         for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
         {

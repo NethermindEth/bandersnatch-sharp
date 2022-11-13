@@ -9,7 +9,7 @@ public class CRS
 {
     public readonly Banderwagon[] BasisG;
     public Banderwagon BasisQ;
-    
+
     public CRS(Banderwagon[] basisG)
     {
         BasisG = basisG;
@@ -24,7 +24,7 @@ public class CRS
 
     public static CRS Default()
     {
-        var crs = CRSStruct.GetCRS();
+        Banderwagon[]? crs = CRSStruct.GetCRS();
         return new CRS(crs);
     }
 
@@ -35,19 +35,19 @@ public class CRS
 
         List<Banderwagon> points = new();
         List<Fr> scalars = new();
-        foreach (var keyVal in values)
+        foreach (KeyValuePair<int, Fr> keyVal in values)
         {
             points.Add(BasisG[keyVal.Key]);
             scalars.Add(keyVal.Value);
         }
 
-        var commitment = Banderwagon.MSM(points.ToArray(), scalars.ToArray());
+        Banderwagon? commitment = Banderwagon.MSM(points.ToArray(), scalars.ToArray());
         return commitment;
     }
 
     public Banderwagon Commit(Fr[] values)
     {
-        var elements = BasisG[..values.Length];
+        Banderwagon[]? elements = BasisG[..values.Length];
         return Banderwagon.MSM(elements, values);
     }
 }
