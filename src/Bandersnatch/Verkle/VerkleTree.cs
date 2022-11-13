@@ -42,6 +42,8 @@ public class VerkleTree
         UpdateTreeCommitments(key[..31], leafDelta);
     }
 
+    public byte[]? Get(byte[] key) => _db.LeafTable.TryGetValue(key, out byte[]? leaf) ? leaf : null;
+
     public void InsertStemBatch(Span<byte> stem, Dictionary<byte, byte[]> leafIndexValueMap)
     {
         LeafUpdateDelta leafDelta = UpdateLeaf(stem, leafIndexValueMap);
