@@ -88,15 +88,13 @@ public class VerkleTree
             // 2. update the C1 or C2 - we already know the leafDelta - traverseContext.LeafUpdateDelta
             // 3. update ExtensionCommitment
             // 4. get the delta for commitment - ExtensionCommitment - 0;
-            (Fr deltaHash, _) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta,
+            (Fr deltaHash, Commitment? suffixCommitment) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta,
                 traverseContext.Key[31], true);
             
             // 1. Add internal.stem node
             // 2. return delta from ExtensionCommitment
             Banderwagon point = Committer.ScalarMul(deltaHash, pathIndex);
-            var commitment = new Commitment();
-            commitment.AddPoint(point);
-            _db.BranchTable[absolutePath] = new InternalNode(traverseContext.Stem.ToArray(), commitment);
+            _db.BranchTable[absolutePath] = new InternalNode(traverseContext.Stem.ToArray(), suffixCommitment);
             return point;
         }
 
@@ -119,11 +117,11 @@ public class VerkleTree
             if (changeStemToBranch)
             {
                 var newChild = new InternalNode(true);
+                newChild.InternalCommitment.AddPoint(child.Value.InternalCommitment.Point);
                 // since this is a new child, this would be just the parentDeltaHash.PointToField
                 // now since there was a node before and that value is deleted - we need to subtract
                 // that from the delta as well
                 Fr deltaHash = newChild.UpdateCommitment(parentDeltaHash);
-                deltaHash = deltaHash - child.Value.InternalCommitment.PointAsField;
                 _db.BranchTable[absolutePath] = newChild;
                 deltaPoint = Committer.ScalarMul(deltaHash, pathIndex);
             }
@@ -167,19 +165,18 @@ public class VerkleTree
             
             
             // instead on declaring new node here - use the node that is input in the function
-            
-            _db.BranchTable[sharedPath.ToArray().Concat(new[] {oldLeafIndex}).ToArray()] =
-                new InternalNode(traverseContext.Stem.ToArray(), new Commitment());
-
             _db.StemTable.TryGetValue(node.Key, out var oldSuffixNode);
+            _db.BranchTable[sharedPath.ToArray().Concat(new[] {oldLeafIndex}).ToArray()] =
+                new InternalNode(node.Key, oldSuffixNode.ExtensionCommitment);
+            
             Banderwagon oldSuffixCommitmentDelta =
                 Committer.ScalarMul(oldSuffixNode.ExtensionCommitment.PointAsField, oldLeafIndex);
 
             Banderwagon deltaCommitment = oldSuffixCommitmentDelta + newSuffixCommitmentDelta;
 
-            var resultDelta = FillSpaceWithInternalBranchNodes(sharedPath.ToArray(), relativePathLength, deltaCommitment);
+            var internalCommitment = FillSpaceWithInternalBranchNodes(sharedPath.ToArray(), relativePathLength, deltaCommitment);
             
-            return (resultDelta, true);
+            return (internalCommitment - oldSuffixNode.ExtensionCommitment.Point, true);
         }
 
         _db.StemTable.TryGetValue(traverseContext.Key[..31].ToArray(), out var oldValue);
