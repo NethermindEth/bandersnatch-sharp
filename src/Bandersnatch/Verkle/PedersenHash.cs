@@ -3,11 +3,9 @@ using Field;
 using Nethermind.Int256;
 
 namespace Verkle;
-
 using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
-
-public class PedersenHash
+public static class PedersenHash
 {
 
     public static byte[] Hash(UInt256[] inputElements)

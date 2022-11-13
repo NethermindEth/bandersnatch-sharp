@@ -7,11 +7,13 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public struct LeafUpdateDelta
 {
-    public Banderwagon? DeltaC1 = null;
-    public Banderwagon? DeltaC2 = null;
+    public Banderwagon? DeltaC1 { get; private set; }
+    public Banderwagon? DeltaC2 { get; private set; }
 
     public LeafUpdateDelta()
     {
+        DeltaC1 = null;
+        DeltaC2 = null;
     }
 
     public void UpdateDelta(Banderwagon deltaLeafCommitment, byte index)
@@ -57,7 +59,7 @@ public static class VerkleUtils
 
     public static (List<byte>, byte?, byte?) GetPathDifference(IEnumerable<byte> existingNodeKey, IEnumerable<byte> newNodeKey)
     {
-        List<byte> samePathIndices = new();
+        List<byte> samePathIndices = new List<byte>();
         foreach ((byte first, byte second) in existingNodeKey.Zip(newNodeKey))
         {
             if (first != second) return (samePathIndices, first, second);

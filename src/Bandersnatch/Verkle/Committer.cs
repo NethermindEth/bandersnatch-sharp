@@ -28,7 +28,7 @@ public struct Committer
 
 public class Commitment
 {
-    public Banderwagon Point;
+    public Banderwagon Point { get; private set; }
     private Fr? _pointAsField;
     public Fr PointAsField
     {

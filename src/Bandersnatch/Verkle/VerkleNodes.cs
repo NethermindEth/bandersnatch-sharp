@@ -3,7 +3,6 @@ using Curve;
 using Field;
 
 namespace Verkle;
-
 using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public enum NodeType : byte
@@ -14,12 +13,11 @@ public enum NodeType : byte
 
 public readonly struct SuffixTree
 {
-    public readonly byte[] Stem;
-    public readonly Commitment C1;
-    public readonly Commitment C2;
-    public readonly Commitment ExtensionCommitment;
-
-    public readonly Fr InitCommitmentHash = Fr.Zero;
+    private byte[] Stem { get; }
+    private Commitment C1 { get; }
+    private Commitment C2 { get; }
+    public Commitment ExtensionCommitment { get; }
+    public Fr InitCommitmentHash { get; }
 
     public SuffixTree(byte[] stem)
     {
@@ -27,6 +25,7 @@ public readonly struct SuffixTree
         C1 = new Commitment();
         C2 = new Commitment();
         ExtensionCommitment = new Commitment();
+        InitCommitmentHash = Fr.Zero;
         Banderwagon stemCommitment = GetInitialCommitment();
         ExtensionCommitment.AddPoint(stemCommitment);
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
@@ -60,9 +59,6 @@ public class StemNode : InternalNode
     public StemNode(byte[] stem, Commitment suffixCommitment) : base(NodeType.StemNode, stem, suffixCommitment)
     {
     }
-    public StemNode(byte[] stem) : base(NodeType.StemNode, stem, new Commitment())
-    {
-    }
 }
 
 public class BranchNode : InternalNode
@@ -88,11 +84,6 @@ public class InternalNode
         {
             Debug.Assert(_stem != null, nameof(_stem) + " != null");
             return _stem;
-        }
-        set
-        {
-            if (IsBranchNode) throw new ArgumentException();
-            _stem = value;
         }
     }
 
