@@ -13,7 +13,7 @@ public class ByteArrayComparer : IEqualityComparer<byte[]>
 
     public int GetHashCode(byte[] value)
     {
-        HashCode hash = new();
+        HashCode hash = new HashCode();
         hash.AddBytes(value);
         return hash.ToHashCode();
     }
@@ -22,13 +22,13 @@ public class ByteArrayComparer : IEqualityComparer<byte[]>
 public struct MemoryDb
 {
     public readonly Dictionary<byte[], byte[]> LeafTable;
-    public readonly Dictionary<byte[], Suffix> StemTable;
+    public readonly Dictionary<byte[], SuffixTree> StemTable;
     public readonly Dictionary<byte[], InternalNode> BranchTable;
 
     public MemoryDb()
     {
         LeafTable = new Dictionary<byte[], byte[]>(new ByteArrayComparer());
-        StemTable = new Dictionary<byte[], Suffix>(new ByteArrayComparer());
+        StemTable = new Dictionary<byte[], SuffixTree>(new ByteArrayComparer());
         BranchTable = new Dictionary<byte[], InternalNode>(new ByteArrayComparer());
     }
 }

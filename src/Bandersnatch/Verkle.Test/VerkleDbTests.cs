@@ -11,7 +11,7 @@ public class VerkleDbTests
         byte[] a = { 1, 2 };
         byte[] b = { 1, 2 };
 
-        Dictionary<byte[], byte[]> table = new()
+        Dictionary<byte[], byte[]> table = new Dictionary<byte[], byte[]>
         {
             [a] = b,
         };

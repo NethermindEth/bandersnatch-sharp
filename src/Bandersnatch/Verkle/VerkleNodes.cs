@@ -9,45 +9,31 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 public enum NodeType : byte
 {
     BranchNode,
-    Stem,
-    Suffix,
-    Unknown
+    StemNode
 }
 
-public struct Suffix : IVerkleNode
+public readonly struct SuffixTree
 {
-    public byte[] Key { get; set; }
-    public bool IsSuffix => NodeType == NodeType.Suffix;
-    public bool IsStem => NodeType == NodeType.Stem;
-    public bool IsBranchNode => NodeType == NodeType.BranchNode;
     public readonly byte[] Stem;
     public readonly Commitment C1;
     public readonly Commitment C2;
     public readonly Commitment ExtensionCommitment;
-    public NodeType NodeType;
 
-    public Fr InitCommitmentHash = Fr.Zero;
+    public readonly Fr InitCommitmentHash = Fr.Zero;
 
-    public Suffix(byte[] stem)
+    public SuffixTree(byte[] stem)
     {
         Stem = stem;
         C1 = new Commitment();
         C2 = new Commitment();
         ExtensionCommitment = new Commitment();
-        NodeType = NodeType.BranchNode;
-        Encoded = new byte[] { };
-        Data = null;
-        Key = new byte[] { };
-        SetInitialCommitment();
-    }
-
-    private void SetInitialCommitment()
-    {
-        Banderwagon stemCommitment = Committer.ScalarMul(Fr.One, 0) +
-                                     Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
+        Banderwagon stemCommitment = GetInitialCommitment();
         ExtensionCommitment.AddPoint(stemCommitment);
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
     }
+
+    private Banderwagon GetInitialCommitment() => Committer.ScalarMul(Fr.One, 0) +
+                                                  Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
 
     public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment)
     {
@@ -67,67 +53,42 @@ public struct Suffix : IVerkleNode
         ExtensionCommitment.AddPoint(deltaCommit);
         return ExtensionCommitment.PointAsField - prevCommit;
     }
+}
 
-    public Commitment RecalculateSuffixCommitment(Func<Fr[], Banderwagon> verkleCommitter)
+public class StemNode : InternalNode
+{
+    public StemNode(byte[] stem, Commitment suffixCommitment) : base(NodeType.StemNode, stem, suffixCommitment)
     {
-        Fr c1Field = C1.PointAsField;
-        Fr c2Field = C2.PointAsField;
-
-        Fr[] extCommit = {
-            Fr.One, Fr.FromBytes(Stem) ?? throw new ArgumentException(), c1Field, c2Field
-        };
-
-        ExtensionCommitment.Point = verkleCommitter(extCommit);
-        return ExtensionCommitment;
     }
-
-    NodeType IVerkleNode.NodeType
+    public StemNode(byte[] stem) : base(NodeType.StemNode, stem, new Commitment())
     {
-        get => NodeType;
-        set => NodeType = value;
-    }
-
-    public byte[]? Encoded { get; set; }
-    public object? Data { get; set; }
-    public Fr UpdateCommitment(Banderwagon deltaPoint, byte[] key, byte index)
-    {
-        throw new NotImplementedException();
-    }
-
-    public byte[] Serialize()
-    {
-        throw new NotImplementedException();
-    }
-
-    public IVerkleNode Deserialize(byte[] node)
-    {
-        throw new NotImplementedException();
     }
 }
 
-public struct InternalNode : IVerkleNode
+public class BranchNode : InternalNode
 {
-    public byte[] Key
+    public BranchNode() : base(NodeType.BranchNode)
+    {
+    }
+}
+
+public class InternalNode
+{
+    public bool IsStem => _nodeType == NodeType.StemNode;
+    public bool IsBranchNode => _nodeType == NodeType.BranchNode;
+
+    public readonly Commitment _internalCommitment;
+
+    private readonly NodeType _nodeType;
+
+    private byte[]? _stem;
+    public byte[] Stem
     {
         get
         {
             Debug.Assert(_stem != null, nameof(_stem) + " != null");
             return _stem;
         }
-        set => _stem = value;
-    }
-
-    public bool IsSuffix => NodeType == NodeType.Suffix;
-    public bool IsStem => NodeType == NodeType.Stem;
-    public bool IsBranchNode => NodeType == NodeType.BranchNode;
-    public readonly Commitment InternalCommitment;
-
-    private byte[]? _stem = null;
-    public NodeType NodeType;
-
-    public byte[]? Stem
-    {
-        get => _stem;
         set
         {
             if (IsBranchNode) throw new ArgumentException();
@@ -135,91 +96,39 @@ public struct InternalNode : IVerkleNode
         }
     }
 
-    public InternalNode(byte[] stem, Commitment suffixCommitment)
+    protected InternalNode(NodeType nodeType, byte[] stem, Commitment suffixCommitment)
     {
-        NodeType = NodeType.Stem;
-        _stem = stem;
-        Encoded = new byte[] { };
-        Data = null;
-        InternalCommitment = suffixCommitment;
+        switch (nodeType)
+        {
+            case NodeType.StemNode:
+                _nodeType = NodeType.StemNode;
+                _stem = stem;
+                _internalCommitment = suffixCommitment;
+                break;
+            case NodeType.BranchNode:
+            default:
+                throw new ArgumentOutOfRangeException(nameof(nodeType), nodeType, null);
+        }
     }
 
-    public InternalNode(bool isInternal)
+    protected InternalNode(NodeType nodeType)
     {
-        NodeType = isInternal ? NodeType.BranchNode : NodeType.Stem;
-        NodeType = NodeType.BranchNode;
-        Encoded = new byte[] { };
-        Data = null;
-        InternalCommitment = new Commitment();
+        switch (nodeType)
+        {
+            case NodeType.BranchNode:
+                break;
+            case NodeType.StemNode:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(nodeType), nodeType, null);
+        }
+        _nodeType = nodeType;
+        _internalCommitment = new Commitment();
     }
-
-    public Fr UpdateCommitment(Fr deltaHash, byte index)
-    {
-        Banderwagon point = Committer.ScalarMul(deltaHash, index);
-        Fr prevCommit = InternalCommitment.PointAsField.Dup();
-        InternalCommitment.AddPoint(point);
-        return InternalCommitment.PointAsField - prevCommit;
-    }
-
     public Fr UpdateCommitment(Banderwagon point)
     {
-        Fr prevCommit = InternalCommitment.PointAsField.Dup();
-        InternalCommitment.AddPoint(point);
-        return InternalCommitment.PointAsField - prevCommit;
+        Fr prevCommit = _internalCommitment.PointAsField.Dup();
+        _internalCommitment.AddPoint(point);
+        return _internalCommitment.PointAsField - prevCommit;
     }
-
-    public Fr UpdateCommitment(Banderwagon[] points)
-    {
-        Fr prevCommit = InternalCommitment.PointAsField.Dup();
-        foreach (Banderwagon point in points)
-        {
-            InternalCommitment.AddPoint(point);
-        }
-        return InternalCommitment.PointAsField - prevCommit;
-    }
-
-    NodeType IVerkleNode.NodeType
-    {
-        get => NodeType;
-        set => NodeType = value;
-    }
-
-    public byte[]? Encoded { get; set; }
-    public object? Data { get; set; }
-    public Fr UpdateCommitment(Banderwagon deltaPoint, byte[] key, byte index)
-    {
-        throw new NotImplementedException();
-    }
-
-    public byte[] Serialize()
-    {
-        throw new NotImplementedException();
-    }
-
-    public IVerkleNode Deserialize(byte[] node)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void ChangeToBranch()
-    {
-        _stem = null;
-        NodeType = NodeType.BranchNode;
-    }
-}
-
-public interface IVerkleNode
-{
-    public NodeType NodeType { get; protected internal set; }
-    byte[] Key { get; set; }
-
-    public bool IsSuffix => NodeType == NodeType.Suffix;
-    public bool IsStem => NodeType == NodeType.Stem;
-    public bool IsBranchNode => NodeType == NodeType.BranchNode;
-
-    public byte[]? Encoded { get; set; }
-    public object? Data { get; set; }
-    Fr UpdateCommitment(Banderwagon deltaPoint, byte[] key, byte index);
-    byte[] Serialize();
-    IVerkleNode Deserialize(byte[] node);
 }
