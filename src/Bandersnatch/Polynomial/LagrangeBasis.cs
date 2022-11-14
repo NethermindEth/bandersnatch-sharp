@@ -115,7 +115,7 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
         List<MonomialBasis>? nums = new List<MonomialBasis>();
         foreach (Fr? x in xs)
         {
-            Fr[]? s = new Fr[] { x.Neg(), Fr.One };
+            Fr[]? s = new[] { x.Neg(), Fr.One };
             MonomialBasis? elem = root / new MonomialBasis(s);
             nums.Add(elem);
         }

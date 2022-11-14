@@ -18,16 +18,9 @@ public readonly struct AccountHeader
     private static readonly UInt256 CodeOffset = 128;
     private static readonly UInt256 VerkleNodeWidth = 256;
 
-    public static byte[] ToAddress32(byte[] address20)
-    {
-        byte[] address32 = new byte[32];
-        address20.CopyTo(address32, 0);
-        return address32;
-    }
-
     public static byte[] GetTreeKeyPrefix(byte[] address20, UInt256 treeIndex)
     {
-        byte[] address32 = ToAddress32(address20);
+        byte[]? address32 = VerkleUtils.ToAddress32(address20);
         return PedersenHash.Hash(address32, treeIndex);
     }
 

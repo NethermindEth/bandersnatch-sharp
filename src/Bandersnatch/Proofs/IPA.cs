@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Curve;
 using Field;
 using Nethermind.Int256;

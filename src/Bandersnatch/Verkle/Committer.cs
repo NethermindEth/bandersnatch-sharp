@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Curve;
 using Field;
 
@@ -27,12 +28,27 @@ public struct Committer
 
 public class Commitment
 {
-    public Banderwagon Point;
-    public Fr? PointAsField;
+    public Banderwagon Point { get; private set; }
+    private Fr? _pointAsField;
+    public Fr PointAsField
+    {
+        get
+        {
+            if (_pointAsField is null) SetCommitmentToField();
+            Debug.Assert(_pointAsField is not null, nameof(_pointAsField) + " != null");
+            return _pointAsField;
+        }
+        private set => _pointAsField = value;
+    }
 
     public Commitment(Banderwagon point)
     {
         Point = point;
+    }
+
+    public Commitment Dup()
+    {
+        return new Commitment(Point.Dup());
     }
 
     public Commitment()
@@ -40,19 +56,17 @@ public class Commitment
         Point = Banderwagon.Identity();
     }
 
-    public Fr CommitmentToField()
+    private void SetCommitmentToField()
     {
-        if (PointAsField is not null) return PointAsField;
         byte[] mapToBytes = Point.MapToField();
         PointAsField = Fr.FromBytesReduced(mapToBytes);
-        return PointAsField;
     }
 
     public void AddPoint(Banderwagon point)
     {
         Point += point;
-        PointAsField = null;
-        CommitmentToField();
+        _pointAsField = null;
+        SetCommitmentToField();
     }
 }
 
