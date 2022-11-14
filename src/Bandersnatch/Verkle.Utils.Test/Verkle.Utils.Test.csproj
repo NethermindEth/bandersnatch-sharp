@@ -5,9 +5,12 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <RootNamespace>Verkle.Test</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="6.8.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
         <PackageReference Include="NUnit" Version="3.13.2" />
         <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
@@ -15,9 +18,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Curve\Curve.csproj" />
-      <ProjectReference Include="..\Field\Field.csproj" />
-      <ProjectReference Include="..\Polynomial\Polynomial.csproj" />
+      <ProjectReference Include="..\Verkle.Curve\Verkle.Curve.csproj" />
+      <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
+      <ProjectReference Include="..\Verkle.Polynomial\Verkle.Polynomial.csproj" />
+      <ProjectReference Include="..\Verkle.Proofs\Verkle.Proofs.csproj" />
+      <ProjectReference Include="..\Verkle.Utils\Verkle.Utils.csproj" />
     </ItemGroup>
 
 </Project>

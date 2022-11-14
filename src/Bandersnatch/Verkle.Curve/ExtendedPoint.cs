@@ -3,6 +3,7 @@ using Field;
 namespace Curve;
 using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
 using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+using CurveParams = BandersnatchCurveParams;
 
 public class ExtendedPoint
 {

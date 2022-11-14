@@ -4,11 +4,11 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Curve</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Curve\Curve.csproj" />
-      <ProjectReference Include="..\Field\Field.csproj" />
+      <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     </ItemGroup>
 
 </Project>

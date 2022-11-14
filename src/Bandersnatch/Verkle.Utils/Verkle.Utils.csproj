@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Verkle</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Verkle.Curve\Verkle.Curve.csproj" />
+      <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
+      <ProjectReference Include="..\Verkle.Polynomial\Verkle.Polynomial.csproj" />
+      <ProjectReference Include="..\Verkle.Proofs\Verkle.Proofs.csproj" />
+    </ItemGroup>
+
+</Project>

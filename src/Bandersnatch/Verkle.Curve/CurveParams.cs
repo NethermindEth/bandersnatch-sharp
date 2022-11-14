@@ -5,7 +5,7 @@ namespace Curve;
 using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
 using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
-public readonly struct CurveParams
+public readonly struct BandersnatchCurveParams
 {
     private static readonly byte[] NumY =
     {

@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <RootNamespace>Curve.Test</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,8 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Curve\Curve.csproj" />
-      <ProjectReference Include="..\Field\Field.csproj" />
+      <ProjectReference Include="..\Verkle.Curve\Verkle.Curve.csproj" />
+      <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     </ItemGroup>
 
 </Project>
