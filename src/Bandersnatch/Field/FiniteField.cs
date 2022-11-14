@@ -20,7 +20,7 @@ public class FiniteField : IComparable<FiniteField>, IComparable, IEqualityCompa
         Modulus = modulus;
         if (value.Sign < 0)
         {
-            UInt256.SubtractMod(UInt256.Zero, (UInt256)(-value), modulus, out Value);
+            UInt256Extension.SubtractMod(UInt256.Zero, (UInt256)(-value), modulus, out Value);
         }
         else
         {
@@ -82,7 +82,7 @@ public class FiniteField : IComparable<FiniteField>, IComparable, IEqualityCompa
         {
             Modulus = Modulus
         };
-        UInt256.SubtractMod(UInt256.Zero, Value, Modulus, out result.Value);
+        UInt256Extension.SubtractMod(UInt256.Zero, Value, Modulus, out result.Value);
         return result;
     }
 
@@ -92,7 +92,7 @@ public class FiniteField : IComparable<FiniteField>, IComparable, IEqualityCompa
         {
             Modulus = a.Modulus
         };
-        UInt256.SubtractMod(UInt256.Zero, a.Value, a.Modulus, out res.Value);
+        UInt256Extension.SubtractMod(UInt256.Zero, a.Value, a.Modulus, out res.Value);
         return res;
     }
 
@@ -122,14 +122,14 @@ public class FiniteField : IComparable<FiniteField>, IComparable, IEqualityCompa
         {
             Modulus = a.Modulus
         };
-        UInt256.SubtractMod(Value, a.Value, Modulus, out res.Value);
+        UInt256Extension.SubtractMod(Value, a.Value, Modulus, out res.Value);
         return this;
     }
 
     public static FiniteField Sub(FiniteField a, FiniteField b)
     {
         FiniteField res = new();
-        UInt256.SubtractMod(a.Value, b.Value, a.Modulus, out res.Value);
+        UInt256Extension.SubtractMod(a.Value, b.Value, a.Modulus, out res.Value);
         res.Modulus = a.Modulus;
         return res;
     }
