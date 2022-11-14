@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\int256\src\Nethermind.Int256\Nethermind.Int256.csproj" />
+      <PackageReference Include="Nethermind.Numerics.Int256" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

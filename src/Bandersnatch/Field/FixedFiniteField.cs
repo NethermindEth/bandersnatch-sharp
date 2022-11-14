@@ -22,7 +22,7 @@ public class FixedFiniteField<T> : FiniteField, IComparable<FixedFiniteField<T>>
         Modulus = new T().FieldMod;
         if (value.Sign < 0)
         {
-            UInt256.SubtractMod(UInt256.Zero, (UInt256)(-value), Modulus, out Value);
+            UInt256Extension.SubtractMod(UInt256.Zero, (UInt256)(-value), Modulus, out Value);
         }
         else
         {
@@ -67,14 +67,14 @@ public class FixedFiniteField<T> : FiniteField, IComparable<FixedFiniteField<T>>
     public new FixedFiniteField<T> Neg()
     {
         FixedFiniteField<T>? result = new FixedFiniteField<T>();
-        UInt256.SubtractMod(UInt256.Zero, Value, Modulus, out result.Value);
+        UInt256Extension.SubtractMod(UInt256.Zero, Value, Modulus, out result.Value);
         return result;
     }
 
     public static FixedFiniteField<T> Neg(FixedFiniteField<T> a)
     {
         FixedFiniteField<T> res = new();
-        UInt256.SubtractMod(UInt256.Zero, a.Value, a.Modulus, out res.Value);
+        UInt256Extension.SubtractMod(UInt256.Zero, a.Value, a.Modulus, out res.Value);
         return res;
     }
 
@@ -95,14 +95,14 @@ public class FixedFiniteField<T> : FiniteField, IComparable<FixedFiniteField<T>>
     public FixedFiniteField<T> Sub(FixedFiniteField<T> a)
     {
         FixedFiniteField<T> res = new();
-        UInt256.SubtractMod(Value, a.Value, Modulus, out res.Value);
+        UInt256Extension.SubtractMod(Value, a.Value, Modulus, out res.Value);
         return res;
     }
 
     public static FixedFiniteField<T> Sub(FixedFiniteField<T> a, FixedFiniteField<T> b)
     {
         FixedFiniteField<T> res = new();
-        UInt256.SubtractMod(a.Value, b.Value, a.Modulus, out res.Value);
+        UInt256Extension.SubtractMod(a.Value, b.Value, a.Modulus, out res.Value);
         return res;
     }
 

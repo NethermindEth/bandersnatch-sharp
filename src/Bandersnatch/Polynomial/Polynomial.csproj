@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\int256\src\Nethermind.Int256\Nethermind.Int256.csproj" />
       <ProjectReference Include="..\Curve\Curve.csproj" />
       <ProjectReference Include="..\Field\Field.csproj" />
     </ItemGroup>
