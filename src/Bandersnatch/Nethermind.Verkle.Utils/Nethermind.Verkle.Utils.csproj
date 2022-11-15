@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <RootNamespace>Nethermind.Verkle.Utils</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Nethermind">
+        <Version>0.0.1-alpha</Version>
+        <Authors>Tanishq Jasoria</Authors>
+        <Company>Nethermind</Company>
+        <Copyright>Demerzel Solutions Limited</Copyright>
+        <Description>Implementations of Bandersnatch Curve in C# for Verkle Trees.</Description>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/NethermindEth/bandersnatch-sharp</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/NethermindEth/bandersnatch-sharp</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
+      <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
+      <ProjectReference Include="..\Nethermind.Verkle.Polynomial\Nethermind.Verkle.Polynomial.csproj" />
+      <ProjectReference Include="..\Nethermind.Verkle.Proofs\Nethermind.Verkle.Proofs.csproj" />
+    </ItemGroup>
+
+</Project>

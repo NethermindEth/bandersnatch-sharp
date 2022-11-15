@@ -2,25 +2,29 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{70B362E0-594F-40D3-A97B-B47335654175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Field", "Field\Field.csproj", "{4F107F35-7DFA-4560-8878-3929107BD2B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Field", "Nethermind.Field\Nethermind.Field.csproj", "{4F107F35-7DFA-4560-8878-3929107BD2B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Field.Test", "Field.Test\Field.Test.csproj", "{A2D1D2C4-5990-4B17-9D93-124B0D72373E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Field.Test", "Nethermind.Field.Test\Nethermind.Field.Test.csproj", "{A2D1D2C4-5990-4B17-9D93-124B0D72373E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Curve", "Curve\Curve.csproj", "{E504B6C3-C8D5-4D61-8A0B-6CD1AEFE304C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Curve", "Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj", "{E504B6C3-C8D5-4D61-8A0B-6CD1AEFE304C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Curve.Test", "Curve.Test\Curve.Test.csproj", "{0CB0FEB0-A4A5-4614-B197-5DA4181CF18F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Curve.Test", "Nethermind.Verkle.Curve.Test\Nethermind.Verkle.Curve.Test.csproj", "{0CB0FEB0-A4A5-4614-B197-5DA4181CF18F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polynomial", "Polynomial\Polynomial.csproj", "{E10236E1-13E5-45DB-BCB5-CDA328D02F08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Polynomial", "Nethermind.Verkle.Polynomial\Nethermind.Verkle.Polynomial.csproj", "{E10236E1-13E5-45DB-BCB5-CDA328D02F08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polynomial.Test", "Polynomial.Test\Polynomial.Test.csproj", "{C567634A-3F6D-410F-BA86-595E14ED3F44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Polynomial.Test", "Nethermind.Verkle.Polynomial.Test\Nethermind.Verkle.Polynomial.Test.csproj", "{C567634A-3F6D-410F-BA86-595E14ED3F44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proofs", "Proofs\Proofs.csproj", "{B3C5FCE6-7A51-42A2-B97B-BDA7D5E97DB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Proofs", "Nethermind.Verkle.Proofs\Nethermind.Verkle.Proofs.csproj", "{B3C5FCE6-7A51-42A2-B97B-BDA7D5E97DB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proofs.Test", "Proofs.Test\Proofs.Test.csproj", "{DB945F74-BE47-4264-9351-82E6C0289675}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Proofs.Test", "Nethermind.Verkle.Proofs.Test\Nethermind.Verkle.Proofs.Test.csproj", "{DB945F74-BE47-4264-9351-82E6C0289675}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verkle", "Verkle\Verkle.csproj", "{AA7EBFCE-32FF-4E15-9200-BA37995D4662}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Utils", "Nethermind.Verkle.Utils\Nethermind.Verkle.Utils.csproj", "{AA7EBFCE-32FF-4E15-9200-BA37995D4662}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Verkle.Test", "Verkle.Test\Verkle.Test.csproj", "{E2C7707C-7BDD-47EA-AF51-9911DBED0476}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Utils.Test", "Nethermind.Verkle.Utils.Test\Nethermind.Verkle.Utils.Test.csproj", "{E2C7707C-7BDD-47EA-AF51-9911DBED0476}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Tree", "Nethermind.Verkle.Tree\Nethermind.Verkle.Tree.csproj", "{E967F60C-F93C-4BE0-BEA9-A0F7B3619095}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Tree.Test", "Nethermind.Verkle.Tree.Test\Nethermind.Verkle.Tree.Test.csproj", "{BDA8184D-5314-4143-A4CA-B062045ABE66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +72,14 @@ Global
 		{E2C7707C-7BDD-47EA-AF51-9911DBED0476}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2C7707C-7BDD-47EA-AF51-9911DBED0476}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2C7707C-7BDD-47EA-AF51-9911DBED0476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E967F60C-F93C-4BE0-BEA9-A0F7B3619095}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E967F60C-F93C-4BE0-BEA9-A0F7B3619095}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E967F60C-F93C-4BE0-BEA9-A0F7B3619095}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E967F60C-F93C-4BE0-BEA9-A0F7B3619095}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDA8184D-5314-4143-A4CA-B062045ABE66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDA8184D-5314-4143-A4CA-B062045ABE66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDA8184D-5314-4143-A4CA-B062045ABE66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDA8184D-5314-4143-A4CA-B062045ABE66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2D1D2C4-5990-4B17-9D93-124B0D72373E} = {70B362E0-594F-40D3-A97B-B47335654175}
@@ -75,5 +87,6 @@ Global
 		{C567634A-3F6D-410F-BA86-595E14ED3F44} = {70B362E0-594F-40D3-A97B-B47335654175}
 		{DB945F74-BE47-4264-9351-82E6C0289675} = {70B362E0-594F-40D3-A97B-B47335654175}
 		{E2C7707C-7BDD-47EA-AF51-9911DBED0476} = {70B362E0-594F-40D3-A97B-B47335654175}
+		{BDA8184D-5314-4143-A4CA-B062045ABE66} = {70B362E0-594F-40D3-A97B-B47335654175}
 	EndGlobalSection
 EndGlobal
