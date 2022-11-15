@@ -45,6 +45,7 @@ public class FiniteField : IComparable<FiniteField>, IComparable, IEqualityCompa
     public bool IsOne => Value.IsOne;
 
     public byte[] ToBytes() => Value.ToLittleEndian();
+    public byte[] ToBytesBigEndian() => Value.ToBigEndian();
 
     public static FiniteField? FromBytes(byte[] byteEncoded, UInt256 modulus)
     {

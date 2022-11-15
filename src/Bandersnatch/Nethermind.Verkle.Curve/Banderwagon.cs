@@ -101,8 +101,7 @@ public class Banderwagon
             x = affine.X.Neg();
         }
 
-        byte[]? bytesLittleEndian = x.ToBytes();
-        return bytesLittleEndian.Reverse().ToArray();
+        return x.ToBytesBigEndian();
     }
 
     public static Banderwagon Double(Banderwagon p) => new(ExtendedPoint.Double(p._point));
