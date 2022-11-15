@@ -5,11 +5,11 @@ namespace Nethermind.Verkle.Tree;
 
 public readonly struct AccountHeader
 {
-    private const int Version = 0;
-    private const int Balance = 1;
-    private const int Nonce = 2;
-    private const int CodeHash = 3;
-    private const int CodeSize = 4;
+    public const int Version = 0;
+    public const int Balance = 1;
+    public const int Nonce = 2;
+    public const int CodeHash = 3;
+    public const int CodeSize = 4;
 
     private const int MainStorageOffsetExponent = 31;
     private static readonly UInt256 MainStorageOffsetBase = 256;
