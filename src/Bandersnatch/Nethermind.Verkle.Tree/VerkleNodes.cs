@@ -32,6 +32,15 @@ public readonly struct SuffixTree
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
     }
 
+    internal SuffixTree(byte[] stem, byte[] c1, byte[] c2, byte[] extCommit)
+    {
+        Stem = stem;
+        C1 = new Commitment(new Banderwagon(c1));
+        C2 = new Commitment(new Banderwagon(c2));
+        ExtensionCommitment = new Commitment(new Banderwagon(extCommit));
+        InitCommitmentHash = Fr.Zero;
+    }
+
     private Banderwagon GetInitialCommitment() => Committer.ScalarMul(Fr.One, 0) +
                                                   Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
 
@@ -52,6 +61,22 @@ public readonly struct SuffixTree
 
         ExtensionCommitment.AddPoint(deltaCommit);
         return ExtensionCommitment.PointAsField - prevCommit;
+    }
+
+    public byte[] Encode()
+    {
+        int nodeLength = 31 + 32 + 32 + 32;
+        byte[] rlp = new byte[nodeLength];
+        Buffer.BlockCopy(Stem, 0, rlp, 0, 31);
+        Buffer.BlockCopy(C1.Point.ToBytes(), 0, rlp, 31, 32);
+        Buffer.BlockCopy(C2.Point.ToBytes(), 0, rlp, 63, 32);
+        Buffer.BlockCopy(ExtensionCommitment.Point.ToBytes(), 0, rlp, 95, 32);
+        return rlp;
+    }
+
+    public static SuffixTree Decode(byte[] rlp)
+    {
+        return new SuffixTree(rlp[..31], rlp[32..64], rlp[64..96], rlp[96..128]);
     }
 }
 
