@@ -21,9 +21,9 @@ public class ByteArrayComparer : IEqualityComparer<byte[]>
 
 public struct MemoryDb
 {
-    public readonly Dictionary<byte[], byte[]> LeafTable { get; }
-    public readonly Dictionary<byte[], SuffixTree> StemTable { get; }
-    public readonly Dictionary<byte[], InternalNode> BranchTable { get; }
+    public Dictionary<byte[], byte[]> LeafTable { get; }
+    public Dictionary<byte[], SuffixTree> StemTable { get; }
+    public Dictionary<byte[], InternalNode> BranchTable { get; }
 
     public MemoryDb()
     {

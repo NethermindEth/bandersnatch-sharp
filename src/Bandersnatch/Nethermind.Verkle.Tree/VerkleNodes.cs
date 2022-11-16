@@ -8,8 +8,8 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public enum NodeType : byte
 {
-    BranchNode,
-    StemNode
+    BranchNode = 1,
+    StemNode = 2
 }
 
 public readonly struct SuffixTree
@@ -122,5 +122,45 @@ public class InternalNode
         Fr prevCommit = _internalCommitment.PointAsField.Dup();
         _internalCommitment.AddPoint(point);
         return _internalCommitment.PointAsField - prevCommit;
+    }
+
+    public byte[] Encode()
+    {
+        int nodeLength;
+        byte[] rlp;
+        switch (_nodeType)
+        {
+            case NodeType.BranchNode:
+                nodeLength = 32 + 1;
+                rlp = new byte[nodeLength];
+                rlp[0] = (byte)_nodeType;
+                Buffer.BlockCopy(_internalCommitment.Point.ToBytes(), 0, rlp, 1, 32);
+                return rlp;
+            case NodeType.StemNode:
+                nodeLength = 32 + 31 + 1;
+                rlp = new byte[nodeLength];
+                rlp[0] = (byte)_nodeType;
+                Buffer.BlockCopy(_stem, 0, rlp, 1, 32);
+                Buffer.BlockCopy(_internalCommitment.Point.ToBytes(), 0, rlp, 32, 32);
+                return rlp;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    public static InternalNode Decode(byte[] rlp)
+    {
+        NodeType nodeType = (NodeType)rlp[0];
+        switch (nodeType)
+        {
+            case NodeType.BranchNode:
+                InternalNode node = new InternalNode(nodeType);
+                node.UpdateCommitment(new Banderwagon(rlp[1..]));
+                return node;
+            case NodeType.StemNode:
+                return new InternalNode(NodeType.StemNode, rlp[1..32], new Commitment(new Banderwagon(rlp[32..])));
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }
