@@ -8,7 +8,7 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class VerkleTree
 {
-    private readonly VerkleDb _stateDb;
+    private readonly IVerkleDb _stateDb;
     public byte[] RootHash => _stateDb.GetBranch(Array.Empty<byte>())?._internalCommitment.PointAsField.ToBytes() ?? throw new InvalidOperationException();
 
     public VerkleTree()
