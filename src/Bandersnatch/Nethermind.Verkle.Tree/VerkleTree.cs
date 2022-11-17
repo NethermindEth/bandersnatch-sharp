@@ -227,6 +227,15 @@ public class VerkleTree
         return leafDeltaCommitment;
     }
 
+    public void Flush(long blockNumber)
+    {
+        _stateDb.Flush(blockNumber);
+    }
+    public void ReverseState()
+    {
+        _stateDb.ReverseState();
+    }
+
     private ref struct TraverseContext
     {
         public LeafUpdateDelta LeafUpdateDelta { get; }

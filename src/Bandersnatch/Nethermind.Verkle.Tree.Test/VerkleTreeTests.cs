@@ -227,4 +227,103 @@ public class VerkleTreeTests
         Convert.ToHexString(realRootHash).Should()
             .BeEquivalentTo(expectedRootHash);
     }
+
+    [Test]
+    public void TestValueSameBeforeAndAfterFlush()
+    {
+        VerkleTree tree = new VerkleTree();
+
+
+        tree.Insert(_keyVersion, _emptyArray);
+        tree.Insert(_keyBalance, _emptyArray);
+        tree.Insert(_keyNonce, _emptyArray);
+        tree.Insert(_keyCodeKeccak, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _emptyArray);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+
+        tree.Flush(0);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+    }
+
+    [Test]
+    public void TestInsertGetMultiBlock()
+    {
+        VerkleTree tree = new VerkleTree();
+
+        tree.Insert(_keyVersion, _emptyArray);
+        tree.Insert(_keyBalance, _emptyArray);
+        tree.Insert(_keyNonce, _emptyArray);
+        tree.Insert(_keyCodeKeccak, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _emptyArray);
+        tree.Flush(0);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+
+        tree.Insert(_keyVersion, _arrayAll0Last2);
+        tree.Insert(_keyBalance, _arrayAll0Last2);
+        tree.Insert(_keyNonce, _arrayAll0Last2);
+        tree.Insert(_keyCodeKeccak, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last2);
+        tree.Flush(1);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last2);
+    }
+
+    [Test]
+    public void TestInsertGetMultiBlockReverseState()
+    {
+        VerkleTree tree = new VerkleTree();
+
+        tree.Insert(_keyVersion, _emptyArray);
+        tree.Insert(_keyBalance, _emptyArray);
+        tree.Insert(_keyNonce, _emptyArray);
+        tree.Insert(_keyCodeKeccak, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _emptyArray);
+        tree.Flush(0);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+
+        tree.Insert(_keyVersion, _arrayAll0Last2);
+        tree.Insert(_keyBalance, _arrayAll0Last2);
+        tree.Insert(_keyNonce, _arrayAll0Last2);
+        tree.Insert(_keyCodeKeccak, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last2);
+        tree.Flush(1);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last2);
+
+        tree.ReverseState();
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+    }
 }

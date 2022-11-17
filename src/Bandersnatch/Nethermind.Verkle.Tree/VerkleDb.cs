@@ -61,20 +61,20 @@ public class MemoryReverseStateDb
 
 public class DiffLayer
 {
-    private long FullStateBlock { get; set; }
-    public Dictionary<long, byte[]> Forward { get; }
-    public Dictionary<long, byte[]> Reverse { get; }
+    public Dictionary<long, MemoryStateDb> Forward { get; }
+    public Dictionary<long, MemoryReverseStateDb> Reverse { get; }
     public MemoryStateDb Batch { get; }
     public DiffLayer()
     {
-        Forward = new Dictionary<long, byte[]>();
-        Reverse = new Dictionary<long, byte[]>();
+        Forward = new Dictionary<long, MemoryStateDb>();
+        Reverse = new Dictionary<long, MemoryReverseStateDb>();
         Batch = new MemoryStateDb();
     }
 }
 
 public class VerkleDb: IVerkleDb
 {
+    private long FullStateBlock { get; set; }
     private MemoryStateDb Storage { get; }
     // private MemoryStateDb InMemoryStateDbDiffLayer { get; }
     private MemoryStateDb Batch { get; }
@@ -88,6 +88,7 @@ public class VerkleDb: IVerkleDb
         Batch = new MemoryStateDb();
         Cache = new MemoryStateDb();
         History = new DiffLayer();
+        FullStateBlock = 0;
     }
 
     public void InitRootHash()
@@ -167,8 +168,60 @@ public class VerkleDb: IVerkleDb
 
             Storage.BranchTable[entry.Key] = entry.Value;
         }
-        History.Forward[blockNumber] = Batch.Encode();
-        History.Reverse[blockNumber] = reverseDiff.Encode();
+        History.Forward[blockNumber] = Batch;
+        History.Reverse[blockNumber] = reverseDiff;
+        FullStateBlock = blockNumber;
+    }
+
+    public void ReverseState()
+    {
+        MemoryReverseStateDb reverseDiff = History.Reverse[FullStateBlock];
+
+        foreach (KeyValuePair<byte[], byte[]?> entry in reverseDiff.LeafTable)
+        {
+            reverseDiff.LeafTable.TryGetValue(entry.Key, out byte[]? node);
+            if (node is null)
+            {
+                Cache.LeafTable.Remove(entry.Key);
+                Storage.LeafTable.Remove(entry.Key);
+            }
+            else
+            {
+                Cache.LeafTable[entry.Key] = node;
+                Storage.LeafTable[entry.Key] = node;
+            }
+        }
+
+        foreach (KeyValuePair<byte[], SuffixTree?> entry in reverseDiff.StemTable)
+        {
+            reverseDiff.StemTable.TryGetValue(entry.Key, out SuffixTree? node);
+            if (node is null)
+            {
+                Cache.StemTable.Remove(entry.Key);
+                Storage.StemTable.Remove(entry.Key);
+            }
+            else
+            {
+                Cache.StemTable[entry.Key] = node.Value;
+                Storage.StemTable[entry.Key] = node.Value;
+            }
+        }
+
+        foreach (KeyValuePair<byte[], InternalNode?> entry in reverseDiff.BranchTable)
+        {
+            reverseDiff.BranchTable.TryGetValue(entry.Key, out InternalNode? node);
+            if (node is null)
+            {
+                Cache.BranchTable.Remove(entry.Key);
+                Storage.BranchTable.Remove(entry.Key);
+            }
+            else
+            {
+                Cache.BranchTable[entry.Key] = node;
+                Storage.BranchTable[entry.Key] = node;
+            }
+        }
+
     }
 }
 
@@ -182,4 +235,5 @@ public interface IVerkleDb
     void SetStem(byte[] stemKey, SuffixTree suffixTree);
     void SetBranch(byte[] branchKey, InternalNode internalNodeValue);
     void Flush(long blockNumber);
+    void ReverseState();
 }
