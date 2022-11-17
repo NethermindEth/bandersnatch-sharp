@@ -10,11 +10,59 @@ using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 [TestFixture]
 public class VerkleTreeTests
 {
+    private byte[] _array1To32 =
+    {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+    };
+    private byte[] _array1To32Last128 =
+    {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 128,
+    };
+    private byte[] _emptyArray =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+    private byte[] _arrayAll1 =
+    {
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    };
+
+    private byte[] _arrayAll0Last2 =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2
+    };
+
+
+    private byte[] _keyVersion =
+    {
+        121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 0,
+    };
+    private byte[] _keyBalance =
+    {
+        121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 1,
+    };
+    private byte[] _keyNonce =
+    {
+        121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 2,
+    };
+    private byte[] _keyCodeKeccak = {
+        121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 3,
+    };
+    private byte[] _keyCodeSize =
+    {
+        121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 4,
+    };
+    private byte[] _valueEmptyCodeHashValue =
+    {
+        197, 210, 70, 1, 134, 247, 35, 60, 146, 126, 125, 178, 220, 199, 3, 192, 229, 0, 182, 83, 202, 130, 39, 59, 123, 250, 216, 4, 93, 133, 164, 112,
+    };
+
+
     [Test]
     public void InsertKey0Value0()
     {
         VerkleTree tree = new VerkleTree();
-        byte[] key = new byte[32];
+        byte[] key = _emptyArray;
 
         tree.Insert(key, key);
         AssertRootNode(tree.RootHash,
@@ -27,10 +75,7 @@ public class VerkleTreeTests
     public void InsertKey1Value1()
     {
         VerkleTree tree = new VerkleTree();
-        byte[] key = {
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-            25, 26, 27, 28, 29, 30, 31, 32,
-        };
+        byte[] key = _array1To32;
 
         tree.Insert(key, key);
         AssertRootNode(tree.RootHash,
@@ -43,15 +88,9 @@ public class VerkleTreeTests
     public void InsertSameStemTwoLeaves()
     {
         VerkleTree tree = new();
-        byte[] keyA = {
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-            25, 26, 27, 28, 29, 30, 31, 32,
-        };
+        byte[] keyA = _array1To32;
 
-        byte[] keyB = {
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-            25, 26, 27, 28, 29, 30, 31, 128,
-        };
+        byte[] keyB = _array1To32Last128;
 
         tree.Insert(keyA, keyA);
         AssertRootNode(tree.RootHash,
@@ -68,12 +107,8 @@ public class VerkleTreeTests
     public void InsertKey1Val1Key2Val2()
     {
         VerkleTree tree = new VerkleTree();
-        byte[] keyA = new byte[32];
-        byte[] keyB = new byte[32];
-        for (int i = 0; i < 32; i++)
-        {
-            keyB[i] = 1;
-        }
+        byte[] keyA = _emptyArray;
+        byte[] keyB = _arrayAll1;
 
         tree.Insert(keyA, keyA);
         AssertRootNode(tree.RootHash,
@@ -90,8 +125,8 @@ public class VerkleTreeTests
     public void InsertLongestPath()
     {
         VerkleTree tree = new VerkleTree();
-        byte[] keyA = new byte[32];
-        byte[] keyB = new byte[32];
+        byte[] keyA = _emptyArray;
+        byte[] keyB = (byte[])_emptyArray.Clone();
         keyB[30] = 1;
 
         tree.Insert(keyA, keyA);
@@ -109,18 +144,18 @@ public class VerkleTreeTests
     public void InsertAndTraverseLongestPath()
     {
         VerkleTree tree = new VerkleTree();
-        byte[] keyA = new byte[32];
+        byte[] keyA = _emptyArray;
         tree.Insert(keyA, keyA);
         AssertRootNode(tree.RootHash,
             "ff00a9f3f2d4f58fc23bceebf6b2310419ceac2c30445e2f374e571487715015");
 
-        byte[] keyB = new byte[32];
+        byte[] keyB = (byte[])_emptyArray.Clone();
         keyB[30] = 1;
         tree.Insert(keyB, keyB);
         AssertRootNode(tree.RootHash,
             "fe2e17833b90719eddcad493c352ccd491730643ecee39060c7c1fff5fcc621a");
 
-        byte[] keyC = new byte[32];
+        byte[] keyC = (byte[])_emptyArray.Clone();
         keyC[29] = 1;
         tree.Insert(keyC, keyC);
         AssertRootNode(tree.RootHash,
@@ -142,11 +177,8 @@ public class VerkleTreeTests
     public void TestSimpleUpdate()
     {
         VerkleTree tree = new VerkleTree();
-        byte[] key = {
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-            25, 26, 27, 28, 29, 30, 31, 32,
-        };
-        byte[] value = new byte[32];
+        byte[] key = _array1To32;
+        byte[] value = _emptyArray;
         tree.Insert(key, value);
         AssertRootNode(tree.RootHash,
             "77a0747bd526d9d9af60bd5665d24d6cb421f5c8e726b1de62f914f3ff9a361c");
@@ -163,63 +195,31 @@ public class VerkleTreeTests
     {
         VerkleTree tree = new VerkleTree();
 
-        byte[] treeKeyVersion = {
-            121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 0,
-        };
-
-        byte[] treeKeyBalance = {
-            121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 1,
-        };
-
-        byte[] treeKeyNonce = {
-            121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 2,
-        };
-
-        byte[] treeKeyCodeKeccak = {
-            121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 3,
-        };
-
-        byte[] treeKeyCodeSize = {
-            121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 4,
-        };
-
-        byte[] emptyCodeHashValue = {
-            197, 210, 70, 1, 134, 247, 35, 60, 146, 126, 125, 178, 220, 199, 3, 192, 229, 0, 182, 83, 202, 130, 39, 59, 123, 250, 216, 4, 93, 133, 164, 112,
-        };
-
-        byte[] value0 = {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        };
-
-        byte[] value2 = {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-        };
-
-        tree.Insert(treeKeyVersion, value0);
+        tree.Insert(_keyVersion, _emptyArray);
         AssertRootNode(tree.RootHash,
             "012cc5c81083b484e578390ca619725ff8597753a8da7f26676459e2ab543b08");
 
-        tree.Insert(treeKeyBalance, value2);
+        tree.Insert(_keyBalance, _arrayAll0Last2);
         AssertRootNode(tree.RootHash,
             "1b3e9d60e1e510defdca6a382bbc6249c98870e341744a99906a230d9193350d");
 
-        tree.Insert(treeKeyNonce, value0);
+        tree.Insert(_keyNonce, _emptyArray);
         AssertRootNode(tree.RootHash,
             "5bcb12efaf7f407743ea0258d2b1fc12b0856a423c3fe268c10d53b89a43771c");
 
-        tree.Insert(treeKeyCodeKeccak, emptyCodeHashValue);
+        tree.Insert(_keyCodeKeccak, _valueEmptyCodeHashValue);
         AssertRootNode(tree.RootHash,
             "828983030205ddd526a2444f707f63f187d079872d33e5fba334f77fe8bb301c");
 
-        tree.Insert(treeKeyCodeSize, value0);
+        tree.Insert(_keyCodeSize, _emptyArray);
         AssertRootNode(tree.RootHash,
             "1f470a52c36f350d24aba63cf5de6d676deff21fbd3f844150841197c1c6af19");
 
-        tree.Get(treeKeyVersion).Should().BeEquivalentTo(value0);
-        tree.Get(treeKeyBalance).Should().BeEquivalentTo(value2);
-        tree.Get(treeKeyNonce).Should().BeEquivalentTo(value0);
-        tree.Get(treeKeyCodeKeccak).Should().BeEquivalentTo(emptyCodeHashValue);
-        tree.Get(treeKeyCodeSize).Should().BeEquivalentTo(value0);
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeKeccak).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
     }
 
     private static void AssertRootNode(byte[] realRootHash, string expectedRootHash)
