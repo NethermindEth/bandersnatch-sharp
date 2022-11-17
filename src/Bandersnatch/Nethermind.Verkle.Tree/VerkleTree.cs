@@ -8,12 +8,12 @@ namespace Nethermind.Verkle.Tree;
 
 public class VerkleTree
 {
-    private readonly IVerkleDb _stateDb;
+    private readonly IVerkleStore _stateDb;
     public byte[] RootHash => _stateDb.GetBranch(Array.Empty<byte>())?._internalCommitment.PointAsField.ToBytes().ToArray() ?? throw new InvalidOperationException();
 
     public VerkleTree()
     {
-        _stateDb = new VerkleDb();
+        _stateDb = new VerkleStateStore();
         _stateDb.InitRootHash();
     }
 

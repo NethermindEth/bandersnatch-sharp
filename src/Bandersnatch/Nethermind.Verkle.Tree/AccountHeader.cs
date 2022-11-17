@@ -37,7 +37,7 @@ public readonly struct AccountHeader
     public static byte[] GetTreeKeyForVersion(byte[] address) => GetTreeKey(address, UInt256.Zero, Version);
     public static byte[] GetTreeKeyForBalance(byte[] address) => GetTreeKey(address, UInt256.Zero, Balance);
     public static byte[] GetTreeKeyForNonce(byte[] address) => GetTreeKey(address, UInt256.Zero, Nonce);
-    public static byte[] GetTreeKeyForCodeKeccak(byte[] address) => GetTreeKey(address, UInt256.Zero, CodeHash);
+    public static byte[] GetTreeKeyForCodeCommitment(byte[] address) => GetTreeKey(address, UInt256.Zero, CodeHash);
     public static byte[] GetTreeKeyForCodeSize(byte[] address) => GetTreeKey(address, UInt256.Zero, CodeSize);
 
 
