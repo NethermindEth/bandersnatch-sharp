@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Nethermind.Verkle.Db;
 using Nethermind.Verkle.Tree.VerkleStateDb;
 
 namespace Nethermind.Verkle.Tree;
@@ -12,9 +13,9 @@ public class VerkleStateStore : IVerkleStore
     private DiffLayer ForwardDiff { get; }
     private DiffLayer ReverseDiff { get; }
 
-    public VerkleStateStore()
+    public VerkleStateStore(DbMode dbMode, string? dbPath)
     {
-        Storage = new DiskDb();
+        Storage = new DiskDb(dbMode, dbPath);
         Batch = new MemoryStateDb();
         Cache = new MemoryStateDb();
         ForwardDiff = new DiffLayer();

@@ -16,9 +16,9 @@ public class DiskDb: IVerkleDb
     public IDb LeafDb => _dbProvider.LeafDb;
     public IDb StemDb => _dbProvider.StemDb;
     public IDb BranchDb => _dbProvider.BranchDb;
-    public DiskDb()
+    public DiskDb(DbMode dbMode, string? dbPath)
     {
-        _dbProvider = DbFactory.InitDatabase(DbMode.MemDb);
+        _dbProvider = DbFactory.InitDatabase(dbMode, dbPath);
     }
     public byte[]? GetLeaf(byte[] key) => LeafDb[key];
 
