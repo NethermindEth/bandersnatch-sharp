@@ -2,18 +2,19 @@ using System.Runtime.CompilerServices;
 using Nethermind.Field;
 using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Db;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree;
 
 public class VerkleTree
 {
-    private readonly IVerkleDb _stateDb;
+    private readonly IVerkleStore _stateDb;
     public byte[] RootHash => _stateDb.GetBranch(Array.Empty<byte>())?._internalCommitment.PointAsField.ToBytes().ToArray() ?? throw new InvalidOperationException();
 
-    public VerkleTree()
+    public VerkleTree(DbMode dbMode, string? dbPath)
     {
-        _stateDb = new VerkleDb();
+        _stateDb = new VerkleStateStore(dbMode, dbPath);
         _stateDb.InitRootHash();
     }
 

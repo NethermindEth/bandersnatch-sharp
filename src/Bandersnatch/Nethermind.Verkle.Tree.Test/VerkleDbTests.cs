@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using Nethermind.Utils.Extensions;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Tree.Test;
+using LeafStore = Dictionary<byte[], byte[]?>;
+using SuffixStore = Dictionary<byte[], SuffixTree?>;
+using BranchStore = Dictionary<byte[], InternalNode?>;
 
 public class VerkleDbTests
 {
@@ -17,7 +21,7 @@ public class VerkleDbTests
         };
         Assert.IsFalse(table.TryGetValue(b, out _));
 
-        table = new Dictionary<byte[], byte[]>(new ByteArrayComparer())
+        table = new Dictionary<byte[], byte[]>(Bytes.EqualityComparer)
         {
             [a] = b,
         };

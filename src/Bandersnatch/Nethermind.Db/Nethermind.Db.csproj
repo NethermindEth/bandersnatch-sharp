@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Config\Nethermind.Config.csproj" />
+      <ProjectReference Include="..\Nethermind.Serialization.Rlp\Nethermind.Serialization.Rlp.csproj" />
+      <ProjectReference Include="..\Nethermind.Utils\Nethermind.Utils.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Nethermind.Numerics.Int256" Version="1.0.0" />
+      <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
+    </ItemGroup>
+
+</Project>

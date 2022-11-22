@@ -25,7 +25,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Config\Nethermind.Config.csproj" />
+      <ProjectReference Include="..\Nethermind.Db.Rocks\Nethermind.Db.Rocks.csproj" />
+      <ProjectReference Include="..\Nethermind.Db\Nethermind.Db.csproj" />
       <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
+      <ProjectReference Include="..\Nethermind.Serialization.Rlp\Nethermind.Serialization.Rlp.csproj" />
+      <ProjectReference Include="..\Nethermind.Utils\Nethermind.Utils.csproj" />
+      <ProjectReference Include="..\Nethermind.Verkle.Db\Nethermind.Verkle.Db.csproj" />
       <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
       <ProjectReference Include="..\Nethermind.Verkle.Polynomial\Nethermind.Verkle.Polynomial.csproj" />
       <ProjectReference Include="..\Nethermind.Verkle.Proofs\Nethermind.Verkle.Proofs.csproj" />

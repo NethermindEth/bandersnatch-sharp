@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using Nethermind.Field;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Curve.Test;
