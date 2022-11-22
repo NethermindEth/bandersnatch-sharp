@@ -2,9 +2,10 @@ using System.Security.Cryptography;
 using System.Text;
 using Nethermind.Field;
 using Nethermind.Verkle.Curve;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Proofs;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+
 
 public class Transcript
 {
@@ -20,9 +21,9 @@ public class Transcript
         CurrentHash.AddRange(Encoding.ASCII.GetBytes(label));
     }
 
-    public static Fr ByteToField(byte[] bytes)
+    public static FrE ByteToField(byte[] bytes)
     {
-        return Fr.FromBytesReduced(bytes);
+        return FrE.FromBytesReduced(bytes);
     }
 
     public void AppendBytes(IEnumerable<byte> message, IEnumerable<byte> label)
@@ -34,11 +35,11 @@ public class Transcript
     public void AppendBytes(string message, string label) =>
         AppendBytes(Encoding.ASCII.GetBytes(message), Encoding.ASCII.GetBytes(label));
 
-    public void AppendScalar(Fr scalar, IEnumerable<byte> label)
+    public void AppendScalar(FrE scalar, IEnumerable<byte> label)
     {
-        AppendBytes(scalar.ToBytes(), label);
+        AppendBytes(scalar.ToBytes().ToArray(), label);
     }
-    public void AppendScalar(Fr scalar, string label) => AppendScalar(scalar, Encoding.ASCII.GetBytes(label));
+    public void AppendScalar(FrE scalar, string label) => AppendScalar(scalar, Encoding.ASCII.GetBytes(label));
 
     public void AppendPoint(Banderwagon point, byte[] label)
     {
@@ -46,17 +47,17 @@ public class Transcript
     }
     public void AppendPoint(Banderwagon point, string label) => AppendPoint(point, Encoding.ASCII.GetBytes(label));
 
-    public Fr ChallengeScalar(byte[] label)
+    public FrE ChallengeScalar(byte[] label)
     {
         DomainSep(label);
-        byte[]? hash = SHA256.Create().ComputeHash(CurrentHash.ToArray());
-        Fr? challenge = ByteToField(hash);
+        byte[] hash = SHA256.Create().ComputeHash(CurrentHash.ToArray());
+        FrE challenge = ByteToField(hash);
         CurrentHash = new List<byte>();
 
         AppendScalar(challenge, label);
         return challenge;
     }
-    public Fr ChallengeScalar(string label) => ChallengeScalar(Encoding.ASCII.GetBytes(label));
+    public FrE ChallengeScalar(string label) => ChallengeScalar(Encoding.ASCII.GetBytes(label));
 
     public void DomainSep(byte[] label)
     {

@@ -1,85 +1,86 @@
 using System.Text;
-using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Int256;
 using Nethermind.Verkle.Curve;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Proofs;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+
 
 public static class IPA
 {
-    public static Banderwagon VarBaseCommit(Fr[] values, Banderwagon[] elements)
+    public static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
     {
         return Banderwagon.MSM(elements, values);
     }
 
-    public static Fr InnerProduct(Fr[] a, Fr[] b)
+    public static FrE InnerProduct(FrE[] a, FrE[] b)
     {
-        Fr? result = new Fr((UInt256)0);
+        FrE result = FrE.SetElement(0);
 
-        foreach ((Fr? aI, Fr? bI) in Enumerable.Zip(a, b))
+        foreach ((FrE aI, FrE bI) in Enumerable.Zip(a, b))
         {
-            Fr? term = Fr.Mul(aI, bI);
+            FrE.MulMod(aI, bI, out FrE term);
             result += term;
         }
 
         return result;
     }
 
-    public static (Fr Y, ProofStruct Proof) MakeIpaProof(CRS crs, Transcript transcript,
+    public static (FrE Y, ProofStruct Proof) MakeIpaProof(CRS crs, Transcript transcript,
         ProverQuery query)
     {
         transcript.DomainSep("ipa");
 
         int n = query.Polynomial.Length;
         int m = n / 2;
-        Fr[]? a = query.Polynomial;
-        Fr[]? b = query.PointEvaluations;
-        Fr? y = InnerProduct(a, b);
+        FrE[] a = query.Polynomial;
+        FrE[] b = query.PointEvaluations;
+        FrE y = InnerProduct(a, b);
 
-        ProofStruct proof = new ProofStruct(new(), Fr.Zero, new());
+        ProofStruct proof = new ProofStruct(new(), FrE.Zero, new());
 
         transcript.AppendPoint(query.Commitment, Encoding.ASCII.GetBytes("C"));
         transcript.AppendScalar(query.Point, Encoding.ASCII.GetBytes("input point"));
         transcript.AppendScalar(y, Encoding.ASCII.GetBytes("output point"));
-        Fr? w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
+        FrE w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
 
-        Banderwagon? q = crs.BasisQ * w;
+        Banderwagon q = crs.BasisQ * w;
 
-        Banderwagon[]? currentBasis = crs.BasisG;
+        Banderwagon[] currentBasis = crs.BasisG;
 
         while (n > 1)
         {
-            Fr[]? aL = a[..m];
-            Fr[]? aR = a[m..];
-            Fr[]? bL = b[..m];
-            Fr[]? bR = b[m..];
-            Fr? zL = InnerProduct(aR, bL);
-            Fr? zR = InnerProduct(aL, bR);
+            FrE[] aL = a[..m];
+            FrE[] aR = a[m..];
+            FrE[] bL = b[..m];
+            FrE[] bR = b[m..];
+            FrE zL = InnerProduct(aR, bL);
+            FrE zR = InnerProduct(aL, bR);
 
-            Banderwagon? cL = VarBaseCommit(aR, currentBasis[..m]) + (q * zL);
-            Banderwagon? cR = VarBaseCommit(aL, currentBasis[m..]) + (q * zR);
+            Banderwagon cL = VarBaseCommit(aR, currentBasis[..m]) + (q * zL);
+            Banderwagon cR = VarBaseCommit(aL, currentBasis[m..]) + (q * zR);
 
             proof.L.Add(cL);
             proof.R.Add(cR);
 
             transcript.AppendPoint(cL, Encoding.ASCII.GetBytes("L"));
             transcript.AppendPoint(cR, Encoding.ASCII.GetBytes("R"));
-            Fr? x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
+            FrE x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
 
-            Fr? xinv = Fr.Inverse(x);
+            FrE.Inverse(x, out FrE xinv);
 
-            a = new Fr[aL.Length];
+            a = new FrE[aL.Length];
             int i = 0;
-            foreach ((Fr? V, Fr? W) in Enumerable.Zip(aL, aR))
+            foreach ((FrE V, FrE W) in Enumerable.Zip(aL, aR))
             {
                 a[i] = V + x * W;
                 i++;
             }
 
-            b = new Fr[aL.Length];
+            b = new FrE[aL.Length];
             i = 0;
-            foreach ((Fr? V, Fr? W) in Enumerable.Zip(bL, bR))
+            foreach ((FrE V, FrE W) in Enumerable.Zip(bL, bR))
             {
                 b[i] = V + xinv * W;
                 i++;
@@ -87,7 +88,7 @@ public static class IPA
 
             Banderwagon[] currentBasisN = new Banderwagon[m];
             i = 0;
-            foreach ((Banderwagon? V, Banderwagon? W) in Enumerable.Zip(currentBasis[..m], currentBasis[m..]))
+            foreach ((Banderwagon V, Banderwagon W) in Enumerable.Zip(currentBasis[..m], currentBasis[m..]))
             {
                 currentBasisN[i] = V + W * xinv;
                 i++;
@@ -112,36 +113,36 @@ public static class IPA
         int m = n / 2;
 
 
-        Banderwagon? C = query.Commitment;
-        Fr? z = query.Point;
-        Fr[]? b = query.PointEvaluations;
+        Banderwagon C = query.Commitment;
+        FrE z = query.Point;
+        FrE[] b = query.PointEvaluations;
         ProofStruct proof = query.Proof;
-        Fr? y = query.OutputPoint;
+        FrE y = query.OutputPoint;
 
         transcript.AppendPoint(C, Encoding.ASCII.GetBytes("C"));
         transcript.AppendScalar(z, Encoding.ASCII.GetBytes("input point"));
         transcript.AppendScalar(y, Encoding.ASCII.GetBytes("output point"));
-        Fr? w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
+        FrE w = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("w"));
 
-        Banderwagon? q = crs.BasisQ * w;
+        Banderwagon q = crs.BasisQ * w;
 
-        Banderwagon? currentCommitment = C + (q * y);
+        Banderwagon currentCommitment = C + (q * y);
 
         int i = 0;
-        List<Fr>? xs = new List<Fr>();
-        List<Fr>? xinvs = new List<Fr>();
+        List<FrE> xs = new List<FrE>();
+        List<FrE> xinvs = new List<FrE>();
 
 
         while (n > 1)
         {
-            Banderwagon? C_L = proof.L[i];
-            Banderwagon? C_R = proof.R[i];
+            Banderwagon C_L = proof.L[i];
+            Banderwagon C_R = proof.R[i];
 
             transcript.AppendPoint(C_L, Encoding.ASCII.GetBytes("L"));
             transcript.AppendPoint(C_R, Encoding.ASCII.GetBytes("R"));
-            Fr? x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
+            FrE x = transcript.ChallengeScalar(Encoding.ASCII.GetBytes("x"));
 
-            Fr? xinv = Fr.Inverse(x);
+            FrE.Inverse(in x, out FrE xinv);
 
             xs.Add(x);
             xinvs.Add(xinv);
@@ -152,14 +153,14 @@ public static class IPA
             i = i + 1;
         }
 
-        Banderwagon[]? currentBasis = crs.BasisG;
+        Banderwagon[] currentBasis = crs.BasisG;
 
         for (int j = 0; j < xs.Count; j++)
         {
-            (Banderwagon[]? G_L, Banderwagon[]? G_R) = SplitPoints(currentBasis);
-            (Fr[]? b_L, Fr[]? b_R) = SplitScalars(b);
+            (Banderwagon[] G_L, Banderwagon[] G_R) = SplitPoints(currentBasis);
+            (FrE[] b_L, FrE[] b_R) = SplitScalars(b);
 
-            Fr? x_inv = xinvs[j];
+            FrE x_inv = xinvs[j];
 
             b = FoldScalars(b_L, b_R, x_inv);
             currentBasis = FoldPoints(G_L, G_R, x_inv);
@@ -171,10 +172,10 @@ public static class IPA
 
         if (b.Length != 1)
             throw new Exception();
-        Fr? b0 = b[0];
-        Banderwagon? g0 = currentBasis[0];
+        FrE b0 = b[0];
+        Banderwagon g0 = currentBasis[0];
 
-        Banderwagon? gotCommitment = g0 * proof.A + q * (proof.A * b0);
+        Banderwagon gotCommitment = g0 * proof.A + q * (proof.A * b0);
 
         return currentCommitment == gotCommitment;
     }
@@ -193,17 +194,17 @@ public static class IPA
         return SplitListInHalf(x);
     }
 
-    public static (Fr[] firstHalf, Fr[] secondHalf) SplitScalars(Fr[] x)
+    public static (FrE[] firstHalf, FrE[] secondHalf) SplitScalars(FrE[] x)
     {
         return SplitListInHalf(x);
     }
 
-    public static Fr[] FoldScalars(Fr[] a, Fr[] b, Fr foldingChallenge)
+    public static FrE[] FoldScalars(FrE[] a, FrE[] b, FrE foldingChallenge)
     {
         if (a.Length != b.Length)
             throw new Exception();
 
-        Fr[] result = new Fr[a.Length];
+        FrE[] result = new FrE[a.Length];
         for (int i = 0; i < a.Length; i++)
         {
             result[i] = a[i] + b[i] * foldingChallenge;
@@ -212,7 +213,7 @@ public static class IPA
         return result;
     }
 
-    public static Banderwagon[] FoldPoints(Banderwagon[] a, Banderwagon[] b, Fr foldingChallenge)
+    public static Banderwagon[] FoldPoints(Banderwagon[] a, Banderwagon[] b, FrE foldingChallenge)
     {
         if (a.Length != b.Length)
             throw new Exception();
@@ -230,13 +231,13 @@ public static class IPA
 
 public struct ProverQuery
 {
-    public Fr[] Polynomial;
+    public FrE[] Polynomial;
     public Banderwagon Commitment;
-    public Fr Point;
-    public Fr[] PointEvaluations;
+    public FrE Point;
+    public FrE[] PointEvaluations;
 
-    public ProverQuery(Fr[] polynomial, Banderwagon commitment, Fr point,
-        Fr[] pointEvaluations)
+    public ProverQuery(FrE[] polynomial, Banderwagon commitment, FrE point,
+        FrE[] pointEvaluations)
     {
         Polynomial = polynomial;
         Commitment = commitment;
@@ -248,10 +249,10 @@ public struct ProverQuery
 public struct ProofStruct
 {
     public List<Banderwagon> L;
-    public Fr A;
+    public FrE A;
     public List<Banderwagon> R;
 
-    public ProofStruct(List<Banderwagon> l, Fr a, List<Banderwagon> r)
+    public ProofStruct(List<Banderwagon> l, FrE a, List<Banderwagon> r)
     {
         L = l;
         A = a;
@@ -262,12 +263,12 @@ public struct ProofStruct
 public struct VerifierQuery
 {
     public Banderwagon Commitment;
-    public Fr Point;
-    public Fr[] PointEvaluations;
-    public Fr OutputPoint;
+    public FrE Point;
+    public FrE[] PointEvaluations;
+    public FrE OutputPoint;
     public ProofStruct Proof;
 
-    public VerifierQuery(Banderwagon commitment, Fr point, Fr[] pointEvaluations, Fr outputPoint, ProofStruct proof)
+    public VerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint, ProofStruct proof)
     {
         Commitment = commitment;
         Point = point;

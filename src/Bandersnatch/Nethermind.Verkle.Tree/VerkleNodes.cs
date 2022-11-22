@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public enum NodeType : byte
 {
@@ -18,7 +18,7 @@ public readonly struct SuffixTree
     private Commitment C1 { get; }
     private Commitment C2 { get; }
     public Commitment ExtensionCommitment { get; }
-    public Fr InitCommitmentHash { get; }
+    public FrE InitCommitmentHash { get; }
 
     public SuffixTree(byte[] stem)
     {
@@ -26,7 +26,7 @@ public readonly struct SuffixTree
         C1 = new Commitment();
         C2 = new Commitment();
         ExtensionCommitment = new Commitment();
-        InitCommitmentHash = Fr.Zero;
+        InitCommitmentHash = FrE.Zero;
         Banderwagon stemCommitment = GetInitialCommitment();
         ExtensionCommitment.AddPoint(stemCommitment);
         InitCommitmentHash = ExtensionCommitment.PointAsField.Dup();
@@ -38,23 +38,23 @@ public readonly struct SuffixTree
         C1 = new Commitment(new Banderwagon(c1));
         C2 = new Commitment(new Banderwagon(c2));
         ExtensionCommitment = new Commitment(new Banderwagon(extCommit));
-        InitCommitmentHash = Fr.Zero;
+        InitCommitmentHash = FrE.Zero;
     }
 
-    private Banderwagon GetInitialCommitment() => Committer.ScalarMul(Fr.One, 0) +
-                                                  Committer.ScalarMul(Fr.FromBytesReduced(Stem.Reverse().ToArray()), 1);
+    private Banderwagon GetInitialCommitment() => Committer.ScalarMul(FrE.One, 0) +
+                                                  Committer.ScalarMul(FrE.FromBytesReduced(Stem.Reverse().ToArray()), 1);
 
-    public Fr UpdateCommitment(LeafUpdateDelta deltaLeafCommitment)
+    public FrE UpdateCommitment(LeafUpdateDelta deltaLeafCommitment)
     {
-        Fr prevCommit = ExtensionCommitment.PointAsField.Dup();
+        FrE prevCommit = ExtensionCommitment.PointAsField.Dup();
 
-        Fr oldC1Value = C1.PointAsField.Dup();
-        Fr oldC2Value = C2.PointAsField.Dup();
+        FrE oldC1Value = C1.PointAsField.Dup();
+        FrE oldC2Value = C2.PointAsField.Dup();
         if (deltaLeafCommitment.DeltaC1 is not null) C1.AddPoint(deltaLeafCommitment.DeltaC1);
         if (deltaLeafCommitment.DeltaC2 is not null) C2.AddPoint(deltaLeafCommitment.DeltaC2);
 
-        Fr deltaC1Commit = C1.PointAsField - oldC1Value;
-        Fr deltaC2Commit = C2.PointAsField - oldC2Value;
+        FrE deltaC1Commit = C1.PointAsField - oldC1Value;
+        FrE deltaC2Commit = C2.PointAsField - oldC2Value;
 
         Banderwagon deltaCommit = Committer.ScalarMul(deltaC1Commit, 2)
                                   + Committer.ScalarMul(deltaC2Commit, 3);
@@ -142,9 +142,9 @@ public class InternalNode
         _nodeType = nodeType;
         _internalCommitment = new Commitment();
     }
-    public Fr UpdateCommitment(Banderwagon point)
+    public FrE UpdateCommitment(Banderwagon point)
     {
-        Fr prevCommit = _internalCommitment.PointAsField.Dup();
+        FrE prevCommit = _internalCommitment.PointAsField.Dup();
         _internalCommitment.AddPoint(point);
         return _internalCommitment.PointAsField - prevCommit;
     }

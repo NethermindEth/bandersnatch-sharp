@@ -1,8 +1,8 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Int256;
 
 namespace Nethermind.Verkle.Curve;
-using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
 
 public readonly struct CurveParams
 {
@@ -16,25 +16,23 @@ public readonly struct CurveParams
         24, 174, 82, 162, 102, 24, 231, 225, 101, 132, 153, 173, 34, 192, 121, 43, 243, 66, 190, 123, 119, 17, 55,
         116, 197, 52, 11, 44, 204, 50, 193, 41
     };
-    private static readonly byte[] Den =
+
+    public static readonly Lazy<FpE> a = new Lazy<FpE>(() =>
     {
-        161, 74, 179, 97, 103, 214, 177, 153, 239, 175, 214, 83, 241, 2, 252, 128, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-    private static readonly byte[] Num =
+        return FpE.SetElement(5).Neg();
+    });
+    public static FpE A => a.Value;
+
+    public static readonly FpE YTe = new(NumY);
+    public static readonly FpE XTe = new(NumX);
+
+    public static readonly Lazy<FpE> d = new Lazy<FpE>(() =>
     {
-        187, 153, 128, 178, 147, 191, 59, 160, 253, 39, 168, 37, 209, 37, 113, 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0
-    };
+        UInt256.TryParse("45022363124591815672509500913686876175488063829319466900776701791074614335719", out var x);
+        return FpE.SetElement(x.u0, x.u1, x.u2, x.u3);
+    });
 
-    public static readonly Fp A = new(-5);
+    public static FpE D = d.Value;
 
-    public static readonly Fp YTe = new(new UInt256(NumY));
-    public static readonly Fp XTe = new(new UInt256(NumX));
-
-    public static readonly Fp DNum = new(new UInt256(Num));
-
-    public static readonly Fp DDen = Fp.Inverse(new Fp(new UInt256(Den))) ??
-                                     throw new Exception("This should not be null");
-    public static readonly Fp D = DNum * DDen;
+    public static readonly FpE Cofactor = FpE.SetElement(4);
 }

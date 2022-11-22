@@ -1,11 +1,11 @@
 using System;
 using FluentAssertions;
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Int256;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Curve.Test;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class PointTests
 {
@@ -36,9 +36,9 @@ public class PointTests
     [Test]
     public void TestNeg()
     {
-        ExtendedPoint? gen = ExtendedPoint.Generator();
-        ExtendedPoint? expected = ExtendedPoint.Identity();
-        ExtendedPoint? result = gen + ExtendedPoint.Neg(gen);
+        ExtendedPoint gen = ExtendedPoint.Generator();
+        ExtendedPoint expected = ExtendedPoint.Identity();
+        ExtendedPoint result = gen + ExtendedPoint.Neg(gen);
 
         Assert.IsTrue(expected == result);
     }
@@ -57,19 +57,19 @@ public class PointTests
     public void TestScalarMulSmoke()
     {
         ExtendedPoint? gen = ExtendedPoint.Generator();
-        Fr? scalar = new Fr((UInt256)2);
-        ExtendedPoint? result = gen * scalar;
-        ExtendedPoint? twoGen = ExtendedPoint.Double(gen);
+        FrE scalar = FrE.SetElement(2);
+        ExtendedPoint result = gen * scalar;
+        ExtendedPoint twoGen = ExtendedPoint.Double(gen);
         Assert.IsTrue(twoGen == result);
     }
 
     [Test]
     public void TestScalarMulMinusOne()
     {
-        ExtendedPoint? gen = ExtendedPoint.Generator();
+        ExtendedPoint gen = ExtendedPoint.Generator();
 
         const int x = -1;
-        Fr? scalar = new Fr(x);
+        FrE scalar = FrE.SetElement(x);
         ExtendedPoint? result = gen * scalar;
         byte[]? serialized = result.ToBytes();
         const string expected = "e951ad5d98e7181e99d76452e0e343281295e38d90c602bf824892fd86742c4a";

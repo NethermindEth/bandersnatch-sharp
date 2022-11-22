@@ -1,15 +1,15 @@
 using System.Diagnostics;
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Utils;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public struct Committer
 {
     private static readonly CRS Constants = CRS.Default();
 
-    public static Banderwagon Commit(Fr[] value)
+    public static Banderwagon Commit(FrE[] value)
     {
         Banderwagon elem = Banderwagon.Identity();
         for (int i = 0; i < value.Length; i++)
@@ -20,7 +20,7 @@ public struct Committer
         return elem;
     }
 
-    public static Banderwagon ScalarMul(Fr value, int index)
+    public static Banderwagon ScalarMul(FrE value, int index)
     {
         return Constants.BasisG[index] * value;
     }
@@ -29,14 +29,14 @@ public struct Committer
 public class Commitment
 {
     public Banderwagon Point { get; private set; }
-    private Fr? _pointAsField;
-    public Fr PointAsField
+    private FrE? _pointAsField;
+    public FrE PointAsField
     {
         get
         {
             if (_pointAsField is null) SetCommitmentToField();
             Debug.Assert(_pointAsField is not null, nameof(_pointAsField) + " != null");
-            return _pointAsField;
+            return _pointAsField.Value;
         }
         private set => _pointAsField = value;
     }
@@ -59,7 +59,7 @@ public class Commitment
     private void SetCommitmentToField()
     {
         byte[] mapToBytes = Point.MapToField();
-        PointAsField = Fr.FromBytesReduced(mapToBytes);
+        PointAsField = FrE.FromBytesReduced(mapToBytes);
     }
 
     public void AddPoint(Banderwagon point)

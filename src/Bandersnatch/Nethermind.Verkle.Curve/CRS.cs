@@ -1,7 +1,7 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Curve;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class CRS
 {
@@ -26,14 +26,14 @@ public class CRS
         return new CRS(crs);
     }
 
-    public Banderwagon CommitSparse(Dictionary<int, Fr> values)
+    public Banderwagon CommitSparse(Dictionary<int, FrE> values)
     {
         if (values.Count == 0)
             return Banderwagon.Identity();
 
         List<Banderwagon> points = new();
-        List<Fr> scalars = new();
-        foreach (KeyValuePair<int, Fr> keyVal in values)
+        List<FrE> scalars = new();
+        foreach (KeyValuePair<int, FrE> keyVal in values)
         {
             points.Add(BasisG[keyVal.Key]);
             scalars.Add(keyVal.Value);
@@ -43,7 +43,7 @@ public class CRS
         return commitment;
     }
 
-    public Banderwagon Commit(Fr[] values)
+    public Banderwagon Commit(FrE[] values)
     {
         Banderwagon[]? elements = BasisG[..values.Length];
         return Banderwagon.MSM(elements, values);

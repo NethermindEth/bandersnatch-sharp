@@ -1,32 +1,28 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Curve;
-using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class ExtendedPoint
 {
-    public readonly Fp X;
-    public readonly Fp Y;
-    public readonly Fp T;
-    public readonly Fp Z;
+    public readonly FpE X;
+    public readonly FpE Y;
+    public readonly FpE Z;
 
-    private static Fp A => CurveParams.A;
-    private static Fp D => CurveParams.D;
+    private static FpE A => CurveParams.A;
+    private static FpE D => CurveParams.D;
 
-    public ExtendedPoint(Fp x, Fp y)
+    public ExtendedPoint(FpE x, FpE y)
     {
         X = x;
         Y = y;
-        T = x * y;
-        Z = Fp.One;
+        Z = FpE.One;
     }
 
-    private ExtendedPoint(Fp x, Fp y, Fp t, Fp z)
+    private ExtendedPoint(FpE x, FpE y, FpE z)
     {
         X = x;
         Y = y;
-        T = t;
         Z = z;
     }
 
@@ -34,93 +30,93 @@ public class ExtendedPoint
     {
         X = p.X;
         Y = p.Y;
-        T = X * Y;
-        Z = Fp.One;
+        Z = FpE.One;
     }
 
-    public bool IsZero => X.IsZero && Y == Z && !Y.IsZero && T.IsZero;
+    public bool IsZero => X.IsZero && Y.Equals(Z) && !Y.IsZero;
     public static ExtendedPoint Identity() => new(AffinePoint.Identity());
 
     public static ExtendedPoint Generator() => new(AffinePoint.Generator());
-    public ExtendedPoint Dup() => new(X.Dup(), Y.Dup(), T.Dup(), Z.Dup());
+    public ExtendedPoint Dup() => new(X.Dup(), Y.Dup(), Z.Dup());
 
     public static bool Equals(ExtendedPoint p, ExtendedPoint q)
     {
         if (p.IsZero) return q.IsZero;
         if (q.IsZero) return false;
 
-        return (p.X * q.Z == p.Z * q.X) && (p.Y * q.Z == q.Y * p.Z);
+        return ((p.X * q.Z).Equals(p.Z * q.X)) && ((p.Y * q.Z).Equals(q.Y * p.Z));
     }
 
-    public static ExtendedPoint Neg(ExtendedPoint p) => new(p.X.Neg(), p.Y, p.T.Neg(), p.Z);
+    public static ExtendedPoint Neg(ExtendedPoint p) => new(p.X.Neg(), p.Y, p.Z);
+
+    // https://hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
     public static ExtendedPoint Add(ExtendedPoint p, ExtendedPoint q)
     {
-        Fp? x1 = p.X;
-        Fp? y1 = p.Y;
-        Fp? t1 = p.T;
-        Fp? z1 = p.Z;
+        FpE x1 = p.X;
+        FpE y1 = p.Y;
+        FpE z1 = p.Z;
 
-        Fp? x2 = q.X;
-        Fp? y2 = q.Y;
-        Fp? t2 = q.T;
-        Fp? z2 = q.Z;
+        FpE x2 = q.X;
+        FpE y2 = q.Y;
+        FpE z2 = q.Z;
 
-        Fp? a = x1 * x2;
-        Fp? b = y1 * y2;
+        FpE a = z1 * z2;
+        FpE b = a * a;
 
-        Fp? c = D * t1 * t2;
+        FpE c = x1 * x2;
 
-        Fp? d = z1 * z2;
+        FpE d = y1 * y2;
 
-        Fp? h = b - (a * A);
+        FpE e = D * c * d;
 
-        Fp? e = (x1 + y1) * (x2 + y2) - a - b;
+        FpE f = b - e;
+        FpE g = b + e;
 
-        Fp? f = d - c;
+        FpE x3 = a * f * ((x1 + y1) * (x2 + y2) - c - d);
+        FpE y3 = a * g * (d - A * c);
+        FpE z3 = f * g;
 
-        Fp? g = d + c;
-
-        return new ExtendedPoint(e * f, g * h, e * h, f * g);
+        return new ExtendedPoint(x3, y3, z3);
     }
     public static ExtendedPoint Sub(ExtendedPoint p, ExtendedPoint q) => Add(p, Neg(q));
-    public static ExtendedPoint Double(ExtendedPoint p) => Add(p, p);
+    public static ExtendedPoint Double(ExtendedPoint p)
+    {
+        FpE x1 = p.X;
+        FpE y1 = p.Y;
+        FpE z1 = p.Z;
 
-    public static ExtendedPoint ScalarMultiplication(ExtendedPoint point, Fr scalar)
+        FpE b = (x1 + y1) * (x1 + y1);
+        FpE c = x1 * x1;
+        FpE d = y1 * y1;
+
+        FpE e = A * c;
+        FpE f = e + d;
+        FpE h = z1 * z1;
+        FpE j = f - (h + h);
+
+        FpE x3 = (b - c - d) * j;
+        FpE y3 = f * (e - d);
+        FpE z3 = f * j;
+        return new ExtendedPoint(x3, y3, z3);
+    }
+
+    public static ExtendedPoint ScalarMultiplication(ExtendedPoint point, FrE scalarMont)
     {
         ExtendedPoint? result = Identity();
         ExtendedPoint? temp = point.Dup();
 
-        byte[]? bytes = scalar.ToBytes();
-        // TODO: use BitLen to simplify this
-        int carry = 0;
-        foreach (byte elem in bytes)
+        FrE.ToRegular(in scalarMont, out FrE scalar);
+
+        int len = scalar.BitLen;
+        for (int i = len; i >= 0; i--)
         {
-            if (elem == 0)
+            result = Double(result);
+            if (scalar.Bit(i))
             {
-                carry += 8;
-                continue;
+                result += temp;
             }
-
-            for (int i = carry; i > 0; i--)
-            {
-                temp = Double(temp);
-            }
-
-            string? binaryString = Convert.ToString(elem, 2);
-            int binLength = binaryString.Length;
-            for (int i = binLength - 1; i >= 0; i--)
-            {
-                if (binaryString[i] == '1')
-                {
-                    result = Add(result, temp);
-                }
-                temp = Double(temp);
-            }
-
-            carry = 8 - binLength;
         }
-
-        return new ExtendedPoint(result.X, result.Y, result.T, result.Z);
+        return result;
     }
 
     public AffinePoint ToAffine()
@@ -129,10 +125,9 @@ public class ExtendedPoint
         if (Z.IsZero) throw new Exception();
         if (Z.IsOne) return new AffinePoint(X, Y);
 
-        Fp? zInv = Fp.Inverse(Z) ?? throw new Exception();
-
-        Fp? xAff = X * zInv;
-        Fp? yAff = Y * zInv;
+        FpE.Inverse(Z, out FpE zInv);
+        FpE xAff = X * zInv;
+        FpE yAff = Y * zInv;
 
         return new AffinePoint(xAff, yAff);
     }
@@ -149,12 +144,12 @@ public class ExtendedPoint
         return Sub(a, b);
     }
 
-    public static ExtendedPoint operator *(in ExtendedPoint a, in Fr b)
+    public static ExtendedPoint operator *(in ExtendedPoint a, in FrE b)
     {
         return ScalarMultiplication(a, b);
     }
 
-    public static ExtendedPoint operator *(in Fr a, in ExtendedPoint b)
+    public static ExtendedPoint operator *(in FrE a, in ExtendedPoint b)
     {
         return ScalarMultiplication(b, a);
     }
@@ -171,7 +166,7 @@ public class ExtendedPoint
 
     private bool Equals(ExtendedPoint other)
     {
-        return X.Equals(other.X) && Y.Equals(other.Y) && T.Equals(other.T) && Z.Equals(other.Z);
+        return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
     }
 
     public override bool Equals(object? obj)
@@ -181,6 +176,6 @@ public class ExtendedPoint
         return obj.GetType() == this.GetType() && Equals((ExtendedPoint)obj);
     }
 
-    public override int GetHashCode() => HashCode.Combine(X, Y, T, Z);
+    public override int GetHashCode() => HashCode.Combine(X, Y, Z);
 
 }
