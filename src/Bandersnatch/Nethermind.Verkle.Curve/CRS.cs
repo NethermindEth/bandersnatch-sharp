@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using System.Security.Cryptography;
+using System.Text;
 using Nethermind.Field;
 using Nethermind.Field.Montgomery;
 
@@ -14,10 +17,33 @@ public class CRS
         BasisQ = Banderwagon.Generator();
     }
 
-    public CRS GenerateCRS(int seed)
+    public static CRS GenerateCRS(long numPoints)
     {
-        throw new Exception("not setup yet");
-        // return new CRS(new Banderwagon[] {});
+        const string seed = "eth_verkle_oct_2021";
+        Span<byte> seedSpan = Encoding.ASCII.GetBytes(seed);
+        Span<byte> target = new byte[8];
+        ulong increment = 0;
+
+        Banderwagon[] points = new Banderwagon[numPoints];
+
+        ulong generatedPoints = 0;
+        SHA256 sha256Hash = SHA256.Create();
+
+        while (generatedPoints != (ulong)numPoints)
+        {
+            BinaryPrimitives.WriteUInt64BigEndian(target[..8], increment);
+            byte[] hash = sha256Hash.ComputeHash(seedSpan.ToArray().Concat(target.ToArray()).ToArray());
+            FpE x = new FpE(hash, true);
+            increment++;
+
+            byte[] xAsBytes = x.ToBytesBigEndian().ToArray();
+            (FpE X, FpE Y)? pointFound = Banderwagon.FromBytes(xAsBytes);
+            if(pointFound is null) continue;
+            points[generatedPoints] = new Banderwagon(null, new ExtendedPoint(pointFound.Value.X, pointFound.Value.Y));
+            generatedPoints += 1;
+        }
+
+        return new CRS(points);
     }
 
     public static CRS Default()
