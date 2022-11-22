@@ -1,15 +1,15 @@
 using System.Runtime.CompilerServices;
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class VerkleTree
 {
     private readonly IVerkleDb _stateDb;
-    public byte[] RootHash => _stateDb.GetBranch(Array.Empty<byte>())?._internalCommitment.PointAsField.ToBytes() ?? throw new InvalidOperationException();
+    public byte[] RootHash => _stateDb.GetBranch(Array.Empty<byte>())?._internalCommitment.PointAsField.ToBytes().ToArray() ?? throw new InvalidOperationException();
 
     public VerkleTree()
     {
@@ -19,8 +19,8 @@ public class VerkleTree
 
     private static Banderwagon GetLeafDelta(byte[]? oldValue, byte[] newValue, byte index)
     {
-        (Fr newValLow, Fr newValHigh) = VerkleUtils.BreakValueInLowHigh(newValue);
-        (Fr oldValLow, Fr oldValHigh) = VerkleUtils.BreakValueInLowHigh(oldValue);
+        (FrE newValLow, FrE newValHigh) = VerkleUtils.BreakValueInLowHigh(newValue);
+        (FrE oldValLow, FrE oldValHigh) = VerkleUtils.BreakValueInLowHigh(oldValue);
 
         int posMod128 = index % 128;
         int lowIndex = 2 * posMod128;
@@ -71,7 +71,7 @@ public class VerkleTree
             // 2. update the C1 or C2 - we already know the leafDelta - traverseContext.LeafUpdateDelta
             // 3. update ExtensionCommitment
             // 4. get the delta for commitment - ExtensionCommitment - 0;
-            (Fr deltaHash, Commitment? suffixCommitment) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta, true);
+            (FrE deltaHash, Commitment? suffixCommitment) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta, true);
 
             // 1. Add internal.stem node
             // 2. return delta from ExtensionCommitment
@@ -87,7 +87,7 @@ public class VerkleTree
             traverseContext.CurrentIndex += 1;
             parentDeltaHash = TraverseBranch(traverseContext);
             traverseContext.CurrentIndex -= 1;
-            Fr deltaHash = child.UpdateCommitment(parentDeltaHash);
+            FrE deltaHash = child.UpdateCommitment(parentDeltaHash);
             _stateDb.SetBranch(absolutePath, child);
             deltaPoint = Committer.ScalarMul(deltaHash, pathIndex);
         }
@@ -103,7 +103,7 @@ public class VerkleTree
                 // since this is a new child, this would be just the parentDeltaHash.PointToField
                 // now since there was a node before and that value is deleted - we need to subtract
                 // that from the delta as well
-                Fr deltaHash = newChild.UpdateCommitment(parentDeltaHash);
+                FrE deltaHash = newChild.UpdateCommitment(parentDeltaHash);
                 _stateDb.SetBranch(absolutePath, newChild);
                 deltaPoint = Committer.ScalarMul(deltaHash, pathIndex);
             }
@@ -136,7 +136,7 @@ public class VerkleTree
             // 2. set this suffix as child node of the BranchNode - get the commitment point
             // 3. set the existing suffix as the child - get the commitment point
             // 4. update the internal node with the two commitment points
-            (Fr deltaHash, Commitment? suffixCommitment) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta, true);
+            (FrE deltaHash, Commitment? suffixCommitment) = UpdateSuffixNode(traverseContext.Stem.ToArray(), traverseContext.LeafUpdateDelta, true);
 
             // creating the stem node for the new suffix node
             _stateDb.SetBranch(sharedPath.ToArray().Concat(new[]
@@ -165,7 +165,7 @@ public class VerkleTree
         }
 
         SuffixTree oldValue = _stateDb.GetStem(traverseContext.Stem.ToArray())?? throw new ArgumentException();
-        Fr deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta);
+        FrE deltaFr = oldValue.UpdateCommitment(traverseContext.LeafUpdateDelta);
         _stateDb.SetStem(traverseContext.Stem.ToArray(), oldValue);
 
         return (Committer.ScalarMul(deltaFr, traverseContext.Stem[traverseContext.CurrentIndex - 1]), false);
@@ -176,7 +176,7 @@ public class VerkleTree
         for (int i = 0; i < length; i++)
         {
             BranchNode newInternalNode = new BranchNode();
-            Fr upwardsDelta = newInternalNode.UpdateCommitment(deltaPoint);
+            FrE upwardsDelta = newInternalNode.UpdateCommitment(deltaPoint);
             _stateDb.SetBranch(path[..^i], newInternalNode);
             deltaPoint = Committer.ScalarMul(upwardsDelta, path[path.Length - i - 1]);
         }
@@ -189,11 +189,11 @@ public class VerkleTree
         return _stateDb.GetBranch(pathWithIndex);
     }
 
-    private (Fr, Commitment?) UpdateSuffixNode(byte[] stemKey, LeafUpdateDelta leafUpdateDelta, bool insertNew = false)
+    private (FrE, Commitment?) UpdateSuffixNode(byte[] stemKey, LeafUpdateDelta leafUpdateDelta, bool insertNew = false)
     {
         SuffixTree oldNode = insertNew ? new SuffixTree(stemKey) : _stateDb.GetStem(stemKey)?? throw new ArgumentException();
 
-        Fr deltaFr = oldNode.UpdateCommitment(leafUpdateDelta);
+        FrE deltaFr = oldNode.UpdateCommitment(leafUpdateDelta);
         _stateDb.SetStem(stemKey, oldNode);
         // add the init commitment, because while calculating diff, we subtract the initCommitment in new nodes.
         return insertNew ? (deltaFr + oldNode.InitCommitmentHash, oldNode.ExtensionCommitment.Dup()) : (deltaFr, null);

@@ -1,22 +1,22 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Curve;
-using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+
 
 
 public class AffinePoint
 {
-    public readonly Fp X;
-    public readonly Fp Y;
+    public readonly FpE X;
+    public readonly FpE Y;
 
-    private static Fp A => CurveParams.A;
-    private static Fp D => CurveParams.D;
+    private static FpE A => CurveParams.A;
+    private static FpE D => CurveParams.D;
 
     private const byte MCompressedNegative = 128;
     private const byte MCompressedPositive = 0;
 
-    public AffinePoint(Fp x, Fp y)
+    public AffinePoint(FpE x, FpE y)
     {
         X = x;
         Y = y;
@@ -24,8 +24,8 @@ public class AffinePoint
 
     public static AffinePoint Generator()
     {
-        Fp? yTe = CurveParams.YTe.Dup();
-        Fp? xTe = CurveParams.XTe.Dup();
+        FpE yTe = CurveParams.YTe.Dup();
+        FpE xTe = CurveParams.XTe.Dup();
         return new AffinePoint(xTe, yTe);
     }
 
@@ -36,29 +36,29 @@ public class AffinePoint
 
     public static AffinePoint Add(AffinePoint p, AffinePoint q)
     {
-        Fp? x1 = p.X;
-        Fp? y1 = p.Y;
-        Fp? x2 = q.X;
-        Fp? y2 = q.Y;
+        FpE x1 = p.X;
+        FpE y1 = p.Y;
+        FpE x2 = q.X;
+        FpE y2 = q.Y;
 
-        Fp? x1y2 = x1 * y2;
-        Fp? y1x2 = y1 * x2;
-        Fp? ax1x2 = x1 * x2 * A;
-        Fp? y1y2 = y1 * y2;
+        FpE x1y2 = x1 * y2;
+        FpE y1x2 = y1 * x2;
+        FpE ax1x2 = x1 * x2 * A;
+        FpE y1y2 = y1 * y2;
 
-        Fp? dx1x2y1y2 = x1y2 * y1x2 * D;
+        FpE dx1x2y1y2 = x1y2 * y1x2 * D;
 
-        Fp? xNum = x1y2 + y1x2;
+        FpE xNum = x1y2 + y1x2;
 
-        Fp? xDen = Fp.One + dx1x2y1y2;
+        FpE xDen = FpE.One + dx1x2y1y2;
 
-        Fp? yNum = y1y2 - ax1x2;
+        FpE yNum = y1y2 - ax1x2;
 
-        Fp? yDen = Fp.One - dx1x2y1y2;
+        FpE yDen = FpE.One - dx1x2y1y2;
 
-        Fp? x = xNum / xDen ?? throw new Exception();
+        FpE x = xNum / xDen;
 
-        Fp? y = yNum / yDen ?? throw new Exception();
+        FpE y = yNum / yDen;
 
         return new AffinePoint(x, y);
     }
@@ -76,23 +76,23 @@ public class AffinePoint
 
     public bool IsOnCurve()
     {
-        Fp? xSq = X * X;
-        Fp? ySq = Y * Y;
+        FpE xSq = X * X;
+        FpE ySq = Y * Y;
 
-        Fp? dxySq = xSq * ySq * D;
-        Fp? aXSq = A * xSq;
+        FpE dxySq = xSq * ySq * D;
+        FpE aXSq = A * xSq;
 
-        Fp? one = Fp.One;
+        FpE one = FpE.One;
 
-        Fp? rhs = one + dxySq;
-        Fp? lhs = aXSq + ySq;
+        FpE rhs = one + dxySq;
+        FpE lhs = aXSq + ySq;
 
-        return lhs == rhs;
+        return lhs.Equals(rhs);
     }
 
     public byte[] ToBytes()
     {
-        byte[]? xBytes = X.ToBytes();
+        byte[] xBytes = X.ToBytes().ToArray();
 
         byte mask = MCompressedPositive;
         if (Y.LexicographicallyLargest())
@@ -104,12 +104,12 @@ public class AffinePoint
 
     public AffinePoint Dup() => new(X.Dup(), Y.Dup());
 
-    public static AffinePoint ScalarMultiplication(AffinePoint point, Fr scalar)
+    public static AffinePoint ScalarMultiplication(AffinePoint point, FrE scalar)
     {
         AffinePoint? result = Identity();
         AffinePoint? temp = point.Dup();
 
-        byte[]? bytes = scalar.ToBytes();
+        byte[] bytes = scalar.ToBytes().ToArray();
 
         foreach (byte idx in bytes)
         {
@@ -127,27 +127,26 @@ public class AffinePoint
         return new AffinePoint(result.X, result.Y);
     }
 
-    public static AffinePoint Identity() => new(Fp.Zero, Fp.One);
+    public static AffinePoint Identity() => new(FpE.Zero, FpE.One);
 
-    public static Fp? GetYCoordinate(Fp x, bool returnPositiveY)
+    public static FpE? GetYCoordinate(FpE x, bool returnPositiveY)
     {
-        Fp one = Fp.One;
-        Fp? num = x * x;
-        Fp? den = (num * D) - one;
+        FpE one = FpE.One;
+        FpE? num = x * x;
+        FpE? den = (num * D) - one;
         num = (num * A) - one;
 
-        Fp? y = num / den;
+        FpE? y = num / den;
 
         if (y is null)
             return null;
 
-        y = Fp.Sqrt(y);
-        if (y is null)
+        if (!FpE.Sqrt(y.Value, out var z))
             return null;
 
-        bool isLargest = y.LexicographicallyLargest();
+        bool isLargest = z.LexicographicallyLargest();
 
-        return isLargest == returnPositiveY ? y : y.Neg();
+        return isLargest == returnPositiveY ? z : z.Neg();
     }
 
     public static AffinePoint operator +(in AffinePoint a, in AffinePoint b)
@@ -160,12 +159,12 @@ public class AffinePoint
         return Sub(a, b);
     }
 
-    public static AffinePoint operator *(in AffinePoint a, in Fr b)
+    public static AffinePoint operator *(in AffinePoint a, in FrE b)
     {
         return ScalarMultiplication(a, b);
     }
 
-    public static AffinePoint operator *(in Fr a, in AffinePoint b)
+    public static AffinePoint operator *(in FrE a, in AffinePoint b)
     {
         return ScalarMultiplication(b, a);
     }
@@ -182,7 +181,7 @@ public class AffinePoint
 
     private bool Equals(AffinePoint a)
     {
-        return X == a.X && Y == a.Y;
+        return X.Equals(a.X) && Y.Equals(a.Y);
     }
 
     public override bool Equals(object? obj)

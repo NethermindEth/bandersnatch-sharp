@@ -2,192 +2,193 @@ using Nethermind.Field;
 using Nethermind.Int256;
 using Nethermind.Verkle.Curve;
 using NUnit.Framework;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Polynomial.Test;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+
 
 public class LagrangeBasisTests
 {
     [Test]
     public void test_add_sub()
     {
-        Fr[]? domain = new[]
+        FrE[] domain = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)2),
-            new Fr((UInt256)3),
-            new Fr((UInt256)4),
-            new Fr((UInt256)5)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5)
         };
 
-        Fr[]? domainSq = new[]
+        FrE[] domainSq = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)4),
-            new Fr((UInt256)9),
-            new Fr((UInt256)16),
-            new Fr((UInt256)25)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(4),
+            FrE.SetElement(9),
+            FrE.SetElement(16),
+            FrE.SetElement(25)
         };
 
-        Fr[]? domain_2 = new[]
+        FrE[] domain_2 = new[]
         {
-            new Fr((UInt256)2),
-            new Fr((UInt256)3),
-            new Fr((UInt256)4),
-            new Fr((UInt256)5),
-            new Fr((UInt256)6),
-            new Fr((UInt256)7)
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5),
+            FrE.SetElement(6),
+            FrE.SetElement(7)
         };
 
-        LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
-        LagrangeBasis? b = new LagrangeBasis(domain_2, domain);
+        LagrangeBasis a = new LagrangeBasis(domainSq, domain);
+        LagrangeBasis b = new LagrangeBasis(domain_2, domain);
 
-        Fr[]? expected = new[]
+        FrE[] expected = new[]
         {
-            new Fr((UInt256)2),
-            new Fr((UInt256)4),
-            new Fr((UInt256)8),
-            new Fr((UInt256)14),
-            new Fr((UInt256)22),
-            new Fr((UInt256)32)
+            FrE.SetElement(2),
+            FrE.SetElement(4),
+            FrE.SetElement(8),
+            FrE.SetElement(14),
+            FrE.SetElement(22),
+            FrE.SetElement(32)
         };
-        LagrangeBasis? ex = new LagrangeBasis(expected, domain);
-        LagrangeBasis? result = a + b;
+        LagrangeBasis ex = new LagrangeBasis(expected, domain);
+        LagrangeBasis result = a + b;
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
-            Assert.IsTrue(ex.Evaluations[i] == result.Evaluations[i]);
+            Assert.IsTrue(ex.Evaluations[i].Equals(result.Evaluations[i]));
         }
         ex -= b;
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
-            Assert.IsTrue(ex.Evaluations[i] == a.Evaluations[i]);
+            Assert.IsTrue(ex.Evaluations[i].Equals(a.Evaluations[i]));
         }
     }
 
     [Test]
     public void test_mul()
     {
-        Fr[]? domain = new[]
+        FrE[] domain = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)2),
-            new Fr((UInt256)3),
-            new Fr((UInt256)4),
-            new Fr((UInt256)5)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5)
         };
 
-        Fr[]? domainSq = new[]
+        FrE[] domainSq = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)4),
-            new Fr((UInt256)9),
-            new Fr((UInt256)16),
-            new Fr((UInt256)25)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(4),
+            FrE.SetElement(9),
+            FrE.SetElement(16),
+            FrE.SetElement(25)
         };
-        Fr[]? domainPow4 = new[]
+        FrE[] domainPow4 = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)16),
-            new Fr((UInt256)81),
-            new Fr((UInt256)256),
-            new Fr((UInt256)625)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(16),
+            FrE.SetElement(81),
+            FrE.SetElement(256),
+            FrE.SetElement(625)
         };
 
 
-        LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
-        LagrangeBasis? result = a * a;
+        LagrangeBasis a = new LagrangeBasis(domainSq, domain);
+        LagrangeBasis result = a * a;
 
-        LagrangeBasis? ex = new LagrangeBasis(domainPow4, domain);
+        LagrangeBasis ex = new LagrangeBasis(domainPow4, domain);
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
-            Assert.IsTrue(ex.Evaluations[i] == result.Evaluations[i]);
+            Assert.IsTrue(ex.Evaluations[i].Equals(result.Evaluations[i]));
         }
     }
 
     [Test]
     public void test_scale()
     {
-        Fr[]? domain = new[]
+        FrE[] domain = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)2),
-            new Fr((UInt256)3),
-            new Fr((UInt256)4),
-            new Fr((UInt256)5)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5)
         };
 
-        Fr[]? domainSq = new[]
+        FrE[] domainSq = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)4),
-            new Fr((UInt256)9),
-            new Fr((UInt256)16),
-            new Fr((UInt256)25)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(4),
+            FrE.SetElement(9),
+            FrE.SetElement(16),
+            FrE.SetElement(25)
         };
 
-        Fr? constant = new Fr((UInt256)10);
+        FrE constant = FrE.SetElement(10);
 
-        LagrangeBasis? a = new LagrangeBasis(domainSq, domain);
-        LagrangeBasis? result = a * constant;
+        LagrangeBasis a = new LagrangeBasis(domainSq, domain);
+        LagrangeBasis result = a * constant;
 
-        Fr[]? expected = new[]
+        FrE[] expected = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)10),
-            new Fr((UInt256)40),
-            new Fr((UInt256)90),
-            new Fr((UInt256)160),
-            new Fr((UInt256)250)
+            FrE.SetElement(0),
+            FrE.SetElement(10),
+            FrE.SetElement(40),
+            FrE.SetElement(90),
+            FrE.SetElement(160),
+            FrE.SetElement(250)
         };
-        LagrangeBasis? ex = new LagrangeBasis(expected, domain);
+        LagrangeBasis ex = new LagrangeBasis(expected, domain);
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
         {
-            Assert.IsTrue(ex.Evaluations[i] == result.Evaluations[i]);
+            Assert.IsTrue(ex.Evaluations[i].Equals(result.Evaluations[i]));
         }
     }
 
     [Test]
     public void test_interpolation()
     {
-        Fr[]? domain = new[]
+        FrE[] domain = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)2),
-            new Fr((UInt256)3),
-            new Fr((UInt256)4),
-            new Fr((UInt256)5)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5)
         };
 
-        Fr[]? domainSq = new[]
+        FrE[] domainSq = new[]
         {
-            new Fr((UInt256)0),
-            new Fr((UInt256)1),
-            new Fr((UInt256)4),
-            new Fr((UInt256)9),
-            new Fr((UInt256)16),
-            new Fr((UInt256)25)
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(4),
+            FrE.SetElement(9),
+            FrE.SetElement(16),
+            FrE.SetElement(25)
         };
 
-        LagrangeBasis? xSquaredLagrange = new LagrangeBasis(domainSq, domain);
-        MonomialBasis? xSquaredCoeff = xSquaredLagrange.Interpolate();
+        LagrangeBasis xSquaredLagrange = new LagrangeBasis(domainSq, domain);
+        MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
 
-        MonomialBasis? expectedXSquaredCoeff = new MonomialBasis(
-            new[] { Fr.Zero, Fr.Zero, Fr.One });
+        MonomialBasis expectedXSquaredCoeff = new MonomialBasis(
+            new[] { FrE.Zero, FrE.Zero, FrE.One });
 
         for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
         {
-            Assert.IsTrue(expectedXSquaredCoeff.Coeffs[i] == xSquaredCoeff.Coeffs[i]);
+            Assert.IsTrue(expectedXSquaredCoeff.Coeffs[i].Equals(xSquaredCoeff.Coeffs[i]));
         }
     }
 }

@@ -3,9 +3,10 @@ using FluentAssertions;
 using Nethermind.Field;
 using Nethermind.Verkle.Curve;
 using NUnit.Framework;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Tree.Test;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+
 
 [TestFixture]
 public class VerkleTreeTests
@@ -170,7 +171,7 @@ public class VerkleTreeTests
     public void TestEmptyTrie()
     {
         VerkleTree tree = new VerkleTree();
-        tree.RootHash.Should().BeEquivalentTo(Fr.Zero.ToBytes());
+        tree.RootHash.Should().BeEquivalentTo(FrE.Zero.ToBytes().ToArray());
     }
 
     [Test]

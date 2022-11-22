@@ -1,28 +1,29 @@
 using Nethermind.Field;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Proofs;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+
 
 public static class Quotient
 {
-    public static Fr[] ComputeQuotientInsideDomain(PreComputeWeights precomp, LagrangeBasis f,
-        Fr index)
+    public static FrE[] ComputeQuotientInsideDomain(PreComputeWeights precomp, LagrangeBasis f,
+        FrE index)
     {
         int domainSize = precomp.Domain.Length;
-        Fr?[]? inverses = precomp.DomainInv;
-        Fr?[]? aPrimeDomain = precomp.APrimeDomain;
-        Fr?[]? aPrimeDomainInv = precomp.APrimeDomainInv;
+        FrE[] inverses = precomp.DomainInv;
+        FrE[] aPrimeDomain = precomp.APrimeDomain;
+        FrE[] aPrimeDomainInv = precomp.APrimeDomainInv;
 
-        int indexI = index.ToInt();
+        int indexI = (int)index.u0;
 
-        Fr[] q = new Fr[domainSize];
+        FrE[] q = new FrE[domainSize];
         for (int i = 0; i < domainSize; i++)
         {
-            q[i] = Fr.Zero;
+            q[i] = FrE.Zero;
         }
-        Fr? y = f.Evaluations[indexI];
+        FrE y = f.Evaluations[indexI];
 
         for (int i = 0; i < domainSize; i++)
         {
@@ -37,16 +38,18 @@ public static class Quotient
         return q;
     }
 
-    public static Fr[] ComputeQuotientOutsideDomain(PreComputeWeights precom, LagrangeBasis f, Fr z,
-        Fr y)
+    public static FrE[] ComputeQuotientOutsideDomain(PreComputeWeights precom, LagrangeBasis f, FrE z,
+        FrE y)
     {
-        Fr?[]? domain = precom.Domain;
+        FrE[] domain = precom.Domain;
         int domainSize = domain.Length;
 
-        Fr[]? q = new Fr[domainSize];
+        FrE[] q = new FrE[domainSize];
         for (int i = 0; i < domainSize; i++)
         {
-            q[i] = (f.Evaluations[i] - y) / (domain[i] - z);
+            var x = f.Evaluations[i] - y;
+            var zz = (domain[i] - z);
+            q[i] = x / zz;
         }
 
         return q;

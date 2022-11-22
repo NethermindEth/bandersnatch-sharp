@@ -1,9 +1,9 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Int256;
 using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Utils;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public static class PedersenHash
 {
@@ -11,13 +11,13 @@ public static class PedersenHash
     public static byte[] Hash(UInt256[] inputElements)
     {
         int inputLength = inputElements.Length;
-        Fr[]? pedersenVec = new Fr[1 + 2 * inputLength];
-        pedersenVec[0] = new Fr(new UInt256((ulong)(2 + 256 * inputLength * 32)));
+        FrE[]? pedersenVec = new FrE[1 + 2 * inputLength];
+        pedersenVec[0] = FrE.SetElement((ulong)(2 + 256 * inputLength * 32));
 
         for (int i = 0; i < inputElements.Length; i++)
         {
-            pedersenVec[2 * i + 1] = new Fr(new UInt256(inputElements[i].u0, inputElements[i].u1));
-            pedersenVec[2 * i + 2] = new Fr(new UInt256(inputElements[i].u2, inputElements[i].u3));
+            pedersenVec[2 * i + 1] = FrE.SetElement(inputElements[i].u0, inputElements[i].u1);
+            pedersenVec[2 * i + 2] = FrE.SetElement(inputElements[i].u2, inputElements[i].u3);
         }
         CRS crs = CRS.Default();
 
@@ -33,12 +33,12 @@ public static class PedersenHash
     {
         UInt256 addressUInt256 = new UInt256(address32);
 
-        Fr[]? pedersenVec = new Fr[5];
-        pedersenVec[0] = new Fr(new UInt256((2 + 256 * 64)));
-        pedersenVec[1] = new Fr(new UInt256(addressUInt256.u0, addressUInt256.u1));
-        pedersenVec[2] = new Fr(new UInt256(addressUInt256.u2, addressUInt256.u3));
-        pedersenVec[3] = new Fr(new UInt256(treeIndex.u0, treeIndex.u1));
-        pedersenVec[4] = new Fr(new UInt256(treeIndex.u2, treeIndex.u3));
+        FrE[]? pedersenVec = new FrE[5];
+        pedersenVec[0] = FrE.SetElement((2 + 256 * 64));
+        pedersenVec[1] = FrE.SetElement(addressUInt256.u0, addressUInt256.u1);
+        pedersenVec[2] = FrE.SetElement(addressUInt256.u2, addressUInt256.u3);
+        pedersenVec[3] = FrE.SetElement(treeIndex.u0, treeIndex.u1);
+        pedersenVec[4] = FrE.SetElement(treeIndex.u2, treeIndex.u3);
 
         CRS crs = CRS.Default();
 

@@ -1,13 +1,12 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Curve;
-using Fp = FixedFiniteField<BandersnatchBaseFieldStruct>;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public class Banderwagon
 {
     private readonly ExtendedPoint _point;
-    private static readonly Fp A = CurveParams.A;
+    private static readonly FpE A = CurveParams.A;
 
     public Banderwagon(byte[]? serialisedBytesBigEndian, ExtendedPoint? unsafeBandersnatchPoint = null)
     {
@@ -22,7 +21,7 @@ public class Banderwagon
                 throw new Exception();
             }
 
-            (Fp X, Fp Y) point = FromBytes(serialisedBytesBigEndian) ?? throw new Exception();
+            (FpE X, FpE Y) point = FromBytes(serialisedBytesBigEndian) ?? throw new Exception();
 
             _point = new ExtendedPoint(point.X, point.Y);
         }
@@ -30,7 +29,7 @@ public class Banderwagon
 
     public Banderwagon(string serialisedBytesBigEndian)
     {
-        (Fp X, Fp Y) point = FromBytes(Convert.FromHexString(serialisedBytesBigEndian)) ?? throw new Exception();
+        (FpE X, FpE Y) point = FromBytes(Convert.FromHexString(serialisedBytesBigEndian)) ?? throw new Exception();
         _point = new ExtendedPoint(point.X, point.Y);
     }
 
@@ -39,43 +38,44 @@ public class Banderwagon
         _point = exPoint;
     }
 
-    public static (Fp X, Fp Y)? FromBytes(IEnumerable<byte> serialisedBytesBigEndian)
+    public static (FpE X, FpE Y)? FromBytes(IEnumerable<byte> serialisedBytesBigEndian)
     {
-        IEnumerable<byte>? bytes = serialisedBytesBigEndian.Reverse();
+        IEnumerable<byte> bytes = serialisedBytesBigEndian.Reverse();
 
-        Fp? x = Fp.FromBytes(bytes.ToArray());
+        FpE? x = FpE.FromBytes(bytes.ToArray());
         if (x is null) return null;
 
-        Fp? y = AffinePoint.GetYCoordinate(x, true);
+        FpE? y = AffinePoint.GetYCoordinate(x.Value, true);
         if (y is null) return null;
 
-        return SubgroupCheck(x) != 1 ? null : (x, y);
+        return SubgroupCheck(x.Value) != 1 ? null : (x.Value, y.Value);
     }
 
-    public static int SubgroupCheck(Fp x)
+    public static int SubgroupCheck(FpE x)
     {
-        Fp? res = Fp.Mul(x, x);
-        res = Fp.Mul(res, A).Neg();
-        res = Fp.Add(res, Fp.One);
+        FpE.MulMod(x, x, out FpE res);
+        FpE.MulMod(res, A, out res);
+        res = res.Neg();
+        FpE.AddMod(res, FpE.One, out res);
 
-        return res.Legendre();
+        return FpE.Legendre(in res);
     }
 
     public static bool Equals(Banderwagon x, Banderwagon y)
     {
-        Fp? x1 = x._point.X;
-        Fp? y1 = x._point.Y;
-        Fp? x2 = y._point.X;
-        Fp? y2 = y._point.Y;
+        FpE x1 = x._point.X;
+        FpE y1 = x._point.Y;
+        FpE x2 = y._point.X;
+        FpE y2 = y._point.Y;
 
         if (x1.IsZero && y1.IsZero) return false;
 
         if (x2.IsZero && y2.IsZero) return false;
 
-        Fp? lhs = x1 * y2;
-        Fp? rhs = x2 * y1;
+        FpE lhs = x1 * y2;
+        FpE rhs = x2 * y1;
 
-        return lhs == rhs;
+        return lhs.Equals(rhs);
     }
 
     public static Banderwagon Generator() => new Banderwagon(ExtendedPoint.Generator());
@@ -85,23 +85,23 @@ public class Banderwagon
     public static Banderwagon Add(Banderwagon p, Banderwagon q) => new Banderwagon(p._point + q._point);
     public static Banderwagon Sub(Banderwagon p, Banderwagon q) => new Banderwagon(p._point - q._point);
 
-    private Fp? _mapToField() => _point.X / _point.Y;
+    private FpE? _mapToField() => _point.X / _point.Y;
 
     public byte[] MapToField()
     {
-        return _mapToField()?.ToBytes() ?? throw new Exception();
+        return _mapToField()?.ToBytes().ToArray() ?? throw new Exception();
     }
 
     public byte[] ToBytes()
     {
         AffinePoint? affine = _point.ToAffine();
-        Fp? x = affine.X.Dup();
+        FpE? x = affine.X.Dup();
         if (affine.Y.LexicographicallyLargest() == false)
         {
             x = affine.X.Neg();
         }
 
-        return x.ToBytesBigEndian();
+        return x.Value.ToBytesBigEndian().ToArray();
     }
 
     public static Banderwagon Double(Banderwagon p) => new(ExtendedPoint.Double(p._point));
@@ -110,17 +110,17 @@ public class Banderwagon
 
     public Banderwagon Dup() => new(_point.Dup());
 
-    public static Banderwagon ScalarMul(Banderwagon element, Fr scalar) => new(element._point * scalar);
+    public static Banderwagon ScalarMul(Banderwagon element, FrE scalar) => new(element._point * scalar);
     public static Banderwagon Identity() => new(ExtendedPoint.Identity());
 
 
     public static Banderwagon TwoTorsionPoint()
     {
-        AffinePoint? affinePoint = new AffinePoint(Fp.Zero, Fp.One.Neg());
+        AffinePoint? affinePoint = new AffinePoint(FpE.Zero, FpE.One.Neg());
         return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
     }
 
-    public static Banderwagon MSM(Banderwagon[] points, Fr[] scalars)
+    public static Banderwagon MSM(Banderwagon[] points, FrE[] scalars)
     {
         Banderwagon? res = Identity();
         for (int i = 0; i < points.Length; i++)
@@ -141,12 +141,12 @@ public class Banderwagon
         return Sub(a, b);
     }
 
-    public static Banderwagon operator *(in Banderwagon a, in Fr b)
+    public static Banderwagon operator *(in Banderwagon a, in FrE b)
     {
         return ScalarMul(a, b);
     }
 
-    public static Banderwagon operator *(in Fr a, in Banderwagon b)
+    public static Banderwagon operator *(in FrE a, in Banderwagon b)
     {
         return ScalarMul(b, a);
     }

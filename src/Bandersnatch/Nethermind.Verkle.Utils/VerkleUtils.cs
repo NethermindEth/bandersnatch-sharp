@@ -1,9 +1,9 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Int256;
 using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Utils;
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
 
 public struct LeafUpdateDelta
 {
@@ -33,12 +33,12 @@ public struct LeafUpdateDelta
 
 public static class VerkleUtils
 {
-    private static Fr ValueExistsMarker
+    private static FrE ValueExistsMarker
     {
         get
         {
             new UInt256(2).Exp(128, out UInt256 res);
-            return new Fr(res);
+            return FrE.SetElement(res.u0, res.u1, res.u2, res.u3);
         }
     }
     public static byte[] ToAddress32(byte[] address20)
@@ -48,12 +48,12 @@ public static class VerkleUtils
         return address32;
     }
 
-    public static (Fr, Fr) BreakValueInLowHigh(byte[]? value)
+    public static (FrE, FrE) BreakValueInLowHigh(byte[]? value)
     {
-        if (value is null) return (Fr.Zero, Fr.Zero);
+        if (value is null) return (FrE.Zero, FrE.Zero);
         if (value.Length != 32) throw new ArgumentException();
-        Fr lowFr = (Fr.FromBytes(value[..16].Reverse().ToArray()) ?? throw new ArgumentException()) + ValueExistsMarker;
-        Fr highFr = Fr.FromBytes(value[16..].Reverse().ToArray()) ?? throw new AggregateException();
+        FrE lowFr = (FrE.FromBytes(value[..16].Reverse().ToArray()) ?? throw new ArgumentException()) + ValueExistsMarker;
+        FrE highFr = FrE.FromBytes(value[16..].Reverse().ToArray()) ?? throw new AggregateException();
         return (lowFr, highFr);
     }
 
