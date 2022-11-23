@@ -3,9 +3,9 @@ using Nethermind.Utils.Extensions;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Tree.Test;
+using BranchStore = Dictionary<byte[], InternalNode?>;
 using LeafStore = Dictionary<byte[], byte[]?>;
 using SuffixStore = Dictionary<byte[], SuffixTree?>;
-using BranchStore = Dictionary<byte[], InternalNode?>;
 
 public class VerkleDbTests
 {

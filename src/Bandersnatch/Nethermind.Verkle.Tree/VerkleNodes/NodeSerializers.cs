@@ -6,9 +6,9 @@ using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree.VerkleNodes;
+using BranchStore = Dictionary<byte[], InternalNode?>;
 using LeafStore = Dictionary<byte[], byte[]?>;
 using SuffixStore = Dictionary<byte[], SuffixTree?>;
-using BranchStore = Dictionary<byte[], InternalNode?>;
 
 public class SuffixTreeSerializer : IRlpStreamDecoder<SuffixTree>, IRlpObjectDecoder<SuffixTree>
 {

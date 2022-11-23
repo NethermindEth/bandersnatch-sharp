@@ -5,11 +5,11 @@ using Nethermind.Serialization.Rlp;
 using Nethermind.Utils.Extensions;
 
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
+using BranchStore = Dictionary<byte[], InternalNode?>;
 using LeafStore = Dictionary<byte[], byte[]?>;
 using SuffixStore = Dictionary<byte[], SuffixTree?>;
-using BranchStore = Dictionary<byte[], InternalNode?>;
 
-public class MemoryStateDb: IVerkleDiffDb
+public class MemoryStateDb : IVerkleDiffDb
 {
     public Dictionary<byte[], byte[]?> LeafTable { get; }
     public Dictionary<byte[], SuffixTree?> StemTable { get; }
@@ -35,7 +35,7 @@ public class MemoryStateDb: IVerkleDiffDb
         RlpStream stream = new RlpStream(Rlp.LengthOfSequence(contentLength));
         stream.StartSequence(contentLength);
         MemoryStateDbSerializer.Instance.Encode(stream, this);
-        return stream.Data?? throw new ArgumentException();
+        return stream.Data ?? throw new ArgumentException();
     }
 
     public static MemoryStateDb Decode(byte[] data)
@@ -92,7 +92,7 @@ public class MemoryStateDb: IVerkleDiffDb
 
 
 
-public class MemoryStateDbSerializer: IRlpStreamDecoder<MemoryStateDb>
+public class MemoryStateDbSerializer : IRlpStreamDecoder<MemoryStateDb>
 {
     public static MemoryStateDbSerializer Instance => new MemoryStateDbSerializer();
 

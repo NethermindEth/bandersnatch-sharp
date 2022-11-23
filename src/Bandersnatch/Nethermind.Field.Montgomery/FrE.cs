@@ -25,16 +25,16 @@ public readonly struct FrE
     private const ulong One3 = 1739710354780652911;
     public static readonly FrE One = new FrE(One0, One1, One2, One3);
 
-    private const  ulong Q0 = 8429901452645165025;
-    private const  ulong Q1 = 18415085837358793841;
-    private const  ulong Q2 = 922804724659942912;
-    private const  ulong Q3 = 2088379214866112338;
+    private const ulong Q0 = 8429901452645165025;
+    private const ulong Q1 = 18415085837358793841;
+    private const ulong Q2 = 922804724659942912;
+    private const ulong Q3 = 2088379214866112338;
     private static readonly FrE qElement = new FrE(Q0, Q1, Q2, Q3);
 
-    private  const ulong R0 = 15831548891076708299;
-    private  const ulong R1 = 4682191799977818424;
-    private  const ulong R2 = 12294384630081346794;
-    private  const ulong R3 = 785759240370973821;
+    private const ulong R0 = 15831548891076708299;
+    private const ulong R1 = 4682191799977818424;
+    private const ulong R2 = 12294384630081346794;
+    private const ulong R3 = 785759240370973821;
     private static readonly FrE rSquare = new FrE(R0, R1, R2, R3);
 
     private const ulong G0 = 5415081136944170355;
@@ -130,7 +130,7 @@ public readonly struct FrE
         UInt256 res;
         if (value.Sign < 0)
         {
-            ElementUtils.SubtractMod(UInt256.Zero,(UInt256)(-value), _modulus.Value, out res);
+            ElementUtils.SubtractMod(UInt256.Zero, (UInt256)(-value), _modulus.Value, out res);
         }
         else
         {
@@ -174,7 +174,7 @@ public readonly struct FrE
         return ElementUtils.ToBigEndian(x.u0, x.u1, x.u2, x.u3);
     }
 
-    public static FrE? FromBytes(byte[] byteEncoded, bool isBigEndian=false)
+    public static FrE? FromBytes(byte[] byteEncoded, bool isBigEndian = false)
     {
         UInt256 val = new UInt256(byteEncoded, isBigEndian);
         if (val > _modulus.Value) return null;
@@ -183,7 +183,7 @@ public readonly struct FrE
         return resF;
     }
 
-    public static FrE FromBytesReduced(byte[] byteEncoded, bool isBigEndian=false)
+    public static FrE FromBytesReduced(byte[] byteEncoded, bool isBigEndian = false)
     {
         UInt256 val = new UInt256(byteEncoded, isBigEndian);
         val.Mod(_modulus.Value, out UInt256 res);
@@ -303,7 +303,7 @@ public readonly struct FrE
 
         for (int i = values.Length - 1; i >= 0; i--)
         {
-            if(zeros[i]) continue;
+            if (zeros[i]) continue;
             MulMod(in results[i], in accumulator, out results[i]);
             MulMod(in accumulator, in values[i], out accumulator);
         }

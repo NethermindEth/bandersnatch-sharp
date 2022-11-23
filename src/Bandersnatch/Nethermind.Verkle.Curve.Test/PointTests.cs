@@ -1,8 +1,6 @@
 using System;
 using FluentAssertions;
-using Nethermind.Field;
 using Nethermind.Field.Montgomery;
-using Nethermind.Int256;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Curve.Test;

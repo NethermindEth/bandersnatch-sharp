@@ -1,10 +1,8 @@
 using System;
 using System.Linq;
-using Nethermind.Field;
-using Nethermind.Int256;
+using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
 using NUnit.Framework;
-using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Proofs.Test;
 

@@ -41,7 +41,7 @@ public class InsertHugeTreeTests
         string dbPath = GetDbPathForTest();
         if (Directory.Exists(dbPath))
         {
-            Directory.Delete(dbPath,true);
+            Directory.Delete(dbPath, true);
         }
     }
 
@@ -63,8 +63,8 @@ public class InsertHugeTreeTests
         DateTime check1 = DateTime.Now;
         tree.Flush(block++);
         DateTime check2 = DateTime.Now;
-        Console.WriteLine($"{block} Insert: {(check1-start).TotalMilliseconds}");
-        Console.WriteLine($"{block} Flush: {(check2-check1).TotalMilliseconds}");
+        Console.WriteLine($"{block} Insert: {(check1 - start).TotalMilliseconds}");
+        Console.WriteLine($"{block} Flush: {(check2 - check1).TotalMilliseconds}");
         for (int i = 1000; i < numKeys; i += 1000)
         {
             DateTime check5 = DateTime.Now;
@@ -79,11 +79,11 @@ public class InsertHugeTreeTests
             DateTime check3 = DateTime.Now;
             tree.Flush(block++);
             DateTime check4 = DateTime.Now;
-            Console.WriteLine($"{block} Insert: {(check3-check5).TotalMilliseconds}");
-            Console.WriteLine($"{block} Flush: {(check4-check3).TotalMilliseconds}");
+            Console.WriteLine($"{block} Insert: {(check3 - check5).TotalMilliseconds}");
+            Console.WriteLine($"{block} Flush: {(check4 - check3).TotalMilliseconds}");
         }
         DateTime check6 = DateTime.Now;
-        Console.WriteLine($"Loop Time: {(check6-check2).TotalMilliseconds}");
-        Console.WriteLine($"Total Time: {(check6-start).TotalMilliseconds}");
+        Console.WriteLine($"Loop Time: {(check6 - check2).TotalMilliseconds}");
+        Console.WriteLine($"Total Time: {(check6 - start).TotalMilliseconds}");
     }
 }

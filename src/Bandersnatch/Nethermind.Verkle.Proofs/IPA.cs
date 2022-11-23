@@ -1,8 +1,6 @@
 using System.Text;
 using Nethermind.Field.Montgomery;
-using Nethermind.Int256;
 using Nethermind.Verkle.Curve;
-using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Proofs;
 

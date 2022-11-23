@@ -1,4 +1,3 @@
-using Nethermind.Field;
 using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Curve;

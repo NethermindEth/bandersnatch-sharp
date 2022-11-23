@@ -2,17 +2,15 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using Nethermind.Serialization.Rlp;
-using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Tree.VerkleNodes;
-using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
+using BranchStore = Dictionary<byte[], InternalNode?>;
 using LeafStore = Dictionary<byte[], byte[]?>;
 using SuffixStore = Dictionary<byte[], SuffixTree?>;
-using BranchStore = Dictionary<byte[], InternalNode?>;
 
 
-public class LeafStoreSerializer: IRlpStreamDecoder<LeafStore>
+public class LeafStoreSerializer : IRlpStreamDecoder<LeafStore>
 {
     public static LeafStoreSerializer Instance => new LeafStoreSerializer();
     public int GetLength(LeafStore item, RlpBehaviors rlpBehaviors)
@@ -48,7 +46,7 @@ public class LeafStoreSerializer: IRlpStreamDecoder<LeafStore>
     }
 }
 
-public class SuffixStoreSerializer: IRlpStreamDecoder<SuffixStore>
+public class SuffixStoreSerializer : IRlpStreamDecoder<SuffixStore>
 {
     private static SuffixTreeSerializer SuffixTreeSerializer => SuffixTreeSerializer.Instance;
 
@@ -60,7 +58,7 @@ public class SuffixStoreSerializer: IRlpStreamDecoder<SuffixStore>
         foreach (KeyValuePair<byte[], SuffixTree?> pair in item)
         {
             length += Rlp.LengthOf(pair.Key);
-            length += pair.Value == null? Rlp.EmptyArrayByte: SuffixTreeSerializer.GetLength(pair.Value, RlpBehaviors.None);
+            length += pair.Value == null ? Rlp.EmptyArrayByte : SuffixTreeSerializer.GetLength(pair.Value, RlpBehaviors.None);
         }
         return length;
     }
@@ -97,7 +95,7 @@ public class SuffixStoreSerializer: IRlpStreamDecoder<SuffixStore>
 }
 
 
-public class BranchStoreSerializer: IRlpStreamDecoder<BranchStore>
+public class BranchStoreSerializer : IRlpStreamDecoder<BranchStore>
 {
     private static InternalNodeSerializer InternalNodeSerializer => InternalNodeSerializer.Instance;
 
@@ -108,7 +106,7 @@ public class BranchStoreSerializer: IRlpStreamDecoder<BranchStore>
         foreach (KeyValuePair<byte[], InternalNode?> pair in item)
         {
             length += Rlp.LengthOf(pair.Key);
-            length += pair.Value == null? Rlp.EmptyArrayByte: InternalNodeSerializer.GetLength(pair.Value, RlpBehaviors.None);
+            length += pair.Value == null ? Rlp.EmptyArrayByte : InternalNodeSerializer.GetLength(pair.Value, RlpBehaviors.None);
         }
         return length;
     }

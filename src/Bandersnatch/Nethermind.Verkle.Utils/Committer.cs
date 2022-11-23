@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Nethermind.Field;
 using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
 

@@ -3,7 +3,7 @@
 
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
 
-public class DiffLayer: IDiffLayer
+public class DiffLayer : IDiffLayer
 {
     private Dictionary<long, byte[]> Diff { get; }
     public DiffLayer()

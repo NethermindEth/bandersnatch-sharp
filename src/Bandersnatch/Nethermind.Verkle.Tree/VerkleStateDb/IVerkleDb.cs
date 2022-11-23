@@ -2,9 +2,9 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
+using BranchStore = Dictionary<byte[], InternalNode?>;
 using LeafStore = Dictionary<byte[], byte[]?>;
 using SuffixStore = Dictionary<byte[], SuffixTree?>;
-using BranchStore = Dictionary<byte[], InternalNode?>;
 
 
 public interface IVerkleDb
@@ -24,7 +24,7 @@ public interface IVerkleDb
     void BatchBranchInsert(IEnumerable<KeyValuePair<byte[], InternalNode?>> branchLeaf);
 }
 
-public interface IVerkleDiffDb: IVerkleDb
+public interface IVerkleDiffDb : IVerkleDb
 {
     byte[] Encode();
     IEnumerable<KeyValuePair<byte[], byte[]?>> LeafNodes { get; }

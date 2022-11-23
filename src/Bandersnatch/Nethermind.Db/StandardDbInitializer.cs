@@ -15,7 +15,6 @@
 //  along with the Nethermind. If not, see <http://www.gnu.org/licenses/>.
 
 using System.IO.Abstractions;
-using Nethermind.Db.FullPruning;
 
 namespace Nethermind.Db
 {

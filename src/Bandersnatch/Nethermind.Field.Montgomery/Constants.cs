@@ -20,16 +20,16 @@ public class FpConstants
     private const ulong One3 = 1739710354780652911;
     public static readonly FpE One = new FpE(One0, One1, One2, One3);
 
-    private const  ulong Q0 = 18446744069414584321;
-    private const  ulong Q1 = 6034159408538082302;
-    private const  ulong Q2 = 3691218898639771653;
-    private const  ulong Q3 = 8353516859464449352;
+    private const ulong Q0 = 18446744069414584321;
+    private const ulong Q1 = 6034159408538082302;
+    private const ulong Q2 = 3691218898639771653;
+    private const ulong Q3 = 8353516859464449352;
     private static readonly FpE qElement = new FpE(Q0, Q1, Q2, Q3);
 
-    private  const ulong R0 = 14526898881837571181;
-    private  const ulong R1 = 3129137299524312099;
-    private  const ulong R2 = 419701826671360399;
-    private  const ulong R3 = 524908885293268753;
+    private const ulong R0 = 14526898881837571181;
+    private const ulong R1 = 3129137299524312099;
+    private const ulong R2 = 419701826671360399;
+    private const ulong R3 = 524908885293268753;
     private static readonly FpE rSquare = new FpE(R0, R1, R2, R3);
 
     private const ulong G0 = 11289237133041595516;
@@ -77,16 +77,16 @@ public class FrConstants
     private const ulong One3 = 1739710354780652911;
     public static readonly FrE One = new FrE(One0, One1, One2, One3);
 
-    private const  ulong Q0 = 8429901452645165025;
-    private const  ulong Q1 = 18415085837358793841;
-    private const  ulong Q2 = 922804724659942912;
-    private const  ulong Q3 = 2088379214866112338;
+    private const ulong Q0 = 8429901452645165025;
+    private const ulong Q1 = 18415085837358793841;
+    private const ulong Q2 = 922804724659942912;
+    private const ulong Q3 = 2088379214866112338;
     private static readonly FrE qElement = new FrE(Q0, Q1, Q2, Q3);
 
-    private  const ulong R0 = 15831548891076708299;
-    private  const ulong R1 = 4682191799977818424;
-    private  const ulong R2 = 12294384630081346794;
-    private  const ulong R3 = 785759240370973821;
+    private const ulong R0 = 15831548891076708299;
+    private const ulong R1 = 4682191799977818424;
+    private const ulong R2 = 12294384630081346794;
+    private const ulong R3 = 785759240370973821;
     private static readonly FrE rSquare = new FrE(R0, R1, R2, R3);
 
     private const ulong G0 = 5415081136944170355;

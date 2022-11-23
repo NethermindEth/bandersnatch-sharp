@@ -1,11 +1,9 @@
 using System;
 using System.IO;
 using FluentAssertions;
-using Nethermind.Field;
-using Nethermind.Verkle.Curve;
+using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Db;
 using NUnit.Framework;
-using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Tree.Test;
 
@@ -87,7 +85,7 @@ public class VerkleTreeTests
         string dbPath = GetDbPathForTest();
         if (Directory.Exists(dbPath))
         {
-            Directory.Delete(dbPath,true);
+            Directory.Delete(dbPath, true);
         }
     }
 

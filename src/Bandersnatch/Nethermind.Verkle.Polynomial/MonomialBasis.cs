@@ -1,5 +1,3 @@
-using Nethermind.Field;
-using Nethermind.Verkle.Curve;
 using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Polynomial;

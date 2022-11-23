@@ -1,7 +1,6 @@
-using Nethermind.Field;
+using Nethermind.Field.Montgomery;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
-using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Proofs;
 

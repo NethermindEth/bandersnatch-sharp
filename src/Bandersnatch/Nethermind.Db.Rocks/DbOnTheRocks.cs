@@ -143,7 +143,7 @@ public class DbOnTheRocks : IDbWithSpan
     protected static T? ReadConfig<T>(IDbConfig dbConfig, string propertyName, string tableName)
     {
         // string prefixed = string.Concat(tableName.StartsWith("State") ? string.Empty : string.Concat(tableName, "Db"),
-            // propertyName);
+        // propertyName);
         try
         {
             return (T?)dbConfig.GetType()
@@ -203,9 +203,9 @@ public class DbOnTheRocks : IDbWithSpan
         {
             _maxThisDbSize += (long)writeBufferSize * writeBufferNumber;
             Interlocked.Add(ref _maxRocksSize, _maxThisDbSize);
-                Console.WriteLine(
-                    $"Expected max memory footprint of {Name} DB is {_maxThisDbSize / 1000 / 1000}MB ({writeBufferNumber} * {writeBufferSize / 1000 / 1000}MB + {blockCacheSize / 1000 / 1000}MB)");
-                Console.WriteLine($"Total max DB footprint so far is {_maxRocksSize / 1000 / 1000}MB");
+            Console.WriteLine(
+                $"Expected max memory footprint of {Name} DB is {_maxThisDbSize / 1000 / 1000}MB ({writeBufferNumber} * {writeBufferSize / 1000 / 1000}MB + {blockCacheSize / 1000 / 1000}MB)");
+            Console.WriteLine($"Total max DB footprint so far is {_maxRocksSize / 1000 / 1000}MB");
             ThisNodeInfo.AddInfo("Mem est DB   :", $"{_maxRocksSize / 1000 / 1000}MB".PadLeft(8));
         }
 

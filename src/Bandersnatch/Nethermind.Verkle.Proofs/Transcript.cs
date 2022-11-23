@@ -1,8 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
-using Nethermind.Field;
-using Nethermind.Verkle.Curve;
 using Nethermind.Field.Montgomery;
+using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Proofs;
 

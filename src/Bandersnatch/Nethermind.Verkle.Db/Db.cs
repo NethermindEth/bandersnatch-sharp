@@ -58,7 +58,7 @@ public class DbFactory
 
     public static IDbProvider InitDatabase(DbMode dbMode, string? dbPath)
     {
-        (IDbProvider dbProvider, RocksDbFactory rocksDbFactory, MemDbFactory memDbFactory) = InitDbApi(dbMode, dbPath?? "testDb", true);
+        (IDbProvider dbProvider, RocksDbFactory rocksDbFactory, MemDbFactory memDbFactory) = InitDbApi(dbMode, dbPath ?? "testDb", true);
         StandardDbInitializer dbInitializer = new StandardDbInitializer(dbProvider, rocksDbFactory, memDbFactory, new FileSystem(), false);
         dbInitializer.InitStandardDbs(true);
         return dbProvider;

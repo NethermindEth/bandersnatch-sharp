@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using Nethermind.Field;
 using Nethermind.Field.Montgomery;
 
 namespace Nethermind.Verkle.Curve;
@@ -38,7 +37,7 @@ public class CRS
 
             byte[] xAsBytes = x.ToBytesBigEndian().ToArray();
             (FpE X, FpE Y)? pointFound = Banderwagon.FromBytes(xAsBytes);
-            if(pointFound is null) continue;
+            if (pointFound is null) continue;
             points[generatedPoints] = new Banderwagon(null, new ExtendedPoint(pointFound.Value.X, pointFound.Value.Y));
             generatedPoints += 1;
         }

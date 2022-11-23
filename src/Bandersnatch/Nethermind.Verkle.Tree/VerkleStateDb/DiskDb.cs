@@ -2,14 +2,13 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using Nethermind.Db;
-using Nethermind.Serialization.Rlp;
 using Nethermind.Utils;
 using Nethermind.Verkle.Db;
 using Nethermind.Verkle.Tree.VerkleNodes;
 
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
 
-public class DiskDb: IVerkleDb
+public class DiskDb : IVerkleDb
 {
     private readonly IDbProvider _dbProvider;
 
