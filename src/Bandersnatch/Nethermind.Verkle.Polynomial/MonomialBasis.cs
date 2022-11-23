@@ -11,7 +11,10 @@ public class MonomialBasis : IEqualityComparer<MonomialBasis>
         Coeffs = coeffs;
     }
 
-    public static MonomialBasis Empty() => new(new FrE[] { });
+    public static MonomialBasis Empty() =>
+        new MonomialBasis(new FrE[]
+        {
+        });
 
     private static MonomialBasis Mul(MonomialBasis a, MonomialBasis b)
     {
@@ -34,7 +37,7 @@ public class MonomialBasis : IEqualityComparer<MonomialBasis>
         }
 
         FrE[] x = a.Coeffs.ToArray();
-        List<FrE> output = new();
+        List<FrE> output = new List<FrE>();
 
         int aPos = a.Length() - 1;
         int bPos = b.Length() - 1;
@@ -46,7 +49,7 @@ public class MonomialBasis : IEqualityComparer<MonomialBasis>
             output.Insert(0, quot!);
             for (int i = bPos; i > -1; i--)
             {
-                x[diff + i] = x[diff + i]! - b.Coeffs[i]! * quot!;
+                x[diff + i] -= b.Coeffs[i] * quot;
             }
 
             aPos -= 1;
@@ -82,7 +85,8 @@ public class MonomialBasis : IEqualityComparer<MonomialBasis>
 
     public static MonomialBasis VanishingPoly(IEnumerable<FrE> xs)
     {
-        List<FrE> root = new() { FrE.One };
+        List<FrE> root = new List<FrE>
+            { FrE.One };
         foreach (FrE x in xs)
         {
             root.Insert(0, FrE.Zero);
@@ -135,12 +139,11 @@ public class MonomialBasis : IEqualityComparer<MonomialBasis>
         return Coeffs.Equals(other.Coeffs);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((MonomialBasis)obj);
+        return obj.GetType() == this.GetType() && Equals((MonomialBasis)obj);
     }
 
     public override int GetHashCode()

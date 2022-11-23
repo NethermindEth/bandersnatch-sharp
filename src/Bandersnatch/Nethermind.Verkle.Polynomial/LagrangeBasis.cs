@@ -28,38 +28,42 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
         return Evaluations;
     }
 
-    private static LagrangeBasis arithmetic_op(LagrangeBasis lhs, LagrangeBasis rhs,
-        Func<FrE, FrE, FrE> operation)
+    private static LagrangeBasis ArithmeticOp(LagrangeBasis lhs, LagrangeBasis rhs, ArithmeticOps op)
     {
-        if (!lhs.Domain.SequenceEqual(rhs.Domain))
-            throw new Exception();
+        if (!lhs.Domain.SequenceEqual(rhs.Domain))  throw new Exception();
 
         FrE[] result = new FrE[lhs.Evaluations.Length];
 
-        for (int i = 0; i < lhs.Evaluations.Length; i++)
+        Parallel.For(0, lhs.Evaluations.Length, i =>
         {
-            result[i] = operation(lhs.Evaluations[i], rhs.Evaluations[i]);
-        }
+            result[i] = op switch
+            {
+                ArithmeticOps.Add => lhs.Evaluations[i] + rhs.Evaluations[i],
+                ArithmeticOps.Sub => lhs.Evaluations[i] - rhs.Evaluations[i],
+                ArithmeticOps.Mul => lhs.Evaluations[i] * rhs.Evaluations[i],
+                var _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
+            };
+        });
 
         return new LagrangeBasis(result, lhs.Domain);
     }
 
     public static LagrangeBasis Add(LagrangeBasis lhs, LagrangeBasis rhs)
     {
-        return arithmetic_op(lhs, rhs, (field, scalarField) => field + scalarField);
+        return ArithmeticOp(lhs, rhs, ArithmeticOps.Add);
     }
 
     public static LagrangeBasis Sub(LagrangeBasis lhs, LagrangeBasis rhs)
     {
-        return arithmetic_op(lhs, rhs, (field, scalarField) => field - scalarField);
+        return ArithmeticOp(lhs, rhs, ArithmeticOps.Sub);
     }
 
     public static LagrangeBasis Mul(LagrangeBasis lhs, LagrangeBasis rhs)
     {
-        return arithmetic_op(lhs, rhs, (field, scalarField) => field * scalarField);
+        return ArithmeticOp(lhs, rhs, ArithmeticOps.Mul);
     }
 
-    public static LagrangeBasis scale(LagrangeBasis poly, FrE constant)
+    public static LagrangeBasis Scale(LagrangeBasis poly, FrE constant)
     {
         FrE[] result = new FrE[poly.Evaluations.Length];
 
@@ -70,32 +74,25 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
         return new LagrangeBasis(result, poly.Domain);
     }
 
-    public FrE evaluate_outside_domain(LagrangeBasis precomputed_weights, FrE z)
+    public FrE EvaluateOutsideDomain(LagrangeBasis precomputedWeights, FrE z)
     {
         FrE r = FrE.Zero;
-        MonomialBasis A = MonomialBasis.VanishingPoly(Domain);
-        FrE Az = A.Evaluate(z);
+        MonomialBasis a = MonomialBasis.VanishingPoly(Domain);
+        FrE az = a.Evaluate(z);
 
-        if (Az.IsZero)
+        if (az.IsZero)
             throw new Exception("vanishing polynomial evaluated to zero. z is therefore a point on the domain");
 
 
-        List<FrE> inner = new List<FrE>();
-        foreach (FrE x in Domain)
-        {
-            inner.Add(z - x);
-        }
-
-        FrE[] inverses = FrE.MultiInverse(inner.ToArray());
+        FrE[] inverses = FrE.MultiInverse(Domain.Select(x => z - x).ToArray());
 
         for (int i = 0; i < inverses.Length; i++)
         {
             FrE x = inverses[i];
-            r += Evaluations[i] * precomputed_weights.Evaluations[i] * x;
+            r += Evaluations[i] * precomputedWeights.Evaluations[i] * x;
         }
 
-
-        r = r * Az;
+        r *= az;
 
         return r;
     }
@@ -109,20 +106,14 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
         if (root.Length() != ys.Length + 1)
             throw new Exception();
 
-        List<MonomialBasis> nums = new List<MonomialBasis>();
-        foreach (FrE x in xs)
-        {
-            FrE[] s = new[] { x.Neg(), FrE.One };
-            MonomialBasis elem = root / new MonomialBasis(s);
-            nums.Add(elem);
-        }
+        List<MonomialBasis> nums = xs.Select(x => new[]
+            {
+                x.Neg(), FrE.One
+            })
+            .Select(s => root / new MonomialBasis(s))
+            .ToList();
 
-        List<FrE> denoms = new List<FrE>();
-        for (int i = 0; i < xs.Length; i++)
-        {
-            denoms.Add(nums[i].Evaluate(xs[i]));
-        }
-        FrE[] invdenoms = FrE.MultiInverse(denoms.ToArray());
+        FrE[] invDenoms = FrE.MultiInverse(xs.Select((t, i) => nums[i].Evaluate(t)).ToArray());
 
         FrE[] b = new FrE[ys.Length];
         for (int i = 0; i < b.Length; i++)
@@ -132,7 +123,7 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
 
         for (int i = 0; i < xs.Length; i++)
         {
-            FrE ySlice = ys[i] * invdenoms[i];
+            FrE ySlice = ys[i] * invDenoms[i];
             for (int j = 0; j < ys.Length; j++)
             {
                 b[j] += nums[i].Coeffs[j] * ySlice;
@@ -164,12 +155,12 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
 
     public static LagrangeBasis operator *(in LagrangeBasis a, in FrE b)
     {
-        return scale(a, b);
+        return Scale(a, b);
     }
 
     public static LagrangeBasis operator *(in FrE a, in LagrangeBasis b)
     {
-        return scale(b, a);
+        return Scale(b, a);
     }
 
     public static bool operator ==(in LagrangeBasis a, in LagrangeBasis b)
@@ -190,5 +181,12 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
     public int GetHashCode(LagrangeBasis obj)
     {
         return HashCode.Combine(obj.Evaluations, obj.Domain);
+    }
+
+    private enum ArithmeticOps
+    {
+        Add,
+        Sub,
+        Mul
     }
 }
