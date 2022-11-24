@@ -1,5 +1,5 @@
 using System.Text;
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Proofs;
@@ -18,7 +18,7 @@ public static class IPA
 
         foreach ((FrE aI, FrE bI) in Enumerable.Zip(a, b))
         {
-            FrE.MulMod(aI, bI, out FrE term);
+            FrE.MultiplyMod(aI, bI, out FrE term);
             result += term;
         }
 

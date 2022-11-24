@@ -1,4 +1,5 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FpEElement;
+using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Curve;
 
@@ -52,9 +53,9 @@ public class Banderwagon
 
     public static int SubgroupCheck(FpE x)
     {
-        FpE.MulMod(x, x, out FpE res);
-        FpE.MulMod(res, A, out res);
-        res = res.Neg();
+        FpE.MultiplyMod(x, x, out FpE res);
+        FpE.MultiplyMod(res, A, out res);
+        res = res.Negative();
         FpE.AddMod(res, FpE.One, out res);
 
         return FpE.Legendre(in res);
@@ -97,7 +98,7 @@ public class Banderwagon
         FpE? x = affine.X.Dup();
         if (affine.Y.LexicographicallyLargest() == false)
         {
-            x = affine.X.Neg();
+            x = affine.X.Negative();
         }
 
         return x.Value.ToBytesBigEndian().ToArray();
@@ -115,7 +116,7 @@ public class Banderwagon
 
     public static Banderwagon TwoTorsionPoint()
     {
-        AffinePoint? affinePoint = new AffinePoint(FpE.Zero, FpE.One.Neg());
+        AffinePoint? affinePoint = new AffinePoint(FpE.Zero, FpE.One.Negative());
         return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
     }
 

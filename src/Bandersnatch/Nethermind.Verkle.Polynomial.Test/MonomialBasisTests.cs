@@ -1,4 +1,4 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Polynomial.Test;
@@ -6,26 +6,26 @@ namespace Nethermind.Verkle.Polynomial.Test;
 
 public class MonomialBasisTests
 {
-    // [Test]
-    // public void test_vanishing_poly()
-    // {
-    //     FrE[] xs = new[]
-    //     {
-    //         FrE.SetElement(0),
-    //         FrE.SetElement(1),
-    //         FrE.SetElement(2),
-    //         FrE.SetElement(3),
-    //         FrE.SetElement(4),
-    //         FrE.SetElement(5)
-    //     };
-    //
-    //     MonomialBasis z = MonomialBasis.VanishingPoly(xs);
-    //
-    //     foreach (FrE x in xs)
-    //     {
-    //         Assert.IsTrue(z.Evaluate(x).IsZero);
-    //     }
-    // }
+    [Test]
+    public void test_vanishing_poly()
+    {
+        FrE[] xs = new[]
+        {
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5)
+        };
+
+        MonomialBasis z = MonomialBasis.VanishingPoly(xs);
+
+        foreach (FrE x in xs)
+        {
+            Assert.IsTrue(z.Evaluate(x).IsZero);
+        }
+    }
 
     [Test]
     public void test_poly_div()

@@ -1,4 +1,4 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Polynomial;
 

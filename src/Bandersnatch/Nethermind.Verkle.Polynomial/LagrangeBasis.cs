@@ -1,4 +1,4 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Polynomial;
 
@@ -108,7 +108,7 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
 
         List<MonomialBasis> nums = xs.Select(x => new[]
             {
-                x.Neg(), FrE.One
+                x.Negative(), FrE.One
             })
             .Select(s => root / new MonomialBasis(s))
             .ToList();

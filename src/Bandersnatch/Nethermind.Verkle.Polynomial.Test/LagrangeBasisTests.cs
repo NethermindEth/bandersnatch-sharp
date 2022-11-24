@@ -1,4 +1,4 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Polynomial.Test;
@@ -154,38 +154,38 @@ public class LagrangeBasisTests
         }
     }
 
-    // [Test]
-    // public void test_interpolation()
-    // {
-    //     FrE[] domain = new[]
-    //     {
-    //         FrE.SetElement(0),
-    //         FrE.SetElement(1),
-    //         FrE.SetElement(2),
-    //         FrE.SetElement(3),
-    //         FrE.SetElement(4),
-    //         FrE.SetElement(5)
-    //     };
-    //
-    //     FrE[] domainSq = new[]
-    //     {
-    //         FrE.SetElement(0),
-    //         FrE.SetElement(1),
-    //         FrE.SetElement(4),
-    //         FrE.SetElement(9),
-    //         FrE.SetElement(16),
-    //         FrE.SetElement(25)
-    //     };
-    //
-    //     LagrangeBasis xSquaredLagrange = new LagrangeBasis(domainSq, domain);
-    //     MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
-    //
-    //     MonomialBasis expectedXSquaredCoeff = new MonomialBasis(
-    //         new[] { FrE.Zero, FrE.Zero, FrE.One });
-    //
-    //     for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
-    //     {
-    //         Assert.IsTrue(expectedXSquaredCoeff.Coeffs[i].Equals(xSquaredCoeff.Coeffs[i]));
-    //     }
-    // }
+    [Test]
+    public void test_interpolation()
+    {
+        FrE[] domain = new[]
+        {
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(2),
+            FrE.SetElement(3),
+            FrE.SetElement(4),
+            FrE.SetElement(5)
+        };
+
+        FrE[] domainSq = new[]
+        {
+            FrE.SetElement(0),
+            FrE.SetElement(1),
+            FrE.SetElement(4),
+            FrE.SetElement(9),
+            FrE.SetElement(16),
+            FrE.SetElement(25)
+        };
+
+        LagrangeBasis xSquaredLagrange = new LagrangeBasis(domainSq, domain);
+        MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
+
+        MonomialBasis expectedXSquaredCoeff = new MonomialBasis(
+            new[] { FrE.Zero, FrE.Zero, FrE.One });
+
+        for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
+        {
+            Assert.IsTrue(expectedXSquaredCoeff.Coeffs[i].Equals(xSquaredCoeff.Coeffs[i]));
+        }
+    }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Nethermind.Utils.Extensions;
+using Nethermind.Verkle.Tree.VerkleNodes;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Tree.Test;

@@ -1,4 +1,4 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FpEElement;
 using Nethermind.Int256;
 
 namespace Nethermind.Verkle.Curve;
@@ -18,7 +18,7 @@ public readonly struct CurveParams
 
     public static readonly Lazy<FpE> a = new Lazy<FpE>(() =>
     {
-        return FpE.SetElement(5).Neg();
+        return FpE.SetElement(5).Negative();
     });
     public static FpE A => a.Value;
 

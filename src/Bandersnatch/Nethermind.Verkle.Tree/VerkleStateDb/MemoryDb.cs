@@ -3,6 +3,7 @@
 
 using Nethermind.Serialization.Rlp;
 using Nethermind.Utils.Extensions;
+using Nethermind.Verkle.Tree.VerkleNodes;
 
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
 using BranchStore = Dictionary<byte[], InternalNode?>;
