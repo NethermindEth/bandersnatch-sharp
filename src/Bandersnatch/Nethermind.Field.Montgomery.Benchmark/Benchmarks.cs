@@ -52,7 +52,7 @@ public class ThreeParamBenchmarkBase : TwoParamBenchmarkBase
 
 [SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser]
-public class AddMod : ThreeParamBenchmarkBase
+public class AddMod : TwoParamBenchmarkBase
 {
     [Benchmark(Baseline = true)]
     public BigInteger AddMod_BigInteger()
@@ -83,7 +83,7 @@ public class AddMod : ThreeParamBenchmarkBase
 
 [SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser]
-public class SubtractMod : ThreeParamBenchmarkBase
+public class SubtractMod : TwoParamBenchmarkBase
 {
     [Benchmark(Baseline = true)]
     public BigInteger SubtractMod_BigInteger()
@@ -109,7 +109,7 @@ public class SubtractMod : ThreeParamBenchmarkBase
 
 [SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser]
-public class MultiplyMod : ThreeParamBenchmarkBase
+public class MultiplyMod : TwoParamBenchmarkBase
 {
     [Benchmark(Baseline = true)]
     public BigInteger MultiplyMod_BigInteger()
@@ -159,7 +159,7 @@ public class DivideMod : TwoParamBenchmarkBase
 
 [SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser]
-public class ExpMod : ThreeParamBenchmarkBase
+public class ExpMod : TwoParamBenchmarkBase
 {
     [Benchmark(Baseline = true)]
     public BigInteger ExpMod_BigInteger()
@@ -234,7 +234,7 @@ public class RightShift : IntTwoParamBenchmarkBase
 
 [SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser]
-public class Inverse : ThreeParamBenchmarkBase
+public class Inverse : TwoParamBenchmarkBase
 {
     [Benchmark(Baseline = true)]
     public BigInteger Inverse_BigInteger()
@@ -259,7 +259,7 @@ public class Inverse : ThreeParamBenchmarkBase
 
 [SimpleJob(RuntimeMoniker.Net60)]
 [MemoryDiagnoser]
-public class Sqrt: ThreeParamBenchmarkBase
+public class Sqrt: TwoParamBenchmarkBase
 {
     [Benchmark(Baseline = true)]
     public BigInteger Sqrt_BigInteger()
