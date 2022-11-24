@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
 using NUnit.Framework;
-using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Proofs.Test;
 

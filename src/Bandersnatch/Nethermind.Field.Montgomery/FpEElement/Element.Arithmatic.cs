@@ -147,15 +147,15 @@ public readonly partial struct FpE
         a = ElementUtils.Rsh(res.u0, 64 - n);
         z0 = ElementUtils.Lsh(res.u0, n);
 
-    sh64:
+sh64:
         b = ElementUtils.Rsh(res.u1, 64 - n);
         z1 = ElementUtils.Lsh(res.u1, n) | a;
 
-    sh128:
+sh128:
         a = ElementUtils.Rsh(res.u2, 64 - n);
         z2 = ElementUtils.Lsh(res.u2, n) | b;
 
-    sh192:
+sh192:
         z3 = ElementUtils.Lsh(res.u3, n) | a;
 
         res = new FpE(z0, z1, z2, z3);
@@ -240,15 +240,15 @@ public readonly partial struct FpE
         a = ElementUtils.Lsh(res.u3, 64 - n);
         z3 = ElementUtils.Rsh(res.u3, n);
 
-    sh64:
+sh64:
         b = ElementUtils.Lsh(res.u2, 64 - n);
         z2 = ElementUtils.Rsh(res.u2, n) | a;
 
-    sh128:
+sh128:
         a = ElementUtils.Lsh(res.u1, 64 - n);
         z1 = ElementUtils.Rsh(res.u1, n) | b;
 
-    sh192:
+sh192:
         z0 = ElementUtils.Rsh(res.u0, n) | a;
 
         res = new FpE(z0, z1, z2, z3);

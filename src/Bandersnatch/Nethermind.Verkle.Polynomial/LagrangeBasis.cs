@@ -30,7 +30,7 @@ public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
 
     private static LagrangeBasis ArithmeticOp(LagrangeBasis lhs, LagrangeBasis rhs, ArithmeticOps op)
     {
-        if (!lhs.Domain.SequenceEqual(rhs.Domain))  throw new Exception();
+        if (!lhs.Domain.SequenceEqual(rhs.Domain)) throw new Exception();
 
         FrE[] result = new FrE[lhs.Evaluations.Length];
 

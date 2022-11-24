@@ -8,7 +8,7 @@ namespace Nethermind.Field.Montgomery.Test;
 [TestFixture]
 public class ElementTests
 {
-    
+
     [Test]
     public void TestNegativeValues()
     {
@@ -22,7 +22,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestAddition()
     {
@@ -30,7 +30,7 @@ public class ElementTests
         Element Y = X + X;
         Element Z = Y - X;
         Assert.IsTrue(Z.Equals(X));
-        
+
         using IEnumerator<Element> set = Element.GetRandom().GetEnumerator();
         for (int i = 0; i < 1000; i++)
         {
@@ -41,7 +41,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestInverse()
     {
@@ -60,7 +60,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestInverseMultiplication()
     {
@@ -79,7 +79,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestSerialize()
     {
@@ -93,7 +93,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestSerializeBigEndian()
     {
@@ -107,7 +107,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestSqrt()
     {
@@ -126,7 +126,7 @@ public class ElementTests
             set.MoveNext();
         }
     }
-    
+
     [Test]
     public void TestMultiInv()
     {
@@ -146,7 +146,7 @@ public class ElementTests
             Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i].Value));
         }
     }
-    
+
     private static Element?[] NaiveMultiInverse(IReadOnlyList<Element> values)
     {
         Element?[] res = new Element?[values.Count];
