@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Utils;

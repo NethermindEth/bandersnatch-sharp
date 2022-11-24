@@ -1,7 +1,8 @@
 using System.Runtime.CompilerServices;
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Db;
+using Nethermind.Verkle.Tree.VerkleNodes;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree;

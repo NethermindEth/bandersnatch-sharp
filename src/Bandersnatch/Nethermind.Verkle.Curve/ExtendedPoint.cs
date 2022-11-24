@@ -1,4 +1,5 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FpEElement;
+using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Curve;
 
@@ -46,7 +47,7 @@ public class ExtendedPoint
         return ((p.X * q.Z).Equals(p.Z * q.X)) && ((p.Y * q.Z).Equals(q.Y * p.Z));
     }
 
-    public static ExtendedPoint Neg(ExtendedPoint p) => new(p.X.Neg(), p.Y, p.Z);
+    public static ExtendedPoint Neg(ExtendedPoint p) => new(p.X.Negative(), p.Y, p.Z);
 
     // https://hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
     public static ExtendedPoint Add(ExtendedPoint p, ExtendedPoint q)
@@ -106,7 +107,7 @@ public class ExtendedPoint
 
         FrE.ToRegular(in scalarMont, out FrE scalar);
 
-        int len = scalar.BitLen;
+        int len = scalar.BitLen();
         for (int i = len; i >= 0; i--)
         {
             result = Double(result);

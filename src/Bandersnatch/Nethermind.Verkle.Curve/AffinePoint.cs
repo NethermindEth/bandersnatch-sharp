@@ -1,4 +1,5 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FpEElement;
+using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Curve;
 
@@ -30,7 +31,7 @@ public class AffinePoint
 
     public static AffinePoint Neg(AffinePoint p)
     {
-        return new AffinePoint(p.X.Neg(), p.Y);
+        return new AffinePoint(p.X.Negative(), p.Y);
     }
 
     public static AffinePoint Add(AffinePoint p, AffinePoint q)
@@ -145,7 +146,7 @@ public class AffinePoint
 
         bool isLargest = z.LexicographicallyLargest();
 
-        return isLargest == returnPositiveY ? z : z.Neg();
+        return isLargest == returnPositiveY ? z : z.Negative();
     }
 
     public static AffinePoint operator +(in AffinePoint a, in AffinePoint b)

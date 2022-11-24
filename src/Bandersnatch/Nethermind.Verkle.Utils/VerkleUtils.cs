@@ -1,4 +1,4 @@
-using Nethermind.Field.Montgomery;
+using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Int256;
 using Nethermind.Verkle.Curve;
 
@@ -51,8 +51,8 @@ public static class VerkleUtils
     {
         if (value is null) return (FrE.Zero, FrE.Zero);
         if (value.Length != 32) throw new ArgumentException();
-        FrE lowFr = (FrE.FromBytes(value[..16].Reverse().ToArray()) ?? throw new ArgumentException()) + ValueExistsMarker;
-        FrE highFr = FrE.FromBytes(value[16..].Reverse().ToArray()) ?? throw new AggregateException();
+        FrE lowFr = (FrE.FromBytes(value[..16].Reverse().ToArray()) + ValueExistsMarker);
+        FrE highFr = FrE.FromBytes(value[16..].Reverse().ToArray());
         return (lowFr, highFr);
     }
 

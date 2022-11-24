@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Nethermind.Verkle.Db;
+using Nethermind.Verkle.Tree.VerkleNodes;
 using Nethermind.Verkle.Tree.VerkleStateDb;
 
 namespace Nethermind.Verkle.Tree;

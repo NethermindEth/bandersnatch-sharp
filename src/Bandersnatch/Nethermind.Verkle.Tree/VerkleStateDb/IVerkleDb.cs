@@ -1,6 +1,8 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
+using Nethermind.Verkle.Tree.VerkleNodes;
+
 namespace Nethermind.Verkle.Tree.VerkleStateDb;
 using BranchStore = Dictionary<byte[], InternalNode?>;
 using LeafStore = Dictionary<byte[], byte[]?>;
