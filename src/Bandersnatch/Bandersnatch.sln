@@ -42,6 +42,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Db", "Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Field.Montgomery.Test", "Nethermind.Field.Montgomery.Test\Nethermind.Field.Montgomery.Test.csproj", "{09D6A50C-5573-4B9B-83A5-5D46452F171E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{3D07B673-FA14-453E-9E27-BF7742DFBE0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Field.Montgomery.Benchmark", "Nethermind.Field.Montgomery.Benchmark\Nethermind.Field.Montgomery.Benchmark.csproj", "{6E8DBA09-DF44-4861-AA9F-E23E435D33F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +132,10 @@ Global
 		{09D6A50C-5573-4B9B-83A5-5D46452F171E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09D6A50C-5573-4B9B-83A5-5D46452F171E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09D6A50C-5573-4B9B-83A5-5D46452F171E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E8DBA09-DF44-4861-AA9F-E23E435D33F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E8DBA09-DF44-4861-AA9F-E23E435D33F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E8DBA09-DF44-4861-AA9F-E23E435D33F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E8DBA09-DF44-4861-AA9F-E23E435D33F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2D1D2C4-5990-4B17-9D93-124B0D72373E} = {70B362E0-594F-40D3-A97B-B47335654175}
@@ -137,5 +145,6 @@ Global
 		{E2C7707C-7BDD-47EA-AF51-9911DBED0476} = {70B362E0-594F-40D3-A97B-B47335654175}
 		{BDA8184D-5314-4143-A4CA-B062045ABE66} = {70B362E0-594F-40D3-A97B-B47335654175}
 		{09D6A50C-5573-4B9B-83A5-5D46452F171E} = {70B362E0-594F-40D3-A97B-B47335654175}
+		{6E8DBA09-DF44-4861-AA9F-E23E435D33F2} = {3D07B673-FA14-453E-9E27-BF7742DFBE0E}
 	EndGlobalSection
 EndGlobal
