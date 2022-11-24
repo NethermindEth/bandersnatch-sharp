@@ -19,9 +19,19 @@ public class VerkleStateStore : IVerkleStore
         Storage = new DiskDb(dbMode, dbPath);
         Batch = new MemoryStateDb();
         Cache = new MemoryStateDb();
-        ForwardDiff = new DiffLayer();
-        ReverseDiff = new DiffLayer();
+        ForwardDiff = new DiffLayer(DiffType.Forward);
+        ReverseDiff = new DiffLayer(DiffType.Reverse);
         FullStateBlock = 0;
+    }
+
+    public IVerkleDiffDb GetForwardMergedDiff(long fromBlock, long toBlock)
+    {
+        return ForwardDiff.MergeDiffs(fromBlock, toBlock);
+    }
+
+    public IVerkleDiffDb GetReverseMergedDiff(long fromBlock, long toBlock)
+    {
+        return ReverseDiff.MergeDiffs(fromBlock, toBlock);
     }
 
     public void InitRootHash()
@@ -169,4 +179,8 @@ public interface IVerkleStore
     void SetBranch(byte[] branchKey, InternalNode internalNodeValue);
     void Flush(long blockNumber);
     void ReverseState();
+
+    public IVerkleDiffDb GetForwardMergedDiff(long fromBlock, long toBlock);
+
+    public IVerkleDiffDb GetReverseMergedDiff(long fromBlock, long toBlock);
 }
