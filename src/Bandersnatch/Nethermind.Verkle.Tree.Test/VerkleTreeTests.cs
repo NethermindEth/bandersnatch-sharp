@@ -33,6 +33,11 @@ public class VerkleTreeTests
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2
     };
 
+    private byte[] _arrayAll0Last3 =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
+    };
+
 
     private byte[] _keyVersion =
     {
@@ -349,6 +354,27 @@ public class VerkleTreeTests
         tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
         tree.Insert(_keyCodeSize, _arrayAll0Last2);
         tree.Flush(1);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last2);
+
+        tree.Insert(_keyVersion, _arrayAll0Last3);
+        tree.Insert(_keyBalance, _arrayAll0Last3);
+        tree.Insert(_keyNonce, _arrayAll0Last3);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last3);
+        tree.Flush(2);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last3);
+
+        tree.ReverseState();
 
         tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last2);
         tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);

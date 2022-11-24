@@ -165,6 +165,7 @@ public class VerkleStateStore : IVerkleStore
                 Storage.SetBranch(entry.Key, node);
             }
         }
+        FullStateBlock -= 1;
     }
 }
 
