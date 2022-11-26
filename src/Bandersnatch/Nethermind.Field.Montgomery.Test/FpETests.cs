@@ -40,6 +40,21 @@ public class FpETests
     }
 
     [Test]
+    public void TestMultiplication()
+    {
+        FpE X = FpE.qElement - 1;
+        FpE Y = X + X;
+        FpE Z = Y - X;
+        Assert.IsTrue(Z.Equals(X));
+
+        using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FpE x = set.Current * set.Current;
+        }
+    }
+
+    [Test]
     public void TestInverse()
     {
         using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();

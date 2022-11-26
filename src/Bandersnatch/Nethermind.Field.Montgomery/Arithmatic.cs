@@ -2,7 +2,9 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using System.Buffers.Binary;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
 
 namespace Nethermind.Field.Montgomery;
@@ -65,8 +67,7 @@ public static class ElementUtils
         ulong carry = 0;
         (ulong hi, ulong lo) = Multiply64(a, b);
         AddWithCarry(lo, c, ref carry, out lo);
-        AddWithCarry(hi, 0, ref carry, out hi);
-        return hi;
+        return hi + carry;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,7 +76,7 @@ public static class ElementUtils
         (ulong hi, ulong lo) = Multiply64(a, b);
         ulong carry = 0;
         AddWithCarry(lo, c, ref carry, out lo);
-        AddWithCarry(hi, 0, ref carry, out hi);
+        hi += carry;
         return (hi, lo);
     }
 
@@ -85,10 +86,10 @@ public static class ElementUtils
         (ulong hi, ulong lo) = Multiply64(a, b);
         ulong carry = 0;
         AddWithCarry(c, d, ref carry, out c);
-        AddWithCarry(hi, 0, ref carry, out hi);
+        hi += carry;
         carry = 0;
         AddWithCarry(lo, c, ref carry, out lo);
-        AddWithCarry(hi, 0, ref carry, out hi);
+        hi += carry;
         return (hi, lo);
     }
 
@@ -98,10 +99,10 @@ public static class ElementUtils
         (ulong hi, ulong lo) = Multiply64(a, b);
         ulong carry = 0;
         AddWithCarry(c, d, ref carry, out c);
-        AddWithCarry(hi, 0, ref carry, out hi);
+        hi += carry;
         carry = 0;
         AddWithCarry(lo, c, ref carry, out lo);
-        AddWithCarry(hi, e, ref carry, out hi);
+        hi = hi + e + carry;
         return (hi, lo);
     }
 
@@ -144,16 +145,14 @@ public static class ElementUtils
             x >>= 16;
             n += 16;
         }
-        if (x >= (1ul << 8))
-        {
-            x >>= 8;
-            n += 8;
-        }
+        if (x < (1ul << 8)) return n + _len8Tab[x];
+        x >>= 8;
+        n += 8;
 
-        return n + Len8Tab[x];
+        return n + _len8Tab[x];
     }
 
-    private static readonly byte[] Len8Tab = new byte[] {
+    private static readonly byte[] _len8Tab = {
         0x00, 0x01, 0x02, 0x02, 0x03, 0x03, 0x03, 0x03, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
         0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05,
         0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06,
