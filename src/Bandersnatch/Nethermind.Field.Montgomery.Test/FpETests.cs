@@ -40,17 +40,16 @@ public class FpETests
     }
 
     [Test]
-    public void TestMultiplication()
+    public void TestHotPath()
     {
-        FpE X = FpE.qElement - 1;
-        FpE Y = X + X;
-        FpE Z = Y - X;
-        Assert.IsTrue(Z.Equals(X));
-
         using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();
         for (int i = 0; i < 1000; i++)
         {
+            var current = set.Current;
             FpE x = set.Current * set.Current;
+            FpE.Inverse(in current, out FpE y);
+
+            Assert.IsTrue(current.Equals(x * y));
         }
     }
 
