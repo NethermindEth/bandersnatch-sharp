@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Db;
+using Nethermind.Verkle.Tree.VerkleStateDb;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Tree.Test;
@@ -390,6 +391,63 @@ public class VerkleTreeTests
         tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
         tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
     }
+
+    [TestCase(DbMode.MemDb)]
+    [TestCase(DbMode.PersistantDb)]
+    public void TestInsertGetBatchMultiBlockReverseState(DbMode dbMode)
+    {
+        VerkleTree tree = GetVerkleTreeForTest(dbMode);
+
+        tree.Insert(_keyVersion, _emptyArray);
+        tree.Insert(_keyBalance, _emptyArray);
+        tree.Insert(_keyNonce, _emptyArray);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _emptyArray);
+        tree.Flush(0);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+
+        tree.Insert(_keyVersion, _arrayAll0Last2);
+        tree.Insert(_keyBalance, _arrayAll0Last2);
+        tree.Insert(_keyNonce, _arrayAll0Last2);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last2);
+        tree.Flush(1);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last2);
+
+        tree.Insert(_keyVersion, _arrayAll0Last3);
+        tree.Insert(_keyBalance, _arrayAll0Last3);
+        tree.Insert(_keyNonce, _arrayAll0Last3);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last3);
+        tree.Flush(2);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last3);
+
+        IVerkleDiffDb diff = tree.GetReverseMergedDiff(1, 2);
+
+        tree.ReverseState(diff, 2);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+    }
+
     private static void AssertRootNode(byte[] realRootHash, string expectedRootHash)
     {
         Convert.ToHexString(realRootHash).Should()

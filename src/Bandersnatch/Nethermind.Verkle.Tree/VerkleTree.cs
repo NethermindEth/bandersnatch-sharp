@@ -248,6 +248,11 @@ public class VerkleTree
         _stateDb.ReverseState();
     }
 
+    public void ReverseState(IVerkleDiffDb reverseBatch, long numBlocks)
+    {
+        _stateDb.ReverseState(reverseBatch, numBlocks);
+    }
+
     private ref struct TraverseContext
     {
         public LeafUpdateDelta LeafUpdateDelta { get; }

@@ -167,6 +167,57 @@ public class VerkleStateStore : IVerkleStore
         }
         FullStateBlock -= 1;
     }
+
+    public void ReverseState(IVerkleDiffDb reverseBatch, long numBlocks)
+    {
+        MemoryStateDb reverseDiff = (MemoryStateDb)reverseBatch;
+
+        foreach (KeyValuePair<byte[], byte[]?> entry in reverseDiff.LeafTable)
+        {
+            reverseDiff.GetLeaf(entry.Key, out byte[]? node);
+            if (node is null)
+            {
+                Cache.RemoveLeaf(entry.Key);
+                Storage.RemoveLeaf(entry.Key);
+            }
+            else
+            {
+                Cache.SetLeaf(entry.Key, node);
+                Storage.SetLeaf(entry.Key, node);
+            }
+        }
+
+        foreach (KeyValuePair<byte[], SuffixTree?> entry in reverseDiff.StemTable)
+        {
+            reverseDiff.GetStem(entry.Key, out SuffixTree? node);
+            if (node is null)
+            {
+                Cache.RemoveStem(entry.Key);
+                Storage.RemoveStem(entry.Key);
+            }
+            else
+            {
+                Cache.SetStem(entry.Key, node);
+                Storage.SetStem(entry.Key, node);
+            }
+        }
+
+        foreach (KeyValuePair<byte[], InternalNode?> entry in reverseDiff.BranchTable)
+        {
+            reverseDiff.GetBranch(entry.Key, out InternalNode? node);
+            if (node is null)
+            {
+                Cache.RemoveBranch(entry.Key);
+                Storage.RemoveBranch(entry.Key);
+            }
+            else
+            {
+                Cache.SetBranch(entry.Key, node);
+                Storage.SetBranch(entry.Key, node);
+            }
+        }
+        FullStateBlock -= numBlocks;
+    }
 }
 
 public interface IVerkleStore
@@ -180,6 +231,7 @@ public interface IVerkleStore
     void SetBranch(byte[] branchKey, InternalNode internalNodeValue);
     void Flush(long blockNumber);
     void ReverseState();
+    void ReverseState(IVerkleDiffDb reverseBatch, long numBlocks);
 
     public IVerkleDiffDb GetForwardMergedDiff(long fromBlock, long toBlock);
 

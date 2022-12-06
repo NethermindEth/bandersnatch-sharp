@@ -11,7 +11,6 @@ namespace Nethermind.Verkle.Tree.Test;
 [TestFixture]
 public class InsertHugeTreeTests
 {
-
     public static Random Random { get; } = new();
     public static int numKeys = 1000;
     private static string GetDbPathForTest()
