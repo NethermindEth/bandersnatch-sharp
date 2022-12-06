@@ -46,7 +46,7 @@ public class InsertHugeTreeTests
     }
 
     [TestCase(DbMode.MemDb)]
-    // [TestCase(DbMode.PersistantDb)]
+    [TestCase(DbMode.PersistantDb)]
     public void InsertHugeTree(DbMode dbMode)
     {
         long block = 0;
