@@ -26,7 +26,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
-      <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     </ItemGroup>
 
 </Project>
