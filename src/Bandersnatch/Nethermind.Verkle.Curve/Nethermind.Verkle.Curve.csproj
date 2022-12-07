@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>true</IsPackable>
@@ -23,7 +23,7 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
-  
+
     <ItemGroup>
         <ProjectReference Include="..\Nethermind.Field.Montgomery\Nethermind.Field.Montgomery.csproj" />
         <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />

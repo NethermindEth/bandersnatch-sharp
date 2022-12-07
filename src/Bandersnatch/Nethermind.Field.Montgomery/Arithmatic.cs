@@ -263,7 +263,7 @@ public static class ElementUtils
         }
     }
 
-    public static Span<byte> ToBigEndian(in ulong u0, in ulong u1, in ulong u2, in ulong u3)
+    public static Span<byte> ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
     {
         Span<byte> target = new byte[32];
         BinaryPrimitives.WriteUInt64BigEndian(target.Slice(0, 8), u3);
@@ -273,7 +273,7 @@ public static class ElementUtils
         return target;
     }
 
-    public static Span<byte> ToLittleEndian(in ulong u0, in ulong u1, in ulong u2, in ulong u3)
+    public static Span<byte> ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
     {
         Span<byte> target = new byte[32];
         BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
