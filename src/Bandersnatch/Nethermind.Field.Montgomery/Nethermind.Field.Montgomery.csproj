@@ -4,9 +4,28 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <RootNamespace>Nethermind.Field.Montgomery</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
-    <ItemGroup>
+    <PropertyGroup Label="Nethermind">
+        <Version>0.0.1-alpha</Version>
+        <Authors>Tanishq Jasoria</Authors>
+        <Company>Nethermind</Company>
+        <Copyright>Demerzel Solutions Limited</Copyright>
+        <Description>Implementations of Field Arithmetic for Bandersnatch Curve.</Description>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/NethermindEth/bandersnatch-sharp</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/NethermindEth/bandersnatch-sharp</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+
+  <ItemGroup>
       <PackageReference Include="Nethermind.Numerics.Int256" Version="1.0.0" />
     </ItemGroup>
 

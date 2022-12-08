@@ -59,16 +59,10 @@ public readonly partial struct FrE
         ulong u1;
         ulong u2;
         ulong u3;
-        if (!ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
-        {
-            res = new FrE(u0, u1, u2, u3);
-        }
-        else
-        {
-            ElementUtils.SubtractUnderflow(b.u0, b.u1, b.u2, b.u3, a.u0, a.u1, a.u2, a.u3, out u0, out u1, out u2, out u3);
-            ElementUtils.SubtractUnderflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
-            res = new FrE(u0, u1, u2, u3);
-        }
+        if (ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
+            ElementUtils.AddOverflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
+
+        res = new FrE(u0, u1, u2, u3);
     }
 
     public static void Exp(in FrE b, in UInt256 e, out FrE result)
