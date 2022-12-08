@@ -64,7 +64,7 @@ public class InsertHugeTreeTests
         DateTime check2 = DateTime.Now;
         Console.WriteLine($"{block} Insert: {(check1 - start).TotalMilliseconds}");
         Console.WriteLine($"{block} Flush: {(check2 - check1).TotalMilliseconds}");
-        for (int i = 1000; i < numKeys; i += 1000)
+        for (int i = 100; i < numKeys; i += 100)
         {
             DateTime check5 = DateTime.Now;
             Random.NextBytes(key);
