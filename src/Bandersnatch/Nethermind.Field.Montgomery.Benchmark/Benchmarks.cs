@@ -50,7 +50,7 @@ public class ThreeParamBenchmarkBase : TwoParamBenchmarkBase
     public (BigInteger, UInt256, TestElement) _c;
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class AddMod : TwoParamBenchmarkBase
 {
@@ -81,7 +81,7 @@ public class AddMod : TwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class SubtractMod : TwoParamBenchmarkBase
 {
@@ -107,7 +107,7 @@ public class SubtractMod : TwoParamBenchmarkBase
 }
 
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class MultiplyMod : TwoParamBenchmarkBase
 {
@@ -132,7 +132,7 @@ public class MultiplyMod : TwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class DivideMod : TwoParamBenchmarkBase
 {
@@ -157,7 +157,7 @@ public class DivideMod : TwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class ExpMod : TwoParamBenchmarkBase
 {
@@ -182,7 +182,7 @@ public class ExpMod : TwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class LeftShift : IntTwoParamBenchmarkBase
 {
@@ -207,7 +207,7 @@ public class LeftShift : IntTwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class RightShift : IntTwoParamBenchmarkBase
 {
@@ -232,7 +232,7 @@ public class RightShift : IntTwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class Inverse : TwoParamBenchmarkBase
 {
@@ -257,7 +257,7 @@ public class Inverse : TwoParamBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class Sqrt: TwoParamBenchmarkBase
 {
