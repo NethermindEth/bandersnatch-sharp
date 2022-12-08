@@ -1,10 +1,11 @@
 using Nethermind.Field;
+using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Utils;
 
-using Fr = FixedFiniteField<BandersnatchScalarFieldStruct>;
+using Fr = FrE;
 
 public interface IVerkleTree
 {

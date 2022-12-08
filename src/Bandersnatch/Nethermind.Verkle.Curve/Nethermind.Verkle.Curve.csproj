@@ -26,7 +26,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Nethermind.Field.Montgomery\Nethermind.Field.Montgomery.csproj" />
-        <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     </ItemGroup>
 
 </Project>
