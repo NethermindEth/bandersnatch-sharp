@@ -1,6 +1,7 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -103,6 +104,49 @@ public class SubtractMod : TwoParamBenchmarkBase
     {
         TestElement.SubtractMod(_a.Item3, _b.Item3, out TestElement res);
         return res;
+    }
+}
+
+[SimpleJob(RuntimeMoniker.Net70)]
+[MemoryDiagnoser]
+public class Ops64Bit : TwoParamBenchmarkBase
+{
+    [Benchmark]
+    public ulong Add64()
+    {
+        ulong carry = 0;
+        ElementUtils.AddWithCarry(_a.Item2[0], _b.Item2[0], ref carry, out var u3);
+        return u3;
+    }
+    [Benchmark]
+    public ulong Multiply64()
+    {
+        Math.BigMul(_a.Item2[0], _b.Item2[0], out var res);
+        return res;
+    }
+
+    [Benchmark]
+    public ulong MultiplyAdd0()
+    {
+        return ElementUtils.MAdd0(_a.Item2[0], _b.Item2[0], _a.Item2[1]);
+    }
+
+    [Benchmark]
+    public ulong MultiplyAdd1()
+    {
+        return ElementUtils.MAdd1(_a.Item2[0], _b.Item2[0], _a.Item2[1], out ulong lo);
+    }
+
+    [Benchmark]
+    public ulong MultiplyAdd2()
+    {
+        return ElementUtils.MAdd2(_a.Item2[0], _b.Item2[0], _a.Item2[1], _b.Item2[1], out ulong lo);
+    }
+
+    [Benchmark]
+    public ulong MultiplyAdd3()
+    {
+        return ElementUtils.MAdd3(_a.Item2[0], _b.Item2[0], _a.Item2[1], _b.Item2[1], _b.Item2[2], out ulong lo);
     }
 }
 
