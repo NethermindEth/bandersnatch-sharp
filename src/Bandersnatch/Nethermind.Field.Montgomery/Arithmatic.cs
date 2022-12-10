@@ -2,9 +2,7 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using System.Buffers.Binary;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
 
 namespace Nethermind.Field.Montgomery;
@@ -54,7 +52,7 @@ public static class ElementUtils
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
+    public static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
     {
         sum = x + y + carry;
         // both msb bits are 1 or one of them is 1 and we had carry from lower bits
@@ -65,45 +63,45 @@ public static class ElementUtils
     public static ulong MAdd0(ulong a, ulong b, ulong c)
     {
         ulong carry = 0;
-        (ulong hi, ulong lo) = Multiply64(a, b);
+        ulong hi = Math.BigMul(a, b, out ulong lo);
         AddWithCarry(lo, c, ref carry, out lo);
         return hi + carry;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static (ulong, ulong) MAdd1(ulong a, ulong b, ulong c)
+    public static ulong MAdd1(ulong a, ulong b, ulong c, out ulong lo)
     {
-        (ulong hi, ulong lo) = Multiply64(a, b);
+        ulong hi = Math.BigMul(a, b, out lo);
         ulong carry = 0;
         AddWithCarry(lo, c, ref carry, out lo);
         hi += carry;
-        return (hi, lo);
+        return hi;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static (ulong, ulong) MAdd2(ulong a, ulong b, ulong c, ulong d)
+    public static ulong MAdd2(ulong a, ulong b, ulong c, ulong d, out ulong lo)
     {
-        (ulong hi, ulong lo) = Multiply64(a, b);
+        ulong hi = Math.BigMul(a, b, out lo);
         ulong carry = 0;
         AddWithCarry(c, d, ref carry, out c);
         hi += carry;
         carry = 0;
         AddWithCarry(lo, c, ref carry, out lo);
         hi += carry;
-        return (hi, lo);
+        return hi;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static (ulong, ulong) MAdd3(ulong a, ulong b, ulong c, ulong d, ulong e)
+    public static ulong MAdd3(ulong a, ulong b, ulong c, ulong d, ulong e, out ulong lo)
     {
-        (ulong hi, ulong lo) = Multiply64(a, b);
+        ulong hi = Math.BigMul(a, b, out lo);
         ulong carry = 0;
         AddWithCarry(c, d, ref carry, out c);
         hi += carry;
         carry = 0;
         AddWithCarry(lo, c, ref carry, out lo);
         hi = hi + e + carry;
-        return (hi, lo);
+        return hi;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

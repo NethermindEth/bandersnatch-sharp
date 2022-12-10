@@ -81,6 +81,16 @@ public class ElementTests
     }
 
     [Test]
+    public void BenchTestMAdd064()
+    {
+        Element testElement = Element.One;
+        for (int i = 0; i < 1000; i++)
+        {
+            ElementUtils.MAdd0(testElement[0], testElement[1], testElement[2]);
+        }
+    }
+
+    [Test]
     public void TestSerialize()
     {
         using IEnumerator<Element> set = Element.GetRandom().GetEnumerator();
