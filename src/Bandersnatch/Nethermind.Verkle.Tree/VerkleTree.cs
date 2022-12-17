@@ -35,6 +35,7 @@ public class VerkleTree
 
     public void Insert(Span<byte> key, byte[] value)
     {
+        if (value is null) throw new ArgumentNullException(nameof(value));
         LeafUpdateDelta leafDelta = UpdateLeaf(key, value);
         UpdateTreeCommitments(key[..31], leafDelta);
     }

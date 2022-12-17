@@ -12,54 +12,54 @@ namespace Nethermind.Verkle.Tree.Test;
 [TestFixture, Parallelizable(ParallelScope.All)]
 public class VerkleTreeTests
 {
-    private byte[] _array1To32 =
+    private readonly byte[] _array1To32 =
     {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
     };
-    private byte[] _array1To32Last128 =
+    private readonly byte[] _array1To32Last128 =
     {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 128,
     };
-    private byte[] _emptyArray =
+    private readonly byte[] _emptyArray =
     {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
-    private byte[] _arrayAll1 =
+    private readonly byte[] _arrayAll1 =
     {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     };
 
-    private byte[] _arrayAll0Last2 =
+    private readonly byte[] _arrayAll0Last2 =
     {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2
     };
 
-    private byte[] _arrayAll0Last3 =
+    private readonly byte[] _arrayAll0Last3 =
     {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
     };
 
 
-    private byte[] _keyVersion =
+    private readonly byte[] _keyVersion =
     {
         121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 0,
     };
-    private byte[] _keyBalance =
+    private readonly byte[] _keyBalance =
     {
         121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 1,
     };
-    private byte[] _keyNonce =
+    private readonly byte[] _keyNonce =
     {
         121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 2,
     };
-    private byte[] _keyCodeCommitment = {
+    private readonly byte[] _keyCodeCommitment = {
         121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 3,
     };
-    private byte[] _keyCodeSize =
+    private readonly byte[] _keyCodeSize =
     {
         121, 85, 7, 198, 131, 230, 143, 90, 165, 129, 173, 81, 186, 89, 19, 191, 13, 107, 197, 120, 243, 229, 224, 183, 72, 25, 6, 8, 210, 159, 31, 4,
     };
-    private byte[] _valueEmptyCodeHashValue =
+    private readonly byte[] _valueEmptyCodeHashValue =
     {
         197, 210, 70, 1, 134, 247, 35, 60, 146, 126, 125, 178, 220, 199, 3, 192, 229, 0, 182, 83, 202, 130, 39, 59, 123, 250, 216, 4, 93, 133, 164, 112,
     };
