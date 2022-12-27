@@ -2,6 +2,7 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Nethermind.Verkle.Db;
 using NUnit.Framework;
@@ -42,6 +43,46 @@ public class InsertHugeTreeTests
         {
             Directory.Delete(dbPath, true);
         }
+    }
+
+
+    [Test]
+    public void CreateDbWith190MillionAccounts()
+    {
+        const string currDir = "/home/eurus/bandersnatch-sharp/src/Bandersnatch/Nethermind.Verkle.Tree.Test";
+        Console.WriteLine(currDir);
+        const string dbname = "VerkleTrie190ML";
+        string path = Path.Combine(currDir, dbname);
+
+        byte[] stem = new byte[31];
+        byte[] val = new byte[32];
+
+        VerkleTree verkleTree = new VerkleTree(DbMode.PersistantDb, path);
+
+        for (int i = 0; i < 190000000; i++)
+        {
+            Console.WriteLine(i);
+            Dictionary<byte, byte[]> leafIndexValueMap = new Dictionary<byte, byte[]>();
+
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(0, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(1, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(2, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(3, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(4, val);
+
+            Random.NextBytes(stem);
+            verkleTree.InsertStemBatch(stem, leafIndexValueMap);
+            if (i % 1000 == 0)
+            {
+                verkleTree.Flush(0);
+            }
+        }
+
     }
 
     [TestCase(DbMode.MemDb)]
