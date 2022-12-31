@@ -45,7 +45,6 @@ public class InsertHugeTreeTests
         }
     }
 
-
     [Test]
     public void CreateDbWith190MillionAccounts()
     {
