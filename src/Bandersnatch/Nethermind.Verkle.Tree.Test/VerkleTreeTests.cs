@@ -39,6 +39,11 @@ public class VerkleTreeTests
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3
     };
 
+    private readonly byte[] _arrayAll0Last4 =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+    };
+
 
     private readonly byte[] _keyVersion =
     {
@@ -439,6 +444,82 @@ public class VerkleTreeTests
 
         IVerkleDiffDb diff = tree.GetReverseMergedDiff(1, 2);
 
+        tree.ReverseState(diff, 1);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+    }
+
+    private VerkleTree GetFilledVerkleTreeForTest(DbMode dbMode)
+    {
+        VerkleTree tree = GetVerkleTreeForTest(dbMode);
+
+        tree.Insert(_keyVersion, _emptyArray);
+        tree.Insert(_keyBalance, _emptyArray);
+        tree.Insert(_keyNonce, _emptyArray);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _emptyArray);
+        tree.Flush(0);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+
+        tree.Insert(_keyVersion, _arrayAll0Last2);
+        tree.Insert(_keyBalance, _arrayAll0Last2);
+        tree.Insert(_keyNonce, _arrayAll0Last2);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last2);
+        tree.Flush(1);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last2);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last2);
+
+        tree.Insert(_keyVersion, _arrayAll0Last3);
+        tree.Insert(_keyBalance, _arrayAll0Last3);
+        tree.Insert(_keyNonce, _arrayAll0Last3);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last3);
+        tree.Flush(2);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last3);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last3);
+
+        tree.Insert(_keyVersion, _arrayAll0Last4);
+        tree.Insert(_keyBalance, _arrayAll0Last4);
+        tree.Insert(_keyNonce, _arrayAll0Last4);
+        tree.Insert(_keyCodeCommitment, _valueEmptyCodeHashValue);
+        tree.Insert(_keyCodeSize, _arrayAll0Last4);
+        tree.Flush(3);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last4);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last4);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last4);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last4);
+
+        return tree;
+    }
+
+    [TestCase(DbMode.MemDb)]
+    [TestCase(DbMode.PersistantDb)]
+    public void TestReverseDiffThenForwardDiff(DbMode dbMode)
+    {
+        VerkleTree tree = GetFilledVerkleTreeForTest(dbMode);
+
+        IVerkleDiffDb diff = tree.GetReverseMergedDiff(1, 3);
+        
         tree.ReverseState(diff, 2);
 
         tree.Get(_keyVersion).Should().BeEquivalentTo(_emptyArray);
@@ -446,6 +527,73 @@ public class VerkleTreeTests
         tree.Get(_keyNonce).Should().BeEquivalentTo(_emptyArray);
         tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
         tree.Get(_keyCodeSize).Should().BeEquivalentTo(_emptyArray);
+
+        IVerkleDiffDb forwardDiff = tree.GetForwardMergedDiff(1, 3);
+        
+        tree.ReverseState(forwardDiff, -2);
+
+        tree.Get(_keyVersion).Should().BeEquivalentTo(_arrayAll0Last4);
+        tree.Get(_keyBalance).Should().BeEquivalentTo(_arrayAll0Last4);
+        tree.Get(_keyNonce).Should().BeEquivalentTo(_arrayAll0Last4);
+        tree.Get(_keyCodeCommitment).Should().BeEquivalentTo(_valueEmptyCodeHashValue);
+        tree.Get(_keyCodeSize).Should().BeEquivalentTo(_arrayAll0Last4);
+
+    }
+
+    [TestCase(DbMode.MemDb)]
+    [TestCase(DbMode.PersistantDb)]
+    public void TestReverseStateOneBlock(DbMode dbMode)
+    {
+        VerkleTree tree = GetFilledVerkleTreeForTest(dbMode);
+        DateTime start = DateTime.Now;
+        tree.ReverseState();
+        DateTime end = DateTime.Now;
+        Console.WriteLine($"ReverseState() 1 Block: {(end - start).TotalMilliseconds}");
+    }
+
+    [TestCase(DbMode.MemDb)]
+    [TestCase(DbMode.PersistantDb)]
+    public void TestForwardStateOneBlock(DbMode dbMode)
+    {
+        VerkleTree tree = GetFilledVerkleTreeForTest(dbMode);
+        tree.ReverseState();
+        IVerkleDiffDb forwardDiff = tree.GetForwardMergedDiff(2, 3);
+        DateTime start = DateTime.Now;
+        tree.ReverseState(forwardDiff, -1);
+        DateTime end = DateTime.Now;
+        Console.WriteLine($"ForwardState() 1 Block Insert: {(end - start).TotalMilliseconds}");
+    }
+
+    [TestCase(DbMode.MemDb)]
+    [TestCase(DbMode.PersistantDb)]
+    public void TestBatchReverseDiffs(DbMode dbMode)
+    {
+       // VerkleTree tree = GetHugeVerkleTreeForTest(dbMode);
+       // for (int i = 2;i <= 1000;i++) {
+       //     DateTime start = DateTime.Now;
+       //     IVerkleDiffDb reverseDiff = tree.GetReverseMergedDiff(1, i);
+       //     DateTime check1 = DateTime.Now;
+       //     tree.ReverseState(reverseDiff, (i -1));
+       //     DateTime check2 = DateTime.Now;
+       //     Console.WriteLine($"Batch Reverse Diff Fetch(1, {i}): {(check1 - start).TotalMilliseconds}");
+       //     Console.WriteLine($"Batch Reverse State(2, {i-1}): {(check2 - check1).TotalMilliseconds}");
+       //}
+    }
+
+    [TestCase(DbMode.MemDb)]
+    [TestCase(DbMode.PersistantDb)]
+    public void TestBatchForwardDiffs(DbMode dbMode)
+    {
+       // VerkleTree tree = GetHugeVerkleTreeForTest(dbMode);
+       // for (int i = 2;i <= 1000;i++) {
+       //     DateTime start = DateTime.Now;
+       //     IVerkleDiffDb forwardDiff = tree.GetForwardMergedDiff(1, i);
+       //     DateTime check1 = DateTime.Now;
+       //     tree.ForwardState(reverseDiff, (i -1));
+       //     DateTime check2 = DateTime.Now;
+       //     Console.WriteLine($"Batch Forward Diff Fetch(1, {i}): {(check1 - start).TotalMilliseconds}");
+       //     Console.WriteLine($"Batch Forward State(2, {i-1}): {(check2 - check1).TotalMilliseconds}");
+       //}
     }
 
     private static void AssertRootNode(byte[] realRootHash, string expectedRootHash)
