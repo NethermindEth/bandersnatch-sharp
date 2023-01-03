@@ -8,4 +8,6 @@ public interface IDiffLayer
     public void InsertDiff(long blockNumber, IVerkleDiffDb diff);
 
     public byte[] FetchDiff(long blockNumber);
+
+    public IVerkleDiffDb MergeDiffs(long fromBlock, long toBlock);
 }

@@ -3,6 +3,7 @@ using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Db;
 using Nethermind.Verkle.Tree.VerkleNodes;
+using Nethermind.Verkle.Tree.VerkleStateDb;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Tree;
@@ -34,6 +35,7 @@ public class VerkleTree
 
     public void Insert(Span<byte> key, byte[] value)
     {
+        if (value is null) throw new ArgumentNullException(nameof(value));
         LeafUpdateDelta leafDelta = UpdateLeaf(key, value);
         UpdateTreeCommitments(key[..31], leafDelta);
     }
@@ -228,6 +230,16 @@ public class VerkleTree
         return leafDeltaCommitment;
     }
 
+    public IVerkleDiffDb GetForwardMergedDiff(long fromBlock, long toBlock)
+    {
+        return _stateDb.GetForwardMergedDiff(fromBlock, toBlock);
+    }
+
+    public IVerkleDiffDb GetReverseMergedDiff(long fromBlock, long toBlock)
+    {
+        return _stateDb.GetReverseMergedDiff(fromBlock, toBlock);
+    }
+
     public void Flush(long blockNumber)
     {
         _stateDb.Flush(blockNumber);
@@ -235,6 +247,11 @@ public class VerkleTree
     public void ReverseState()
     {
         _stateDb.ReverseState();
+    }
+
+    public void ReverseState(IVerkleDiffDb reverseBatch, long numBlocks)
+    {
+        _stateDb.ReverseState(reverseBatch, numBlocks);
     }
 
     private ref struct TraverseContext

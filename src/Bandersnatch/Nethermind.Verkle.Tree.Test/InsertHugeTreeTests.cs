@@ -2,6 +2,7 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Nethermind.Verkle.Db;
 using NUnit.Framework;
@@ -11,7 +12,6 @@ namespace Nethermind.Verkle.Tree.Test;
 [TestFixture]
 public class InsertHugeTreeTests
 {
-
     public static Random Random { get; } = new();
     public static int numKeys = 1000;
     private static string GetDbPathForTest()
@@ -45,8 +45,47 @@ public class InsertHugeTreeTests
         }
     }
 
+    [Test]
+    public void CreateDbWith190MillionAccounts()
+    {
+        const string currDir = "/home/eurus/bandersnatch-sharp/src/Bandersnatch/Nethermind.Verkle.Tree.Test";
+        Console.WriteLine(currDir);
+        const string dbname = "VerkleTrie190ML";
+        string path = Path.Combine(currDir, dbname);
+
+        byte[] stem = new byte[31];
+        byte[] val = new byte[32];
+
+        VerkleTree verkleTree = new VerkleTree(DbMode.PersistantDb, path);
+
+        for (int i = 0; i < 190000000; i++)
+        {
+            Console.WriteLine(i);
+            Dictionary<byte, byte[]> leafIndexValueMap = new Dictionary<byte, byte[]>();
+
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(0, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(1, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(2, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(3, val);
+            Random.NextBytes(val);
+            leafIndexValueMap.Add(4, val);
+
+            Random.NextBytes(stem);
+            verkleTree.InsertStemBatch(stem, leafIndexValueMap);
+            if (i % 1000 == 0)
+            {
+                verkleTree.Flush(0);
+            }
+        }
+
+    }
+
     [TestCase(DbMode.MemDb)]
-    // [TestCase(DbMode.PersistantDb)]
+    [TestCase(DbMode.PersistantDb)]
     public void InsertHugeTree(DbMode dbMode)
     {
         long block = 0;
@@ -65,7 +104,7 @@ public class InsertHugeTreeTests
         DateTime check2 = DateTime.Now;
         Console.WriteLine($"{block} Insert: {(check1 - start).TotalMilliseconds}");
         Console.WriteLine($"{block} Flush: {(check2 - check1).TotalMilliseconds}");
-        for (int i = 1000; i < numKeys; i += 1000)
+        for (int i = 100; i < numKeys; i += 100)
         {
             DateTime check5 = DateTime.Now;
             Random.NextBytes(key);
