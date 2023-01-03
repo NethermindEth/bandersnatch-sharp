@@ -21,6 +21,8 @@ namespace Nethermind.Utils.Extensions
 {
     public static class SpanExtensions
     {
+
+        private static readonly uint[] Lookup32 = CreateLookup32("x2");
         public static string ToHexString(this in Span<byte> span, bool withZeroX)
         {
             return ToHexString(span, withZeroX, false, false);
@@ -84,8 +86,6 @@ namespace Nethermind.Utils.Extensions
             return new string(result);
         }
 
-        private static readonly uint[] Lookup32 = CreateLookup32("x2");
-
         private static uint[] CreateLookup32(string format)
         {
             uint[] result = new uint[256];
@@ -124,6 +124,9 @@ namespace Nethermind.Utils.Extensions
             return leadingZeros;
         }
 
-        public static bool IsNullOrEmpty<T>(this in Span<T> span) => span == null || span.Length == 0;
+        public static bool IsNullOrEmpty<T>(this in Span<T> span)
+        {
+            return span == null || span.Length == 0;
+        }
     }
 }

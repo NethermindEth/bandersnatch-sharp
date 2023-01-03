@@ -22,12 +22,10 @@ namespace Nethermind.Db
 {
     public class MemDb : IFullDb, IDbWithSpan
     {
-        private readonly int _writeDelay; // for testing scenarios
-        private readonly int _readDelay; // for testing scenarios
-        public long ReadsCount { get; private set; }
-        public long WritesCount { get; private set; }
 
         private readonly ConcurrentDictionary<byte[], byte[]?> _db;
+        private readonly int _readDelay; // for testing scenarios
+        private readonly int _writeDelay; // for testing scenarios
 
         public MemDb(string name)
             : this(0, 0)
@@ -44,6 +42,19 @@ namespace Nethermind.Db
             _writeDelay = writeDelay;
             _readDelay = readDelay;
             _db = new ConcurrentDictionary<byte[], byte[]>(Bytes.EqualityComparer);
+        }
+        public long ReadsCount { get; private set; }
+        public long WritesCount { get; private set; }
+
+        public IDb Innermost => this;
+
+        public Span<byte> GetSpan(byte[] key)
+        {
+            return this[key].AsSpan();
+        }
+
+        public void DangerousReleaseMemory(in Span<byte> span)
+        {
         }
 
         public string Name { get; }
@@ -82,7 +93,7 @@ namespace Nethermind.Db
                 }
 
                 ReadsCount += keys.Length;
-                return keys.Select(k => new KeyValuePair<byte[], byte[]>(k, _db.TryGetValue(k, out var value) ? value : null)).ToArray();
+                return keys.Select(k => new KeyValuePair<byte[], byte[]>(k, _db.TryGetValue(k, out byte[]? value) ? value : null)).ToArray();
             }
         }
 
@@ -96,8 +107,6 @@ namespace Nethermind.Db
             return _db.ContainsKey(key);
         }
 
-        public IDb Innermost => this;
-
         public void Flush()
         {
         }
@@ -107,9 +116,15 @@ namespace Nethermind.Db
             _db.Clear();
         }
 
-        public IEnumerable<KeyValuePair<byte[], byte[]?>> GetAll(bool ordered = false) => _db;
+        public IEnumerable<KeyValuePair<byte[], byte[]?>> GetAll(bool ordered = false)
+        {
+            return _db;
+        }
 
-        public IEnumerable<byte[]> GetAllValues(bool ordered = false) => Values;
+        public IEnumerable<byte[]> GetAllValues(bool ordered = false)
+        {
+            return Values;
+        }
 
         public IBatch StartBatch()
         {
@@ -122,15 +137,6 @@ namespace Nethermind.Db
         public int Count => _db.Count;
 
         public void Dispose()
-        {
-        }
-
-        public Span<byte> GetSpan(byte[] key)
-        {
-            return this[key].AsSpan();
-        }
-
-        public void DangerousReleaseMemory(in Span<byte> span)
         {
         }
     }

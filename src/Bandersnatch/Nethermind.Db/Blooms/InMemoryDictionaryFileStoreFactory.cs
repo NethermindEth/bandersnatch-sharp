@@ -18,6 +18,9 @@ namespace Nethermind.Db.Blooms
 {
     public class InMemoryDictionaryFileStoreFactory : IFileStoreFactory
     {
-        public IFileStore Create(string name) => new InMemoryDictionaryFileStore();
+        public IFileStore Create(string name)
+        {
+            return new InMemoryDictionaryFileStore();
+        }
     }
 }

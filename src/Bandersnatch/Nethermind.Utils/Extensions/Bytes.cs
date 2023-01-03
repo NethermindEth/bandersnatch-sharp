@@ -31,96 +31,36 @@ namespace Nethermind.Utils.Extensions
     {
         public static readonly IEqualityComparer<byte[]> EqualityComparer = new BytesEqualityComparer();
 
-        public static readonly BytesComparer Comparer = new();
-
-        private class BytesEqualityComparer : EqualityComparer<byte[]>
-        {
-            public override bool Equals(byte[]? x, byte[]? y)
-            {
-                return AreEqual(x, y);
-            }
-
-            public override int GetHashCode(byte[] obj)
-            {
-                return obj.GetSimplifiedHashCode();
-            }
-        }
-
-        public class BytesComparer : Comparer<byte[]>
-        {
-            public override int Compare(byte[]? x, byte[]? y)
-            {
-                if (x is null)
-                {
-                    return y is null ? 0 : 1;
-                }
-
-                if (y is null)
-                {
-                    return -1;
-                }
-
-                if (x.Length == 0)
-                {
-                    return y.Length == 0 ? 0 : 1;
-                }
-
-                for (int i = 0; i < x.Length; i++)
-                {
-                    if (y.Length <= i)
-                    {
-                        return -1;
-                    }
-
-                    int result = x[i].CompareTo(y[i]);
-                    if (result != 0)
-                    {
-                        return result;
-                    }
-                }
-
-                return y.Length > x.Length ? 1 : 0;
-            }
-
-            public int Compare(Span<byte> x, Span<byte> y)
-            {
-                if (x.Length == 0)
-                {
-                    return y.Length == 0 ? 0 : 1;
-                }
-
-                for (int i = 0; i < x.Length; i++)
-                {
-                    if (y.Length <= i)
-                    {
-                        return -1;
-                    }
-
-                    int result = x[i].CompareTo(y[i]);
-                    if (result != 0)
-                    {
-                        return result;
-                    }
-                }
-
-                return y.Length > x.Length ? 1 : 0;
-            }
-        }
+        public static readonly BytesComparer Comparer = new BytesComparer();
 
         public static readonly byte[] Zero32 = new byte[32];
 
         public static readonly byte[] Empty = new byte[0];
 
+        private static readonly uint[] Lookup32 = CreateLookup32("x2");
+
+        private static readonly byte[] FromHexNibble1Table =
+        {
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 16, 32, 48, 64, 80, 96,
+            112, 128, 144, 255, 255, 255, 255, 255, 255, 255, 160, 176, 192, 208, 224, 240, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 160, 176, 192, 208, 224, 240
+        };
+
+        private static readonly byte[] FromHexNibble2Table =
+        {
+            255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 1, 2, 3, 4, 5, 6, 7, 8,
+            9, 255, 255, 255, 255, 255, 255, 255, 10, 11, 12, 13, 14, 15, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 10, 11, 12, 13, 14, 15
+        };
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool GetBit(this byte b, int bitNumber)
         {
-            return (b & (1 << (7 - bitNumber))) != 0;
+            return (b & 1 << 7 - bitNumber) != 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetBit(this ref byte b, int bitNumber)
         {
-            byte mask = (byte)(1 << (7 - bitNumber));
+            byte mask = (byte)(1 << 7 - bitNumber);
             b = b |= mask;
         }
 
@@ -216,7 +156,10 @@ namespace Nethermind.Utils.Extensions
                 }
             }
 
-            return new byte[] { 0 };
+            return new byte[]
+            {
+                0
+            };
         }
 
         public static byte[] Concat(byte prefix, byte[] bytes)
@@ -333,7 +276,7 @@ namespace Nethermind.Utils.Extensions
 
         public static BigInteger ToUnsignedBigInteger(this ReadOnlySpan<byte> bytes)
         {
-            return new(bytes, true, true);
+            return new BigInteger(bytes, true, true);
         }
 
         public static uint ReadEthUInt32(this Span<byte> bytes)
@@ -446,7 +389,7 @@ namespace Nethermind.Utils.Extensions
 
         public static UInt256 ToUInt256(this byte[] bytes)
         {
-            return new(bytes, true);
+            return new UInt256(bytes, true);
         }
 
         private static byte Reverse(byte b)
@@ -476,7 +419,7 @@ namespace Nethermind.Utils.Extensions
 
         public static string ToBitString(this BitArray bits)
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             for (int i = 0; i < bits.Count; i++)
             {
@@ -529,34 +472,6 @@ namespace Nethermind.Utils.Extensions
             return ByteArrayToHexViaLookup32(bytes, withZeroX, noLeadingZeros, withEip55Checksum);
         }
 
-        private struct StateSmall
-        {
-            public StateSmall(byte[] bytes, bool withZeroX)
-            {
-                Bytes = bytes;
-                WithZeroX = withZeroX;
-            }
-
-            public byte[] Bytes;
-            public bool WithZeroX;
-        }
-
-        private struct State
-        {
-            public State(byte[] bytes, int leadingZeros, bool withZeroX, bool withEip55Checksum)
-            {
-                Bytes = bytes;
-                LeadingZeros = leadingZeros;
-                WithZeroX = withZeroX;
-                WithEip55Checksum = withEip55Checksum;
-            }
-
-            public int LeadingZeros;
-            public byte[] Bytes;
-            public bool WithZeroX;
-            public bool WithEip55Checksum;
-        }
-
         [DebuggerStepThrough]
         public static string ByteArrayToHexViaLookup32Safe(byte[] bytes, bool withZeroX)
         {
@@ -566,11 +481,11 @@ namespace Nethermind.Utils.Extensions
             }
 
             int length = bytes.Length * 2 + (withZeroX ? 2 : 0);
-            StateSmall stateToPass = new(bytes, withZeroX);
+            StateSmall stateToPass = new StateSmall(bytes, withZeroX);
 
             return string.Create(length, stateToPass, (chars, state) =>
             {
-                ref var charsRef = ref MemoryMarshal.GetReference(chars);
+                ref char charsRef = ref MemoryMarshal.GetReference(chars);
 
                 if (state.WithZeroX)
                 {
@@ -579,12 +494,12 @@ namespace Nethermind.Utils.Extensions
                     charsRef = ref Unsafe.Add(ref charsRef, 2);
                 }
 
-                ref var input = ref state.Bytes[0];
-                ref var output = ref Unsafe.As<char, uint>(ref charsRef);
+                ref byte input = ref state.Bytes[0];
+                ref uint output = ref Unsafe.As<char, uint>(ref charsRef);
 
                 int toProcess = state.Bytes.Length;
 
-                var lookup32 = Lookup32;
+                uint[] lookup32 = Lookup32;
                 while (toProcess > 8)
                 {
                     output = lookup32[input];
@@ -625,7 +540,7 @@ namespace Nethermind.Utils.Extensions
                 return withZeroX ? "0x0" : "0";
             }
 
-            State stateToPass = new(bytes, leadingZerosFirstCheck, withZeroX, withEip55Checksum);
+            State stateToPass = new State(bytes, leadingZerosFirstCheck, withZeroX, withEip55Checksum);
             return string.Create(length, stateToPass, (chars, state) =>
             {
                 string? hashHex = null;
@@ -667,8 +582,6 @@ namespace Nethermind.Utils.Extensions
                 }
             });
         }
-
-        private static uint[] Lookup32 = CreateLookup32("x2");
 
         private static uint[] CreateLookup32(string format)
         {
@@ -733,36 +646,6 @@ namespace Nethermind.Utils.Extensions
             return bytes;
         }
 
-        private static byte[] FromHexNibble1Table =
-        {
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 0, 16,
-            32, 48, 64, 80, 96, 112, 128, 144, 255, 255,
-            255, 255, 255, 255, 255, 160, 176, 192, 208, 224,
-            240, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 160, 176, 192,
-            208, 224, 240
-        };
-
-        private static byte[] FromHexNibble2Table =
-        {
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 0, 1,
-            2, 3, 4, 5, 6, 7, 8, 9, 255, 255,
-            255, 255, 255, 255, 255, 10, 11, 12, 13, 14,
-            15, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-            255, 255, 255, 255, 255, 255, 255, 10, 11, 12,
-            13, 14, 15
-        };
-
         [DebuggerStepThrough]
         public static byte[] FromHexString(string hexString)
         {
@@ -806,7 +689,7 @@ namespace Nethermind.Utils.Extensions
                 return 0;
             }
 
-            return (fnvPrime * bytes.Length * (((fnvPrime * (bytes[0] + 7)) ^ (bytes[^1] + 23)) + 11)) ^ (bytes[(bytes.Length - 1) / 2] + 53);
+            return fnvPrime * bytes.Length * ((fnvPrime * (bytes[0] + 7) ^ bytes[^1] + 23) + 11) ^ bytes[(bytes.Length - 1) / 2] + 53;
         }
 
         [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
@@ -819,7 +702,7 @@ namespace Nethermind.Utils.Extensions
                 return 0;
             }
 
-            return (fnvPrime * bytes.Length * (((fnvPrime * (bytes[0] + 7)) ^ (bytes[^1] + 23)) + 11)) ^ (bytes[(bytes.Length - 1) / 2] + 53);
+            return fnvPrime * bytes.Length * ((fnvPrime * (bytes[0] + 7) ^ bytes[^1] + 23) + 11) ^ bytes[(bytes.Length - 1) / 2] + 53;
         }
 
         public static void ChangeEndianness8(Span<byte> bytes)
@@ -837,6 +720,108 @@ namespace Nethermind.Utils.Extensions
                 (ulongs[i], ulongs[^(i + 1)]) =
                     (BinaryPrimitives.ReverseEndianness(endIth), BinaryPrimitives.ReverseEndianness(ith));
             }
+        }
+
+        private class BytesEqualityComparer : EqualityComparer<byte[]>
+        {
+            public override bool Equals(byte[]? x, byte[]? y)
+            {
+                return AreEqual(x, y);
+            }
+
+            public override int GetHashCode(byte[] obj)
+            {
+                return obj.GetSimplifiedHashCode();
+            }
+        }
+
+        public class BytesComparer : Comparer<byte[]>
+        {
+            public override int Compare(byte[]? x, byte[]? y)
+            {
+                if (x is null)
+                {
+                    return y is null ? 0 : 1;
+                }
+
+                if (y is null)
+                {
+                    return -1;
+                }
+
+                if (x.Length == 0)
+                {
+                    return y.Length == 0 ? 0 : 1;
+                }
+
+                for (int i = 0; i < x.Length; i++)
+                {
+                    if (y.Length <= i)
+                    {
+                        return -1;
+                    }
+
+                    int result = x[i].CompareTo(y[i]);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+                }
+
+                return y.Length > x.Length ? 1 : 0;
+            }
+
+            public int Compare(Span<byte> x, Span<byte> y)
+            {
+                if (x.Length == 0)
+                {
+                    return y.Length == 0 ? 0 : 1;
+                }
+
+                for (int i = 0; i < x.Length; i++)
+                {
+                    if (y.Length <= i)
+                    {
+                        return -1;
+                    }
+
+                    int result = x[i].CompareTo(y[i]);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+                }
+
+                return y.Length > x.Length ? 1 : 0;
+            }
+        }
+
+        private struct StateSmall
+        {
+            public StateSmall(byte[] bytes, bool withZeroX)
+            {
+                Bytes = bytes;
+                WithZeroX = withZeroX;
+            }
+
+            public readonly byte[] Bytes;
+            public readonly bool WithZeroX;
+        }
+
+        private struct State
+        {
+            public State(byte[] bytes, int leadingZeros, bool withZeroX, bool withEip55Checksum)
+            {
+                Bytes = bytes;
+                LeadingZeros = leadingZeros;
+                WithZeroX = withZeroX;
+                WithEip55Checksum = withEip55Checksum;
+            }
+
+            public readonly int LeadingZeros;
+            public readonly byte[] Bytes;
+            public readonly bool WithZeroX;
+            public readonly bool WithEip55Checksum;
         }
     }
 }

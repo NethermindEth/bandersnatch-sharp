@@ -21,13 +21,10 @@ using Nethermind.Utils.Extensions;
 namespace Nethermind.Utils.Caching
 {
     /// <summary>
-    /// https://stackoverflow.com/questions/754233/is-it-there-any-lru-implementation-of-idictionary
+    ///     https://stackoverflow.com/questions/754233/is-it-there-any-lru-implementation-of-idictionary
     /// </summary>
     public class MemCountingCache : ICache<Commitment, byte[]>
     {
-        private readonly int _maxCapacity;
-        private readonly Dictionary<Commitment, LinkedListNode<LruCacheItem>> _cacheMap;
-        private readonly LinkedList<LruCacheItem> _lruList;
 
         private const int PreInitMemorySize =
             48 /* LinkedList */ +
@@ -39,13 +36,10 @@ namespace Nethermind.Utils.Caching
             52 /* lazy loaded dictionary.Items */ + PreInitMemorySize;
 
         private const int DictionaryItemSize = 28;
+        private readonly Dictionary<Commitment, LinkedListNode<LruCacheItem>> _cacheMap;
+        private readonly LinkedList<LruCacheItem> _lruList;
+        private readonly int _maxCapacity;
         private int _currentDictionaryCapacity;
-
-        public void Clear()
-        {
-            _cacheMap?.Clear();
-            _lruList?.Clear();
-        }
 
         public MemCountingCache(int maxCapacity, int startCapacity, string name)
         {
@@ -59,6 +53,14 @@ namespace Nethermind.Utils.Caching
         public MemCountingCache(int maxCapacity, string name)
             : this(maxCapacity, 0, name)
         {
+        }
+
+        public long MemorySize { get; private set; } = PreInitMemorySize;
+
+        public void Clear()
+        {
+            _cacheMap?.Clear();
+            _lruList?.Clear();
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -123,8 +125,8 @@ namespace Nethermind.Utils.Caching
                 if (newMemorySize <= _maxCapacity)
                 {
                     MemorySize = newMemorySize;
-                    LruCacheItem cacheItem = new(key, val);
-                    LinkedListNode<LruCacheItem> newNode = new(cacheItem);
+                    LruCacheItem cacheItem = new LruCacheItem(key, val);
+                    LinkedListNode<LruCacheItem> newNode = new LinkedListNode<LruCacheItem>(cacheItem);
                     _lruList.AddLast(newNode);
                     _cacheMap.Add(key, newNode);
                 }
@@ -148,7 +150,10 @@ namespace Nethermind.Utils.Caching
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public bool Contains(Commitment key) => _cacheMap.ContainsKey(key);
+        public bool Contains(Commitment key)
+        {
+            return _cacheMap.ContainsKey(key);
+        }
 
         private void Replace(Commitment key, byte[] value)
         {
@@ -166,28 +171,6 @@ namespace Nethermind.Utils.Caching
             _cacheMap.Add(key, node);
         }
 
-        private class LruCacheItem
-        {
-            public LruCacheItem(Commitment k, byte[] v)
-            {
-                Key = k;
-                Value = v;
-            }
-
-            public Commitment Key;
-            public byte[] Value;
-
-            public long MemorySize => FindMemorySize(Value);
-
-            public static long FindMemorySize(byte[] withValue)
-            {
-                return MemorySizes.Align(
-                    Commitment.MemorySize +
-                    MemorySizes.ArrayOverhead +
-                    withValue.Length);
-            }
-        }
-
         private long CalculateDictionaryPartMemory(int currentCapacity, int newCount)
         {
             int previousSize = _currentDictionaryCapacity * DictionaryItemSize;
@@ -201,6 +184,26 @@ namespace Nethermind.Utils.Caching
             return newSize - previousSize;
         }
 
-        public long MemorySize { get; private set; } = PreInitMemorySize;
+        private class LruCacheItem
+        {
+
+            public Commitment Key;
+            public byte[] Value;
+            public LruCacheItem(Commitment k, byte[] v)
+            {
+                Key = k;
+                Value = v;
+            }
+
+            public long MemorySize => FindMemorySize(Value);
+
+            public static long FindMemorySize(byte[] withValue)
+            {
+                return MemorySizes.Align(
+                    Commitment.MemorySize +
+                    MemorySizes.ArrayOverhead +
+                    withValue.Length);
+            }
+        }
     }
 }

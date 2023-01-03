@@ -17,29 +17,32 @@
 namespace Nethermind.Db
 {
     /// <summary>
-    /// Allows to create a new Rocks <see cref="IDb"/> instance.
+    ///     Allows to create a new Rocks <see cref="IDb" /> instance.
     /// </summary>
     public interface IRocksDbFactory
     {
         /// <summary>
-        /// Creates a standard RocksDB.
+        ///     Creates a standard RocksDB.
         /// </summary>
         /// <param name="dbSettingstings">Setting to use for DB creation.</param>
         /// <returns>Standard DB.</returns>
         IDb CreateDb(DbSettings dbSettings);
 
         /// <summary>
-        /// Creates a column RocksDB.
+        ///     Creates a column RocksDB.
         /// </summary>
         /// <param name="dbSettingstings">Setting to use for DB creation.</param>
         /// <returns>Column DB.</returns>
         IColumnsDb<T> CreateColumnsDb<T>(DbSettings dbSettings) where T : struct, Enum;
 
         /// <summary>
-        /// Gets the file system path for the DB.
+        ///     Gets the file system path for the DB.
         /// </summary>
         /// <param name="dbSettingstings">Setting to use for DB creation.</param>
         /// <returns>File system path for the DB.</returns>
-        public string GetFullDbPath(DbSettings dbSettings) => dbSettings.DbPath;
+        public string GetFullDbPath(DbSettings dbSettings)
+        {
+            return dbSettings.DbPath;
+        }
     }
 }

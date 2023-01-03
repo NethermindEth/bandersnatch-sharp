@@ -21,7 +21,7 @@ namespace Nethermind.Utils
 {
     public static class ThisNodeInfo
     {
-        private static ConcurrentDictionary<string, string> _nodeInfoItems = new();
+        private static readonly ConcurrentDictionary<string, string> _nodeInfoItems = new ConcurrentDictionary<string, string>();
 
         public static void AddInfo(string infoDescription, string value)
         {
@@ -30,7 +30,7 @@ namespace Nethermind.Utils
 
         public static string BuildNodeInfoScreen()
         {
-            StringBuilder builder = new();
+            StringBuilder builder = new StringBuilder();
             builder.AppendLine();
             builder.AppendLine("======================== Nethermind initialization completed ========================");
 

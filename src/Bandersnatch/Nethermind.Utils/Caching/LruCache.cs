@@ -20,16 +20,17 @@ using Nethermind.Utils.Extensions;
 namespace Nethermind.Utils.Caching
 {
     /// <remarks>
-    /// The array based solution is preferred to lower the overall memory management overhead. The <see cref="LinkedListNode{T}"/> based approach is very costly.
+    ///     The array based solution is preferred to lower the overall memory management overhead. The
+    ///     <see cref="LinkedListNode{T}" /> based approach is very costly.
     /// </remarks>
     /// <summary>
-    /// https://stackoverflow.com/questions/754233/is-it-there-any-lru-implementation-of-idictionary
+    ///     https://stackoverflow.com/questions/754233/is-it-there-any-lru-implementation-of-idictionary
     /// </summary>
     public class LruCache<TKey, TValue> : ICache<TKey, TValue> where TKey : notnull
     {
-        private readonly int _maxCapacity;
         private readonly Dictionary<TKey, LinkedListNode<LruCacheItem>> _cacheMap;
         private readonly LinkedList<LruCacheItem> _lruList;
+        private readonly int _maxCapacity;
 
         public LruCache(int maxCapacity, int startCapacity, string name)
         {
@@ -49,6 +50,8 @@ namespace Nethermind.Utils.Caching
             : this(maxCapacity, 0, name)
         {
         }
+
+        public long MemorySize => CalculateMemorySize(0, _cacheMap.Count);
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Clear()
@@ -134,10 +137,16 @@ namespace Nethermind.Utils.Caching
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public bool Contains(TKey key) => _cacheMap.ContainsKey(key);
+        public bool Contains(TKey key)
+        {
+            return _cacheMap.ContainsKey(key);
+        }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public IDictionary<TKey, TValue> Clone() => _lruList.ToDictionary(i => i.Key, i => i.Value);
+        public IDictionary<TKey, TValue> Clone()
+        {
+            return _lruList.ToDictionary(i => i.Key, i => i.Value);
+        }
 
         private void Replace(TKey key, TValue value)
         {
@@ -151,20 +160,6 @@ namespace Nethermind.Utils.Caching
             _cacheMap.Add(key, node);
         }
 
-        private class LruCacheItem
-        {
-            public LruCacheItem(TKey k, TValue v)
-            {
-                Key = k;
-                Value = v;
-            }
-
-            public TKey Key;
-            public TValue Value;
-        }
-
-        public long MemorySize => CalculateMemorySize(0, _cacheMap.Count);
-
         public static long CalculateMemorySize(int keyPlusValueSize, int currentItemsCount)
         {
             // it may actually be different if the initial capacity not equal to max (depending on the dictionary growth path)
@@ -172,6 +167,18 @@ namespace Nethermind.Utils.Caching
             const int preInit = 48 /* LinkedList */ + 80 /* Dictionary */ + 24;
             int postInit = 52 /* lazy init of two internal dictionary arrays + dictionary size times (entry size + int) */ + MemorySizes.FindNextPrime(currentItemsCount) * 28 + currentItemsCount * 80 /* LinkedListNode and CacheItem times items count */;
             return MemorySizes.Align(preInit + postInit + keyPlusValueSize * currentItemsCount);
+        }
+
+        private class LruCacheItem
+        {
+
+            public TKey Key;
+            public TValue Value;
+            public LruCacheItem(TKey k, TValue v)
+            {
+                Key = k;
+                Value = v;
+            }
         }
     }
 }

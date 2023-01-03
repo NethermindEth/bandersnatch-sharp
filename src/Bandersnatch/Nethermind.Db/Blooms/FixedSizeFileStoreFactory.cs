@@ -21,8 +21,8 @@ namespace Nethermind.Db.Blooms
     public class FixedSizeFileStoreFactory : IFileStoreFactory
     {
         private readonly string _basePath;
-        private readonly string _extension;
         private readonly int _elementSize;
+        private readonly string _extension;
 
         public FixedSizeFileStoreFactory(string basePath, string extension, int elementSize)
         {
@@ -32,6 +32,9 @@ namespace Nethermind.Db.Blooms
             Directory.CreateDirectory(_basePath);
         }
 
-        public IFileStore Create(string name) => new FixedSizeFileStore(Path.Combine(_basePath, name + "." + _extension), _elementSize);
+        public IFileStore Create(string name)
+        {
+            return new FixedSizeFileStore(Path.Combine(_basePath, name + "." + _extension), _elementSize);
+        }
     }
 }

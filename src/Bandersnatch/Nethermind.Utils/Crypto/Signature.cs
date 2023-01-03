@@ -80,7 +80,7 @@ namespace Nethermind.Utils.Crypto
         public byte[] Bytes { get; } = new byte[64];
         public ulong V { get; set; }
 
-        public ulong? ChainId => V < 35 ? null : (ulong?)(V + (V % 2) - 36) / 2;
+        public ulong? ChainId => V < 35 ? null : (ulong?)(V + V % 2 - 36) / 2;
 
         public byte RecoveryId => V <= VOffset + 1 ? (byte)(V - VOffset) : (byte)(1 - V % 2);
 
@@ -94,17 +94,11 @@ namespace Nethermind.Utils.Crypto
         {
             get
             {
-                var result = new byte[65];
+                byte[] result = new byte[65];
                 Array.Copy(Bytes, result, 64);
                 result[64] = RecoveryId;
                 return result;
             }
-        }
-
-        public override string ToString()
-        {
-            string vString = V.ToString("X").ToLower();
-            return string.Concat(Bytes.ToHexString(true), vString.Length % 2 == 0 ? vString : string.Concat("0", vString));
         }
 
         public bool Equals(Signature? other)
@@ -112,6 +106,12 @@ namespace Nethermind.Utils.Crypto
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return Extensions.Bytes.AreEqual(Bytes, other.Bytes) && V == other.V;
+        }
+
+        public override string ToString()
+        {
+            string vString = V.ToString("X").ToLower();
+            return string.Concat(Bytes.ToHexString(true), vString.Length % 2 == 0 ? vString : string.Concat("0", vString));
         }
 
         public override bool Equals(object? obj)

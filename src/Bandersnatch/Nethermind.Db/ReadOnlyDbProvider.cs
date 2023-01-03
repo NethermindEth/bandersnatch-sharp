@@ -20,9 +20,9 @@ namespace Nethermind.Db
 {
     public class ReadOnlyDbProvider : IReadOnlyDbProvider
     {
-        private readonly IDbProvider _wrappedProvider;
         private readonly bool _createInMemoryWriteStore;
-        private readonly ConcurrentDictionary<string, IReadOnlyDb> _registeredDbs = new(StringComparer.InvariantCultureIgnoreCase);
+        private readonly ConcurrentDictionary<string, IReadOnlyDb> _registeredDbs = new ConcurrentDictionary<string, IReadOnlyDb>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly IDbProvider _wrappedProvider;
 
         public ReadOnlyDbProvider(IDbProvider? wrappedProvider, bool createInMemoryWriteStore)
         {
@@ -80,16 +80,16 @@ namespace Nethermind.Db
             return result;
         }
 
-        private void RegisterReadOnlyDb<T>(string dbName, T db) where T : IDb
-        {
-            IReadOnlyDb readonlyDb = db.CreateReadOnly(_createInMemoryWriteStore);
-            _registeredDbs.TryAdd(dbName, readonlyDb);
-        }
-
         public void RegisterDb<T>(string dbName, T db) where T : class, IDb
         {
             _wrappedProvider.RegisterDb(dbName, db);
             RegisterReadOnlyDb(dbName, db);
+        }
+
+        private void RegisterReadOnlyDb<T>(string dbName, T db) where T : IDb
+        {
+            IReadOnlyDb readonlyDb = db.CreateReadOnly(_createInMemoryWriteStore);
+            _registeredDbs.TryAdd(dbName, readonlyDb);
         }
     }
 }

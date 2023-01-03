@@ -20,24 +20,27 @@ namespace Nethermind.Utils.Extensions
     public static class CancellationTokenExtensions
     {
         /// <summary>
-        /// Converts <see cref="CancellationToken"/> to a awaitable <see cref="Task"/> when token is cancelled.
+        ///     Converts <see cref="CancellationToken" /> to a awaitable <see cref="Task" /> when token is cancelled.
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
         public static Task AsTask(this CancellationToken token)
         {
-            TaskCompletionSource taskCompletionSource = new();
+            TaskCompletionSource taskCompletionSource = new TaskCompletionSource();
             token.Register(() => taskCompletionSource.TrySetCanceled(), false);
             return taskCompletionSource.Task;
         }
 
         /// <summary>
-        /// <see cref="CancellationTokenSource.Cancel()"/>s and <see cref="CancellationTokenSource.Dispose"/>s the <see cref="CancellationTokenSource"/>
-        /// and also sets it to null so multiple calls to this method are safe and <see cref="CancellationTokenSource.Cancel()"/> will be called only once.
+        ///     <see cref="CancellationTokenSource.Cancel()" />s and <see cref="CancellationTokenSource.Dispose" />s the
+        ///     <see cref="CancellationTokenSource" />
+        ///     and also sets it to null so multiple calls to this method are safe and
+        ///     <see cref="CancellationTokenSource.Cancel()" /> will be called only once.
         /// </summary>
         /// <param name="cancellationTokenSource"></param>
         /// <remarks>
-        /// This method is thread-sage and uses <see cref="Interlocked.CompareExchange{T}(ref T,T,T)"/> to safely manage reference.
+        ///     This method is thread-sage and uses <see cref="Interlocked.CompareExchange{T}(ref T,T,T)" /> to safely manage
+        ///     reference.
         /// </remarks>
         public static void CancelDisposeAndClear(ref CancellationTokenSource? cancellationTokenSource)
         {

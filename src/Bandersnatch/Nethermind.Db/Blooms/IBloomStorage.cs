@@ -22,16 +22,16 @@ namespace Nethermind.Db.Blooms
     {
         long MinBlockNumber { get; }
 
-        void Store(long blockNumber, Bloom bloom);
-
-        IBloomEnumeration GetBlooms(long fromBlock, long toBlock);
-
-        bool ContainsRange(in long fromBlockNumber, in long toBlockNumber);
-
         public bool NeedsMigration => MinBlockNumber != 0;
 
         IEnumerable<Average> Averages { get; }
 
         long MigratedBlockNumber { get; }
+
+        void Store(long blockNumber, Bloom bloom);
+
+        IBloomEnumeration GetBlooms(long fromBlock, long toBlock);
+
+        bool ContainsRange(in long fromBlockNumber, in long toBlockNumber);
     }
 }

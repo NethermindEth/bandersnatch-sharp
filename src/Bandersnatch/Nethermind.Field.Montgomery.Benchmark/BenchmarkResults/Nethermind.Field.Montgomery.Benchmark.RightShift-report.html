@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Field.Montgomery.Benchmark.RightShift-20221124-123259</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Field.Montgomery.Benchmark.RightShift-20221124-123259</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,30 +36,223 @@ AMD EPYC 7713, 1 CPU, 8 logical and 8 physical cores
   [Host]   : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 6.0  Runtime=.NET 6.0  
+<pre><code>Job=.NET 6.0  Runtime=.NET 6.0
 </code></pre>
 
 <table>
-<thead><tr><th>         Method</th><th>           _a</th><th>  _d</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>RightShift_BigInteger</td><td>(115(...)FpE) [204]</td><td>1559595546</td><td>35.615 ns</td><td>0.2175 ns</td><td>0.1816 ns</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_UInt256</td><td>(115(...)FpE) [204]</td><td>1559595546</td><td>2.423 ns</td><td>0.0985 ns</td><td>0.1054 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_Element</td><td>(115(...)FpE) [204]</td><td>1559595546</td><td>2.394 ns</td><td>0.1011 ns</td><td>0.0946 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_BigInteger</td><td>(115(...)FpE) [204]</td><td>1649316166</td><td>33.913 ns</td><td>0.3637 ns</td><td>0.3224 ns</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_UInt256</td><td>(115(...)FpE) [204]</td><td>1649316166</td><td>2.458 ns</td><td>0.1125 ns</td><td>0.1423 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_Element</td><td>(115(...)FpE) [204]</td><td>1649316166</td><td>2.461 ns</td><td>0.1150 ns</td><td>0.1824 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_BigInteger</td><td>(115(...)FpE) [204]</td><td>1755192844</td><td>33.551 ns</td><td>0.2573 ns</td><td>0.2281 ns</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_UInt256</td><td>(115(...)FpE) [204]</td><td>1755192844</td><td>2.523 ns</td><td>0.1148 ns</td><td>0.2071 ns</td><td>0.08</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_Element</td><td>(115(...)FpE) [204]</td><td>1755192844</td><td>2.405 ns</td><td>0.0615 ns</td><td>0.0545 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_BigInteger</td><td>(619(...)FpE) [200]</td><td>1559595546</td><td>33.662 ns</td><td>0.4184 ns</td><td>0.3914 ns</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_UInt256</td><td>(619(...)FpE) [200]</td><td>1559595546</td><td>2.481 ns</td><td>0.1150 ns</td><td>0.1129 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_Element</td><td>(619(...)FpE) [200]</td><td>1559595546</td><td>2.428 ns</td><td>0.1130 ns</td><td>0.1759 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_BigInteger</td><td>(619(...)FpE) [200]</td><td>1649316166</td><td>33.585 ns</td><td>0.2360 ns</td><td>0.1970 ns</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_UInt256</td><td>(619(...)FpE) [200]</td><td>1649316166</td><td>2.431 ns</td><td>0.1033 ns</td><td>0.1482 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_Element</td><td>(619(...)FpE) [200]</td><td>1649316166</td><td>2.402 ns</td><td>0.0976 ns</td><td>0.0913 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_BigInteger</td><td>(619(...)FpE) [200]</td><td>1755192844</td><td>34.161 ns</td><td>0.3308 ns</td><td>0.2933 ns</td><td>1.00</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_UInt256</td><td>(619(...)FpE) [200]</td><td>1755192844</td><td>3.108 ns</td><td>0.0934 ns</td><td>0.0874 ns</td><td>0.09</td><td>-</td><td>NA</td>
-</tr><tr><td>RightShift_Element</td><td>(619(...)FpE) [200]</td><td>1755192844</td><td>2.511 ns</td><td>0.1091 ns</td><td>0.1021 ns</td><td>0.07</td><td>-</td><td>NA</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th> _a</th>
+        <th> _d</th>
+        <th>Mean</th>
+        <th>Error</th>
+        <th>StdDev</th>
+        <th>Ratio</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>RightShift_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1559595546</td>
+        <td>35.615 ns</td>
+        <td>0.2175 ns</td>
+        <td>0.1816 ns</td>
+        <td>1.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1559595546</td>
+        <td>2.423 ns</td>
+        <td>0.0985 ns</td>
+        <td>0.1054 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1559595546</td>
+        <td>2.394 ns</td>
+        <td>0.1011 ns</td>
+        <td>0.0946 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1649316166</td>
+        <td>33.913 ns</td>
+        <td>0.3637 ns</td>
+        <td>0.3224 ns</td>
+        <td>1.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1649316166</td>
+        <td>2.458 ns</td>
+        <td>0.1125 ns</td>
+        <td>0.1423 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1649316166</td>
+        <td>2.461 ns</td>
+        <td>0.1150 ns</td>
+        <td>0.1824 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1755192844</td>
+        <td>33.551 ns</td>
+        <td>0.2573 ns</td>
+        <td>0.2281 ns</td>
+        <td>1.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1755192844</td>
+        <td>2.523 ns</td>
+        <td>0.1148 ns</td>
+        <td>0.2071 ns</td>
+        <td>0.08</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1755192844</td>
+        <td>2.405 ns</td>
+        <td>0.0615 ns</td>
+        <td>0.0545 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1559595546</td>
+        <td>33.662 ns</td>
+        <td>0.4184 ns</td>
+        <td>0.3914 ns</td>
+        <td>1.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1559595546</td>
+        <td>2.481 ns</td>
+        <td>0.1150 ns</td>
+        <td>0.1129 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1559595546</td>
+        <td>2.428 ns</td>
+        <td>0.1130 ns</td>
+        <td>0.1759 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1649316166</td>
+        <td>33.585 ns</td>
+        <td>0.2360 ns</td>
+        <td>0.1970 ns</td>
+        <td>1.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1649316166</td>
+        <td>2.431 ns</td>
+        <td>0.1033 ns</td>
+        <td>0.1482 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1649316166</td>
+        <td>2.402 ns</td>
+        <td>0.0976 ns</td>
+        <td>0.0913 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1755192844</td>
+        <td>34.161 ns</td>
+        <td>0.3308 ns</td>
+        <td>0.2933 ns</td>
+        <td>1.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1755192844</td>
+        <td>3.108 ns</td>
+        <td>0.0934 ns</td>
+        <td>0.0874 ns</td>
+        <td>0.09</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>RightShift_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1755192844</td>
+        <td>2.511 ns</td>
+        <td>0.1091 ns</td>
+        <td>0.1021 ns</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

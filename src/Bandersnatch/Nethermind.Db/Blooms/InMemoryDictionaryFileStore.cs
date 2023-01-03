@@ -18,7 +18,7 @@ namespace Nethermind.Db.Blooms
 {
     public class InMemoryDictionaryFileStore : IFileStore
     {
-        readonly IDictionary<long, byte[]> _store = new Dictionary<long, byte[]>();
+        private readonly IDictionary<long, byte[]> _store = new Dictionary<long, byte[]>();
 
         public void Dispose()
         {
@@ -32,7 +32,7 @@ namespace Nethermind.Db.Blooms
 
         public int Read(long index, Span<byte> element)
         {
-            if (_store.TryGetValue(index, out var found))
+            if (_store.TryGetValue(index, out byte[]? found))
             {
                 found.CopyTo(element);
                 return found.Length;
@@ -41,6 +41,9 @@ namespace Nethermind.Db.Blooms
             return 0;
         }
 
-        public IFileReader CreateFileReader() => new InMemoryDictionaryFileReader(this);
+        public IFileReader CreateFileReader()
+        {
+            return new InMemoryDictionaryFileReader(this);
+        }
     }
 }

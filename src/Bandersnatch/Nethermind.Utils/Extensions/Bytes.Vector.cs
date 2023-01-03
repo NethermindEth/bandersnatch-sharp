@@ -23,7 +23,10 @@ namespace Nethermind.Utils.Extensions
 {
     public static unsafe partial class Bytes
     {
-        private static readonly byte[] ReverseMask = { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+        private static readonly byte[] ReverseMask =
+        {
+            15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+        };
         private static readonly Vector256<byte> ReverseMaskVec;
 
         static Bytes()
@@ -32,7 +35,7 @@ namespace Nethermind.Utils.Extensions
             {
                 fixed (byte* ptr_mask = ReverseMask)
                 {
-                    ReverseMaskVec = Avx2.LoadVector256(ptr_mask);
+                    ReverseMaskVec = Avx.LoadVector256(ptr_mask);
                 }
             }
         }
@@ -41,18 +44,18 @@ namespace Nethermind.Utils.Extensions
         {
             fixed (byte* inputPointer = bytes)
             {
-                Vector256<byte> inputVector = Avx2.LoadVector256(inputPointer);
+                Vector256<byte> inputVector = Avx.LoadVector256(inputPointer);
                 Vector256<byte> resultVector = Avx2.Shuffle(inputVector, ReverseMaskVec);
                 resultVector = Avx2.Permute4x64(resultVector.As<byte, ulong>(), 0b01001110).As<ulong, byte>();
 
-                Avx2.Store(inputPointer, resultVector);
+                Avx.Store(inputPointer, resultVector);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public static void Or(this Span<byte> thisSpam, Span<byte> valueSpam)
         {
-            var length = thisSpam.Length;
+            int length = thisSpam.Length;
             if (length != valueSpam.Length)
             {
                 throw new ArgumentException("Both byte spans has to be same length.");
@@ -67,9 +70,9 @@ namespace Nethermind.Utils.Extensions
                 {
                     for (; i < length - (Vector256<byte>.Count - 1); i += Vector256<byte>.Count)
                     {
-                        Vector256<byte> b1 = Avx2.LoadVector256(thisPtr + i);
-                        Vector256<byte> b2 = Avx2.LoadVector256(valuePtr + i);
-                        Avx2.Store(thisPtr + i, Avx2.Or(b1, b2));
+                        Vector256<byte> b1 = Avx.LoadVector256(thisPtr + i);
+                        Vector256<byte> b2 = Avx.LoadVector256(valuePtr + i);
+                        Avx.Store(thisPtr + i, Avx2.Or(b1, b2));
                     }
                 }
                 else if (Sse2.IsSupported)

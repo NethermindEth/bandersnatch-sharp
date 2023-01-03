@@ -25,7 +25,7 @@ namespace Nethermind.Db
     {
         public static ReadOnlyDb AsReadOnly(this IDb db, bool createInMemoryWriteStore)
         {
-            return new(db, createInMemoryWriteStore);
+            return new ReadOnlyDb(db, createInMemoryWriteStore);
         }
 
         public static void Set(this IDb db, Commitment key, byte[] value)
@@ -47,12 +47,11 @@ namespace Nethermind.Db
 
         public static KeyValuePair<byte[], byte[]>[] MultiGet(this IDb db, IEnumerable<Commitment> keys)
         {
-            var k = keys.Select(k => k.Bytes).ToArray();
+            byte[][] k = keys.Select(k => k.Bytes).ToArray();
             return db[k];
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="db"></param>
         /// <param name="key"></param>
@@ -102,17 +101,25 @@ namespace Nethermind.Db
             db[key.ToBigEndianByteArrayWithoutLeadingZeros()] = value;
         }
 
-        public static byte[]? Get(this IDb db, long key) => db[key.ToBigEndianByteArrayWithoutLeadingZeros()];
+        public static byte[]? Get(this IDb db, long key)
+        {
+            return db[key.ToBigEndianByteArrayWithoutLeadingZeros()];
+        }
 
-        public static byte[]? Get(this IDb db, byte[] key) => db[key];
+        public static byte[]? Get(this IDb db, byte[] key)
+        {
+            return db[key];
+        }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="db"></param>
         /// <param name="key"></param>
         /// <returns>Can return null or empty Span on missing key</returns>
-        public static Span<byte> GetSpan(this IDbWithSpan db, long key) => db.GetSpan(key.ToBigEndianByteArrayWithoutLeadingZeros());
+        public static Span<byte> GetSpan(this IDbWithSpan db, long key)
+        {
+            return db.GetSpan(key.ToBigEndianByteArrayWithoutLeadingZeros());
+        }
 
 
         public static void Delete(this IDb db, long key)
@@ -135,7 +142,7 @@ namespace Nethermind.Db
 
                     try
                     {
-                        var rlpValueContext = data.AsRlpValueContext();
+                        Rlp.ValueDecoderContext rlpValueContext = data.AsRlpValueContext();
                         item = valueDecoder.Decode(ref rlpValueContext, RlpBehaviors.AllowExtraData);
                     }
                     finally
@@ -178,7 +185,7 @@ namespace Nethermind.Db
 
                     try
                     {
-                        var rlpValueContext = data.AsRlpValueContext();
+                        Rlp.ValueDecoderContext rlpValueContext = data.AsRlpValueContext();
                         item = valueDecoder.Decode(ref rlpValueContext, RlpBehaviors.AllowExtraData);
                     }
                     finally

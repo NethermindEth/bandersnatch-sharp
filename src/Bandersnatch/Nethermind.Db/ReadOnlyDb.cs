@@ -20,16 +20,23 @@ namespace Nethermind.Db
 {
     public class ReadOnlyDb : IReadOnlyDb, IDbWithSpan
     {
-        private readonly MemDb _memDb = new();
+        private readonly bool _createInMemWriteStore;
+        private readonly MemDb _memDb = new MemDb();
 
         private readonly IDb _wrappedDb;
-        private readonly bool _createInMemWriteStore;
 
         public ReadOnlyDb(IDb wrappedDb, bool createInMemWriteStore)
         {
             _wrappedDb = wrappedDb;
             _createInMemWriteStore = createInMemWriteStore;
         }
+
+        public Span<byte> GetSpan(byte[] key)
+        {
+            return this[key].AsSpan();
+        }
+
+        public void DangerousReleaseMemory(in Span<byte> span) { }
 
         public void Dispose()
         {
@@ -56,11 +63,11 @@ namespace Nethermind.Db
         {
             get
             {
-                var result = _wrappedDb[keys];
-                var memResult = _memDb[keys];
+                KeyValuePair<byte[], byte[]?>[] result = _wrappedDb[keys];
+                KeyValuePair<byte[], byte[]>[] memResult = _memDb[keys];
                 for (int i = 0; i < memResult.Length; i++)
                 {
-                    var memValue = memResult[i];
+                    KeyValuePair<byte[], byte[]> memValue = memResult[i];
                     if (memValue.Value is not null)
                     {
                         result[i] = memValue;
@@ -71,9 +78,15 @@ namespace Nethermind.Db
             }
         }
 
-        public IEnumerable<KeyValuePair<byte[], byte[]>> GetAll(bool ordered = false) => _memDb.GetAll();
+        public IEnumerable<KeyValuePair<byte[], byte[]>> GetAll(bool ordered = false)
+        {
+            return _memDb.GetAll();
+        }
 
-        public IEnumerable<byte[]> GetAllValues(bool ordered = false) => _memDb.GetAllValues();
+        public IEnumerable<byte[]> GetAllValues(bool ordered = false)
+        {
+            return _memDb.GetAllValues();
+        }
 
         public IBatch StartBatch()
         {
@@ -99,9 +112,5 @@ namespace Nethermind.Db
         {
             _memDb.Clear();
         }
-
-        public Span<byte> GetSpan(byte[] key) => this[key].AsSpan();
-
-        public void DangerousReleaseMemory(in Span<byte> span) { }
     }
 }

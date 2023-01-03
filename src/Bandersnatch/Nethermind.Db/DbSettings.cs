@@ -47,8 +47,14 @@ namespace Nethermind.Db
             return settings;
         }
 
-        public DbSettings Clone() => (DbSettings)MemberwiseClone();
+        public DbSettings Clone()
+        {
+            return (DbSettings)MemberwiseClone();
+        }
 
-        public override string ToString() => $"{DbName}:{DbPath}";
+        public override string ToString()
+        {
+            return $"{DbName}:{DbPath}";
+        }
     }
 }

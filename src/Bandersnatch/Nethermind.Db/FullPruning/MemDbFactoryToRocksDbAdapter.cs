@@ -26,8 +26,14 @@ namespace Nethermind.Db.FullPruning
             _memDbFactory = memDbFactory;
         }
 
-        public IDb CreateDb(DbSettings dbSettings) => _memDbFactory.CreateDb(dbSettings.DbName);
+        public IDb CreateDb(DbSettings dbSettings)
+        {
+            return _memDbFactory.CreateDb(dbSettings.DbName);
+        }
 
-        public IColumnsDb<T> CreateColumnsDb<T>(DbSettings dbSettings) where T : struct, Enum => _memDbFactory.CreateColumnsDb<T>(dbSettings.DbName);
+        public IColumnsDb<T> CreateColumnsDb<T>(DbSettings dbSettings) where T : struct, Enum
+        {
+            return _memDbFactory.CreateColumnsDb<T>(dbSettings.DbName);
+        }
     }
 }

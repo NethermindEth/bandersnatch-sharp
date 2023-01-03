@@ -3,29 +3,37 @@ using Nethermind.Utils.Extensions;
 using Nethermind.Verkle.Tree.VerkleNodes;
 using NUnit.Framework;
 
-namespace Nethermind.Verkle.Tree.Test;
-using BranchStore = Dictionary<byte[], InternalNode?>;
-using LeafStore = Dictionary<byte[], byte[]?>;
-using SuffixStore = Dictionary<byte[], SuffixTree?>;
-
-public class VerkleDbTests
+namespace Nethermind.Verkle.Tree.Test
 {
-    [Test]
-    public void ByteArrayEqualityTestsDictionary()
+    using BranchStore = Dictionary<byte[], InternalNode?>;
+    using LeafStore = Dictionary<byte[], byte[]?>;
+    using SuffixStore = Dictionary<byte[], SuffixTree?>;
+
+    public class VerkleDbTests
     {
-        byte[] a = { 1, 2 };
-        byte[] b = { 1, 2 };
-
-        Dictionary<byte[], byte[]> table = new Dictionary<byte[], byte[]>
+        [Test]
+        public void ByteArrayEqualityTestsDictionary()
         {
-            [a] = b,
-        };
-        Assert.IsFalse(table.TryGetValue(b, out _));
+            byte[] a =
+            {
+                1, 2
+            };
+            byte[] b =
+            {
+                1, 2
+            };
 
-        table = new Dictionary<byte[], byte[]>(Bytes.EqualityComparer)
-        {
-            [a] = b,
-        };
-        Assert.IsTrue(table.TryGetValue(b, out _));
+            Dictionary<byte[], byte[]> table = new Dictionary<byte[], byte[]>
+            {
+                [a] = b
+            };
+            Assert.IsFalse(table.TryGetValue(b, out _));
+
+            table = new Dictionary<byte[], byte[]>(Bytes.EqualityComparer)
+            {
+                [a] = b
+            };
+            Assert.IsTrue(table.TryGetValue(b, out _));
+        }
     }
 }

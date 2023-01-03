@@ -18,7 +18,7 @@ namespace Nethermind.Db
 {
     public interface IColumnsDb<TKey> : IDbWithSpan
     {
-        IDbWithSpan GetColumnDb(TKey key);
         IEnumerable<TKey> ColumnKeys { get; }
+        IDbWithSpan GetColumnDb(TKey key);
     }
 }

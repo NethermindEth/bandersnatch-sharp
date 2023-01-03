@@ -66,7 +66,6 @@ namespace Nethermind.Utils.Extensions
                                     return bytes;
                                 }
                             }
-                            else
                             {
                                 byte[] bytes = new byte[4];
                                 bytes[3] = (byte)value;
@@ -76,7 +75,6 @@ namespace Nethermind.Utils.Extensions
                                 return bytes;
                             }
                         }
-                        else
                         {
                             byte[] bytes = new byte[5];
                             bytes[4] = (byte)value;
@@ -87,7 +85,6 @@ namespace Nethermind.Utils.Extensions
                             return bytes;
                         }
                     }
-                    else
                     {
                         byte[] bytes = new byte[6];
                         bytes[5] = (byte)value;
@@ -99,7 +96,6 @@ namespace Nethermind.Utils.Extensions
                         return bytes;
                     }
                 }
-                else
                 {
                     byte[] bytes = new byte[7];
                     bytes[6] = (byte)value;
@@ -112,7 +108,6 @@ namespace Nethermind.Utils.Extensions
                     return bytes;
                 }
             }
-            else
             {
                 byte[] bytes = new byte[8];
                 bytes[7] = (byte)value;

@@ -19,41 +19,42 @@ using System.Runtime.InteropServices;
 using RocksDbSharp;
 using RocksDbNative = RocksDbSharp.Native;
 
-namespace Nethermind.Db.Rocks;
-
-internal static class RocksDbExtensions
+namespace Nethermind.Db.Rocks
 {
-    private static readonly ReadOptions _defaultReadOptions = new();
-
-    internal static unsafe void DangerousReleaseMemory(this RocksDb _, in Span<byte> span)
+    internal static class RocksDbExtensions
     {
-        ref var ptr = ref MemoryMarshal.GetReference(span);
-        var intPtr = new IntPtr(Unsafe.AsPointer(ref ptr));
+        private static readonly ReadOptions _defaultReadOptions = new ReadOptions();
 
-        RocksDbNative.Instance.rocksdb_free(intPtr);
-    }
+        internal static unsafe void DangerousReleaseMemory(this RocksDb _, in Span<byte> span)
+        {
+            ref byte ptr = ref MemoryMarshal.GetReference(span);
+            nint intPtr = new nint(Unsafe.AsPointer(ref ptr));
 
-    internal static unsafe Span<byte> GetSpan(this RocksDb db, byte[] key, ColumnFamilyHandle? cf = null)
-    {
-        var readOptions = _defaultReadOptions.Handle;
-        var keyLength = key.GetLongLength(0);
+            RocksDbNative.Instance.rocksdb_free(intPtr);
+        }
 
-        if (keyLength == 0)
-            keyLength = key.Length;
+        internal static unsafe Span<byte> GetSpan(this RocksDb db, byte[] key, ColumnFamilyHandle? cf = null)
+        {
+            nint readOptions = _defaultReadOptions.Handle;
+            long keyLength = key.GetLongLength(0);
 
-        var keyLengthPtr = (UIntPtr)keyLength;
-        var result = cf is null
-            ? RocksDbNative.Instance.rocksdb_get(db.Handle, readOptions, key, keyLengthPtr, out var valueLength, out var error)
-            : RocksDbNative.Instance.rocksdb_get_cf(db.Handle, readOptions, cf.Handle, key, keyLengthPtr, out valueLength, out error);
+            if (keyLength == 0)
+                keyLength = key.Length;
 
-        if (error != IntPtr.Zero)
-            throw new RocksDbException(error);
+            nuint keyLengthPtr = (nuint)keyLength;
+            nint result = cf is null
+                ? RocksDbNative.Instance.rocksdb_get(db.Handle, readOptions, key, keyLengthPtr, out nuint valueLength, out nint error)
+                : RocksDbNative.Instance.rocksdb_get_cf(db.Handle, readOptions, cf.Handle, key, keyLengthPtr, out valueLength, out error);
 
-        if (result == IntPtr.Zero)
-            return null;
+            if (error != nint.Zero)
+                throw new RocksDbException(error);
 
-        var span = new Span<byte>((void*)result, (int)valueLength);
+            if (result == nint.Zero)
+                return null;
 
-        return span;
+            Span<byte> span = new Span<byte>((void*)result, (int)valueLength);
+
+            return span;
+        }
     }
 }

@@ -23,17 +23,9 @@ namespace Nethermind.Db
     public class SimpleFilePublicKeyDb : IFullDb
     {
         public const string DbFileName = "SimpleFileDb.db";
-
-        private bool _hasPendingChanges;
         private ConcurrentDictionary<byte[], byte[]> _cache;
 
-        public string DbPath { get; }
-        public string Name { get; }
-        public string Description { get; }
-
-        public ICollection<byte[]> Keys => _cache.Keys.ToArray();
-        public ICollection<byte[]> Values => _cache.Values;
-        public int Count => _cache.Count;
+        private bool _hasPendingChanges;
 
         public SimpleFilePublicKeyDb(string name, string dbDirectoryPath)
         {
@@ -49,6 +41,16 @@ namespace Nethermind.Db
 
             LoadData();
         }
+
+        public string DbPath { get; }
+        public string Description { get; }
+
+        public IDb Innermost => this;
+        public string Name { get; }
+
+        public ICollection<byte[]> Keys => _cache.Keys.ToArray();
+        public ICollection<byte[]> Values => _cache.Values;
+        public int Count => _cache.Count;
 
         public byte[] this[byte[] key]
         {
@@ -66,7 +68,7 @@ namespace Nethermind.Db
             }
         }
 
-        public KeyValuePair<byte[], byte[]>[] this[byte[][] keys] => keys.Select(k => new KeyValuePair<byte[], byte[]>(k, _cache.TryGetValue(k, out var value) ? value : null)).ToArray();
+        public KeyValuePair<byte[], byte[]>[] this[byte[][] keys] => keys.Select(k => new KeyValuePair<byte[], byte[]>(k, _cache.TryGetValue(k, out byte[]? value) ? value : null)).ToArray();
 
         public void Remove(byte[] key)
         {
@@ -78,21 +80,30 @@ namespace Nethermind.Db
         {
             return _cache.ContainsKey(key);
         }
-
-        public IDb Innermost => this;
         public void Flush() { }
         public void Clear()
         {
             File.Delete(DbPath);
         }
 
-        public IEnumerable<KeyValuePair<byte[], byte[]>> GetAll(bool ordered = false) => _cache;
+        public IEnumerable<KeyValuePair<byte[], byte[]>> GetAll(bool ordered = false)
+        {
+            return _cache;
+        }
 
-        public IEnumerable<byte[]> GetAllValues(bool ordered = false) => _cache.Values;
+        public IEnumerable<byte[]> GetAllValues(bool ordered = false)
+        {
+            return _cache.Values;
+        }
 
         public IBatch StartBatch()
         {
             return this.LikeABatch(CommitBatch);
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
         }
 
         private void CommitBatch()
@@ -110,7 +121,7 @@ namespace Nethermind.Db
             Console.WriteLine($"Saving data in {DbPath} | backup stored in {backup.BackupPath}");
             try
             {
-                using StreamWriter streamWriter = new(DbPath);
+                using StreamWriter streamWriter = new StreamWriter(DbPath);
                 foreach ((byte[] key, byte[] value) in snapshot)
                 {
                     if (value is not null)
@@ -125,52 +136,6 @@ namespace Nethermind.Db
             catch (Exception e)
             {
                 Console.WriteLine($"Failed to store data in {DbPath}", e);
-            }
-        }
-
-        private class Backup : IDisposable
-        {
-            private readonly string _dbPath;
-            public string BackupPath { get; }
-
-            public Backup(string dbPath)
-            {
-                _dbPath = dbPath;
-                try
-                {
-                    BackupPath = $"{_dbPath}_{Guid.NewGuid().ToString()}";
-
-                    if (File.Exists(_dbPath))
-                    {
-                        File.Move(_dbPath, BackupPath);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error during backup creation for {_dbPath} | backup path {BackupPath}", e);
-                }
-            }
-
-            public void Dispose()
-            {
-                try
-                {
-                    if (BackupPath is not null && File.Exists(BackupPath))
-                    {
-                        if (File.Exists(_dbPath))
-                        {
-                            File.Delete(BackupPath);
-                        }
-                        else
-                        {
-                            File.Move(BackupPath, _dbPath);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error during backup removal of {_dbPath} | backup path {BackupPath}", e);
-                }
             }
         }
 
@@ -213,9 +178,50 @@ namespace Nethermind.Db
             return value;
         }
 
-        public void Dispose()
+        private class Backup : IDisposable
         {
-            GC.SuppressFinalize(this);
+            private readonly string _dbPath;
+
+            public Backup(string dbPath)
+            {
+                _dbPath = dbPath;
+                try
+                {
+                    BackupPath = $"{_dbPath}_{Guid.NewGuid().ToString()}";
+
+                    if (File.Exists(_dbPath))
+                    {
+                        File.Move(_dbPath, BackupPath);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error during backup creation for {_dbPath} | backup path {BackupPath}", e);
+                }
+            }
+            public string BackupPath { get; }
+
+            public void Dispose()
+            {
+                try
+                {
+                    if (BackupPath is not null && File.Exists(BackupPath))
+                    {
+                        if (File.Exists(_dbPath))
+                        {
+                            File.Delete(BackupPath);
+                        }
+                        else
+                        {
+                            File.Move(BackupPath, _dbPath);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error during backup removal of {_dbPath} | backup path {BackupPath}", e);
+                }
+            }
         }
     }
 }

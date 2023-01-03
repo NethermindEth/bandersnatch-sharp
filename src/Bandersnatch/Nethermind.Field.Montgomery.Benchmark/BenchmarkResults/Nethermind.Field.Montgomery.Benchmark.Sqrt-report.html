@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Field.Montgomery.Benchmark.Sqrt-20221124-124218</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Field.Montgomery.Benchmark.Sqrt-20221124-124218</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,24 +36,183 @@ AMD EPYC 7713, 1 CPU, 8 logical and 8 physical cores
   [Host]   : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 6.0  Runtime=.NET 6.0  
+<pre><code>Job=.NET 6.0  Runtime=.NET 6.0
 </code></pre>
 
 <table>
-<thead><tr><th>   Method</th><th>           _a</th><th>           _b</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>Sqrt_BigInteger</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>271.72 &mu;s</td><td>4.076 &mu;s</td><td>3.613 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.000</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>927.08 &mu;s</td><td>13.809 &mu;s</td><td>12.241 &mu;s</td><td>3.41</td><td>0.04</td><td>-</td><td>1 B</td><td>0.003</td>
-</tr><tr><td>Sqrt_Element</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>164.61 &mu;s</td><td>1.420 &mu;s</td><td>1.186 &mu;s</td><td>0.61</td><td>0.01</td><td>1.2207</td><td>108640 B</td><td>339.500</td>
-</tr><tr><td>Sqrt_BigInteger</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>187.20 &mu;s</td><td>3.221 &mu;s</td><td>2.689 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.000</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>938.66 &mu;s</td><td>17.768 &mu;s</td><td>19.011 &mu;s</td><td>4.98</td><td>0.11</td><td>-</td><td>1 B</td><td>0.003</td>
-</tr><tr><td>Sqrt_Element</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>163.07 &mu;s</td><td>2.328 &mu;s</td><td>1.944 &mu;s</td><td>0.87</td><td>0.01</td><td>1.2207</td><td>108640 B</td><td>339.500</td>
-</tr><tr><td>Sqrt_BigInteger</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>275.27 &mu;s</td><td>3.417 &mu;s</td><td>3.197 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.00</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>98.74 &mu;s</td><td>0.983 &mu;s</td><td>0.919 &mu;s</td><td>0.36</td><td>0.00</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>Sqrt_Element</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>NA</td><td>NA</td><td>NA</td><td>?</td><td>?</td><td>-</td><td>-</td><td>?</td>
-</tr><tr><td>Sqrt_BigInteger</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>188.12 &mu;s</td><td>3.710 &mu;s</td><td>3.644 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.00</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>98.74 &mu;s</td><td>1.308 &mu;s</td><td>1.160 &mu;s</td><td>0.52</td><td>0.01</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>Sqrt_Element</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>NA</td><td>NA</td><td>NA</td><td>?</td><td>?</td><td>-</td><td>-</td><td>?</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th> _a</th>
+        <th> _b</th>
+        <th>Mean</th>
+        <th>Error</th>
+        <th>StdDev</th>
+        <th>Ratio</th>
+        <th>RatioSD</th>
+        <th>Gen0</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>271.72 &mu;s</td>
+        <td>4.076 &mu;s</td>
+        <td>3.613 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.000</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>927.08 &mu;s</td>
+        <td>13.809 &mu;s</td>
+        <td>12.241 &mu;s</td>
+        <td>3.41</td>
+        <td>0.04</td>
+        <td>-</td>
+        <td>1 B</td>
+        <td>0.003</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>164.61 &mu;s</td>
+        <td>1.420 &mu;s</td>
+        <td>1.186 &mu;s</td>
+        <td>0.61</td>
+        <td>0.01</td>
+        <td>1.2207</td>
+        <td>108640 B</td>
+        <td>339.500</td>
+    </tr>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>187.20 &mu;s</td>
+        <td>3.221 &mu;s</td>
+        <td>2.689 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.000</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>938.66 &mu;s</td>
+        <td>17.768 &mu;s</td>
+        <td>19.011 &mu;s</td>
+        <td>4.98</td>
+        <td>0.11</td>
+        <td>-</td>
+        <td>1 B</td>
+        <td>0.003</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>163.07 &mu;s</td>
+        <td>2.328 &mu;s</td>
+        <td>1.944 &mu;s</td>
+        <td>0.87</td>
+        <td>0.01</td>
+        <td>1.2207</td>
+        <td>108640 B</td>
+        <td>339.500</td>
+    </tr>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>275.27 &mu;s</td>
+        <td>3.417 &mu;s</td>
+        <td>3.197 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>98.74 &mu;s</td>
+        <td>0.983 &mu;s</td>
+        <td>0.919 &mu;s</td>
+        <td>0.36</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>?</td>
+        <td>?</td>
+        <td>-</td>
+        <td>-</td>
+        <td>?</td>
+    </tr>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>188.12 &mu;s</td>
+        <td>3.710 &mu;s</td>
+        <td>3.644 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>98.74 &mu;s</td>
+        <td>1.308 &mu;s</td>
+        <td>1.160 &mu;s</td>
+        <td>0.52</td>
+        <td>0.01</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>?</td>
+        <td>?</td>
+        <td>-</td>
+        <td>-</td>
+        <td>?</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

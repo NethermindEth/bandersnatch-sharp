@@ -19,7 +19,9 @@ namespace Nethermind.Utils.Extensions
 {
     public static class EnumerableExtensions
     {
-        public static ISet<T> AsSet<T>(this IEnumerable<T> enumerable) =>
-            enumerable is ISet<T> set ? set : enumerable.ToHashSet();
+        public static ISet<T> AsSet<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable is ISet<T> set ? set : enumerable.ToHashSet();
+        }
     }
 }

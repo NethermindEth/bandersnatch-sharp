@@ -25,23 +25,34 @@ namespace Nethermind.Db.Blooms
         {
         }
 
-        public static NullBloomStorage Instance { get; } = new();
-        public long MinBlockNumber { get; } = long.MaxValue;
+        public static NullBloomStorage Instance { get; } = new NullBloomStorage();
         public long MaxBlockNumber { get; } = 0;
+        public long MinBlockNumber { get; } = long.MaxValue;
         public long MigratedBlockNumber { get; } = -1;
 
         public void Store(long blockNumber, Bloom bloom) { }
 
-        public IBloomEnumeration GetBlooms(long fromBlock, long toBlock) => new NullBloomEnumerator();
+        public IBloomEnumeration GetBlooms(long fromBlock, long toBlock)
+        {
+            return new NullBloomEnumerator();
+        }
 
-        public bool ContainsRange(in long fromBlockNumber, in long toBlockNumber) => false;
+        public bool ContainsRange(in long fromBlockNumber, in long toBlockNumber)
+        {
+            return false;
+        }
 
         public IEnumerable<Average> Averages { get; } = Array.Empty<Average>();
+
+        public void Dispose() { }
 
 
         private class NullBloomEnumerator : IBloomEnumeration
         {
-            public IEnumerator<Bloom> GetEnumerator() => Enumerable.Empty<Bloom>().GetEnumerator();
+            public IEnumerator<Bloom> GetEnumerator()
+            {
+                return Enumerable.Empty<Bloom>().GetEnumerator();
+            }
 
             public bool TryGetBlockNumber(out long blockNumber)
             {
@@ -56,7 +67,5 @@ namespace Nethermind.Db.Blooms
                 return GetEnumerator();
             }
         }
-
-        public void Dispose() { }
     }
 }

@@ -1,55 +1,55 @@
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Polynomial;
 
-namespace Nethermind.Verkle.Proofs;
-
-
-public static class Quotient
+namespace Nethermind.Verkle.Proofs
 {
-    public static FrE[] ComputeQuotientInsideDomain(PreComputeWeights precomp, LagrangeBasis f,
-        FrE index)
+    public static class Quotient
     {
-        int domainSize = precomp.Domain.Length;
-        FrE[] inverses = precomp.DomainInv;
-        FrE[] aPrimeDomain = precomp.APrimeDomain;
-        FrE[] aPrimeDomainInv = precomp.APrimeDomainInv;
-
-        int indexI = (int)index.u0;
-
-        FrE[] q = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
+        public static FrE[] ComputeQuotientInsideDomain(PreComputeWeights precomp, LagrangeBasis f,
+            FrE index)
         {
-            q[i] = FrE.Zero;
-        }
-        FrE y = f.Evaluations[indexI];
+            int domainSize = precomp.Domain.Length;
+            FrE[] inverses = precomp.DomainInv;
+            FrE[] aPrimeDomain = precomp.APrimeDomain;
+            FrE[] aPrimeDomainInv = precomp.APrimeDomainInv;
 
-        for (int i = 0; i < domainSize; i++)
-        {
-            if (i != indexI)
+            int indexI = (int)index.u0;
+
+            FrE[] q = new FrE[domainSize];
+            for (int i = 0; i < domainSize; i++)
             {
-                q[i] = (f.Evaluations[i] - y) * inverses[i - indexI];
-                q[indexI] += (f.Evaluations[i] - y) * inverses[indexI - i < 0 ? inverses.Length + indexI - i : indexI - i] * aPrimeDomain[indexI] *
-                             aPrimeDomainInv[i];
+                q[i] = FrE.Zero;
             }
+            FrE y = f.Evaluations[indexI];
+
+            for (int i = 0; i < domainSize; i++)
+            {
+                if (i != indexI)
+                {
+                    q[i] = (f.Evaluations[i] - y) * inverses[i - indexI];
+                    q[indexI] += (f.Evaluations[i] - y) * inverses[indexI - i < 0 ? inverses.Length + indexI - i : indexI - i] * aPrimeDomain[indexI] *
+                                 aPrimeDomainInv[i];
+                }
+            }
+
+            return q;
         }
 
-        return q;
-    }
-
-    public static FrE[] ComputeQuotientOutsideDomain(PreComputeWeights precom, LagrangeBasis f, FrE z,
-        FrE y)
-    {
-        FrE[] domain = precom.Domain;
-        int domainSize = domain.Length;
-
-        FrE[] q = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
+        public static FrE[] ComputeQuotientOutsideDomain(PreComputeWeights precom, LagrangeBasis f, FrE z,
+            FrE y)
         {
-            var x = f.Evaluations[i] - y;
-            var zz = (domain[i] - z);
-            q[i] = x / zz;
-        }
+            FrE[] domain = precom.Domain;
+            int domainSize = domain.Length;
 
-        return q;
+            FrE[] q = new FrE[domainSize];
+            for (int i = 0; i < domainSize; i++)
+            {
+                FrE x = f.Evaluations[i] - y;
+                FrE zz = domain[i] - z;
+                q[i] = x / zz;
+            }
+
+            return q;
+        }
     }
 }

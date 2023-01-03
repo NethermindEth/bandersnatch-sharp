@@ -21,7 +21,7 @@ namespace Nethermind.Db
     {
         private NullMemDbFactory() { }
 
-        public static NullMemDbFactory Instance { get; } = new();
+        public static NullMemDbFactory Instance { get; } = new NullMemDbFactory();
 
         public IDb CreateDb(string dbName)
         {

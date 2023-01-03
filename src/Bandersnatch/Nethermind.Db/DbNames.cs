@@ -32,6 +32,5 @@ namespace Nethermind.Db
         public const string Leaf = "leaf";
         public const string Stem = "stem";
         public const string Branch = "branch";
-
     }
 }

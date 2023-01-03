@@ -20,11 +20,11 @@ namespace Nethermind.Utils
 {
     public static class Unit
     {
+        public const string EthSymbol = "Ξ";
         public static UInt256 Wei = 1;
         public static UInt256 GWei = 1_000_000_000;
         public static UInt256 Szabo = 1_000_000_000_000;
         public static UInt256 Finney = 1_000_000_000_000_000;
         public static UInt256 Ether = 1_000_000_000_000_000_000;
-        public const string EthSymbol = "Ξ";
     }
 }

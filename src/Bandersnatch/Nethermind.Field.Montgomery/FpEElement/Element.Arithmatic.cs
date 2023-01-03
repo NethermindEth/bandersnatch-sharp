@@ -2,286 +2,286 @@ using System.Data;
 using System.Runtime.CompilerServices;
 using Nethermind.Int256;
 
-namespace Nethermind.Field.Montgomery.FpEElement;
-
-
-public readonly partial struct FpE
+namespace Nethermind.Field.Montgomery.FpEElement
 {
-    public static IEnumerable<FpE> GetRandom()
+    public readonly partial struct FpE
     {
-        byte[] data = new byte[32];
-        Random rand = new Random(0);
-        rand.NextBytes(data);
-        yield return new FpE(data);
-    }
-
-    public FpE Negative()
-    {
-        SubtractMod(Zero, this, out FpE res);
-        return res;
-    }
-
-    public void LeftShift(int n, out FpE res) => Lsh(this, n, out res);
-    public void RightShift(int n, out FpE res) => Rsh(this, n, out res);
-
-
-    public static void AddMod(in FpE a, in FpE b, out FpE res)
-    {
-        bool overflow = ElementUtils.AddOverflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-        // remove this extra allocation
-        res = new FpE(u0, u1, u2, u3);
-        if (overflow)
+        public static IEnumerable<FpE> GetRandom()
         {
-            ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3);
+            byte[] data = new byte[32];
+            Random rand = new Random(0);
+            rand.NextBytes(data);
+            yield return new FpE(data);
+        }
+
+        public FpE Negative()
+        {
+            SubtractMod(Zero, this, out FpE res);
+            return res;
+        }
+
+        public void LeftShift(int n, out FpE res)
+        {
+            Lsh(this, n, out res);
+        }
+        public void RightShift(int n, out FpE res)
+        {
+            Rsh(this, n, out res);
+        }
+
+
+        public static void AddMod(in FpE a, in FpE b, out FpE res)
+        {
+            bool overflow = ElementUtils.AddOverflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
+            // remove this extra allocation
             res = new FpE(u0, u1, u2, u3);
-            return;
-        }
-
-        if (!LessThan(res, qElement))
-        {
-            if (ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3))
+            if (overflow)
             {
-                throw new InvalidConstraintException("this should now be possible");
-            }
-        }
-        res = new FpE(u0, u1, u2, u3);
-    }
-    public static void Divide(in FpE x, in FpE y, out FpE z)
-    {
-        Inverse(y, out FpE yInv);
-        MultiplyMod(x, yInv, out z);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SubtractMod(in FpE a, in FpE b, out FpE res)
-    {
-        ulong u0;
-        ulong u1;
-        ulong u2;
-        ulong u3;
-        if (ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
-            ElementUtils.AddOverflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
-
-        res = new FpE(u0, u1, u2, u3);
-    }
-
-    public static void Exp(in FpE b, in UInt256 e, out FpE result)
-    {
-        result = One;
-        FpE bs = b;
-        int len = e.BitLen;
-        for (int i = 0; i < len; i++)
-        {
-            if (e.Bit(i))
-            {
-                MultiplyMod(result, bs, out result);
-            }
-            MultiplyMod(bs, bs, out bs);
-        }
-    }
-
-    public static void Lsh(in FpE x, int n, out FpE res)
-    {
-        if ((n % 64) == 0)
-        {
-            switch (n)
-            {
-                case 0:
-                    res = x;
-                    return;
-                case 64:
-                    x.Lsh64(out res);
-                    return;
-                case 128:
-                    x.Lsh128(out res);
-                    return;
-                case 192:
-                    x.Lsh192(out res);
-                    return;
-                default:
-                    res = Zero;
-                    return;
-            }
-        }
-
-        res = Zero;
-        ulong z0 = res.u0, z1 = res.u1, z2 = res.u2, z3 = res.u3;
-        ulong a = 0, b = 0;
-        // Big swaps first
-        if (n > 192)
-        {
-            if (n > 256)
-            {
-                res = Zero;
+                ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3);
+                res = new FpE(u0, u1, u2, u3);
                 return;
             }
 
-            x.Lsh192(out res);
-            n -= 192;
-            goto sh192;
-        }
-        else if (n > 128)
-        {
-            x.Lsh128(out res);
-            n -= 128;
-            goto sh128;
-        }
-        else if (n > 64)
-        {
-            x.Lsh64(out res);
-            n -= 64;
-            goto sh64;
-        }
-        else
-        {
-            res = x;
-        }
-
-        // remaining shifts
-        a = ElementUtils.Rsh(res.u0, 64 - n);
-        z0 = ElementUtils.Lsh(res.u0, n);
-
-sh64:
-        b = ElementUtils.Rsh(res.u1, 64 - n);
-        z1 = ElementUtils.Lsh(res.u1, n) | a;
-
-sh128:
-        a = ElementUtils.Rsh(res.u2, 64 - n);
-        z2 = ElementUtils.Lsh(res.u2, n) | b;
-
-sh192:
-        z3 = ElementUtils.Lsh(res.u3, n) | a;
-
-        res = new FpE(z0, z1, z2, z3);
-    }
-
-
-    public static void Rsh(in FpE x, int n, out FpE res)
-    {
-        // n % 64 == 0
-        if ((n & 0x3f) == 0)
-        {
-            switch (n)
+            if (!LessThan(res, qElement))
             {
-                case 0:
-                    res = x;
-                    return;
-                case 64:
-                    x.Rsh64(out res);
-                    return;
-                case 128:
-                    x.Rsh128(out res);
-                    return;
-                case 192:
-                    x.Rsh192(out res);
-                    return;
-                default:
+                if (ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3))
+                {
+                    throw new InvalidConstraintException("this should now be possible");
+                }
+            }
+            res = new FpE(u0, u1, u2, u3);
+        }
+        public static void Divide(in FpE x, in FpE y, out FpE z)
+        {
+            Inverse(y, out FpE yInv);
+            MultiplyMod(x, yInv, out z);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SubtractMod(in FpE a, in FpE b, out FpE res)
+        {
+            ulong u0;
+            ulong u1;
+            ulong u2;
+            ulong u3;
+            if (ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
+                ElementUtils.AddOverflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
+
+            res = new FpE(u0, u1, u2, u3);
+        }
+
+        public static void Exp(in FpE b, in UInt256 e, out FpE result)
+        {
+            result = One;
+            FpE bs = b;
+            int len = e.BitLen;
+            for (int i = 0; i < len; i++)
+            {
+                if (e.Bit(i))
+                {
+                    MultiplyMod(result, bs, out result);
+                }
+                MultiplyMod(bs, bs, out bs);
+            }
+        }
+
+        public static void Lsh(in FpE x, int n, out FpE res)
+        {
+            if (n % 64 == 0)
+            {
+                switch (n)
+                {
+                    case 0:
+                        res = x;
+                        return;
+                    case 64:
+                        x.Lsh64(out res);
+                        return;
+                    case 128:
+                        x.Lsh128(out res);
+                        return;
+                    case 192:
+                        x.Lsh192(out res);
+                        return;
+                    default:
+                        res = Zero;
+                        return;
+                }
+            }
+
+            res = Zero;
+            ulong z0 = res.u0, z1 = res.u1, z2 = res.u2, z3 = res.u3;
+            ulong a = 0, b = 0;
+            // Big swaps first
+            if (n > 192)
+            {
+                if (n > 256)
+                {
                     res = Zero;
                     return;
-            }
-        }
+                }
 
-        res = Zero;
-        ulong z0 = res.u0, z1 = res.u1, z2 = res.u2, z3 = res.u3;
-        ulong a = 0, b = 0;
-        // Big swaps first
-        if (n > 192)
-        {
-            if (n > 256)
+                x.Lsh192(out res);
+                n -= 192;
+                goto sh192;
+            }
+            if (n > 128)
             {
-                res = Zero;
-                return;
+                x.Lsh128(out res);
+                n -= 128;
+                goto sh128;
+            }
+            if (n > 64)
+            {
+                x.Lsh64(out res);
+                n -= 64;
+                goto sh64;
+            }
+            res = x;
+
+            // remaining shifts
+            a = ElementUtils.Rsh(res.u0, 64 - n);
+            z0 = ElementUtils.Lsh(res.u0, n);
+
+        sh64:
+            b = ElementUtils.Rsh(res.u1, 64 - n);
+            z1 = ElementUtils.Lsh(res.u1, n) | a;
+
+        sh128:
+            a = ElementUtils.Rsh(res.u2, 64 - n);
+            z2 = ElementUtils.Lsh(res.u2, n) | b;
+
+        sh192:
+            z3 = ElementUtils.Lsh(res.u3, n) | a;
+
+            res = new FpE(z0, z1, z2, z3);
+        }
+
+
+        public static void Rsh(in FpE x, int n, out FpE res)
+        {
+            // n % 64 == 0
+            if ((n & 0x3f) == 0)
+            {
+                switch (n)
+                {
+                    case 0:
+                        res = x;
+                        return;
+                    case 64:
+                        x.Rsh64(out res);
+                        return;
+                    case 128:
+                        x.Rsh128(out res);
+                        return;
+                    case 192:
+                        x.Rsh192(out res);
+                        return;
+                    default:
+                        res = Zero;
+                        return;
+                }
             }
 
-            x.Rsh192(out res);
-            z0 = res.u0;
-            z1 = res.u1;
-            z2 = res.u2;
-            z3 = res.u3;
-            n -= 192;
-            goto sh192;
-        }
-        else if (n > 128)
-        {
-            x.Rsh128(out res);
-            z0 = res.u0;
-            z1 = res.u1;
-            z2 = res.u2;
-            z3 = res.u3;
-            n -= 128;
-            goto sh128;
-        }
-        else if (n > 64)
-        {
-            x.Rsh64(out res);
-            z0 = res.u0;
-            z1 = res.u1;
-            z2 = res.u2;
-            z3 = res.u3;
-            n -= 64;
-            goto sh64;
-        }
-        else
-        {
+            res = Zero;
+            ulong z0 = res.u0, z1 = res.u1, z2 = res.u2, z3 = res.u3;
+            ulong a = 0, b = 0;
+            // Big swaps first
+            if (n > 192)
+            {
+                if (n > 256)
+                {
+                    res = Zero;
+                    return;
+                }
+
+                x.Rsh192(out res);
+                z0 = res.u0;
+                z1 = res.u1;
+                z2 = res.u2;
+                z3 = res.u3;
+                n -= 192;
+                goto sh192;
+            }
+            if (n > 128)
+            {
+                x.Rsh128(out res);
+                z0 = res.u0;
+                z1 = res.u1;
+                z2 = res.u2;
+                z3 = res.u3;
+                n -= 128;
+                goto sh128;
+            }
+            if (n > 64)
+            {
+                x.Rsh64(out res);
+                z0 = res.u0;
+                z1 = res.u1;
+                z2 = res.u2;
+                z3 = res.u3;
+                n -= 64;
+                goto sh64;
+            }
             res = x;
             z0 = res.u0;
             z1 = res.u1;
             z2 = res.u2;
             z3 = res.u3;
+
+            // remaining shifts
+            a = ElementUtils.Lsh(res.u3, 64 - n);
+            z3 = ElementUtils.Rsh(res.u3, n);
+
+        sh64:
+            b = ElementUtils.Lsh(res.u2, 64 - n);
+            z2 = ElementUtils.Rsh(res.u2, n) | a;
+
+        sh128:
+            a = ElementUtils.Lsh(res.u1, 64 - n);
+            z1 = ElementUtils.Rsh(res.u1, n) | b;
+
+        sh192:
+            z0 = ElementUtils.Rsh(res.u0, n) | a;
+
+            res = new FpE(z0, z1, z2, z3);
         }
 
-        // remaining shifts
-        a = ElementUtils.Lsh(res.u3, 64 - n);
-        z3 = ElementUtils.Rsh(res.u3, n);
 
-sh64:
-        b = ElementUtils.Lsh(res.u2, 64 - n);
-        z2 = ElementUtils.Rsh(res.u2, n) | a;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Lsh64(out FpE res)
+        {
+            res = new FpE(0, u0, u1, u2);
+        }
 
-sh128:
-        a = ElementUtils.Lsh(res.u1, 64 - n);
-        z1 = ElementUtils.Rsh(res.u1, n) | b;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Lsh128(out FpE res)
+        {
+            res = new FpE(0, 0, u0, u1);
+        }
 
-sh192:
-        z0 = ElementUtils.Rsh(res.u0, n) | a;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Lsh192(out FpE res)
+        {
+            res = new FpE(0, 0, 0, u0);
+        }
 
-        res = new FpE(z0, z1, z2, z3);
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Rsh64(out FpE res)
+        {
+            res = new FpE(u1, u2, u3);
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Rsh128(out FpE res)
+        {
+            res = new FpE(u2, u3);
+        }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Lsh64(out FpE res)
-    {
-        res = new FpE(0, u0, u1, u2);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Lsh128(out FpE res)
-    {
-        res = new FpE(0, 0, u0, u1);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Lsh192(out FpE res)
-    {
-        res = new FpE(0, 0, 0, u0);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Rsh64(out FpE res)
-    {
-        res = new FpE(u1, u2, u3);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Rsh128(out FpE res)
-    {
-        res = new FpE(u2, u3);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Rsh192(out FpE res)
-    {
-        res = new FpE(u3);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Rsh192(out FpE res)
+        {
+            res = new FpE(u3);
+        }
     }
 }

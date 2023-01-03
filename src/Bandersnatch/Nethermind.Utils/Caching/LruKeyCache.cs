@@ -20,14 +20,14 @@ using Nethermind.Utils.Extensions;
 namespace Nethermind.Utils.Caching
 {
     /// <summary>
-    /// https://stackoverflow.com/questions/754233/is-it-there-any-lru-implementation-of-idictionary
+    ///     https://stackoverflow.com/questions/754233/is-it-there-any-lru-implementation-of-idictionary
     /// </summary>
     public class LruKeyCache<TKey> where TKey : notnull
     {
-        private readonly int _maxCapacity;
-        private readonly string _name;
         private readonly Dictionary<TKey, LinkedListNode<TKey>> _cacheMap;
         private readonly LinkedList<TKey> _lruList;
+        private readonly int _maxCapacity;
+        private readonly string _name;
 
         public LruKeyCache(int maxCapacity, int startCapacity, string name)
         {
@@ -43,6 +43,8 @@ namespace Nethermind.Utils.Caching
             : this(maxCapacity, 0, name)
         {
         }
+
+        public long MemorySize => CalculateMemorySize(0, _cacheMap.Count);
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Clear()
@@ -73,21 +75,18 @@ namespace Nethermind.Utils.Caching
                 _lruList.AddLast(node);
                 return false;
             }
+            if (_cacheMap.Count >= _maxCapacity)
+            {
+                Replace(key);
+            }
             else
             {
-                if (_cacheMap.Count >= _maxCapacity)
-                {
-                    Replace(key);
-                }
-                else
-                {
-                    LinkedListNode<TKey> newNode = new(key);
-                    _lruList.AddLast(newNode);
-                    _cacheMap.Add(key, newNode);
-                }
-
-                return true;
+                LinkedListNode<TKey> newNode = new LinkedListNode<TKey>(key);
+                _lruList.AddLast(newNode);
+                _cacheMap.Add(key, newNode);
             }
+
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -118,8 +117,6 @@ namespace Nethermind.Utils.Caching
             _lruList.AddLast(node);
             _cacheMap.Add(node.Value, node);
         }
-
-        public long MemorySize => CalculateMemorySize(0, _cacheMap.Count);
 
         // TODO: memory size on the KeyCache will be smaller because we do not create LruCacheItems
         public static long CalculateMemorySize(int keyPlusValueSize, int currentItemsCount)

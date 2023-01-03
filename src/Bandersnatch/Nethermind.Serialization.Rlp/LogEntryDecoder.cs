@@ -21,7 +21,7 @@ namespace Nethermind.Serialization.Rlp
 {
     public class LogEntryDecoder : IRlpStreamDecoder<LogEntry>, IRlpValueDecoder<LogEntry>
     {
-        public static LogEntryDecoder Instance { get; } = new();
+        public static LogEntryDecoder Instance { get; } = new LogEntryDecoder();
 
         public LogEntry? Decode(RlpStream rlpStream, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
         {
@@ -43,6 +43,38 @@ namespace Nethermind.Serialization.Rlp
             byte[] data = rlpStream.DecodeByteArray();
 
             return new LogEntry(address, data, topics);
+        }
+
+        public void Encode(RlpStream rlpStream, LogEntry? item, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
+        {
+            if (item is null)
+            {
+                rlpStream.EncodeNullObject();
+                return;
+            }
+
+            (int total, int topics) = GetContentLength(item);
+            rlpStream.StartSequence(total);
+
+            rlpStream.Encode(item.LoggersAddress);
+            rlpStream.StartSequence(topics);
+
+            for (int i = 0; i < item.Topics.Length; i++)
+            {
+                rlpStream.Encode(item.Topics[i]);
+            }
+
+            rlpStream.Encode(item.Data);
+        }
+
+        public int GetLength(LogEntry? item, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
+        {
+            if (item is null)
+            {
+                return 1;
+            }
+
+            return Rlp.LengthOfSequence(GetContentLength(item).Total);
         }
 
         public LogEntry? Decode(ref Rlp.ValueDecoderContext decoderContext, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
@@ -74,46 +106,14 @@ namespace Nethermind.Serialization.Rlp
                 return Rlp.OfEmptySequence;
             }
 
-            RlpStream rlpStream = new(GetLength(item, rlpBehaviors));
+            RlpStream rlpStream = new RlpStream(GetLength(item, rlpBehaviors));
             Encode(rlpStream, item, rlpBehaviors);
             return new Rlp(rlpStream.Data);
         }
 
-        public void Encode(RlpStream rlpStream, LogEntry? item, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
-        {
-            if (item is null)
-            {
-                rlpStream.EncodeNullObject();
-                return;
-            }
-
-            var (total, topics) = GetContentLength(item);
-            rlpStream.StartSequence(total);
-
-            rlpStream.Encode(item.LoggersAddress);
-            rlpStream.StartSequence(topics);
-
-            for (var i = 0; i < item.Topics.Length; i++)
-            {
-                rlpStream.Encode(item.Topics[i]);
-            }
-
-            rlpStream.Encode(item.Data);
-        }
-
-        public int GetLength(LogEntry? item, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
-        {
-            if (item is null)
-            {
-                return 1;
-            }
-
-            return Rlp.LengthOfSequence(GetContentLength(item).Total);
-        }
-
         private static (int Total, int Topics) GetContentLength(LogEntry? item)
         {
-            var contentLength = 0;
+            int contentLength = 0;
             if (item is null)
             {
                 return (contentLength, 0);
@@ -154,12 +154,12 @@ namespace Nethermind.Serialization.Rlp
             }
 
             decoderContext.ReadSequenceLength();
-            decoderContext.DecodeAddressStructRef(out var address);
-            var peekPrefixAndContentLength = decoderContext.PeekPrefixAndContentLength();
-            var sequenceLength = peekPrefixAndContentLength.PrefixLength + peekPrefixAndContentLength.ContentLength;
-            var topics = decoderContext.Data.Slice(decoderContext.Position, sequenceLength);
+            decoderContext.DecodeAddressStructRef(out AddressStructRef address);
+            (int PrefixLength, int ContentLength) peekPrefixAndContentLength = decoderContext.PeekPrefixAndContentLength();
+            int sequenceLength = peekPrefixAndContentLength.PrefixLength + peekPrefixAndContentLength.ContentLength;
+            Span<byte> topics = decoderContext.Data.Slice(decoderContext.Position, sequenceLength);
             decoderContext.SkipItem();
-            var data = decoderContext.DecodeByteArraySpan();
+            Span<byte> data = decoderContext.DecodeByteArraySpan();
 
             item = new LogEntryStructRef(address, data, topics);
         }

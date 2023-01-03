@@ -30,16 +30,55 @@ namespace Nethermind.Utils
         private const int HexCharsCount = 2 * ByteLength; // 5a4eab120fb44eb6684e5e32785702ff45ea344d
         private const int PrefixedHexCharsCount = 2 + HexCharsCount; // 0x5a4eab120fb44eb6684e5e32785702ff45ea344d
 
-        public static Address Zero { get; } = new(new byte[ByteLength]);
-        public static Address SystemUser { get; } = new("0xfffffffffffffffffffffffffffffffffffffffe");
-
-        public byte[] Bytes { get; }
-
         public Address(Commitment Commitment) : this(Commitment.Bytes.Slice(12, ByteLength)) { }
 
         public Address(in ValueCommitment Commitment) : this(Commitment.BytesAsSpan.Slice(12, ByteLength).ToArray()) { }
 
+        public Address(string hexString) : this(Extensions.Bytes.FromHexString(hexString)) { }
+
+        public Address(byte[] bytes)
+        {
+            if (bytes is null)
+            {
+                throw new ArgumentNullException(nameof(bytes));
+            }
+
+            if (bytes.Length != ByteLength)
+            {
+                throw new ArgumentException(
+                    $"{nameof(Address)} should be {ByteLength} bytes long and is {bytes.Length} bytes long",
+                    nameof(bytes));
+            }
+
+            Bytes = bytes;
+        }
+
+        public static Address Zero { get; } = new Address(new byte[ByteLength]);
+        public static Address SystemUser { get; } = new Address("0xfffffffffffffffffffffffffffffffffffffffe");
+
+        public byte[] Bytes { get; }
+
         public byte this[int index] => Bytes[index];
+
+        public int CompareTo(Address? other)
+        {
+            return Bytes.AsSpan().SequenceCompareTo(other?.Bytes);
+        }
+
+        public bool Equals(Address? other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return Extensions.Bytes.AreEqual(Bytes, other.Bytes);
+        }
 
         public static bool IsValidAddress(string hexString, bool allowPrefix)
         {
@@ -60,17 +99,15 @@ namespace Nethermind.Utils
             for (int i = hasPrefix ? 2 : 0; i < hexString.Length; i++)
             {
                 char c = hexString[i];
-                bool isHex = (c >= '0' && c <= '9') ||
-                             (c >= 'a' && c <= 'f') ||
-                             (c >= 'A' && c <= 'F');
+                bool isHex = c >= '0' && c <= '9' ||
+                             c >= 'a' && c <= 'f' ||
+                             c >= 'A' && c <= 'F';
 
                 if (!isHex) return false;
             }
 
             return true;
         }
-
-        public Address(string hexString) : this(Extensions.Bytes.FromHexString(hexString)) { }
 
         public static bool TryParse(string? value, out Address? address)
         {
@@ -92,38 +129,6 @@ namespace Nethermind.Utils
             return false;
         }
 
-        public Address(byte[] bytes)
-        {
-            if (bytes is null)
-            {
-                throw new ArgumentNullException(nameof(bytes));
-            }
-
-            if (bytes.Length != ByteLength)
-            {
-                throw new ArgumentException(
-                    $"{nameof(Address)} should be {ByteLength} bytes long and is {bytes.Length} bytes long",
-                    nameof(bytes));
-            }
-
-            Bytes = bytes;
-        }
-
-        public bool Equals(Address? other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Extensions.Bytes.AreEqual(Bytes, other.Bytes);
-        }
-
         public static Address FromNumber(in UInt256 number)
         {
             byte[] addressBytes = new byte[20];
@@ -131,19 +136,28 @@ namespace Nethermind.Utils
             return new Address(addressBytes);
         }
 
-        public override string ToString() => ToString(true, false);
+        public override string ToString()
+        {
+            return ToString(true, false);
+        }
 
         /// <summary>
         ///     https://github.com/ethereum/EIPs/issues/55
         /// </summary>
         /// <returns></returns>
-        public string ToString(bool withEip55Checksum) => ToString(true, withEip55Checksum);
+        public string ToString(bool withEip55Checksum)
+        {
+            return ToString(true, withEip55Checksum);
+        }
 
         /// <summary>
         ///     https://github.com/ethereum/EIPs/issues/55
         /// </summary>
         /// <returns></returns>
-        public string ToString(bool withZeroX, bool withEip55Checksum) => Bytes.ToHexString(withZeroX, false, withEip55Checksum);
+        public string ToString(bool withZeroX, bool withEip55Checksum)
+        {
+            return Bytes.ToHexString(withZeroX, false, withEip55Checksum);
+        }
 
         public override bool Equals(object? obj)
         {
@@ -160,7 +174,10 @@ namespace Nethermind.Utils
             return obj.GetType() == GetType() && Equals((Address)obj);
         }
 
-        public override int GetHashCode() => MemoryMarshal.Read<int>(Bytes.AsSpan(16, 4));
+        public override int GetHashCode()
+        {
+            return MemoryMarshal.Read<int>(Bytes.AsSpan(16, 4));
+        }
 
         public static bool operator ==(Address? a, Address? b)
         {
@@ -172,27 +189,39 @@ namespace Nethermind.Utils
             return a?.Equals(b) ?? false;
         }
 
-        public static bool operator !=(Address? a, Address? b) => !(a == b);
+        public static bool operator !=(Address? a, Address? b)
+        {
+            return !(a == b);
+        }
 
-        public AddressStructRef ToStructRef() => new(Bytes);
-
-        public int CompareTo(Address? other) => Bytes.AsSpan().SequenceCompareTo(other?.Bytes);
+        public AddressStructRef ToStructRef()
+        {
+            return new AddressStructRef(Bytes);
+        }
 
         private class AddressTypeConverter : TypeConverter
         {
-            public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
-                value is string stringValue ? new Address(stringValue) : base.ConvertFrom(context, culture, value);
+            public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+            {
+                return value is string stringValue ? new Address(stringValue) : base.ConvertFrom(context, culture, value);
+            }
 
-            public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) =>
-                destinationType == typeof(string) && value is not null
+            public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+            {
+                return destinationType == typeof(string) && value is not null
                     ? ((Address)value).ToString()
                     : base.ConvertTo(context, culture, value, destinationType);
+            }
 
-            public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
-                sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+            public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
+            {
+                return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+            }
 
-            public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) =>
-                destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+            public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
+            {
+                return destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+            }
         }
     }
 
@@ -229,9 +258,9 @@ namespace Nethermind.Utils
             for (int i = hasPrefix ? 2 : 0; i < hexString.Length; i++)
             {
                 char c = hexString[i];
-                bool isHex = (c >= '0' && c <= '9') ||
-                             (c >= 'a' && c <= 'f') ||
-                             (c >= 'A' && c <= 'F');
+                bool isHex = c >= '0' && c <= '9' ||
+                             c >= 'a' && c <= 'f' ||
+                             c >= 'A' && c <= 'F';
 
                 if (!isHex) return false;
             }
@@ -260,23 +289,38 @@ namespace Nethermind.Utils
             return new AddressStructRef(addressBytes);
         }
 
-        public override string ToString() => ToString(true, false);
+        public override string ToString()
+        {
+            return ToString(true, false);
+        }
 
         /// <summary>
         ///     https://github.com/ethereum/EIPs/issues/55
         /// </summary>
         /// <returns></returns>
-        public string ToString(bool withEip55Checksum) => ToString(true, withEip55Checksum);
+        public string ToString(bool withEip55Checksum)
+        {
+            return ToString(true, withEip55Checksum);
+        }
 
         /// <summary>
         ///     https://github.com/ethereum/EIPs/issues/55
         /// </summary>
         /// <returns></returns>
-        public string ToString(bool withZeroX, bool withEip55Checksum) => Bytes.ToHexString(withZeroX, false, withEip55Checksum);
+        public string ToString(bool withZeroX, bool withEip55Checksum)
+        {
+            return Bytes.ToHexString(withZeroX, false, withEip55Checksum);
+        }
 
-        public bool Equals(Address? other) => !ReferenceEquals(null, other) && Extensions.Bytes.AreEqual(Bytes, other.Bytes);
+        public bool Equals(Address? other)
+        {
+            return !ReferenceEquals(null, other) && Extensions.Bytes.AreEqual(Bytes, other.Bytes);
+        }
 
-        public bool Equals(AddressStructRef other) => Extensions.Bytes.AreEqual(Bytes, other.Bytes);
+        public bool Equals(AddressStructRef other)
+        {
+            return Extensions.Bytes.AreEqual(Bytes, other.Bytes);
+        }
 
         public override bool Equals(object? obj)
         {
@@ -288,20 +332,44 @@ namespace Nethermind.Utils
             return obj.GetType() == typeof(Address) && Equals((Address)obj);
         }
 
-        public override int GetHashCode() => MemoryMarshal.Read<int>(Bytes);
+        public override int GetHashCode()
+        {
+            return MemoryMarshal.Read<int>(Bytes);
+        }
 
-        public static bool operator ==(AddressStructRef a, Address? b) => a.Equals(b);
+        public static bool operator ==(AddressStructRef a, Address? b)
+        {
+            return a.Equals(b);
+        }
 
-        public static bool operator !=(AddressStructRef a, Address? b) => !(a == b);
+        public static bool operator !=(AddressStructRef a, Address? b)
+        {
+            return !(a == b);
+        }
 
-        public static bool operator ==(Address? a, AddressStructRef b) => b.Equals(a);
+        public static bool operator ==(Address? a, AddressStructRef b)
+        {
+            return b.Equals(a);
+        }
 
-        public static bool operator !=(Address? a, AddressStructRef b) => !(a == b);
+        public static bool operator !=(Address? a, AddressStructRef b)
+        {
+            return !(a == b);
+        }
 
-        public static bool operator ==(AddressStructRef a, AddressStructRef b) => a.Equals(b);
+        public static bool operator ==(AddressStructRef a, AddressStructRef b)
+        {
+            return a.Equals(b);
+        }
 
-        public static bool operator !=(AddressStructRef a, AddressStructRef b) => !(a == b);
+        public static bool operator !=(AddressStructRef a, AddressStructRef b)
+        {
+            return !(a == b);
+        }
 
-        public Address ToAddress() => new(Bytes.ToArray());
+        public Address ToAddress()
+        {
+            return new Address(Bytes.ToArray());
+        }
     }
 }

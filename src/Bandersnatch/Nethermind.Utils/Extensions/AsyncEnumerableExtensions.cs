@@ -21,7 +21,7 @@ namespace Nethermind.Utils.Extensions
     {
         public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> items, CancellationToken cancellationToken = default)
         {
-            List<T>? results = new();
+            List<T>? results = new List<T>();
             await foreach (T item in items.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 results.Add(item);

@@ -21,9 +21,9 @@ namespace Nethermind.Utils
 {
     public class Bloom : IEquatable<Bloom>
     {
-        public static readonly Bloom Empty = new();
         public const int BitLength = 2048;
         public const int ByteLength = BitLength / 8;
+        public static readonly Bloom Empty = new Bloom();
 
         public Bloom()
         {
@@ -50,6 +50,14 @@ namespace Nethermind.Utils
         }
 
         public byte[] Bytes { get; }
+
+        public bool Equals(Bloom? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return Extensions.Bytes.AreEqual(Bytes, other.Bytes);
+        }
 
         public void Set(byte[] sequence)
         {
@@ -99,14 +107,6 @@ namespace Nethermind.Utils
             }
 
             return a?.Equals(b) ?? false;
-        }
-
-        public bool Equals(Bloom? other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return Extensions.Bytes.AreEqual(Bytes, other.Bytes);
         }
 
         public override bool Equals(object? obj)
@@ -174,17 +174,35 @@ namespace Nethermind.Utils
             Bytes[bytePosition].SetBit(shift);
         }
 
-        public bool Matches(Address address) => Matches(address.Bytes);
+        public bool Matches(Address address)
+        {
+            return Matches(address.Bytes);
+        }
 
-        public bool Matches(Commitment topic) => Matches(topic.Bytes);
+        public bool Matches(Commitment topic)
+        {
+            return Matches(topic.Bytes);
+        }
 
-        public bool Matches(ref BloomExtract extract) => Get(extract.Index1) && Get(extract.Index2) && Get(extract.Index3);
+        public bool Matches(ref BloomExtract extract)
+        {
+            return Get(extract.Index1) && Get(extract.Index2) && Get(extract.Index3);
+        }
 
-        public bool Matches(BloomExtract extract) => Matches(ref extract);
+        public bool Matches(BloomExtract extract)
+        {
+            return Matches(ref extract);
+        }
 
-        public static BloomExtract GetExtract(Address address) => GetExtract(address.Bytes);
+        public static BloomExtract GetExtract(Address address)
+        {
+            return GetExtract(address.Bytes);
+        }
 
-        public static BloomExtract GetExtract(Commitment topic) => GetExtract(topic.Bytes);
+        public static BloomExtract GetExtract(Commitment topic)
+        {
+            return GetExtract(topic.Bytes);
+        }
 
         private static BloomExtract GetExtract(byte[] sequence)
         {
@@ -193,9 +211,21 @@ namespace Nethermind.Utils
                 return 2047 - ((bytes[index1] << 8) + bytes[index2]) % 2048;
             }
 
-            var CommitmentBytes = ValueCommitment.Compute(sequence).BytesAsSpan;
-            var indexes = new BloomExtract(GetIndex(CommitmentBytes, 0, 1), GetIndex(CommitmentBytes, 2, 3), GetIndex(CommitmentBytes, 4, 5));
+            Span<byte> CommitmentBytes = ValueCommitment.Compute(sequence).BytesAsSpan;
+            BloomExtract indexes = new BloomExtract(GetIndex(CommitmentBytes, 0, 1), GetIndex(CommitmentBytes, 2, 3), GetIndex(CommitmentBytes, 4, 5));
             return indexes;
+        }
+
+        public BloomStructRef ToStructRef()
+        {
+            return new BloomStructRef(Bytes);
+        }
+
+        public Bloom Clone()
+        {
+            Bloom clone = new Bloom();
+            Bytes.CopyTo(clone.Bytes, 0);
+            return clone;
         }
 
         public struct BloomExtract
@@ -210,15 +240,6 @@ namespace Nethermind.Utils
             public int Index1 { get; }
             public int Index2 { get; }
             public int Index3 { get; }
-        }
-
-        public BloomStructRef ToStructRef() => new(Bytes);
-
-        public Bloom Clone()
-        {
-            Bloom clone = new();
-            Bytes.CopyTo(clone.Bytes, 0);
-            return clone;
         }
     }
 
@@ -270,14 +291,32 @@ namespace Nethermind.Utils
             return Bytes.ToHexString();
         }
 
-        public static bool operator !=(BloomStructRef a, Bloom b) => !(a == b);
-        public static bool operator ==(BloomStructRef a, Bloom b) => a.Equals(b);
+        public static bool operator !=(BloomStructRef a, Bloom b)
+        {
+            return !(a == b);
+        }
+        public static bool operator ==(BloomStructRef a, Bloom b)
+        {
+            return a.Equals(b);
+        }
 
-        public static bool operator !=(Bloom a, BloomStructRef b) => !(a == b);
-        public static bool operator ==(Bloom a, BloomStructRef b) => b.Equals(a);
+        public static bool operator !=(Bloom a, BloomStructRef b)
+        {
+            return !(a == b);
+        }
+        public static bool operator ==(Bloom a, BloomStructRef b)
+        {
+            return b.Equals(a);
+        }
 
-        public static bool operator !=(BloomStructRef a, BloomStructRef b) => !(a == b);
-        public static bool operator ==(BloomStructRef a, BloomStructRef b) => a.Equals(b);
+        public static bool operator !=(BloomStructRef a, BloomStructRef b)
+        {
+            return !(a == b);
+        }
+        public static bool operator ==(BloomStructRef a, BloomStructRef b)
+        {
+            return a.Equals(b);
+        }
 
 
         public bool Equals(Bloom? other)
@@ -356,17 +395,35 @@ namespace Nethermind.Utils
             Bytes[bytePosition].SetBit(shift);
         }
 
-        public bool Matches(Address address) => Matches(address.Bytes);
+        public bool Matches(Address address)
+        {
+            return Matches(address.Bytes);
+        }
 
-        public bool Matches(Commitment topic) => Matches(topic.Bytes);
+        public bool Matches(Commitment topic)
+        {
+            return Matches(topic.Bytes);
+        }
 
-        public bool Matches(ref Bloom.BloomExtract extract) => Get(extract.Index1) && Get(extract.Index2) && Get(extract.Index3);
+        public bool Matches(ref Bloom.BloomExtract extract)
+        {
+            return Get(extract.Index1) && Get(extract.Index2) && Get(extract.Index3);
+        }
 
-        public bool Matches(Bloom.BloomExtract extract) => Matches(ref extract);
+        public bool Matches(Bloom.BloomExtract extract)
+        {
+            return Matches(ref extract);
+        }
 
-        public static Bloom.BloomExtract GetExtract(Address address) => GetExtract(address.Bytes);
+        public static Bloom.BloomExtract GetExtract(Address address)
+        {
+            return GetExtract(address.Bytes);
+        }
 
-        public static Bloom.BloomExtract GetExtract(Commitment topic) => GetExtract(topic.Bytes);
+        public static Bloom.BloomExtract GetExtract(Commitment topic)
+        {
+            return GetExtract(topic.Bytes);
+        }
 
         private static Bloom.BloomExtract GetExtract(Span<byte> sequence)
         {
@@ -375,8 +432,8 @@ namespace Nethermind.Utils
                 return 2047 - ((bytes[index1] << 8) + bytes[index2]) % 2048;
             }
 
-            var CommitmentBytes = ValueCommitment.Compute(sequence).BytesAsSpan;
-            var indexes = new Bloom.BloomExtract(GetIndex(CommitmentBytes, 0, 1), GetIndex(CommitmentBytes, 2, 3), GetIndex(CommitmentBytes, 4, 5));
+            Span<byte> CommitmentBytes = ValueCommitment.Compute(sequence).BytesAsSpan;
+            Bloom.BloomExtract indexes = new Bloom.BloomExtract(GetIndex(CommitmentBytes, 0, 1), GetIndex(CommitmentBytes, 2, 3), GetIndex(CommitmentBytes, 4, 5));
             return indexes;
         }
     }

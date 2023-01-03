@@ -20,7 +20,10 @@ namespace Nethermind.Db.Blooms
     {
         public bool Index { get; set; } = true;
 
-        public int[] IndexLevelBucketSizes { get; set; } = { 4, 8, 8 };
+        public int[] IndexLevelBucketSizes { get; set; } =
+        {
+            4, 8, 8
+        };
 
         public bool MigrationStatistics { get; set; } = false;
 

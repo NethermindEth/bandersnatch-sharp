@@ -20,23 +20,23 @@ using Nethermind.Utils;
 namespace Nethermind.Db.FullPruning
 {
     /// <summary>
-    /// Context of Full pruning.
+    ///     Context of Full pruning.
     /// </summary>
     public interface IPruningContext : IKeyValueStore, IDisposable
     {
+
         /// <summary>
-        /// Commits pruning, marking the end of cloning state to new DB.
+        ///     Allows cancelling pruning
+        /// </summary>
+        CancellationTokenSource CancellationTokenSource { get; }
+        /// <summary>
+        ///     Commits pruning, marking the end of cloning state to new DB.
         /// </summary>
         void Commit();
 
         /// <summary>
-        /// Marks that pruning is starting.
+        ///     Marks that pruning is starting.
         /// </summary>
         void MarkStart();
-
-        /// <summary>
-        /// Allows cancelling pruning
-        /// </summary>
-        CancellationTokenSource CancellationTokenSource { get; }
     }
 }

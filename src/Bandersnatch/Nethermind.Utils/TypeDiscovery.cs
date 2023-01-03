@@ -22,9 +22,9 @@ namespace Nethermind.Utils
 {
     public class TypeDiscovery
     {
-        private HashSet<Assembly> _nethermindAssemblies = new();
 
         private int _allLoaded;
+        private readonly HashSet<Assembly> _nethermindAssemblies = new HashSet<Assembly>();
 
         private void LoadAll()
         {
@@ -49,7 +49,7 @@ namespace Nethermind.Utils
 
             int loaded = 0;
 
-            var missingRefs = loadedAssemblies
+            IEnumerable<AssemblyName> missingRefs = loadedAssemblies
                 .SelectMany(x => x.GetReferencedAssemblies())
                 .GroupBy(a => a.FullName)
                 .Select(g => g.First())

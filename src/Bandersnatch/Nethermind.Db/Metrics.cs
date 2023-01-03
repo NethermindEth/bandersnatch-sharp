@@ -21,6 +21,9 @@ namespace Nethermind.Db
 {
     public static class Metrics
     {
+
+        [Description("Number of State DB duplicate writes during full pruning.")]
+        public static int StateDbInPruningWrites;
         [Description("Number of Bloom DB reads.")]
         public static long BloomDbReads { get; set; }
 
@@ -68,9 +71,6 @@ namespace Nethermind.Db
 
         [Description("Number of State DB writes.")]
         public static long StateDbWrites { get; set; }
-
-        [Description("Number of State DB duplicate writes during full pruning.")]
-        public static int StateDbInPruningWrites;
 
         [Description("Number of storge trie reads.")]
         public static long StorageTreeReads { get; set; }

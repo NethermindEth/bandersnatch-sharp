@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Field.Montgomery.Benchmark.ExpMod-20221124-120832</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Field.Montgomery.Benchmark.ExpMod-20221124-120832</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,24 +36,196 @@ AMD EPYC 7713, 1 CPU, 8 logical and 8 physical cores
   [Host]   : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 6.0  Runtime=.NET 6.0  
+<pre><code>Job=.NET 6.0  Runtime=.NET 6.0
 </code></pre>
 
 <table>
-<thead><tr><th>     Method</th><th>           _a</th><th>           _b</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>ExpMod_BigInteger</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>271.80 &mu;s</td><td>1.918 &mu;s</td><td>1.700 &mu;s</td><td>272.03 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.00</td>
-</tr><tr><td>ExpMod_UInt256</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>133.50 &mu;s</td><td>2.664 &mu;s</td><td>5.320 &mu;s</td><td>131.37 &mu;s</td><td>0.50</td><td>0.02</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>ExpMod_Element</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>126.20 &mu;s</td><td>2.504 &mu;s</td><td>2.460 &mu;s</td><td>126.10 &mu;s</td><td>0.46</td><td>0.01</td><td>0.9766</td><td>81920 B</td><td>256.00</td>
-</tr><tr><td>ExpMod_BigInteger</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>189.67 &mu;s</td><td>3.763 &mu;s</td><td>5.024 &mu;s</td><td>188.27 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.00</td>
-</tr><tr><td>ExpMod_UInt256</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>98.43 &mu;s</td><td>1.906 &mu;s</td><td>2.195 &mu;s</td><td>98.16 &mu;s</td><td>0.52</td><td>0.02</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>ExpMod_Element</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>93.76 &mu;s</td><td>1.377 &mu;s</td><td>1.289 &mu;s</td><td>94.14 &mu;s</td><td>0.50</td><td>0.01</td><td>0.6104</td><td>60800 B</td><td>190.00</td>
-</tr><tr><td>ExpMod_BigInteger</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>279.57 &mu;s</td><td>4.379 &mu;s</td><td>3.882 &mu;s</td><td>278.20 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.00</td>
-</tr><tr><td>ExpMod_UInt256</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>131.41 &mu;s</td><td>1.375 &mu;s</td><td>1.148 &mu;s</td><td>131.60 &mu;s</td><td>0.47</td><td>0.01</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>ExpMod_Element</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>125.73 &mu;s</td><td>2.488 &mu;s</td><td>2.328 &mu;s</td><td>126.04 &mu;s</td><td>0.45</td><td>0.01</td><td>0.9766</td><td>81920 B</td><td>256.00</td>
-</tr><tr><td>ExpMod_BigInteger</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>189.40 &mu;s</td><td>3.198 &mu;s</td><td>2.991 &mu;s</td><td>189.28 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>320 B</td><td>1.00</td>
-</tr><tr><td>ExpMod_UInt256</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>98.01 &mu;s</td><td>1.127 &mu;s</td><td>0.941 &mu;s</td><td>97.81 &mu;s</td><td>0.52</td><td>0.01</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>ExpMod_Element</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>94.80 &mu;s</td><td>1.465 &mu;s</td><td>1.371 &mu;s</td><td>94.15 &mu;s</td><td>0.50</td><td>0.01</td><td>0.6104</td><td>60800 B</td><td>190.00</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th> _a</th>
+        <th> _b</th>
+        <th>Mean</th>
+        <th>Error</th>
+        <th>StdDev</th>
+        <th>Median</th>
+        <th>Ratio</th>
+        <th>RatioSD</th>
+        <th>Gen0</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>ExpMod_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>271.80 &mu;s</td>
+        <td>1.918 &mu;s</td>
+        <td>1.700 &mu;s</td>
+        <td>272.03 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>133.50 &mu;s</td>
+        <td>2.664 &mu;s</td>
+        <td>5.320 &mu;s</td>
+        <td>131.37 &mu;s</td>
+        <td>0.50</td>
+        <td>0.02</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>126.20 &mu;s</td>
+        <td>2.504 &mu;s</td>
+        <td>2.460 &mu;s</td>
+        <td>126.10 &mu;s</td>
+        <td>0.46</td>
+        <td>0.01</td>
+        <td>0.9766</td>
+        <td>81920 B</td>
+        <td>256.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>189.67 &mu;s</td>
+        <td>3.763 &mu;s</td>
+        <td>5.024 &mu;s</td>
+        <td>188.27 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>98.43 &mu;s</td>
+        <td>1.906 &mu;s</td>
+        <td>2.195 &mu;s</td>
+        <td>98.16 &mu;s</td>
+        <td>0.52</td>
+        <td>0.02</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>93.76 &mu;s</td>
+        <td>1.377 &mu;s</td>
+        <td>1.289 &mu;s</td>
+        <td>94.14 &mu;s</td>
+        <td>0.50</td>
+        <td>0.01</td>
+        <td>0.6104</td>
+        <td>60800 B</td>
+        <td>190.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>279.57 &mu;s</td>
+        <td>4.379 &mu;s</td>
+        <td>3.882 &mu;s</td>
+        <td>278.20 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>131.41 &mu;s</td>
+        <td>1.375 &mu;s</td>
+        <td>1.148 &mu;s</td>
+        <td>131.60 &mu;s</td>
+        <td>0.47</td>
+        <td>0.01</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>125.73 &mu;s</td>
+        <td>2.488 &mu;s</td>
+        <td>2.328 &mu;s</td>
+        <td>126.04 &mu;s</td>
+        <td>0.45</td>
+        <td>0.01</td>
+        <td>0.9766</td>
+        <td>81920 B</td>
+        <td>256.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>189.40 &mu;s</td>
+        <td>3.198 &mu;s</td>
+        <td>2.991 &mu;s</td>
+        <td>189.28 &mu;s</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>320 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>98.01 &mu;s</td>
+        <td>1.127 &mu;s</td>
+        <td>0.941 &mu;s</td>
+        <td>97.81 &mu;s</td>
+        <td>0.52</td>
+        <td>0.01</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>ExpMod_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>94.80 &mu;s</td>
+        <td>1.465 &mu;s</td>
+        <td>1.371 &mu;s</td>
+        <td>94.15 &mu;s</td>
+        <td>0.50</td>
+        <td>0.01</td>
+        <td>0.6104</td>
+        <td>60800 B</td>
+        <td>190.00</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>
