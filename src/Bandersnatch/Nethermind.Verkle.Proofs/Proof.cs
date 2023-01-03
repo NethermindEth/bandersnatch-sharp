@@ -1,9 +1,10 @@
-namespace Nethermind.Verkle.Proofs;
-
-public class Proof
+namespace Nethermind.Verkle.Proofs
 {
-    public static bool Check(byte[] proof, byte[] keys, byte[] values)
+    public class Proof
     {
-        return true;
+        public static bool Check(byte[] proof, byte[] keys, byte[] values)
+        {
+            return true;
+        }
     }
 }

@@ -79,11 +79,9 @@ namespace Nethermind.Db
 
         private static DbSettings BuildDbSettings(string dbName, Action updateReadsMetrics, Action updateWriteMetrics, bool deleteOnStart = false)
         {
-            return new(GetTitleDbName(dbName), dbName)
+            return new DbSettings(GetTitleDbName(dbName), dbName)
             {
-                UpdateReadMetrics = updateReadsMetrics,
-                UpdateWriteMetrics = updateWriteMetrics,
-                DeleteOnStart = deleteOnStart
+                UpdateReadMetrics = updateReadsMetrics, UpdateWriteMetrics = updateWriteMetrics, DeleteOnStart = deleteOnStart
             };
         }
     }

@@ -55,7 +55,7 @@ namespace Nethermind.Utils
         public Commitment[]? Topics { get; }
 
         /// <summary>
-        /// Rlp encoded array of Commitment
+        ///     Rlp encoded array of Commitment
         /// </summary>
         public Span<byte> TopicsRlp { get; }
 

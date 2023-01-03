@@ -16,25 +16,33 @@
 
 using Nethermind.Db.Rocks.Config;
 
-namespace Nethermind.Db.Rocks;
-
-public class RocksDbFactory : IRocksDbFactory
+namespace Nethermind.Db.Rocks
 {
-    private readonly IDbConfig _dbConfig;
-
-    private readonly string _basePath;
-
-    public RocksDbFactory(IDbConfig dbConfig, string basePath)
+    public class RocksDbFactory : IRocksDbFactory
     {
-        _dbConfig = dbConfig;
-        _basePath = basePath;
+
+        private readonly string _basePath;
+        private readonly IDbConfig _dbConfig;
+
+        public RocksDbFactory(IDbConfig dbConfig, string basePath)
+        {
+            _dbConfig = dbConfig;
+            _basePath = basePath;
+        }
+
+        public IDb CreateDb(DbSettings dbSettings)
+        {
+            return new DbOnTheRocks(_basePath, dbSettings, _dbConfig);
+        }
+
+        public IColumnsDb<T> CreateColumnsDb<T>(DbSettings dbSettings) where T : struct, Enum
+        {
+            return new ColumnsDb<T>(_basePath, dbSettings, _dbConfig, Array.Empty<T>());
+        }
+
+        public string GetFullDbPath(DbSettings dbSettings)
+        {
+            return DbOnTheRocks.GetFullDbPath(dbSettings.DbPath, _basePath);
+        }
     }
-
-    public IDb CreateDb(DbSettings dbSettings) =>
-        new DbOnTheRocks(_basePath, dbSettings, _dbConfig);
-
-    public IColumnsDb<T> CreateColumnsDb<T>(DbSettings dbSettings) where T : struct, Enum =>
-        new ColumnsDb<T>(_basePath, dbSettings, _dbConfig, Array.Empty<T>());
-
-    public string GetFullDbPath(DbSettings dbSettings) => DbOnTheRocks.GetFullDbPath(dbSettings.DbPath, _basePath);
 }

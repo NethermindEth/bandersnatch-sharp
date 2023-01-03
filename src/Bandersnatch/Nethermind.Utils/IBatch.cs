@@ -17,5 +17,7 @@
 
 namespace Nethermind.Utils
 {
-    public interface IBatch : IDisposable, IKeyValueStore { }
+    public interface IBatch : IDisposable, IKeyValueStore
+    {
+    }
 }

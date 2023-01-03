@@ -20,7 +20,7 @@ namespace Nethermind.Db.Blooms
 {
     public interface IBloomEnumeration : IEnumerable<Bloom>
     {
-        bool TryGetBlockNumber(out long blockNumber);
         (long FromBlock, long ToBlock) CurrentIndices { get; }
+        bool TryGetBlockNumber(out long blockNumber);
     }
 }

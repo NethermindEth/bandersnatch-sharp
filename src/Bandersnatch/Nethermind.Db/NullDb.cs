@@ -20,13 +20,15 @@ namespace Nethermind.Db
 {
     public class NullDb : IDb
     {
+
+        private static NullDb? _instance;
         private NullDb()
         {
         }
 
-        private static NullDb? _instance;
-
         public static NullDb Instance => LazyInitializer.EnsureInitialized(ref _instance, () => new NullDb());
+
+        public IDb Innermost => this;
 
         public string Name { get; } = "NullDb";
 
@@ -47,14 +49,18 @@ namespace Nethermind.Db
         {
             return false;
         }
-
-        public IDb Innermost => this;
         public void Flush() { }
         public void Clear() { }
 
-        public IEnumerable<KeyValuePair<byte[], byte[]>> GetAll(bool ordered = false) => Enumerable.Empty<KeyValuePair<byte[], byte[]>>();
+        public IEnumerable<KeyValuePair<byte[], byte[]>> GetAll(bool ordered = false)
+        {
+            return Enumerable.Empty<KeyValuePair<byte[], byte[]>>();
+        }
 
-        public IEnumerable<byte[]> GetAllValues(bool ordered = false) => Enumerable.Empty<byte[]>();
+        public IEnumerable<byte[]> GetAllValues(bool ordered = false)
+        {
+            return Enumerable.Empty<byte[]>();
+        }
 
         public IBatch StartBatch()
         {

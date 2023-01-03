@@ -33,6 +33,11 @@ namespace Nethermind.Db.Blooms
             return _file.Read(element);
         }
 
+        public void Dispose()
+        {
+            _file.Dispose();
+        }
+
         private void SeekIndex(long index)
         {
             long seekPosition = index * _elementSize;
@@ -40,11 +45,6 @@ namespace Nethermind.Db.Blooms
             {
                 _file.Position = seekPosition;
             }
-        }
-
-        public void Dispose()
-        {
-            _file.Dispose();
         }
     }
 }

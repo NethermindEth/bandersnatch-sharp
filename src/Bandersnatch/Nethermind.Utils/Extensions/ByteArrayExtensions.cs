@@ -45,7 +45,10 @@ namespace Nethermind.Utils.Extensions
         {
             if (length == 1)
             {
-                return new[] { bytes[startIndex] };
+                return new[]
+                {
+                    bytes[startIndex]
+                };
             }
 
             byte[] slice = new byte[length];

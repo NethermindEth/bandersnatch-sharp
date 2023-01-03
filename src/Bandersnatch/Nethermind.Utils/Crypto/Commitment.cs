@@ -16,6 +16,7 @@
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Nethermind.Utils.Extensions;
 
 namespace Nethermind.Utils.Crypto
@@ -30,7 +31,9 @@ namespace Nethermind.Utils.Crypto
         /// <returns>
         ///     <string>0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470</string>
         /// </returns>
-        public static readonly ValueCommitment OfAnEmptyString = InternalCompute(new byte[] { });
+        public static readonly ValueCommitment OfAnEmptyString = InternalCompute(new byte[]
+        {
+        });
 
 
         [DebuggerStepThrough]
@@ -41,18 +44,18 @@ namespace Nethermind.Utils.Crypto
                 return OfAnEmptyString;
             }
 
-            ValueCommitment result = new();
+            ValueCommitment result = new ValueCommitment();
             byte* ptr = result.Bytes;
-            Span<byte> output = new(ptr, CommitmentHash.HASH_SIZE);
+            Span<byte> output = new Span<byte>(ptr, CommitmentHash.HASH_SIZE);
             CommitmentHash.ComputeHashBytesToSpan(input, output);
             return result;
         }
 
         private static ValueCommitment InternalCompute(byte[] input)
         {
-            ValueCommitment result = new();
+            ValueCommitment result = new ValueCommitment();
             byte* ptr = result.Bytes;
-            Span<byte> output = new(ptr, CommitmentHash.HASH_SIZE);
+            Span<byte> output = new Span<byte>(ptr, CommitmentHash.HASH_SIZE);
             CommitmentHash.ComputeHashBytesToSpan(input, output);
             return result;
         }
@@ -73,32 +76,30 @@ namespace Nethermind.Utils.Crypto
         /// <returns>
         ///     <string>0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470</string>
         /// </returns>
-        public static readonly Commitment OfAnEmptyString = InternalCompute(new byte[] { });
+        public static readonly Commitment OfAnEmptyString = InternalCompute(new byte[]
+        {
+        });
 
         /// <returns>
         ///     <string>0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347</string>
         /// </returns>
-        public static readonly Commitment OfAnEmptySequenceRlp = InternalCompute(new byte[] { 192 });
+        public static readonly Commitment OfAnEmptySequenceRlp = InternalCompute(new byte[]
+        {
+            192
+        });
 
         /// <summary>
         ///     0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421
         /// </summary>
-        public static Commitment EmptyTreeHash = InternalCompute(new byte[] { 128 });
-
-        /// <returns>
-        ///     <string>0x0000000000000000000000000000000000000000000000000000000000000000</string>
-        /// </returns>
-        public static Commitment Zero { get; } = new(new byte[Size]);
-
-        /// <summary>
-        ///     <string>0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</string>
-        /// </summary>
-        public static Commitment MaxValue { get; } = new("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-
-        public byte[] Bytes { get; }
+        public static Commitment EmptyTreeHash = InternalCompute(new byte[]
+        {
+            128
+        });
 
         public Commitment(string hexString)
-            : this(Extensions.Bytes.FromHexString(hexString)) { }
+            : this(Extensions.Bytes.FromHexString(hexString))
+        {
+        }
 
         public Commitment(byte[] bytes)
         {
@@ -108,6 +109,33 @@ namespace Nethermind.Utils.Crypto
             }
 
             Bytes = bytes;
+        }
+
+        /// <returns>
+        ///     <string>0x0000000000000000000000000000000000000000000000000000000000000000</string>
+        /// </returns>
+        public static Commitment Zero { get; } = new Commitment(new byte[Size]);
+
+        /// <summary>
+        ///     <string>0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</string>
+        /// </summary>
+        public static Commitment MaxValue { get; } = new Commitment("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+        public byte[] Bytes { get; }
+
+        public int CompareTo(Commitment? other)
+        {
+            return Extensions.Bytes.Comparer.Compare(Bytes, other?.Bytes);
+        }
+
+        public bool Equals(Commitment? other)
+        {
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+
+            return Extensions.Bytes.AreEqual(other.Bytes, Bytes);
         }
 
         public override string ToString()
@@ -150,7 +178,7 @@ namespace Nethermind.Utils.Crypto
 
         private static Commitment InternalCompute(byte[] input)
         {
-            return new(CommitmentHash.ComputeHashBytes(input.AsSpan()));
+            return new Commitment(CommitmentHash.ComputeHashBytes(input.AsSpan()));
         }
 
         [DebuggerStepThrough]
@@ -161,22 +189,7 @@ namespace Nethermind.Utils.Crypto
                 return OfAnEmptyString;
             }
 
-            return InternalCompute(System.Text.Encoding.UTF8.GetBytes(input));
-        }
-
-        public bool Equals(Commitment? other)
-        {
-            if (ReferenceEquals(other, null))
-            {
-                return false;
-            }
-
-            return Extensions.Bytes.AreEqual(other.Bytes, Bytes);
-        }
-
-        public int CompareTo(Commitment? other)
-        {
-            return Extensions.Bytes.Comparer.Compare(Bytes, other?.Bytes);
+            return InternalCompute(Encoding.UTF8.GetBytes(input));
         }
 
         public override bool Equals(object? obj)
@@ -229,7 +242,10 @@ namespace Nethermind.Utils.Crypto
             return Extensions.Bytes.Comparer.Compare(k1?.Bytes, k2?.Bytes) <= 0;
         }
 
-        public CommitmentStructRef ToStructRef() => new(Bytes);
+        public CommitmentStructRef ToStructRef()
+        {
+            return new CommitmentStructRef(Bytes);
+        }
     }
 
     public ref struct CommitmentStructRef
@@ -274,7 +290,7 @@ namespace Nethermind.Utils.Crypto
                 return new CommitmentStructRef(Commitment.OfAnEmptyString.Bytes);
             }
 
-            var result = new CommitmentStructRef();
+            CommitmentStructRef result = new CommitmentStructRef();
             CommitmentHash.ComputeHashBytesToSpan(input, result.Bytes);
             return result;
         }
@@ -287,14 +303,14 @@ namespace Nethermind.Utils.Crypto
                 return new CommitmentStructRef(Commitment.OfAnEmptyString.Bytes);
             }
 
-            var result = new CommitmentStructRef();
+            CommitmentStructRef result = new CommitmentStructRef();
             CommitmentHash.ComputeHashBytesToSpan(input, result.Bytes);
             return result;
         }
 
         private static CommitmentStructRef InternalCompute(Span<byte> input)
         {
-            var result = new CommitmentStructRef();
+            CommitmentStructRef result = new CommitmentStructRef();
             CommitmentHash.ComputeHashBytesToSpan(input, result.Bytes);
             return result;
         }
@@ -307,8 +323,8 @@ namespace Nethermind.Utils.Crypto
                 return new CommitmentStructRef(Commitment.OfAnEmptyString.Bytes);
             }
 
-            var result = new CommitmentStructRef();
-            CommitmentHash.ComputeHashBytesToSpan(System.Text.Encoding.UTF8.GetBytes(input), result.Bytes);
+            CommitmentStructRef result = new CommitmentStructRef();
+            CommitmentHash.ComputeHashBytesToSpan(Encoding.UTF8.GetBytes(input), result.Bytes);
             return result;
         }
 
@@ -322,7 +338,10 @@ namespace Nethermind.Utils.Crypto
             return Extensions.Bytes.AreEqual(other.Bytes, Bytes);
         }
 
-        public bool Equals(CommitmentStructRef other) => Extensions.Bytes.AreEqual(other.Bytes, Bytes);
+        public bool Equals(CommitmentStructRef other)
+        {
+            return Extensions.Bytes.AreEqual(other.Bytes, Bytes);
+        }
 
         public override bool Equals(object? obj)
         {
@@ -374,6 +393,9 @@ namespace Nethermind.Utils.Crypto
             return !(a == b);
         }
 
-        public Commitment ToCommitment() => new(Bytes.ToArray());
+        public Commitment ToCommitment()
+        {
+            return new Commitment(Bytes.ToArray());
+        }
     }
 }

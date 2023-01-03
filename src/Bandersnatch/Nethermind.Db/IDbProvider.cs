@@ -29,6 +29,8 @@ namespace Nethermind.Db
         public IDb LeafDb => GetDb<IDb>(DbNames.Leaf);
         public IDb StemDb => GetDb<IDb>(DbNames.Stem);
         public IDb BranchDb => GetDb<IDb>(DbNames.Branch);
+
+        IDictionary<string, IDb> RegisteredDbs { get; }
         // public IDb CodeDb => GetDb<IDb>(DbNames.Code);
         // public IColumnsDb<ReceiptsColumns> ReceiptsDb => GetDb<IColumnsDb<ReceiptsColumns>>(DbNames.Receipts);
         // public IDb BlocksDb => GetDb<IDb>(DbNames.Blocks);
@@ -48,7 +50,5 @@ namespace Nethermind.Db
         T GetDb<T>(string dbName) where T : class, IDb;
 
         void RegisterDb<T>(string dbName, T db) where T : class, IDb;
-
-        IDictionary<string, IDb> RegisteredDbs { get; }
     }
 }

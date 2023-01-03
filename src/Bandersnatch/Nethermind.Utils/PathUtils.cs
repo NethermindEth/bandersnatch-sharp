@@ -21,7 +21,11 @@ namespace Nethermind.Utils
 {
     public static class PathUtils
     {
-        public static string ExecutingDirectory { get; }
+
+        private static readonly string[] RelativePrefixes = new[]
+        {
+            "." + Path.DirectorySeparatorChar, "." + Path.AltDirectorySeparatorChar, ".." + Path.DirectorySeparatorChar, ".." + Path.AltDirectorySeparatorChar
+        }.Distinct().ToArray();
 
         static PathUtils()
         {
@@ -37,6 +41,7 @@ namespace Nethermind.Utils
                 Console.WriteLine($"Resolved executing directory as {ExecutingDirectory}.");
             }
         }
+        public static string ExecutingDirectory { get; }
 
         public static string GetApplicationResourcePath(this string resourcePath, string overridePrefixPath = null)
         {
@@ -60,14 +65,9 @@ namespace Nethermind.Utils
                 : Path.Combine(ExecutingDirectory, overridePrefixPath, resourcePath);
         }
 
-        static readonly string[] RelativePrefixes = new[]
+        public static bool IsExplicitlyRelative(string resourcePath)
         {
-            "." + Path.DirectorySeparatorChar,
-            "." + Path.AltDirectorySeparatorChar,
-            ".." + Path.DirectorySeparatorChar,
-            ".." + Path.AltDirectorySeparatorChar,
-        }.Distinct().ToArray();
-
-        public static bool IsExplicitlyRelative(string resourcePath) => RelativePrefixes.Any(resourcePath.StartsWith);
+            return RelativePrefixes.Any(resourcePath.StartsWith);
+        }
     }
 }

@@ -19,9 +19,11 @@ namespace Nethermind.Utils.Attributes
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class TodoAttribute : Attribute
     {
-        private readonly string? _issueLink;
+
+        public const string MissingIssueLinkMessage = "No issue created or link missing";
         private readonly string _comment;
         private readonly Improve _improve;
+        private readonly string? _issueLink;
 
         public TodoAttribute(string comment)
         {
@@ -34,8 +36,6 @@ namespace Nethermind.Utils.Attributes
             _issueLink = issueLink;
             _comment = comment;
         }
-
-        public const string MissingIssueLinkMessage = "No issue created or link missing";
     }
 
     [Flags]

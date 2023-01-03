@@ -15,17 +15,18 @@
 //  along with the Nethermind. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-namespace Nethermind.Db.FullPruning;
-
-public class PruningEventArgs : EventArgs
+namespace Nethermind.Db.FullPruning
 {
-    public PruningEventArgs(IPruningContext context, bool success)
+    public class PruningEventArgs : EventArgs
     {
-        Context = context;
-        Success = success;
+        public PruningEventArgs(IPruningContext context, bool success)
+        {
+            Context = context;
+            Success = success;
+        }
+
+        public IPruningContext Context { get; }
+
+        public bool Success { get; }
     }
-
-    public IPruningContext Context { get; }
-
-    public bool Success { get; }
 }

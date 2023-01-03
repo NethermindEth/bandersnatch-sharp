@@ -20,12 +20,21 @@ namespace Nethermind.Serialization.Rlp
 {
     public class CommitmentDecoder : IRlpValueDecoder<Commitment>
     {
-        public static readonly CommitmentDecoder Instance = new();
+        public static readonly CommitmentDecoder Instance = new CommitmentDecoder();
 
-        public Commitment? Decode(ref Rlp.ValueDecoderContext decoderContext, RlpBehaviors rlpBehaviors = RlpBehaviors.None) => decoderContext.DecodeCommitment();
+        public Commitment? Decode(ref Rlp.ValueDecoderContext decoderContext, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
+        {
+            return decoderContext.DecodeCommitment();
+        }
 
-        public Rlp Encode(Commitment item, RlpBehaviors rlpBehaviors = RlpBehaviors.None) => Rlp.Encode(item);
+        public Rlp Encode(Commitment item, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
+        {
+            return Rlp.Encode(item);
+        }
 
-        public int GetLength(Commitment item, RlpBehaviors rlpBehaviors) => Rlp.LengthOf(item);
+        public int GetLength(Commitment item, RlpBehaviors rlpBehaviors)
+        {
+            return Rlp.LengthOf(item);
+        }
     }
 }

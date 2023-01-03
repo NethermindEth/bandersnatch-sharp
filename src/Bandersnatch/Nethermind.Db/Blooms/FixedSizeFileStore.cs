@@ -18,10 +18,10 @@ namespace Nethermind.Db.Blooms
 {
     public class FixedSizeFileStore : IFileStore
     {
-        private readonly string _path;
         private readonly int _elementSize;
-        private readonly Stream _fileWrite;
         private readonly Stream _fileRead;
+        private readonly Stream _fileWrite;
+        private readonly string _path;
         private int _needsFlush;
 
         public FixedSizeFileStore(string path, int elementSize)
@@ -51,15 +51,23 @@ namespace Nethermind.Db.Blooms
             catch (ArgumentOutOfRangeException e)
             {
                 long position = GetPosition(index);
-                throw new InvalidOperationException($"Bloom storage tried to write a file that is too big for file system. " +
+                throw new InvalidOperationException("Bloom storage tried to write a file that is too big for file system. " +
                                                     $"Trying to write data at index {index} with size {_elementSize} at file position {position} to file {_path}", e)
                 {
                     Data =
                     {
-                        {"Index", index},
-                        {"Size", _elementSize},
-                        {"Position", position},
-                        {"Path", _path}
+                        {
+                            "Index", index
+                        },
+                        {
+                            "Size", _elementSize
+                        },
+                        {
+                            "Position", position
+                        },
+                        {
+                            "Path", _path
+                        }
                     }
                 };
             }
@@ -82,6 +90,12 @@ namespace Nethermind.Db.Blooms
             return new FileReader(_path, _elementSize);
         }
 
+        public void Dispose()
+        {
+            _fileWrite.Dispose();
+            _fileRead.Dispose();
+        }
+
         private void EnsureFlushed()
         {
             if (Interlocked.CompareExchange(ref _needsFlush, 0, 1) == 1)
@@ -102,12 +116,9 @@ namespace Nethermind.Db.Blooms
             }
         }
 
-        private long GetPosition(long index) => index * _elementSize;
-
-        public void Dispose()
+        private long GetPosition(long index)
         {
-            _fileWrite.Dispose();
-            _fileRead.Dispose();
+            return index * _elementSize;
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Nethermind.Utils
 {
     public class FakeBatch : IBatch
     {
-        private readonly IKeyValueStore _storePretendingToSupportBatches;
 
         private readonly Action? _onDispose;
+        private readonly IKeyValueStore _storePretendingToSupportBatches;
 
         public FakeBatch(IKeyValueStore storePretendingToSupportBatches)
             : this(storePretendingToSupportBatches, null)

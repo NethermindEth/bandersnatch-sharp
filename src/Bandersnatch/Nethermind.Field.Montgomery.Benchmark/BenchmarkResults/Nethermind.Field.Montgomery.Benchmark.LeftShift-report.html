@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Field.Montgomery.Benchmark.LeftShift-20221124-121706</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Field.Montgomery.Benchmark.LeftShift-20221124-121706</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,30 +36,299 @@ AMD EPYC 7713, 1 CPU, 8 logical and 8 physical cores
   [Host]   : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
   .NET 6.0 : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 6.0  Runtime=.NET 6.0  
+<pre><code>Job=.NET 6.0  Runtime=.NET 6.0
 </code></pre>
 
 <table>
-<thead><tr><th>        Method</th><th>           _a</th><th>  _d</th><th>        Mean</th><th>       Error</th><th>      StdDev</th><th>      Median</th><th>Ratio</th><th>Gen0</th><th>Gen1</th><th>Gen2</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>LeftShift_BigInteger</td><td>(115(...)FpE) [204]</td><td>1559595546</td><td>619,279,403.268 ns</td><td>14,836,791.0958 ns</td><td>43,044,221.2388 ns</td><td>603,581,289.000 ns</td><td>1.000</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>389900496 B</td><td>1.00</td>
-</tr><tr><td>LeftShift_UInt256</td><td>(115(...)FpE) [204]</td><td>1559595546</td><td>4.175 ns</td><td>0.1010 ns</td><td>0.1122 ns</td><td>4.167 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_Element</td><td>(115(...)FpE) [204]</td><td>1559595546</td><td>2.514 ns</td><td>0.1159 ns</td><td>0.1507 ns</td><td>2.504 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_BigInteger</td><td>(115(...)FpE) [204]</td><td>1649316166</td><td>707,463,889.824 ns</td><td>13,744,071.9052 ns</td><td>14,114,149.9443 ns</td><td>707,105,214.000 ns</td><td>1.000</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>412331296 B</td><td>1.00</td>
-</tr><tr><td>LeftShift_UInt256</td><td>(115(...)FpE) [204]</td><td>1649316166</td><td>4.238 ns</td><td>0.1175 ns</td><td>0.1042 ns</td><td>4.182 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_Element</td><td>(115(...)FpE) [204]</td><td>1649316166</td><td>2.354 ns</td><td>0.0980 ns</td><td>0.0869 ns</td><td>2.336 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_BigInteger</td><td>(115(...)FpE) [204]</td><td>1755192844</td><td>763,921,076.333 ns</td><td>14,324,272.1051 ns</td><td>13,398,933.0145 ns</td><td>766,682,448.000 ns</td><td>1.000</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>438799968 B</td><td>1.00</td>
-</tr><tr><td>LeftShift_UInt256</td><td>(115(...)FpE) [204]</td><td>1755192844</td><td>4.184 ns</td><td>0.1407 ns</td><td>0.1564 ns</td><td>4.189 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_Element</td><td>(115(...)FpE) [204]</td><td>1755192844</td><td>2.505 ns</td><td>0.1133 ns</td><td>0.1924 ns</td><td>2.447 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_BigInteger</td><td>(619(...)FpE) [200]</td><td>1559595546</td><td>612,873,590.722 ns</td><td>13,590,944.6390 ns</td><td>39,429,794.7653 ns</td><td>595,120,013.000 ns</td><td>1.000</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>389901168 B</td><td>1.00</td>
-</tr><tr><td>LeftShift_UInt256</td><td>(619(...)FpE) [200]</td><td>1559595546</td><td>4.321 ns</td><td>0.1273 ns</td><td>0.1191 ns</td><td>4.336 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_Element</td><td>(619(...)FpE) [200]</td><td>1559595546</td><td>2.584 ns</td><td>0.1177 ns</td><td>0.1156 ns</td><td>2.574 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_BigInteger</td><td>(619(...)FpE) [200]</td><td>1649316166</td><td>713,837,539.450 ns</td><td>13,588,869.2626 ns</td><td>15,648,962.0505 ns</td><td>712,005,500.500 ns</td><td>1.000</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>412330656 B</td><td>1.00</td>
-</tr><tr><td>LeftShift_UInt256</td><td>(619(...)FpE) [200]</td><td>1649316166</td><td>4.096 ns</td><td>0.0899 ns</td><td>0.0751 ns</td><td>4.083 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_Element</td><td>(619(...)FpE) [200]</td><td>1649316166</td><td>2.593 ns</td><td>0.1094 ns</td><td>0.2185 ns</td><td>2.547 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_BigInteger</td><td>(619(...)FpE) [200]</td><td>1755192844</td><td>745,084,497.467 ns</td><td>13,403,757.7491 ns</td><td>12,537,883.3148 ns</td><td>740,590,129.000 ns</td><td>1.000</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>438800464 B</td><td>1.00</td>
-</tr><tr><td>LeftShift_UInt256</td><td>(619(...)FpE) [200]</td><td>1755192844</td><td>4.506 ns</td><td>0.1547 ns</td><td>0.2542 ns</td><td>4.395 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>LeftShift_Element</td><td>(619(...)FpE) [200]</td><td>1755192844</td><td>2.577 ns</td><td>0.0823 ns</td><td>0.0687 ns</td><td>2.546 ns</td><td>0.000</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0.00</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th> _a</th>
+        <th> _d</th>
+        <th> Mean</th>
+        <th> Error</th>
+        <th> StdDev</th>
+        <th> Median</th>
+        <th>Ratio</th>
+        <th>Gen0</th>
+        <th>Gen1</th>
+        <th>Gen2</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>LeftShift_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1559595546</td>
+        <td>619,279,403.268 ns</td>
+        <td>14,836,791.0958 ns</td>
+        <td>43,044,221.2388 ns</td>
+        <td>603,581,289.000 ns</td>
+        <td>1.000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>389900496 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1559595546</td>
+        <td>4.175 ns</td>
+        <td>0.1010 ns</td>
+        <td>0.1122 ns</td>
+        <td>4.167 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1559595546</td>
+        <td>2.514 ns</td>
+        <td>0.1159 ns</td>
+        <td>0.1507 ns</td>
+        <td>2.504 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1649316166</td>
+        <td>707,463,889.824 ns</td>
+        <td>13,744,071.9052 ns</td>
+        <td>14,114,149.9443 ns</td>
+        <td>707,105,214.000 ns</td>
+        <td>1.000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>412331296 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1649316166</td>
+        <td>4.238 ns</td>
+        <td>0.1175 ns</td>
+        <td>0.1042 ns</td>
+        <td>4.182 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1649316166</td>
+        <td>2.354 ns</td>
+        <td>0.0980 ns</td>
+        <td>0.0869 ns</td>
+        <td>2.336 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_BigInteger</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1755192844</td>
+        <td>763,921,076.333 ns</td>
+        <td>14,324,272.1051 ns</td>
+        <td>13,398,933.0145 ns</td>
+        <td>766,682,448.000 ns</td>
+        <td>1.000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>438799968 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_UInt256</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1755192844</td>
+        <td>4.184 ns</td>
+        <td>0.1407 ns</td>
+        <td>0.1564 ns</td>
+        <td>4.189 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_Element</td>
+        <td>(115(...)FpE) [204]</td>
+        <td>1755192844</td>
+        <td>2.505 ns</td>
+        <td>0.1133 ns</td>
+        <td>0.1924 ns</td>
+        <td>2.447 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1559595546</td>
+        <td>612,873,590.722 ns</td>
+        <td>13,590,944.6390 ns</td>
+        <td>39,429,794.7653 ns</td>
+        <td>595,120,013.000 ns</td>
+        <td>1.000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>389901168 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1559595546</td>
+        <td>4.321 ns</td>
+        <td>0.1273 ns</td>
+        <td>0.1191 ns</td>
+        <td>4.336 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1559595546</td>
+        <td>2.584 ns</td>
+        <td>0.1177 ns</td>
+        <td>0.1156 ns</td>
+        <td>2.574 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1649316166</td>
+        <td>713,837,539.450 ns</td>
+        <td>13,588,869.2626 ns</td>
+        <td>15,648,962.0505 ns</td>
+        <td>712,005,500.500 ns</td>
+        <td>1.000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>412330656 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1649316166</td>
+        <td>4.096 ns</td>
+        <td>0.0899 ns</td>
+        <td>0.0751 ns</td>
+        <td>4.083 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1649316166</td>
+        <td>2.593 ns</td>
+        <td>0.1094 ns</td>
+        <td>0.2185 ns</td>
+        <td>2.547 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_BigInteger</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1755192844</td>
+        <td>745,084,497.467 ns</td>
+        <td>13,403,757.7491 ns</td>
+        <td>12,537,883.3148 ns</td>
+        <td>740,590,129.000 ns</td>
+        <td>1.000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>1000.0000</td>
+        <td>438800464 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_UInt256</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1755192844</td>
+        <td>4.506 ns</td>
+        <td>0.1547 ns</td>
+        <td>0.2542 ns</td>
+        <td>4.395 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>LeftShift_Element</td>
+        <td>(619(...)FpE) [200]</td>
+        <td>1755192844</td>
+        <td>2.577 ns</td>
+        <td>0.0823 ns</td>
+        <td>0.0687 ns</td>
+        <td>2.546 ns</td>
+        <td>0.000</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

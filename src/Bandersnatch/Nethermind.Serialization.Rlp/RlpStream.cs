@@ -25,15 +25,15 @@ namespace Nethermind.Serialization.Rlp
 {
     public class RlpStream
     {
+
+        private const byte EmptyArrayByte = 128;
+
+        private const byte EmptySequenceByte = 192;
         private static readonly LogEntryDecoder _logEntryDecoder = LogEntryDecoder.Instance;
 
         protected RlpStream()
         {
         }
-
-        public long MemorySize => MemorySizes.SmallObjectOverhead
-                                  + MemorySizes.Align(MemorySizes.ArrayOverhead + Length)
-                                  + MemorySizes.Align(sizeof(int));
 
         public RlpStream(int length)
         {
@@ -44,6 +44,21 @@ namespace Nethermind.Serialization.Rlp
         {
             Data = data;
         }
+
+        public long MemorySize => MemorySizes.SmallObjectOverhead
+                                  + MemorySizes.Align(MemorySizes.ArrayOverhead + Length)
+                                  + MemorySizes.Align(sizeof(int));
+
+        protected virtual string Description =>
+            Data?.Slice(0, Math.Min(Rlp.DebugMessageContentLength, Length)).ToHexString() ?? "0x";
+
+        public byte[]? Data { get; }
+
+        public virtual int Position { get; set; }
+
+        public virtual int Length => Data!.Length;
+
+        public virtual bool HasBeenRead => Position >= Data!.Length;
 
 
         // public void Encode(LogEntry value)
@@ -62,19 +77,19 @@ namespace Nethermind.Serialization.Rlp
                     // the single byte of content will be written without any prefix
                     break;
                 case < 56:
-                    {
-                        byte smallPrefix = (byte)(contentLength + 128);
-                        WriteByte(smallPrefix);
-                        break;
-                    }
+                {
+                    byte smallPrefix = (byte)(contentLength + 128);
+                    WriteByte(smallPrefix);
+                    break;
+                }
                 default:
-                    {
-                        int lengthOfLength = Rlp.LengthOfLength(contentLength);
-                        byte prefix = (byte)(183 + lengthOfLength);
-                        WriteByte(prefix);
-                        WriteEncodedLength(contentLength);
-                        break;
-                    }
+                {
+                    int lengthOfLength = Rlp.LengthOfLength(contentLength);
+                    byte prefix = (byte)(183 + lengthOfLength);
+                    WriteByte(prefix);
+                    WriteEncodedLength(contentLength);
+                    break;
+                }
             }
         }
 
@@ -130,17 +145,6 @@ namespace Nethermind.Serialization.Rlp
             Position += bytesToWrite.Length;
         }
 
-        protected virtual string Description =>
-            Data?.Slice(0, Math.Min(Rlp.DebugMessageContentLength, Length)).ToHexString() ?? "0x";
-
-        public byte[]? Data { get; }
-
-        public virtual int Position { get; set; }
-
-        public virtual int Length => Data!.Length;
-
-        public virtual bool HasBeenRead => Position >= Data!.Length;
-
         public bool IsSequenceNext()
         {
             return PeekByte() >= 192;
@@ -175,7 +179,7 @@ namespace Nethermind.Serialization.Rlp
             }
             else
             {
-                var length = Rlp.LengthOf(Commitments);
+                int length = Rlp.LengthOf(Commitments);
                 StartSequence(length);
                 for (int i = 0; i < Commitments.Length; i++)
                 {
@@ -601,16 +605,16 @@ namespace Nethermind.Serialization.Rlp
             }
             else if (lengthOfLength == 2)
             {
-                result = PeekByte(1) | (PeekByte() << 8);
+                result = PeekByte(1) | PeekByte() << 8;
             }
             else if (lengthOfLength == 3)
             {
-                result = PeekByte(2) | (PeekByte(1) << 8) | (PeekByte() << 16);
+                result = PeekByte(2) | PeekByte(1) << 8 | PeekByte() << 16;
             }
             else if (lengthOfLength == 4)
             {
-                result = PeekByte(3) | (PeekByte(2) << 8) | (PeekByte(1) << 16) |
-                         (PeekByte() << 24);
+                result = PeekByte(3) | PeekByte(2) << 8 | PeekByte(1) << 16 |
+                         PeekByte() << 24;
             }
             else
             {
@@ -835,10 +839,10 @@ namespace Nethermind.Serialization.Rlp
         }
 
         public T[] DecodeArray<T>(Func<RlpStream, T> decodeItem, bool checkPositions = true,
-            T defaultElement = default(T))
+            T defaultElement = default)
         {
             int positionCheck = ReadSequenceLength() + Position;
-            int count = ReadNumberOfItemsRemaining(checkPositions ? positionCheck : (int?)null);
+            int count = ReadNumberOfItemsRemaining(checkPositions ? positionCheck : null);
             T[] result = new T[count];
             for (int i = 0; i < result.Length; i++)
             {
@@ -873,7 +877,7 @@ namespace Nethermind.Serialization.Rlp
 
             ReadOnlySpan<byte> bytes = DecodeByteArraySpan();
             return bytes.Length == 0 ? (byte)0
-                : bytes.Length == 1 ? bytes[0] == (byte)128
+                : bytes.Length == 1 ? bytes[0] == 128
                     ? (byte)0
                     : bytes[0]
                 : bytes[1];
@@ -1003,12 +1007,18 @@ namespace Nethermind.Serialization.Rlp
             int prefix = ReadByte();
             if (prefix == 0)
             {
-                return new byte[] { 0 };
+                return new byte[]
+                {
+                    0
+                };
             }
 
             if (prefix < 128)
             {
-                return new[] { (byte)prefix };
+                return new[]
+                {
+                    (byte)prefix
+                };
             }
 
             if (prefix == 128)
@@ -1069,10 +1079,6 @@ namespace Nethermind.Serialization.Rlp
         {
             WriteByte(EmptyArrayByte);
         }
-
-        private const byte EmptyArrayByte = 128;
-
-        private const byte EmptySequenceByte = 192;
 
         public override string ToString()
         {

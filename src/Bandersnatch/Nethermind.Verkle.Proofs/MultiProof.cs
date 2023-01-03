@@ -2,209 +2,209 @@ using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
 
-namespace Nethermind.Verkle.Proofs;
-
-
-public class MultiProof
+namespace Nethermind.Verkle.Proofs
 {
-    private PreComputeWeights precomp;
-    private CRS crs;
-
-    public MultiProof(FrE[] domain, CRS cRS)
+    public class MultiProof
     {
-        precomp = PreComputeWeights.Init(domain);
-        crs = cRS;
-    }
+        private readonly CRS crs;
+        private readonly PreComputeWeights precomp;
 
-    public MultiProofStruct MakeMultiProof(Transcript transcript, MultiProofProverQuery[] queries)
-    {
-        int domainSize = precomp.Domain.Length;
-        transcript.DomainSep("multiproof");
-
-        foreach (MultiProofProverQuery query in queries)
+        public MultiProof(FrE[] domain, CRS cRS)
         {
-            transcript.AppendPoint(query.C, "C");
-            transcript.AppendScalar(query.z, "z");
-            transcript.AppendScalar(query.y, "y");
+            precomp = PreComputeWeights.Init(domain);
+            crs = cRS;
         }
 
-        FrE r = transcript.ChallengeScalar("r");
-        FrE[] g = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
+        public MultiProofStruct MakeMultiProof(Transcript transcript, MultiProofProverQuery[] queries)
         {
-            g[i] = FrE.Zero;
-        }
+            int domainSize = precomp.Domain.Length;
+            transcript.DomainSep("multiproof");
 
-        FrE powerOfR = FrE.One;
+            foreach (MultiProofProverQuery query in queries)
+            {
+                transcript.AppendPoint(query.C, "C");
+                transcript.AppendScalar(query.z, "z");
+                transcript.AppendScalar(query.y, "y");
+            }
 
-        foreach (MultiProofProverQuery query in queries)
-        {
-            LagrangeBasis f = query.f;
-            FrE index = query.z;
-            FrE[] quotient = Quotient.ComputeQuotientInsideDomain(precomp, f, index);
+            FrE r = transcript.ChallengeScalar("r");
+            FrE[] g = new FrE[domainSize];
             for (int i = 0; i < domainSize; i++)
             {
-                g[i] += powerOfR * quotient[i];
+                g[i] = FrE.Zero;
             }
 
-            powerOfR *= r;
-        }
+            FrE powerOfR = FrE.One;
 
-        Banderwagon D = crs.Commit(g);
-        transcript.AppendPoint(D, "D");
-        FrE t = transcript.ChallengeScalar("t");
+            foreach (MultiProofProverQuery query in queries)
+            {
+                LagrangeBasis f = query.f;
+                FrE index = query.z;
+                FrE[] quotient = Quotient.ComputeQuotientInsideDomain(precomp, f, index);
+                for (int i = 0; i < domainSize; i++)
+                {
+                    g[i] += powerOfR * quotient[i];
+                }
 
-        FrE[] h = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
-        {
-            h[i] = FrE.Zero;
-        }
+                powerOfR *= r;
+            }
 
-        powerOfR = FrE.One;
+            Banderwagon D = crs.Commit(g);
+            transcript.AppendPoint(D, "D");
+            FrE t = transcript.ChallengeScalar("t");
 
-        foreach (MultiProofProverQuery query in queries)
-        {
-            LagrangeBasis f = query.f;
-            int index = (int)query.z.u0;
-            FrE.Inverse(t - precomp.Domain[index], out FrE denominatorInv);
-
+            FrE[] h = new FrE[domainSize];
             for (int i = 0; i < domainSize; i++)
             {
-                h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
+                h[i] = FrE.Zero;
             }
 
-            powerOfR = powerOfR * r;
-        }
+            powerOfR = FrE.One;
 
-        FrE[] hMinusG = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
-        {
-            hMinusG[i] = h[i] - g[i];
-        }
-
-        Banderwagon E = crs.Commit(h);
-        transcript.AppendPoint(E, "E");
-
-        Banderwagon ipaCommitment = E - D;
-        FrE[] inputPointVector = precomp.BarycentricFormulaConstants(t);
-        ProverQuery pQuery = new ProverQuery(hMinusG, ipaCommitment,
-            t, inputPointVector);
-
-        (FrE outputPoint, ProofStruct ipaProof) = IPA.MakeIpaProof(crs, transcript, pQuery);
-
-        return new MultiProofStruct(ipaProof, D);
-
-    }
-
-    public bool CheckMultiProof(Transcript transcript, MultiProofVerifierQuery[] queries, MultiProofStruct proof)
-    {
-        transcript.DomainSep("multiproof");
-        Banderwagon D = proof.D;
-        ProofStruct ipaProof = proof.IpaProof;
-        foreach (MultiProofVerifierQuery query in queries)
-        {
-            transcript.AppendPoint(query.C, "C");
-            transcript.AppendScalar(query.z, "z");
-            transcript.AppendScalar(query.y, "y");
-        }
-
-        FrE r = transcript.ChallengeScalar("r");
-
-        transcript.AppendPoint(D, "D");
-        FrE t = transcript.ChallengeScalar("t");
-
-        Dictionary<byte[], FrE> eCoefficients = new();
-        FrE g2OfT = FrE.Zero;
-        FrE powerOfR = FrE.One;
-
-        Dictionary<byte[], Banderwagon> cBySerialized = new();
-
-        foreach (MultiProofVerifierQuery query in queries)
-        {
-            Banderwagon C = query.C;
-            int z = (int)query.z.u0;
-            FrE y = query.y;
-            FrE eCoefficient = (powerOfR / t) - precomp.Domain[z];
-            byte[] cSerialized = C.ToBytes();
-            cBySerialized[cSerialized] = C;
-            if (!eCoefficients.ContainsKey(cSerialized))
+            foreach (MultiProofProverQuery query in queries)
             {
-                eCoefficients[cSerialized] = eCoefficient;
+                LagrangeBasis f = query.f;
+                int index = (int)query.z.u0;
+                FrE.Inverse(t - precomp.Domain[index], out FrE denominatorInv);
+
+                for (int i = 0; i < domainSize; i++)
+                {
+                    h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
+                }
+
+                powerOfR = powerOfR * r;
             }
-            else
+
+            FrE[] hMinusG = new FrE[domainSize];
+            for (int i = 0; i < domainSize; i++)
             {
-                eCoefficients[cSerialized] += eCoefficient;
+                hMinusG[i] = h[i] - g[i];
             }
 
-            g2OfT += eCoefficient * y;
+            Banderwagon E = crs.Commit(h);
+            transcript.AppendPoint(E, "E");
 
-            powerOfR = powerOfR * r;
+            Banderwagon ipaCommitment = E - D;
+            FrE[] inputPointVector = precomp.BarycentricFormulaConstants(t);
+            ProverQuery pQuery = new ProverQuery(hMinusG, ipaCommitment,
+                t, inputPointVector);
+
+            (FrE outputPoint, ProofStruct ipaProof) = IPA.MakeIpaProof(crs, transcript, pQuery);
+
+            return new MultiProofStruct(ipaProof, D);
+
         }
 
-        Banderwagon[] elems = new Banderwagon[eCoefficients.Count];
-        for (int i = 0; i < eCoefficients.Count; i++)
+        public bool CheckMultiProof(Transcript transcript, MultiProofVerifierQuery[] queries, MultiProofStruct proof)
         {
-            elems[i] = cBySerialized[eCoefficients.Keys.ToArray()[i]];
+            transcript.DomainSep("multiproof");
+            Banderwagon D = proof.D;
+            ProofStruct ipaProof = proof.IpaProof;
+            foreach (MultiProofVerifierQuery query in queries)
+            {
+                transcript.AppendPoint(query.C, "C");
+                transcript.AppendScalar(query.z, "z");
+                transcript.AppendScalar(query.y, "y");
+            }
+
+            FrE r = transcript.ChallengeScalar("r");
+
+            transcript.AppendPoint(D, "D");
+            FrE t = transcript.ChallengeScalar("t");
+
+            Dictionary<byte[], FrE> eCoefficients = new Dictionary<byte[], FrE>();
+            FrE g2OfT = FrE.Zero;
+            FrE powerOfR = FrE.One;
+
+            Dictionary<byte[], Banderwagon> cBySerialized = new Dictionary<byte[], Banderwagon>();
+
+            foreach (MultiProofVerifierQuery query in queries)
+            {
+                Banderwagon C = query.C;
+                int z = (int)query.z.u0;
+                FrE y = query.y;
+                FrE eCoefficient = powerOfR / t - precomp.Domain[z];
+                byte[] cSerialized = C.ToBytes();
+                cBySerialized[cSerialized] = C;
+                if (!eCoefficients.ContainsKey(cSerialized))
+                {
+                    eCoefficients[cSerialized] = eCoefficient;
+                }
+                else
+                {
+                    eCoefficients[cSerialized] += eCoefficient;
+                }
+
+                g2OfT += eCoefficient * y;
+
+                powerOfR = powerOfR * r;
+            }
+
+            Banderwagon[] elems = new Banderwagon[eCoefficients.Count];
+            for (int i = 0; i < eCoefficients.Count; i++)
+            {
+                elems[i] = cBySerialized[eCoefficients.Keys.ToArray()[i]];
+            }
+
+            Banderwagon E = VarBaseCommit(eCoefficients.Values.ToArray(), elems);
+            transcript.AppendPoint(E, "E");
+
+            FrE yO = g2OfT;
+            Banderwagon ipaCommitment = E - D;
+            FrE[] inputPointVector = precomp.BarycentricFormulaConstants(t);
+
+            VerifierQuery queryX = new VerifierQuery(ipaCommitment, t,
+                inputPointVector, yO, ipaProof);
+
+            return IPA.CheckIpaProof(crs, transcript, queryX);
+
         }
 
-        Banderwagon E = VarBaseCommit(eCoefficients.Values.ToArray(), elems);
-        transcript.AppendPoint(E, "E");
-
-        FrE yO = g2OfT;
-        Banderwagon ipaCommitment = E - D;
-        FrE[] inputPointVector = precomp.BarycentricFormulaConstants(t);
-
-        VerifierQuery queryX = new VerifierQuery(ipaCommitment, t,
-            inputPointVector, yO, ipaProof);
-
-        return IPA.CheckIpaProof(crs, transcript, queryX);
-
+        public static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
+        {
+            return Banderwagon.MSM(elements, values);
+        }
     }
 
-    public static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
+    public struct MultiProofStruct
     {
-        return Banderwagon.MSM(elements, values);
+        public ProofStruct IpaProof;
+        public Banderwagon D;
+
+        public MultiProofStruct(ProofStruct ipaProof, Banderwagon d)
+        {
+            IpaProof = ipaProof;
+            D = d;
+        }
     }
-}
 
-public struct MultiProofStruct
-{
-    public ProofStruct IpaProof;
-    public Banderwagon D;
-
-    public MultiProofStruct(ProofStruct ipaProof, Banderwagon d)
+    public struct MultiProofProverQuery
     {
-        IpaProof = ipaProof;
-        D = d;
+        public LagrangeBasis f;
+        public Banderwagon C;
+        public FrE z;
+        public FrE y;
+
+        public MultiProofProverQuery(LagrangeBasis _f, Banderwagon _C, FrE _z, FrE _y)
+        {
+            f = _f;
+            C = _C;
+            z = _z;
+            y = _y;
+        }
     }
-}
 
-public struct MultiProofProverQuery
-{
-    public LagrangeBasis f;
-    public Banderwagon C;
-    public FrE z;
-    public FrE y;
-
-    public MultiProofProverQuery(LagrangeBasis _f, Banderwagon _C, FrE _z, FrE _y)
+    public struct MultiProofVerifierQuery
     {
-        f = _f;
-        C = _C;
-        z = _z;
-        y = _y;
-    }
-}
+        public Banderwagon C;
+        public FrE z;
+        public FrE y;
 
-public struct MultiProofVerifierQuery
-{
-    public Banderwagon C;
-    public FrE z;
-    public FrE y;
-
-    public MultiProofVerifierQuery(Banderwagon _C, FrE _z, FrE _y)
-    {
-        C = _C;
-        z = _z;
-        y = _y;
+        public MultiProofVerifierQuery(Banderwagon _C, FrE _z, FrE _y)
+        {
+            C = _C;
+            z = _z;
+            y = _y;
+        }
     }
 }

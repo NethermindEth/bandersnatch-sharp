@@ -18,65 +18,69 @@ using FastEnumUtility;
 using Nethermind.Db.Rocks.Config;
 using RocksDbSharp;
 
-namespace Nethermind.Db.Rocks;
-
-public class ColumnsDb<T> : DbOnTheRocks, IColumnsDb<T> where T : struct, Enum
+namespace Nethermind.Db.Rocks
 {
-    private readonly IDictionary<T, IDbWithSpan> _columnDbs = new Dictionary<T, IDbWithSpan>();
-
-    public ColumnsDb(string basePath, DbSettings settings, IDbConfig dbConfig, IReadOnlyList<T> keys)
-        : base(basePath, settings, dbConfig, GetColumnFamilies(dbConfig, settings.DbName, GetEnumKeys(keys)))
+    public class ColumnsDb<T> : DbOnTheRocks, IColumnsDb<T> where T : struct, Enum
     {
-        keys = GetEnumKeys(keys);
+        private readonly IDictionary<T, IDbWithSpan> _columnDbs = new Dictionary<T, IDbWithSpan>();
 
-        foreach (T key in keys)
+        public ColumnsDb(string basePath, DbSettings settings, IDbConfig dbConfig, IReadOnlyList<T> keys)
+            : base(basePath, settings, dbConfig, GetColumnFamilies(dbConfig, settings.DbName, GetEnumKeys(keys)))
         {
-            _columnDbs[key] = new ColumnDb(_db, this, key.ToString()!);
-        }
-    }
+            keys = GetEnumKeys(keys);
 
-    private static IReadOnlyList<T> GetEnumKeys(IReadOnlyList<T> keys)
-    {
-        if (typeof(T).IsEnum && keys.Count == 0)
-        {
-            keys = FastEnum.GetValues<T>().ToArray();
+            foreach (T key in keys)
+            {
+                _columnDbs[key] = new ColumnDb(_db, this, key.ToString()!);
+            }
         }
 
-        return keys;
-    }
-
-    private static ColumnFamilies GetColumnFamilies(IDbConfig dbConfig, string name, IReadOnlyList<T> keys)
-    {
-        InitCache(dbConfig);
-
-        ColumnFamilies result = new();
-        ulong blockCacheSize = ReadConfig<ulong>(dbConfig, nameof(dbConfig.BlockCacheSize), name);
-        foreach (T key in keys)
+        public IDbWithSpan GetColumnDb(T key)
         {
-            ColumnFamilyOptions columnFamilyOptions = new();
-            columnFamilyOptions.OptimizeForPointLookup(blockCacheSize);
-            columnFamilyOptions.SetBlockBasedTableFactory(
-                new BlockBasedTableOptions()
-                    .SetFilterPolicy(BloomFilterPolicy.Create())
-                    .SetBlockCache(_cache));
-            result.Add(key.ToString(), columnFamilyOptions);
+            return _columnDbs[key];
         }
-        return result;
-    }
 
-    protected override DbOptions BuildOptions(IDbConfig dbConfig)
-    {
-        DbOptions options = base.BuildOptions(dbConfig);
-        options.SetCreateMissingColumnFamilies();
-        return options;
-    }
+        public IEnumerable<T> ColumnKeys => _columnDbs.Keys;
 
-    public IDbWithSpan GetColumnDb(T key) => _columnDbs[key];
+        public IReadOnlyDb CreateReadOnly(bool createInMemWriteStore)
+        {
+            return new ReadOnlyColumnsDb<T>(this, createInMemWriteStore);
+        }
 
-    public IEnumerable<T> ColumnKeys => _columnDbs.Keys;
+        private static IReadOnlyList<T> GetEnumKeys(IReadOnlyList<T> keys)
+        {
+            if (typeof(T).IsEnum && keys.Count == 0)
+            {
+                keys = FastEnum.GetValues<T>().ToArray();
+            }
 
-    public IReadOnlyDb CreateReadOnly(bool createInMemWriteStore)
-    {
-        return new ReadOnlyColumnsDb<T>(this, createInMemWriteStore);
+            return keys;
+        }
+
+        private static ColumnFamilies GetColumnFamilies(IDbConfig dbConfig, string name, IReadOnlyList<T> keys)
+        {
+            InitCache(dbConfig);
+
+            ColumnFamilies result = new ColumnFamilies();
+            ulong blockCacheSize = ReadConfig<ulong>(dbConfig, nameof(dbConfig.BlockCacheSize), name);
+            foreach (T key in keys)
+            {
+                ColumnFamilyOptions columnFamilyOptions = new ColumnFamilyOptions();
+                columnFamilyOptions.OptimizeForPointLookup(blockCacheSize);
+                columnFamilyOptions.SetBlockBasedTableFactory(
+                    new BlockBasedTableOptions()
+                        .SetFilterPolicy(BloomFilterPolicy.Create())
+                        .SetBlockCache(_cache));
+                result.Add(key.ToString(), columnFamilyOptions);
+            }
+            return result;
+        }
+
+        protected override DbOptions BuildOptions(IDbConfig dbConfig)
+        {
+            DbOptions options = base.BuildOptions(dbConfig);
+            options.SetCreateMissingColumnFamilies();
+            return options;
+        }
     }
 }

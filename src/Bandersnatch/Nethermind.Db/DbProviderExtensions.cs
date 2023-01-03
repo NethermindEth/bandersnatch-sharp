@@ -21,7 +21,7 @@ namespace Nethermind.Db
     {
         public static ReadOnlyDbProvider AsReadOnly(this IDbProvider dbProvider, bool createInMemoryWriteStore)
         {
-            return new(dbProvider, createInMemoryWriteStore);
+            return new ReadOnlyDbProvider(dbProvider, createInMemoryWriteStore);
         }
     }
 }

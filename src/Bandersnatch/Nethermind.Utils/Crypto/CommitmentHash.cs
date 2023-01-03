@@ -32,42 +32,16 @@ namespace Nethermind.Utils.Crypto
 
         private static readonly ulong[] RoundConstants =
         {
-            0x0000000000000001UL, 0x0000000000008082UL, 0x800000000000808aUL,
-            0x8000000080008000UL, 0x000000000000808bUL, 0x0000000080000001UL,
-            0x8000000080008081UL, 0x8000000000008009UL, 0x000000000000008aUL,
-            0x0000000000000088UL, 0x0000000080008009UL, 0x000000008000000aUL,
-            0x000000008000808bUL, 0x800000000000008bUL, 0x8000000000008089UL,
-            0x8000000000008003UL, 0x8000000000008002UL, 0x8000000000000080UL,
-            0x000000000000800aUL, 0x800000008000000aUL, 0x8000000080008081UL,
-            0x8000000000008080UL, 0x0000000080000001UL, 0x8000000080008008UL
+            0x0000000000000001UL, 0x0000000000008082UL, 0x800000000000808aUL, 0x8000000080008000UL, 0x000000000000808bUL, 0x0000000080000001UL, 0x8000000080008081UL, 0x8000000000008009UL, 0x000000000000008aUL, 0x0000000000000088UL, 0x0000000080008009UL, 0x000000008000000aUL,
+            0x000000008000808bUL, 0x800000000000008bUL, 0x8000000000008089UL, 0x8000000000008003UL, 0x8000000000008002UL, 0x8000000000000080UL, 0x000000000000800aUL, 0x800000008000000aUL, 0x8000000080008081UL, 0x8000000000008080UL, 0x0000000080000001UL, 0x8000000080008008UL
         };
-
-        private int _roundSize;
-        private int _roundSizeU64;
-        private Memory<byte> _remainderBuffer;
-        private int _remainderLength;
-        private Memory<ulong> _state;
         private byte[]? _hash;
+        private readonly Memory<byte> _remainderBuffer;
+        private int _remainderLength;
 
-        private static int GetRoundSize(int hashSize) => STATE_SIZE - 2 * hashSize;
-        private static int GetRoundSizeU64(int hashSize) => GetRoundSize(hashSize) / 8;
-
-        /// <summary>
-        /// Indicates the hash size in bytes.
-        /// </summary>
-        public int HashSize { get; }
-
-        /// <summary>
-        /// The current hash buffer at this point. Recomputed after hash updates.
-        /// </summary>
-        public byte[] Hash
-        {
-            get
-            {
-                // If the hash is null, recalculate.
-                return _hash ??= UpdateFinal();
-            }
-        }
+        private readonly int _roundSize;
+        private readonly int _roundSizeU64;
+        private Memory<ulong> _state;
 
         #region Constructor
 
@@ -83,7 +57,7 @@ namespace Nethermind.Utils.Crypto
             }
 
             // The round size.
-            _roundSize = STATE_SIZE == HashSize ? HASH_DATA_AREA : STATE_SIZE - (2 * HashSize);
+            _roundSize = STATE_SIZE == HashSize ? HASH_DATA_AREA : STATE_SIZE - 2 * HashSize;
 
             // The size of a round in terms of ulong.
             _roundSizeU64 = _roundSize / 8;
@@ -95,17 +69,38 @@ namespace Nethermind.Utils.Crypto
 
         #endregion
 
+        /// <summary>
+        ///     Indicates the hash size in bytes.
+        /// </summary>
+        public int HashSize { get; }
+
+        /// <summary>
+        ///     The current hash buffer at this point. Recomputed after hash updates.
+        /// </summary>
+        public byte[] Hash =>
+            // If the hash is null, recalculate.
+            _hash ??= UpdateFinal();
+
+        private static int GetRoundSize(int hashSize)
+        {
+            return STATE_SIZE - 2 * hashSize;
+        }
+        private static int GetRoundSizeU64(int hashSize)
+        {
+            return GetRoundSize(hashSize) / 8;
+        }
+
         #region Functions
 
         public static CommitmentHash Create(int size = HASH_SIZE)
         {
-            return new(size);
+            return new CommitmentHash(size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong ROL(ulong a, int offset)
         {
-            return (a << (offset % LANE_BITS)) ^ (a >> (LANE_BITS - (offset % LANE_BITS)));
+            return a << offset % LANE_BITS ^ a >> LANE_BITS - offset % LANE_BITS;
         }
 
         // update the state with given number of rounds
@@ -153,7 +148,7 @@ namespace Nethermind.Utils.Crypto
             aso = st[23];
             asu = st[24];
 
-            for (var round = 0; round < ROUNDS; round += 2)
+            for (int round = 0; round < ROUNDS; round += 2)
             {
                 //    prepareTheta
                 bCa = aba ^ aga ^ aka ^ ama ^ asa;
@@ -179,12 +174,12 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(amo, 21);
                 asu ^= du;
                 bCu = ROL(asu, 14);
-                eba = bCa ^ ((~bCe) & bCi);
+                eba = bCa ^ ~bCe & bCi;
                 eba ^= RoundConstants[round];
-                ebe = bCe ^ ((~bCi) & bCo);
-                ebi = bCi ^ ((~bCo) & bCu);
-                ebo = bCo ^ ((~bCu) & bCa);
-                ebu = bCu ^ ((~bCa) & bCe);
+                ebe = bCe ^ ~bCi & bCo;
+                ebi = bCi ^ ~bCo & bCu;
+                ebo = bCo ^ ~bCu & bCa;
+                ebu = bCu ^ ~bCa & bCe;
 
                 abo ^= @do;
                 bCa = ROL(abo, 28);
@@ -196,11 +191,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(ame, 45);
                 asi ^= di;
                 bCu = ROL(asi, 61);
-                ega = bCa ^ ((~bCe) & bCi);
-                ege = bCe ^ ((~bCi) & bCo);
-                egi = bCi ^ ((~bCo) & bCu);
-                ego = bCo ^ ((~bCu) & bCa);
-                egu = bCu ^ ((~bCa) & bCe);
+                ega = bCa ^ ~bCe & bCi;
+                ege = bCe ^ ~bCi & bCo;
+                egi = bCi ^ ~bCo & bCu;
+                ego = bCo ^ ~bCu & bCa;
+                egu = bCu ^ ~bCa & bCe;
 
                 abe ^= de;
                 bCa = ROL(abe, 1);
@@ -212,11 +207,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(amu, 8);
                 asa ^= da;
                 bCu = ROL(asa, 18);
-                eka = bCa ^ ((~bCe) & bCi);
-                eke = bCe ^ ((~bCi) & bCo);
-                eki = bCi ^ ((~bCo) & bCu);
-                eko = bCo ^ ((~bCu) & bCa);
-                eku = bCu ^ ((~bCa) & bCe);
+                eka = bCa ^ ~bCe & bCi;
+                eke = bCe ^ ~bCi & bCo;
+                eki = bCi ^ ~bCo & bCu;
+                eko = bCo ^ ~bCu & bCa;
+                eku = bCu ^ ~bCa & bCe;
 
                 abu ^= du;
                 bCa = ROL(abu, 27);
@@ -228,11 +223,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(ami, 15);
                 aso ^= @do;
                 bCu = ROL(aso, 56);
-                ema = bCa ^ ((~bCe) & bCi);
-                eme = bCe ^ ((~bCi) & bCo);
-                emi = bCi ^ ((~bCo) & bCu);
-                emo = bCo ^ ((~bCu) & bCa);
-                emu = bCu ^ ((~bCa) & bCe);
+                ema = bCa ^ ~bCe & bCi;
+                eme = bCe ^ ~bCi & bCo;
+                emi = bCi ^ ~bCo & bCu;
+                emo = bCo ^ ~bCu & bCa;
+                emu = bCu ^ ~bCa & bCe;
 
                 abi ^= di;
                 bCa = ROL(abi, 62);
@@ -244,11 +239,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(ama, 41);
                 ase ^= de;
                 bCu = ROL(ase, 2);
-                esa = bCa ^ ((~bCe) & bCi);
-                ese = bCe ^ ((~bCi) & bCo);
-                esi = bCi ^ ((~bCo) & bCu);
-                eso = bCo ^ ((~bCu) & bCa);
-                esu = bCu ^ ((~bCa) & bCe);
+                esa = bCa ^ ~bCe & bCi;
+                ese = bCe ^ ~bCi & bCo;
+                esi = bCi ^ ~bCo & bCu;
+                eso = bCo ^ ~bCu & bCa;
+                esu = bCu ^ ~bCa & bCe;
 
                 //    prepareTheta
                 bCa = eba ^ ega ^ eka ^ ema ^ esa;
@@ -274,12 +269,12 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(emo, 21);
                 esu ^= du;
                 bCu = ROL(esu, 14);
-                aba = bCa ^ ((~bCe) & bCi);
+                aba = bCa ^ ~bCe & bCi;
                 aba ^= RoundConstants[round + 1];
-                abe = bCe ^ ((~bCi) & bCo);
-                abi = bCi ^ ((~bCo) & bCu);
-                abo = bCo ^ ((~bCu) & bCa);
-                abu = bCu ^ ((~bCa) & bCe);
+                abe = bCe ^ ~bCi & bCo;
+                abi = bCi ^ ~bCo & bCu;
+                abo = bCo ^ ~bCu & bCa;
+                abu = bCu ^ ~bCa & bCe;
 
                 ebo ^= @do;
                 bCa = ROL(ebo, 28);
@@ -291,11 +286,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(eme, 45);
                 esi ^= di;
                 bCu = ROL(esi, 61);
-                aga = bCa ^ ((~bCe) & bCi);
-                age = bCe ^ ((~bCi) & bCo);
-                agi = bCi ^ ((~bCo) & bCu);
-                ago = bCo ^ ((~bCu) & bCa);
-                agu = bCu ^ ((~bCa) & bCe);
+                aga = bCa ^ ~bCe & bCi;
+                age = bCe ^ ~bCi & bCo;
+                agi = bCi ^ ~bCo & bCu;
+                ago = bCo ^ ~bCu & bCa;
+                agu = bCu ^ ~bCa & bCe;
 
                 ebe ^= de;
                 bCa = ROL(ebe, 1);
@@ -307,11 +302,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(emu, 8);
                 esa ^= da;
                 bCu = ROL(esa, 18);
-                aka = bCa ^ ((~bCe) & bCi);
-                ake = bCe ^ ((~bCi) & bCo);
-                aki = bCi ^ ((~bCo) & bCu);
-                ako = bCo ^ ((~bCu) & bCa);
-                aku = bCu ^ ((~bCa) & bCe);
+                aka = bCa ^ ~bCe & bCi;
+                ake = bCe ^ ~bCi & bCo;
+                aki = bCi ^ ~bCo & bCu;
+                ako = bCo ^ ~bCu & bCa;
+                aku = bCu ^ ~bCa & bCe;
 
                 ebu ^= du;
                 bCa = ROL(ebu, 27);
@@ -323,11 +318,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(emi, 15);
                 eso ^= @do;
                 bCu = ROL(eso, 56);
-                ama = bCa ^ ((~bCe) & bCi);
-                ame = bCe ^ ((~bCi) & bCo);
-                ami = bCi ^ ((~bCo) & bCu);
-                amo = bCo ^ ((~bCu) & bCa);
-                amu = bCu ^ ((~bCa) & bCe);
+                ama = bCa ^ ~bCe & bCi;
+                ame = bCe ^ ~bCi & bCo;
+                ami = bCi ^ ~bCo & bCu;
+                amo = bCo ^ ~bCu & bCa;
+                amu = bCu ^ ~bCa & bCe;
 
                 ebi ^= di;
                 bCa = ROL(ebi, 62);
@@ -339,11 +334,11 @@ namespace Nethermind.Utils.Crypto
                 bCo = ROL(ema, 41);
                 ese ^= de;
                 bCu = ROL(ese, 2);
-                asa = bCa ^ ((~bCe) & bCi);
-                ase = bCe ^ ((~bCi) & bCo);
-                asi = bCi ^ ((~bCo) & bCu);
-                aso = bCo ^ ((~bCu) & bCa);
-                asu = bCu ^ ((~bCa) & bCe);
+                asa = bCa ^ ~bCe & bCi;
+                ase = bCe ^ ~bCi & bCo;
+                asi = bCi ^ ~bCo & bCu;
+                aso = bCo ^ ~bCu & bCa;
+                asu = bCu ^ ~bCa & bCe;
             }
 
             //copyToState(state, A)
@@ -383,7 +378,7 @@ namespace Nethermind.Utils.Crypto
 
         public static byte[] ComputeHashBytes(ReadOnlySpan<byte> input, int size = HASH_SIZE)
         {
-            var output = new byte[size];
+            byte[] output = new byte[size];
             ComputeHash(input, output);
             return output;
         }
@@ -400,14 +395,14 @@ namespace Nethermind.Utils.Crypto
 
         public static uint[] ComputeUIntsToUint(Span<uint> input, int size)
         {
-            var output = new uint[size / 4];
+            uint[] output = new uint[size / 4];
             ComputeUIntsToUint(input, output);
             return output;
         }
 
         public static uint[] ComputeBytesToUint(byte[] input, int size)
         {
-            var output = new uint[size / 4];
+            uint[] output = new uint[size / 4];
             ComputeHash(input, MemoryMarshal.Cast<uint, byte>(output));
             return output;
         }
@@ -415,9 +410,9 @@ namespace Nethermind.Utils.Crypto
         // compute a Commitment hash (md) of given byte length from "in"
         public static void ComputeHash(ReadOnlySpan<byte> input, Span<byte> output)
         {
-            var size = output.Length;
-            var roundSize = GetRoundSize(size);
-            var roundSizeU64 = GetRoundSizeU64(size);
+            int size = output.Length;
+            int roundSize = GetRoundSize(size);
+            int roundSizeU64 = GetRoundSizeU64(size);
             if (output.Length <= 0 || output.Length > STATE_SIZE)
             {
                 throw new ArgumentException("Bad Commitment use");
@@ -426,11 +421,11 @@ namespace Nethermind.Utils.Crypto
             Span<ulong> state = stackalloc ulong[STATE_SIZE / sizeof(ulong)];
             Span<byte> temp = stackalloc byte[TEMP_BUFF_SIZE];
 
-            var remainingInputLength = input.Length;
+            int remainingInputLength = input.Length;
             int i;
             for (; remainingInputLength >= roundSize; remainingInputLength -= roundSize, input = input.Slice(roundSize))
             {
-                var input64 = MemoryMarshal.Cast<byte, ulong>(input);
+                ReadOnlySpan<ulong> input64 = MemoryMarshal.Cast<byte, ulong>(input);
 
                 for (i = 0; i < roundSizeU64; i++)
                 {
@@ -450,7 +445,7 @@ namespace Nethermind.Utils.Crypto
             temp[remainingInputLength] = 1;
             temp[roundSize - 1] |= 0x80;
 
-            var tempU64 = MemoryMarshal.Cast<byte, ulong>(temp);
+            Span<ulong> tempU64 = MemoryMarshal.Cast<byte, ulong>(temp);
 
             for (i = 0; i < roundSizeU64; i++)
             {
@@ -468,7 +463,7 @@ namespace Nethermind.Utils.Crypto
             {
                 throw new ArgumentException("Cannot updated Commitment hash because the provided size of data to hash is negative.");
             }
-            else if (index + size > array.Length || index < 0)
+            if (index + size > array.Length || index < 0)
             {
                 throw new ArgumentOutOfRangeException("Cannot updated Commitment hash because the provided index and size extend outside the bounds of the array.");
             }
@@ -494,7 +489,7 @@ namespace Nethermind.Utils.Crypto
             if (_remainderLength != 0)
             {
                 // Copy data to our remainder
-                var remainderAdditive = input.Slice(0, Math.Min(input.Length, _roundSize - _remainderLength));
+                Span<byte> remainderAdditive = input.Slice(0, Math.Min(input.Length, _roundSize - _remainderLength));
                 remainderAdditive.CopyTo(_remainderBuffer.Slice(_remainderLength).Span);
 
                 // Increment the length
@@ -507,7 +502,7 @@ namespace Nethermind.Utils.Crypto
                 if (_remainderLength == _roundSize)
                 {
                     // Cast our input to ulongs.
-                    var remainderBufferU64 = MemoryMarshal.Cast<byte, ulong>(_remainderBuffer.Span);
+                    Span<ulong> remainderBufferU64 = MemoryMarshal.Cast<byte, ulong>(_remainderBuffer.Span);
 
                     // Loop for each ulong in this remainder, and xor the state with the input.
                     for (i = 0; i < _roundSizeU64; i++)
@@ -528,7 +523,7 @@ namespace Nethermind.Utils.Crypto
             while (input.Length >= _roundSize)
             {
                 // Cast our input to ulongs.
-                var input64 = MemoryMarshal.Cast<byte, ulong>(input);
+                Span<ulong> input64 = MemoryMarshal.Cast<byte, ulong>(input);
 
                 // Loop for each ulong in this round, and xor the state with the input.
                 for (i = 0; i < _roundSizeU64; i++)
@@ -572,7 +567,7 @@ namespace Nethermind.Utils.Crypto
             remainderClone.Span[_roundSize - 1] |= 0x80;
 
             // Cast the remainder buffer to ulongs.
-            var temp64 = MemoryMarshal.Cast<byte, ulong>(remainderClone.Span);
+            Span<ulong> temp64 = MemoryMarshal.Cast<byte, ulong>(remainderClone.Span);
 
             // Loop for each ulong in this round, and xor the state with the input.
             for (int i = 0; i < _roundSizeU64; i++)

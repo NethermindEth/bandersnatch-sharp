@@ -41,9 +41,9 @@ namespace Nethermind.Serialization.Rlp
 
         public const byte NullObjectByte = 192;
 
-        public static readonly Rlp OfEmptyByteArray = new(EmptyArrayByte);
+        public static readonly Rlp OfEmptyByteArray = new Rlp(EmptyArrayByte);
 
-        public static readonly Rlp OfEmptySequence = new(NullObjectByte);
+        public static readonly Rlp OfEmptySequence = new Rlp(NullObjectByte);
 
         internal static readonly Rlp OfEmptyTreeHash = Encode(Commitment.EmptyTreeHash.Bytes); // use bytes to avoid stack overflow
 
@@ -51,17 +51,22 @@ namespace Nethermind.Serialization.Rlp
 
         internal static readonly Rlp EmptyBloom = Encode(Bloom.Empty.Bytes); // use bytes to avoid stack overflow
 
+        public static readonly Dictionary<Type, IRlpDecoder> Decoders = new Dictionary<Type, IRlpDecoder>();
+
         static Rlp()
         {
             RegisterDecoders(Assembly.GetAssembly(typeof(Rlp)));
         }
 
         /// <summary>
-        /// This is not encoding - just a creation of an RLP object, e.g. passing 192 would mean an RLP of an empty sequence.
+        ///     This is not encoding - just a creation of an RLP object, e.g. passing 192 would mean an RLP of an empty sequence.
         /// </summary>
         private Rlp(byte singleByte)
         {
-            Bytes = new[] { singleByte };
+            Bytes = new[]
+            {
+                singleByte
+            };
         }
 
         public Rlp(byte[] bytes)
@@ -70,15 +75,13 @@ namespace Nethermind.Serialization.Rlp
         }
 
         public long MemorySize => /* this */ MemorySizes.SmallObjectOverhead +
-                                            MemorySizes.Align(MemorySizes.ArrayOverhead + Bytes.Length);
+                                             MemorySizes.Align(MemorySizes.ArrayOverhead + Bytes.Length);
 
         public byte[] Bytes { get; }
 
         public byte this[int index] => Bytes[index];
 
         public int Length => Bytes.Length;
-
-        public static readonly Dictionary<Type, IRlpDecoder> Decoders = new();
 
         public static void RegisterDecoders(Assembly assembly)
         {
@@ -128,13 +131,13 @@ namespace Nethermind.Serialization.Rlp
 
         public static T Decode<T>(Span<byte> bytes, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
         {
-            var valueContext = bytes.AsRlpValueContext();
+            ValueDecoderContext valueContext = bytes.AsRlpValueContext();
             return Decode<T>(ref valueContext, rlpBehaviors);
         }
 
         public static T[] DecodeArray<T>(RlpStream rlpStream, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
         {
-            var rlpDecoder = GetStreamDecoder<T>();
+            IRlpStreamDecoder<T>? rlpDecoder = GetStreamDecoder<T>();
             if (rlpDecoder is not null)
             {
                 return DecodeArray(rlpStream, rlpDecoder, rlpBehaviors);
@@ -155,10 +158,22 @@ namespace Nethermind.Serialization.Rlp
             return result;
         }
 
-        public static IRlpValueDecoder<T>? GetValueDecoder<T>() => Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpValueDecoder<T> : null;
-        public static IRlpStreamDecoder<T>? GetStreamDecoder<T>() => Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpStreamDecoder<T> : null;
-        public static IRlpObjectDecoder<T>? GetObjectDecoder<T>() => Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpObjectDecoder<T> : null;
-        public static IRlpDecoder<T>? GetDecoder<T>() => Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpDecoder<T> : null;
+        public static IRlpValueDecoder<T>? GetValueDecoder<T>()
+        {
+            return Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpValueDecoder<T> : null;
+        }
+        public static IRlpStreamDecoder<T>? GetStreamDecoder<T>()
+        {
+            return Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpStreamDecoder<T> : null;
+        }
+        public static IRlpObjectDecoder<T>? GetObjectDecoder<T>()
+        {
+            return Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpObjectDecoder<T> : null;
+        }
+        public static IRlpDecoder<T>? GetDecoder<T>()
+        {
+            return Decoders.ContainsKey(typeof(T)) ? Decoders[typeof(T)] as IRlpDecoder<T> : null;
+        }
 
         public static T Decode<T>(RlpStream rlpStream, RlpBehaviors rlpBehaviors = RlpBehaviors.None)
         {
@@ -176,7 +191,10 @@ namespace Nethermind.Serialization.Rlp
         {
             if (item is Rlp rlp)
             {
-                return Encode(new[] { rlp });
+                return Encode(new[]
+                {
+                    rlp
+                });
             }
 
             IRlpObjectDecoder<T>? rlpDecoder = GetObjectDecoder<T>();
@@ -233,10 +251,7 @@ namespace Nethermind.Serialization.Rlp
             {
                 return Encode(value.Value);
             }
-            else
-            {
-                return new Rlp(0);
-            }
+            return new Rlp(0);
         }
 
         public static Rlp Encode(UInt256 value)
@@ -268,7 +283,10 @@ namespace Nethermind.Serialization.Rlp
                 return new Rlp(value);
             }
 
-            return Encode(new[] { value });
+            return Encode(new[]
+            {
+                value
+            });
         }
 
         public static Rlp Encode(short value)
@@ -297,7 +315,7 @@ namespace Nethermind.Serialization.Rlp
         }
 
         /// <summary>
-        /// Special case for nonce
+        ///     Special case for nonce
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -319,15 +337,39 @@ namespace Nethermind.Serialization.Rlp
             {
                 < 0 => Encode(new BigInteger(value), 8),
                 0L => OfEmptyByteArray,
-                < 0x80 => new((byte)value),
-                < 0x100 => new(new byte[] { 129, (byte)value }),
-                < 0x1_0000 => new(new byte[] { 130, (byte)(value >> 8), (byte)value }),
-                < 0x100_0000 => new(new byte[] { 131, (byte)(value >> 16), (byte)(value >> 8), (byte)value }),
-                < 0x1_0000_0000 => new(new byte[] { 132, (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value }),
-                < 0x100_0000_0000 => new(new byte[] { 133, (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value }),
-                < 0x1_0000_0000_0000 => new(new byte[] { 134, (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value }),
-                < 0x100_0000_0000_0000 => new(new byte[] { 135, (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value }),
-                _ => new(new byte[] { 136, (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value }),
+                < 0x80 => new Rlp((byte)value),
+                < 0x100 => new Rlp(new byte[]
+                {
+                    129, (byte)value
+                }),
+                < 0x1_0000 => new Rlp(new byte[]
+                {
+                    130, (byte)(value >> 8), (byte)value
+                }),
+                < 0x100_0000 => new Rlp(new byte[]
+                {
+                    131, (byte)(value >> 16), (byte)(value >> 8), (byte)value
+                }),
+                < 0x1_0000_0000 => new Rlp(new byte[]
+                {
+                    132, (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value
+                }),
+                < 0x100_0000_0000 => new Rlp(new byte[]
+                {
+                    133, (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value
+                }),
+                < 0x1_0000_0000_0000 => new Rlp(new byte[]
+                {
+                    134, (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value
+                }),
+                < 0x100_0000_0000_0000 => new Rlp(new byte[]
+                {
+                    135, (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value
+                }),
+                _ => new Rlp(new byte[]
+                {
+                    136, (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value
+                })
             };
         }
 
@@ -427,15 +469,15 @@ namespace Nethermind.Serialization.Rlp
             if (value < 1 << 16)
             {
                 buffer[position] = (byte)(value >> 8);
-                buffer[position + 1] = ((byte)value);
+                buffer[position + 1] = (byte)value;
                 return position + 2;
             }
 
             if (value < 1 << 24)
             {
                 buffer[position] = (byte)(value >> 16);
-                buffer[position + 1] = ((byte)(value >> 8));
-                buffer[position + 2] = ((byte)value);
+                buffer[position + 1] = (byte)(value >> 8);
+                buffer[position + 2] = (byte)value;
                 return position + 3;
             }
 
@@ -470,15 +512,17 @@ namespace Nethermind.Serialization.Rlp
         {
             if (value < 1 << 8)
             {
-                return new[] { (byte)value };
+                return new[]
+                {
+                    (byte)value
+                };
             }
 
             if (value < 1 << 16)
             {
                 return new[]
                 {
-                    (byte) (value >> 8),
-                    (byte) value,
+                    (byte)(value >> 8), (byte)value
                 };
             }
 
@@ -486,18 +530,13 @@ namespace Nethermind.Serialization.Rlp
             {
                 return new[]
                 {
-                    (byte) (value >> 16),
-                    (byte) (value >> 8),
-                    (byte) value,
+                    (byte)(value >> 16), (byte)(value >> 8), (byte)value
                 };
             }
 
             return new[]
             {
-                (byte) (value >> 24),
-                (byte) (value >> 16),
-                (byte) (value >> 8),
-                (byte) value
+                (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)value
             };
         }
 
@@ -581,11 +620,11 @@ namespace Nethermind.Serialization.Rlp
                     result = 1 + contentLength;
                     break;
                 default:
-                    {
-                        int lengthOfLength = LengthOfLength(contentLength);
-                        result = 1 + lengthOfLength + contentLength;
-                        break;
-                    }
+                {
+                    int lengthOfLength = LengthOfLength(contentLength);
+                    result = 1 + lengthOfLength + contentLength;
+                    break;
+                }
             }
 
             return result;
@@ -647,6 +686,226 @@ namespace Nethermind.Serialization.Rlp
             }
 
             return new Rlp(allBytes);
+        }
+
+        public override bool Equals(object? other)
+        {
+            return Equals(other as Rlp);
+        }
+
+        public override int GetHashCode()
+        {
+            return Bytes is not null ? Bytes.GetSimplifiedHashCode() : 0;
+        }
+
+        public bool Equals(Rlp? other)
+        {
+            return other is not null && Bytes.SequenceEqual(other.Bytes);
+        }
+
+        public override string ToString()
+        {
+            return ToString(true);
+        }
+
+        public string ToString(bool withZeroX)
+        {
+            return Bytes.ToHexString(withZeroX);
+        }
+
+        public static int LengthOf(UInt256 item)
+        {
+            if (item < 128UL)
+            {
+                return 1;
+            }
+
+            Span<byte> bytes = stackalloc byte[32];
+            item.ToBigEndian(bytes);
+            int length = bytes.WithoutLeadingZeros().Length;
+            return length + 1;
+        }
+
+        public static int LengthOf(uint _)
+        {
+            return 5;
+        }
+
+        public static int LengthOfNonce(ulong _)
+        {
+            return 9;
+        }
+
+        public static int LengthOf(long value)
+        {
+            // everything has a length prefix
+            if (value < 0)
+            {
+                return 9;
+            }
+
+            if (value < 256L * 256L * 256L * 256L * 256L * 256L * 256L)
+            {
+                if (value < 256L * 256L * 256L * 256L * 256L * 256L)
+                {
+                    if (value < 256L * 256L * 256L * 256L * 256L)
+                    {
+                        if (value < 256L * 256L * 256L * 256L)
+                        {
+                            if (value < 256 * 256 * 256)
+                            {
+                                if (value < 256 * 256)
+                                {
+                                    if (value < 128)
+                                    {
+                                        return 1;
+                                    }
+
+                                    return value < 256 ? 2 : 3;
+                                }
+
+                                return 4;
+                            }
+
+                            return 5;
+                        }
+
+                        return 6;
+                    }
+
+                    return 7;
+                }
+
+                return 8;
+            }
+
+            return 9;
+        }
+
+        public static int LengthOf(int value)
+        {
+            // everything has a length prefix
+            if (value < 0)
+            {
+                return 9; // we cast it to long now
+            }
+
+            if (value < 256 * 256 * 256)
+            {
+                if (value < 256 * 256)
+                {
+                    if (value < 128)
+                    {
+                        return 1;
+                    }
+
+                    return value < 256 ? 2 : 3;
+                }
+
+                return 4;
+            }
+
+            return 5;
+        }
+
+        public static int LengthOf(Commitment? item)
+        {
+            return item is null ? 1 : 33;
+        }
+
+        public static int LengthOf(Commitment[] Commitments, bool includeLengthOfSequenceStart = false)
+        {
+            int value = Commitments?.Length * LengthOfCommitmentRlp ?? 0;
+
+            if (includeLengthOfSequenceStart)
+            {
+                value = LengthOfSequence(value);
+            }
+
+            return value;
+        }
+
+        public static int LengthOf(Address? item)
+        {
+            return item is null ? 1 : 21;
+        }
+
+        public static int LengthOf(Bloom? bloom)
+        {
+            return bloom is null ? 1 : 259;
+        }
+
+        public static int LengthOfSequence(int contentLength)
+        {
+            if (contentLength < 56)
+            {
+                return 1 + contentLength;
+            }
+
+            return 1 + LengthOfLength(contentLength) + contentLength;
+        }
+
+        public static int LengthOf(byte[]? array)
+        {
+            return LengthOf(array.AsSpan());
+        }
+
+        public static int LengthOf(Span<byte> array)
+        {
+            if (array.Length == 0)
+            {
+                return 1;
+            }
+
+            if (array.Length == 1 && array[0] < 128)
+            {
+                return 1;
+            }
+
+            if (array.Length < 56)
+            {
+                return array.Length + 1;
+            }
+
+            return LengthOfLength(array.Length) + 1 + array.Length;
+        }
+
+        public static int LengthOf(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return 1;
+            }
+
+            ReadOnlySpan<char> spanString = value.AsSpan();
+
+            if (spanString.Length == 1 && spanString[0] < 128)
+            {
+                return 1;
+            }
+
+            if (spanString.Length < 56)
+            {
+                return spanString.Length + 1;
+            }
+
+            return LengthOfLength(spanString.Length) + 1 + spanString.Length;
+        }
+
+        public static int LengthOf(byte value)
+        {
+            return 1;
+        }
+
+        public static int LengthOf(bool value)
+        {
+            return 1;
+        }
+
+        public static int LengthOf(LogEntry item)
+        {
+            IRlpDecoder<LogEntry>? rlpDecoder = GetDecoder<LogEntry>();
+            return rlpDecoder?.GetLength(item, RlpBehaviors.None) ?? throw new RlpException($"{nameof(Rlp)} does not support length of {nameof(LogEntry)}");
         }
 
         public ref struct ValueDecoderContext
@@ -824,16 +1083,16 @@ namespace Nethermind.Serialization.Rlp
                 }
                 else if (lengthOfLength == 2)
                 {
-                    result = Data[Position + 1] | (Data[Position] << 8);
+                    result = Data[Position + 1] | Data[Position] << 8;
                 }
                 else if (lengthOfLength == 3)
                 {
-                    result = Data[Position + 2] | (Data[Position + 1] << 8) | (Data[Position] << 16);
+                    result = Data[Position + 2] | Data[Position + 1] << 8 | Data[Position] << 16;
                 }
                 else if (lengthOfLength == 4)
                 {
-                    result = Data[Position + 3] | (Data[Position + 2] << 8) | (Data[Position + 1] << 16) |
-                             (Data[Position] << 24);
+                    result = Data[Position + 3] | Data[Position + 2] << 8 | Data[Position + 1] << 16 |
+                             Data[Position] << 24;
                 }
                 else
                 {
@@ -869,9 +1128,9 @@ namespace Nethermind.Serialization.Rlp
             // If someone didn't do migration this will result in excessive allocations and GC of the not needed strings.
             private class DecodeCommitmentRlpException : RlpException
             {
-                private readonly int _prefix;
-                private readonly int _position;
                 private readonly int _dataLength;
+                private readonly int _position;
+                private readonly int _prefix;
                 private string? _message;
 
                 public DecodeCommitmentRlpException(string message, Exception inner) : base(message, inner)
@@ -891,7 +1150,10 @@ namespace Nethermind.Serialization.Rlp
 
                 public override string Message => _message ??= ConstructMessage();
 
-                private string ConstructMessage() => $"Unexpected prefix of {_prefix} when decoding {nameof(Commitment)} at position {_position} in the message of length {_dataLength}.";
+                private string ConstructMessage()
+                {
+                    return $"Unexpected prefix of {_prefix} when decoding {nameof(Commitment)} at position {_position} in the message of length {_dataLength}.";
+                }
             }
 
             public Commitment? DecodeCommitment()
@@ -1301,226 +1563,6 @@ namespace Nethermind.Serialization.Rlp
 
                 return result;
             }
-        }
-
-        public override bool Equals(object? other)
-        {
-            return Equals(other as Rlp);
-        }
-
-        public override int GetHashCode()
-        {
-            return Bytes is not null ? Bytes.GetSimplifiedHashCode() : 0;
-        }
-
-        public bool Equals(Rlp? other)
-        {
-            return other is not null && Bytes.SequenceEqual(other.Bytes);
-        }
-
-        public override string ToString()
-        {
-            return ToString(true);
-        }
-
-        public string ToString(bool withZeroX)
-        {
-            return Bytes.ToHexString(withZeroX);
-        }
-
-        public static int LengthOf(UInt256 item)
-        {
-            if (item < 128UL)
-            {
-                return 1;
-            }
-
-            Span<byte> bytes = stackalloc byte[32];
-            item.ToBigEndian(bytes);
-            int length = bytes.WithoutLeadingZeros().Length;
-            return length + 1;
-        }
-
-        public static int LengthOf(uint _)
-        {
-            return 5;
-        }
-
-        public static int LengthOfNonce(ulong _)
-        {
-            return 9;
-        }
-
-        public static int LengthOf(long value)
-        {
-            // everything has a length prefix
-            if (value < 0)
-            {
-                return 9;
-            }
-
-            if (value < 256L * 256L * 256L * 256L * 256L * 256L * 256L)
-            {
-                if (value < 256L * 256L * 256L * 256L * 256L * 256L)
-                {
-                    if (value < 256L * 256L * 256L * 256L * 256L)
-                    {
-                        if (value < 256L * 256L * 256L * 256L)
-                        {
-                            if (value < 256 * 256 * 256)
-                            {
-                                if (value < 256 * 256)
-                                {
-                                    if (value < 128)
-                                    {
-                                        return 1;
-                                    }
-
-                                    return value < 256 ? 2 : 3;
-                                }
-
-                                return 4;
-                            }
-
-                            return 5;
-                        }
-
-                        return 6;
-                    }
-
-                    return 7;
-                }
-
-                return 8;
-            }
-
-            return 9;
-        }
-
-        public static int LengthOf(int value)
-        {
-            // everything has a length prefix
-            if (value < 0)
-            {
-                return 9; // we cast it to long now
-            }
-
-            if (value < 256 * 256 * 256)
-            {
-                if (value < 256 * 256)
-                {
-                    if (value < 128)
-                    {
-                        return 1;
-                    }
-
-                    return value < 256 ? 2 : 3;
-                }
-
-                return 4;
-            }
-
-            return 5;
-        }
-
-        public static int LengthOf(Commitment? item)
-        {
-            return item is null ? 1 : 33;
-        }
-
-        public static int LengthOf(Commitment[] Commitments, bool includeLengthOfSequenceStart = false)
-        {
-            int value = Commitments?.Length * LengthOfCommitmentRlp ?? 0;
-
-            if (includeLengthOfSequenceStart)
-            {
-                value = LengthOfSequence(value);
-            }
-
-            return value;
-        }
-
-        public static int LengthOf(Address? item)
-        {
-            return item is null ? 1 : 21;
-        }
-
-        public static int LengthOf(Bloom? bloom)
-        {
-            return bloom is null ? 1 : 259;
-        }
-
-        public static int LengthOfSequence(int contentLength)
-        {
-            if (contentLength < 56)
-            {
-                return 1 + contentLength;
-            }
-
-            return 1 + LengthOfLength(contentLength) + contentLength;
-        }
-
-        public static int LengthOf(byte[]? array)
-        {
-            return LengthOf(array.AsSpan());
-        }
-
-        public static int LengthOf(Span<byte> array)
-        {
-            if (array.Length == 0)
-            {
-                return 1;
-            }
-
-            if (array.Length == 1 && array[0] < 128)
-            {
-                return 1;
-            }
-
-            if (array.Length < 56)
-            {
-                return array.Length + 1;
-            }
-
-            return LengthOfLength(array.Length) + 1 + array.Length;
-        }
-
-        public static int LengthOf(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return 1;
-            }
-
-            var spanString = value.AsSpan();
-
-            if (spanString.Length == 1 && spanString[0] < 128)
-            {
-                return 1;
-            }
-
-            if (spanString.Length < 56)
-            {
-                return spanString.Length + 1;
-            }
-
-            return LengthOfLength(spanString.Length) + 1 + spanString.Length;
-        }
-
-        public static int LengthOf(byte value)
-        {
-            return 1;
-        }
-
-        public static int LengthOf(bool value)
-        {
-            return 1;
-        }
-
-        public static int LengthOf(LogEntry item)
-        {
-            IRlpDecoder<LogEntry>? rlpDecoder = GetDecoder<LogEntry>();
-            return rlpDecoder?.GetLength(item, RlpBehaviors.None) ?? throw new RlpException($"{nameof(Rlp)} does not support length of {nameof(LogEntry)}");
         }
     }
 }

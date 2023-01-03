@@ -3,74 +3,75 @@ using FluentAssertions;
 using Nethermind.Field.Montgomery.FrEElement;
 using NUnit.Framework;
 
-namespace Nethermind.Verkle.Curve.Test;
-
-public class PointTests
+namespace Nethermind.Verkle.Curve.Test
 {
-
-    [Test]
-    public void TestAddition()
+    public class PointTests
     {
-        ExtendedPoint? gen = ExtendedPoint.Generator();
-        ExtendedPoint? resultAdd = gen + gen;
 
-        ExtendedPoint? resultDouble = ExtendedPoint.Double(gen);
+        [Test]
+        public void TestAddition()
+        {
+            ExtendedPoint? gen = ExtendedPoint.Generator();
+            ExtendedPoint? resultAdd = gen + gen;
 
-        Assert.IsTrue(resultAdd == resultDouble);
-    }
+            ExtendedPoint? resultDouble = ExtendedPoint.Double(gen);
 
-    [Test]
-    public void TestEq()
-    {
-        ExtendedPoint? gen = ExtendedPoint.Generator();
-        ExtendedPoint? gen2 = ExtendedPoint.Generator();
+            Assert.IsTrue(resultAdd == resultDouble);
+        }
 
-        ExtendedPoint? negGen = ExtendedPoint.Neg(gen);
+        [Test]
+        public void TestEq()
+        {
+            ExtendedPoint? gen = ExtendedPoint.Generator();
+            ExtendedPoint? gen2 = ExtendedPoint.Generator();
 
-        Assert.IsTrue(gen == gen2);
-        Assert.IsTrue(gen != negGen);
-    }
+            ExtendedPoint? negGen = ExtendedPoint.Neg(gen);
 
-    [Test]
-    public void TestNeg()
-    {
-        ExtendedPoint gen = ExtendedPoint.Generator();
-        ExtendedPoint expected = ExtendedPoint.Identity();
-        ExtendedPoint result = gen + ExtendedPoint.Neg(gen);
+            Assert.IsTrue(gen == gen2);
+            Assert.IsTrue(gen != negGen);
+        }
 
-        Assert.IsTrue(expected == result);
-    }
+        [Test]
+        public void TestNeg()
+        {
+            ExtendedPoint gen = ExtendedPoint.Generator();
+            ExtendedPoint expected = ExtendedPoint.Identity();
+            ExtendedPoint result = gen + ExtendedPoint.Neg(gen);
 
-    [Test]
-    public void TestSerialiseGen()
-    {
-        ExtendedPoint? gen = ExtendedPoint.Generator();
+            Assert.IsTrue(expected == result);
+        }
 
-        byte[]? serialized = gen.ToBytes();
-        const string expected = "18ae52a26618e7e1658499ad22c0792bf342be7b77113774c5340b2ccc32c129";
-        Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
-    }
+        [Test]
+        public void TestSerialiseGen()
+        {
+            ExtendedPoint? gen = ExtendedPoint.Generator();
 
-    [Test]
-    public void TestScalarMulSmoke()
-    {
-        ExtendedPoint? gen = ExtendedPoint.Generator();
-        FrE scalar = FrE.SetElement(2);
-        ExtendedPoint result = gen * scalar;
-        ExtendedPoint twoGen = ExtendedPoint.Double(gen);
-        Assert.IsTrue(twoGen == result);
-    }
+            byte[]? serialized = gen.ToBytes();
+            const string expected = "18ae52a26618e7e1658499ad22c0792bf342be7b77113774c5340b2ccc32c129";
+            Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
+        }
 
-    [Test]
-    public void TestScalarMulMinusOne()
-    {
-        ExtendedPoint gen = ExtendedPoint.Generator();
+        [Test]
+        public void TestScalarMulSmoke()
+        {
+            ExtendedPoint? gen = ExtendedPoint.Generator();
+            FrE scalar = FrE.SetElement(2);
+            ExtendedPoint result = gen * scalar;
+            ExtendedPoint twoGen = ExtendedPoint.Double(gen);
+            Assert.IsTrue(twoGen == result);
+        }
 
-        const int x = -1;
-        FrE scalar = FrE.SetElement(x);
-        ExtendedPoint? result = gen * scalar;
-        byte[]? serialized = result.ToBytes();
-        const string expected = "e951ad5d98e7181e99d76452e0e343281295e38d90c602bf824892fd86742c4a";
-        Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
+        [Test]
+        public void TestScalarMulMinusOne()
+        {
+            ExtendedPoint gen = ExtendedPoint.Generator();
+
+            const int x = -1;
+            FrE scalar = FrE.SetElement(x);
+            ExtendedPoint? result = gen * scalar;
+            byte[]? serialized = result.ToBytes();
+            const string expected = "e951ad5d98e7181e99d76452e0e343281295e38d90c602bf824892fd86742c4a";
+            Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
+        }
     }
 }

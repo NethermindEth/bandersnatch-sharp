@@ -20,16 +20,16 @@ using System.IO.Abstractions;
 namespace Nethermind.Db.FullPruning
 {
     /// <summary>
-    /// Factory
+    ///     Factory
     /// </summary>
     public class FullPruningInnerDbFactory : IRocksDbFactory
     {
-        private readonly IRocksDbFactory _rocksDbFactory;
         private readonly IFileSystem _fileSystem;
+        private readonly IRocksDbFactory _rocksDbFactory;
         private int _index; // current index of the inner db
 
         /// <summary>
-        /// Constructor
+        ///     Constructor
         /// </summary>
         /// <param name="rocksDbFactory">Inner real db factory.</param>
         /// <param name="fileSystem">File system.</param>
@@ -79,7 +79,7 @@ namespace Nethermind.Db.FullPruning
         }
 
         /// <summary>
-        /// Gets the current start index for indexed DB's
+        ///     Gets the current start index for indexed DB's
         /// </summary>
         /// <param name="path">Main path to DB directory.</param>
         /// <returns>Current - starting index of DB.</returns>

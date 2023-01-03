@@ -20,7 +20,6 @@ namespace Nethermind.Db
     public interface IDbWithSpan : IDb
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="key"></param>
         /// <returns>Can return null or empty Span on missing key</returns>

@@ -18,6 +18,8 @@ namespace Nethermind.Db.Blooms
 {
     public class Average
     {
+
+        public readonly IDictionary<uint, uint> Buckets = new Dictionary<uint, uint>();
         public decimal Value
         {
             get
@@ -25,7 +27,7 @@ namespace Nethermind.Db.Blooms
                 decimal sum = 0;
                 uint count = 0;
 
-                foreach (var bucket in Buckets)
+                foreach (KeyValuePair<uint, uint> bucket in Buckets)
                 {
                     sum += bucket.Key * bucket.Value;
                     count += bucket.Value;
@@ -35,13 +37,11 @@ namespace Nethermind.Db.Blooms
             }
         }
 
-        public readonly IDictionary<uint, uint> Buckets = new Dictionary<uint, uint>();
-
         public int Count { get; private set; }
 
         public void Increment(uint value)
         {
-            Buckets[value] = Buckets.TryGetValue(value, out var count) ? count + 1 : 1;
+            Buckets[value] = Buckets.TryGetValue(value, out uint count) ? count + 1 : 1;
             Count++;
         }
     }

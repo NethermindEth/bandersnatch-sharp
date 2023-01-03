@@ -22,7 +22,10 @@ namespace Nethermind.Utils.Extensions
 {
     public static class ExpressionExtensions
     {
-        public static string GetName<T, TProperty>(this Expression<Func<T, TProperty>> action) => GetMemberInfo(action).Member.Name;
+        public static string GetName<T, TProperty>(this Expression<Func<T, TProperty>> action)
+        {
+            return GetMemberInfo(action).Member.Name;
+        }
 
         public static MemberExpression GetMemberInfo(this Expression method)
         {
@@ -39,24 +42,24 @@ namespace Nethermind.Utils.Extensions
         }
 
         /// <summary>
-        /// Convert a lambda expression for a getter into a setter
+        ///     Convert a lambda expression for a getter into a setter
         /// </summary>
         public static Action<T, TProperty> GetSetter<T, TProperty>(this Expression<Func<T, TProperty>> expression)
         {
-            var memberExpression = expression.GetMemberInfo();
+            MemberExpression memberExpression = expression.GetMemberInfo();
             if (memberExpression.Member is PropertyInfo property)
             {
-                var setMethod = property.GetSetMethod();
+                MethodInfo? setMethod = property.GetSetMethod();
 
                 if (setMethod is null)
                 {
                     throw new NotSupportedException($"Property {typeof(T).Name}{memberExpression.Member.Name} doesn't have a setter.");
                 }
 
-                var parameterT = Expression.Parameter(typeof(T), "x");
-                var parameterTProperty = Expression.Parameter(typeof(TProperty), "y");
+                ParameterExpression parameterT = Expression.Parameter(typeof(T), "x");
+                ParameterExpression parameterTProperty = Expression.Parameter(typeof(TProperty), "y");
 
-                var newExpression =
+                Expression<Action<T, TProperty>> newExpression =
                     Expression.Lambda<Action<T, TProperty>>(
                         Expression.Call(parameterT, setMethod, parameterTProperty),
                         parameterT,
@@ -65,11 +68,8 @@ namespace Nethermind.Utils.Extensions
 
                 return newExpression.Compile();
             }
-            else
-            {
-                // TODO: Add fields
-                throw new NotSupportedException($"Member {typeof(T).Name}{memberExpression.Member.Name} is not a property.");
-            }
+            // TODO: Add fields
+            throw new NotSupportedException($"Member {typeof(T).Name}{memberExpression.Member.Name} is not a property.");
         }
     }
 }
