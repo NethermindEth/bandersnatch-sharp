@@ -4,8 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using MathGmp.Native;
+using Nethermind.Field.Montgomery.ElementFactory;
 using Nethermind.Field.Montgomery.FpEElement;
 using Nethermind.Int256;
 
@@ -18,21 +21,36 @@ namespace Nethermind.Field.Montgomery.Benchmark
 
         protected static UInt256 _uMod = FpE._modulus.Value;
         protected static BigInteger _bMod = (BigInteger)_uMod;
+        protected static mpz_t _gMod = ImportDataToGmp(_uMod.ToBigEndian());
         private static IEnumerable<BigInteger> Values => new[]
         {
             Numbers._uInt256Max
         }.Concat(UnaryOps.RandomUnsigned(1));
         public IEnumerable<UInt256> ValuesUint256 => Values.Select(x => (UInt256)x);
         public IEnumerable<TestElement> ValuesElement => Values.Select(x => (TestElement)x);
-        public IEnumerable<(BigInteger, UInt256, TestElement)> ValuesTuple => Values.Select(x => (x, (UInt256)x, (TestElement)x));
+        public IEnumerable<mpz_t> ValuesGmp => Values.Select(x => ImportDataToGmp(x.ToByteArray(isBigEndian:true)));
+        public IEnumerable<(BigInteger, UInt256, TestElement, mpz_t)> ValuesTuple => Values.Select(x => (x, (UInt256)x, (TestElement)x, ImportDataToGmp(x.ToByteArray(isBigEndian:true))));
 
         public IEnumerable<int> ValuesInt => UnaryOps.RandomInt(3);
+
+        private static mpz_t ImportDataToGmp(byte[] data)
+        {
+            mpz_t result = new();
+            gmp_lib.mpz_init(result);
+            ulong memorySize = ulong.Parse(data.Length.ToString());
+            using void_ptr memoryChunk = gmp_lib.allocate(memorySize);
+
+            Marshal.Copy(data, 0, memoryChunk.ToIntPtr(), data.Length);
+            gmp_lib.mpz_import(result, ulong.Parse(data.Length.ToString()), 1, 1, 1, 0, memoryChunk);
+
+            return result;
+        }
     }
 
     public class IntTwoParamBenchmarkBase : BenchmarkBase
     {
         [ParamsSource(nameof(ValuesTuple))]
-        protected (BigInteger, UInt256, TestElement) _a;
+        protected (BigInteger, UInt256, TestElement, mpz_t) _a;
 
         [ParamsSource(nameof(ValuesInt))]
         protected int _d;
@@ -41,16 +59,16 @@ namespace Nethermind.Field.Montgomery.Benchmark
     public class TwoParamBenchmarkBase : BenchmarkBase
     {
         [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, TestElement) _a;
+        public (BigInteger, UInt256, TestElement, mpz_t) _a;
 
         [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, TestElement) _b;
+        public (BigInteger, UInt256, TestElement, mpz_t) _b;
     }
 
     public class ThreeParamBenchmarkBase : TwoParamBenchmarkBase
     {
         [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, TestElement) _c;
+        public (BigInteger, UInt256, TestElement, mpz_t) _c;
     }
 
     [SimpleJob(RuntimeMoniker.Net70)]
@@ -63,11 +81,11 @@ namespace Nethermind.Field.Montgomery.Benchmark
             return (_a.Item1 + _b.Item1) % _bMod;
         }
 
-        [Benchmark]
-        public BigInteger AddMod_BigInteger_New()
-        {
-            return BigInteger.Remainder(_a.Item1 + _b.Item1, _bMod);
-        }
+        // [Benchmark]
+        // public BigInteger AddMod_BigInteger_New()
+        // {
+        //     return BigInteger.Remainder(_a.Item1 + _b.Item1, _bMod);
+        // }
 
         [Benchmark]
         public UInt256 AddMod_UInt256()
@@ -80,6 +98,16 @@ namespace Nethermind.Field.Montgomery.Benchmark
         public TestElement AddMod_Element()
         {
             TestElement.AddMod(_a.Item3, _b.Item3, out TestElement res);
+            return res;
+        }
+
+        [Benchmark]
+        public mpz_t AddMod_gmp()
+        {
+            using mpz_t res = new();
+            gmp_lib.mpz_init(res);
+            gmp_lib.mpz_add(res, _a.Item4, _b.Item4);
+            gmp_lib.mpz_mod(res, res, _gMod);
             return res;
         }
     }
@@ -105,6 +133,15 @@ namespace Nethermind.Field.Montgomery.Benchmark
         public TestElement SubtractMod_Element()
         {
             TestElement.SubtractMod(_a.Item3, _b.Item3, out TestElement res);
+            return res;
+        }
+        [Benchmark]
+        public mpz_t SubtractMod_gmp()
+        {
+            using mpz_t res = new();
+            gmp_lib.mpz_init(res);
+            gmp_lib.mpz_sub(res, _a.Item4, _b.Item4);
+            gmp_lib.mpz_mod(res, res, _gMod);
             return res;
         }
     }
@@ -133,6 +170,15 @@ namespace Nethermind.Field.Montgomery.Benchmark
             TestElement.MultiplyMod(_a.Item3, _b.Item3, out TestElement res);
             return res;
         }
+        [Benchmark]
+        public mpz_t MultiplyMod_gmp()
+        {
+            using mpz_t res = new();
+            gmp_lib.mpz_init(res);
+            gmp_lib.mpz_mul(res, _a.Item4, _b.Item4);
+            gmp_lib.mpz_mod(res, res, _gMod);
+            return res;
+        }
     }
 
     [SimpleJob(RuntimeMoniker.Net70)]
@@ -158,6 +204,16 @@ namespace Nethermind.Field.Montgomery.Benchmark
             TestElement.Divide(_a.Item3, _b.Item3, out TestElement res);
             return res;
         }
+        [Benchmark]
+        public mpz_t Divide_gmp()
+        {
+            using mpz_t res = new();
+            gmp_lib.mpz_init(res);
+            gmp_lib.mpz_invert(res, _b.Item4, _gMod);
+            gmp_lib.mpz_mul(res, _a.Item4, res);
+            gmp_lib.mpz_mod(res, res, _gMod);
+            return res;
+        }
     }
 
     [SimpleJob(RuntimeMoniker.Net70)]
@@ -181,6 +237,14 @@ namespace Nethermind.Field.Montgomery.Benchmark
         public TestElement ExpMod_Element()
         {
             TestElement.Exp(_a.Item3, _b.Item2, out TestElement res);
+            return res;
+        }
+        [Benchmark]
+        public mpz_t Exp_gmp()
+        {
+            using mpz_t res = new();
+            gmp_lib.mpz_init(res);
+            gmp_lib.mpz_powm(res, _a.Item4, _b.Item4, _gMod);
             return res;
         }
     }
@@ -257,6 +321,16 @@ namespace Nethermind.Field.Montgomery.Benchmark
         {
             TestElement.Inverse(_a.Item3, out TestElement res);
             return res;
+        }
+        [Benchmark]
+        public Element Inverse_gmp()
+        {
+            using mpz_t res = new();
+            gmp_lib.mpz_init(res);
+            gmp_lib.mpz_invert(res, _a.Item4, _gMod);
+            byte[] result = new byte[32];
+            Marshal.Copy(res.ToIntPtr(), result, 0, 32);
+            return new Element(result);
         }
     }
 
