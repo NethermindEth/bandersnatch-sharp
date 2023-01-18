@@ -65,8 +65,7 @@ namespace Nethermind.Field.Montgomery
         private static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
         {
             sum = x + y + carry;
-            // both msb bits are 1 or one of them is 1 and we had carry from lower bits
-            carry = (x & y | (x | y) & ~sum) >> 63;
+            carry = sum < x || sum < y? 1UL : 0UL;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,6 +82,7 @@ namespace Nethermind.Field.Montgomery
         {
             ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
+
             AddWithCarry(lo, c, ref carry, out lo);
             hi += carry;
             return hi;

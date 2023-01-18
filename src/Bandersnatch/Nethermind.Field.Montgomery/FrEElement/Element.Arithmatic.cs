@@ -30,6 +30,22 @@ namespace Nethermind.Field.Montgomery.FrEElement
             Rsh(this, n, out res);
         }
 
+        public void RightShiftByOne(out FE res)
+        {
+            ulong a = ElementUtils.Lsh(u3, 63);
+            ulong z3 = ElementUtils.Rsh(u3, 1);
+
+            ulong b = ElementUtils.Lsh(u2, 63);
+            ulong z2 = ElementUtils.Rsh(u2, 1) | a;
+
+            a = ElementUtils.Lsh(u1, 63);
+            ulong z1 = ElementUtils.Rsh(u1, 1) | b;
+
+            ulong z0 = ElementUtils.Rsh(u0, 1) | a;
+
+            res = new FE(z0, z1, z2, z3);
+        }
+
 
         public static void AddMod(in FE a, in FE b, out FE res)
         {

@@ -43,24 +43,24 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             {
                 while ((v[0] & 1) == 0)
                 {
-                    v >>= 1;
+                    v.RightShiftByOne(out v);
                     if ((s[0] & 1) == 1)
                     {
                         ElementUtils.AddOverflow(in s.u0, in s.u1, in s.u2, in s.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
                         s = new FE(u0, u1, u2, u3);
                     }
-                    s >>= 1;
+                    s.RightShiftByOne(out s);
                 }
 
                 while ((u[0] & 1) == 0)
                 {
-                    u >>= 1;
+                    u.RightShiftByOne(out u);
                     if ((r[0] & 1) == 1)
                     {
                         ElementUtils.AddOverflow(in r.u0, in r.u1, in r.u2, in r.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
                         r = new FE(u0, u1, u2, u3);
                     }
-                    r >>= 1;
+                    r.RightShiftByOne(out r);
                 }
 
                 if (!LessThan(v, u))

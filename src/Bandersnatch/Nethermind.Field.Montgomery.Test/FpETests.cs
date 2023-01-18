@@ -96,7 +96,7 @@ namespace Nethermind.Field.Montgomery.Test
         public void ProfileMultiplication()
         {
             using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100000; i++)
             {
                 FpE x = set.Current;
                 if (x.IsZero)
