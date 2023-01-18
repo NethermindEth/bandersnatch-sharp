@@ -100,56 +100,56 @@ namespace Nethermind.Field.Montgomery.FpEElement
                 // round 0
 
                 ulong v = x[0];
-                (c[1], c[0]) = ElementUtils.Multiply64(v, y[0]);
+                c[1] = Math.BigMul(v, y[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[1], c[1]);
-                (c[2], t[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[2], c[1]);
-                (c[2], t[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[3], c[1]);
-                (t[3], t[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd1(v, y[1], c[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = ElementUtils.MAdd1(v, y[2], c[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = ElementUtils.MAdd1(v, y[3], c[1], out c[0]);
+                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 1
                 ulong v = x[1];
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[0], t[0]);
+                c[1] = ElementUtils.MAdd1(v, y[0], t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[1], c[1], t[1]);
-                (c[2], t[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[2], c[1], t[2]);
-                (c[2], t[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[3], c[1], t[3]);
-                (t[3], t[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd2(v, y[1], c[1], t[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = ElementUtils.MAdd2(v, y[2], c[1], t[2], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = ElementUtils.MAdd2(v, y[3], c[1], t[3], out c[0]);
+                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 2
 
                 ulong v = x[2];
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[0], t[0]);
+                c[1] = ElementUtils.MAdd1(v, y[0], t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[1], c[1], t[1]);
-                (c[2], t[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[2], c[1], t[2]);
-                (c[2], t[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[3], c[1], t[3]);
-                (t[3], t[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd2(v, y[1], c[1], t[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = ElementUtils.MAdd2(v, y[2], c[1], t[2], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = ElementUtils.MAdd2(v, y[3], c[1], t[3], out c[0]);
+                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 3
 
                 ulong v = x[3];
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[0], t[0]);
+                c[1] = ElementUtils.MAdd1(v, y[0], t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[1], c[1], t[1]);
-                (c[2], z[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[2], c[1], t[2]);
-                (c[2], z[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[3], c[1], t[3]);
-                (z[3], z[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd2(v, y[1], c[1], t[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out z[0]);
+                c[1] = ElementUtils.MAdd2(v, y[2], c[1], t[2], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out z[1]);
+                c[1] = ElementUtils.MAdd2(v, y[3], c[1], t[3], out c[0]);
+                z[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
             }
             if (LessThan(qElement, z))
             {

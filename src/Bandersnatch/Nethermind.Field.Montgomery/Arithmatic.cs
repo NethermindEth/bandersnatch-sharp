@@ -73,52 +73,45 @@ namespace Nethermind.Field.Montgomery
         public static ulong MAdd0(ulong a, ulong b, ulong c)
         {
             ulong carry = 0;
-            (ulong hi, ulong lo) = Multiply64(a, b);
+            ulong hi = Math.BigMul(a, b, out ulong lo);
             AddWithCarry(lo, c, ref carry, out lo);
             return hi + carry;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (ulong, ulong) MAdd1(ulong a, ulong b, ulong c)
+        public static ulong MAdd1(ulong a, ulong b, ulong c, out ulong lo)
         {
-            (ulong hi, ulong lo) = Multiply64(a, b);
+            ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
             AddWithCarry(lo, c, ref carry, out lo);
             hi += carry;
-            return (hi, lo);
+            return hi;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (ulong, ulong) MAdd2(ulong a, ulong b, ulong c, ulong d)
+        public static ulong MAdd2(ulong a, ulong b, ulong c, ulong d, out ulong lo)
         {
-            (ulong hi, ulong lo) = Multiply64(a, b);
+            ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
             AddWithCarry(c, d, ref carry, out c);
             hi += carry;
             carry = 0;
             AddWithCarry(lo, c, ref carry, out lo);
             hi += carry;
-            return (hi, lo);
+            return hi;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (ulong, ulong) MAdd3(ulong a, ulong b, ulong c, ulong d, ulong e)
+        public static ulong MAdd3(ulong a, ulong b, ulong c, ulong d, ulong e, out ulong lo)
         {
-            (ulong hi, ulong lo) = Multiply64(a, b);
+            ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
             AddWithCarry(c, d, ref carry, out c);
             hi += carry;
             carry = 0;
             AddWithCarry(lo, c, ref carry, out lo);
             hi = hi + e + carry;
-            return (hi, lo);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (ulong high, ulong low) Multiply64(ulong a, ulong b)
-        {
-            ulong high = Math.BigMul(a, b, out ulong low);
-            return (high, low);
+            return hi;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

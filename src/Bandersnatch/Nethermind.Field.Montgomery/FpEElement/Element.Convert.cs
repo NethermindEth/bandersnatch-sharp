@@ -92,30 +92,30 @@ namespace Nethermind.Field.Montgomery.FpEElement
 
             ulong m = z[0] * QInvNeg;
             ulong c = ElementUtils.MAdd0(m, Q0, z[0]);
-            (c, z[0]) = ElementUtils.MAdd2(m, Q1, z[1], c);
-            (c, z[1]) = ElementUtils.MAdd2(m, Q2, z[2], c);
-            (c, z[2]) = ElementUtils.MAdd2(m, Q3, z[3], c);
+            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
+            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
+            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             m = z[0] * QInvNeg;
             c = ElementUtils.MAdd0(m, Q0, z[0]);
-            (c, z[0]) = ElementUtils.MAdd2(m, Q1, z[1], c);
-            (c, z[1]) = ElementUtils.MAdd2(m, Q2, z[2], c);
-            (c, z[2]) = ElementUtils.MAdd2(m, Q3, z[3], c);
+            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
+            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
+            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             m = z[0] * QInvNeg;
             c = ElementUtils.MAdd0(m, Q0, z[0]);
-            (c, z[0]) = ElementUtils.MAdd2(m, Q1, z[1], c);
-            (c, z[1]) = ElementUtils.MAdd2(m, Q2, z[2], c);
-            (c, z[2]) = ElementUtils.MAdd2(m, Q3, z[3], c);
+            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
+            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
+            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             m = z[0] * QInvNeg;
             c = ElementUtils.MAdd0(m, Q0, z[0]);
-            (c, z[0]) = ElementUtils.MAdd2(m, Q1, z[1], c);
-            (c, z[1]) = ElementUtils.MAdd2(m, Q2, z[2], c);
-            (c, z[2]) = ElementUtils.MAdd2(m, Q3, z[3], c);
+            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
+            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
+            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             if (LessThan(qElement, z))
