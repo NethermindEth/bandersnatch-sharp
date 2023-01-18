@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using MathGmp.Native;
+using Nethermind.Field.Go;
 using Nethermind.Field.Montgomery.ElementFactory;
 using Nethermind.Field.Montgomery.FpEElement;
 using Nethermind.Int256;
@@ -29,7 +30,8 @@ namespace Nethermind.Field.Montgomery.Benchmark
         public IEnumerable<UInt256> ValuesUint256 => Values.Select(x => (UInt256)x);
         public IEnumerable<TestElement> ValuesElement => Values.Select(x => (TestElement)x);
         public IEnumerable<mpz_t> ValuesGmp => Values.Select(x => ImportDataToGmp(x.ToByteArray(isBigEndian:true)));
-        public IEnumerable<(BigInteger, UInt256, TestElement, mpz_t)> ValuesTuple => Values.Select(x => (x, (UInt256)x, (TestElement)x, ImportDataToGmp(x.ToByteArray(isBigEndian:true))));
+        public IEnumerable<ulong[]> ValuesGo => Values.Select(x => ((TestElement)x).ToUlong());
+        public IEnumerable<(BigInteger, UInt256, TestElement, mpz_t, ulong[])> ValuesTuple => Values.Select(x => (x, (UInt256)x, (TestElement)x, ImportDataToGmp(x.ToByteArray(isBigEndian:true)), ((TestElement)x).ToUlong()));
 
         public IEnumerable<int> ValuesInt => UnaryOps.RandomInt(3);
 
@@ -59,10 +61,10 @@ namespace Nethermind.Field.Montgomery.Benchmark
     public class TwoParamBenchmarkBase : BenchmarkBase
     {
         [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, TestElement, mpz_t) _a;
+        public (BigInteger, UInt256, TestElement, mpz_t, ulong[]) _a;
 
         [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, TestElement, mpz_t) _b;
+        public (BigInteger, UInt256, TestElement, mpz_t, ulong[]) _b;
     }
 
     public class ThreeParamBenchmarkBase : TwoParamBenchmarkBase
@@ -170,6 +172,17 @@ namespace Nethermind.Field.Montgomery.Benchmark
             TestElement.MultiplyMod(_a.Item3, _b.Item3, out TestElement res);
             return res;
         }
+
+        [Benchmark]
+        public ulong[] MultiplyMod_Go()
+        {
+            ulong[] res = new ulong[4];
+            var a = _a.Item5;
+            var b = _b.Item5;
+            GoFieldInterop.CMul(res, a[0], a[1], a[2],a[3],b[0],b[1],b[2],b[3]);
+            return res;
+        }
+
         [Benchmark]
         public mpz_t MultiplyMod_gmp()
         {

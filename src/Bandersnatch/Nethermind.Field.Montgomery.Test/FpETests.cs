@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Nethermind.Field.Go;
 using Nethermind.Field.Montgomery.FpEElement;
 using NUnit.Framework;
 
@@ -19,6 +21,17 @@ namespace Nethermind.Field.Montgomery.Test
                 Assert.IsTrue(z.IsZero);
                 set.MoveNext();
             }
+        }
+
+        [Test]
+        public unsafe void TestMul()
+        {
+            ulong[] a = new ulong[4];
+            ulong[] b = new ulong[4];
+            ulong[] c = new ulong[4];
+
+            GoFieldInterop.CMul(c, a[0], a[1], a[2],a[3],b[0],b[1],b[2],b[3]);
+
         }
 
         [Test]
@@ -88,6 +101,23 @@ namespace Nethermind.Field.Montgomery.Test
                 FpE.Inverse(x, out FpE y);
                 FpE.MultiplyMod(x, y, out FpE z);
                 Assert.IsTrue(z.IsOne);
+                set.MoveNext();
+            }
+        }
+
+        [Test]
+        public void ProfileMultiplication()
+        {
+            using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();
+            for (int i = 0; i < 1000; i++)
+            {
+                FpE x = set.Current;
+                if (x.IsZero)
+                {
+                    set.MoveNext();
+                    continue;
+                }
+                FpE.MultiplyMod(x, x, out FpE z);
                 set.MoveNext();
             }
         }

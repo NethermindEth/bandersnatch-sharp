@@ -122,6 +122,13 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong Multiply64(ulong a, ulong b, out ulong low)
+        {
+            ulong high = Math.BigMul(a, b, out low);
+            return high;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SubtractUnderflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
         {
             ulong borrow = 0;

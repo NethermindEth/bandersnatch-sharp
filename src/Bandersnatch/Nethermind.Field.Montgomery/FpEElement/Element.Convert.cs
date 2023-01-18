@@ -81,6 +81,14 @@ namespace Nethermind.Field.Montgomery.FpEElement
             FromMontgomery(in x, out z);
         }
 
+        public ulong[] ToUlong()
+        {
+            return new[]
+            {
+                u0, u1, u2, u3
+            };
+        }
+
         public static void FromMontgomery(in FpE x, out FpE res)
         {
             ulong[] z = new ulong[4];
