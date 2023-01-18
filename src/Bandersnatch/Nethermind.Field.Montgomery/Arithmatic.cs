@@ -36,18 +36,14 @@ namespace Nethermind.Field.Montgomery
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ulong Rsh(ulong a, int n)
         {
-            int n1 = n >> 1;
-            int n2 = n - n1;
-            return a >> n1 >> n2;
+            return a >> n;
         }
 
         // It avoids c#'s way of shifting a 64-bit number by 64-bit, i.e. in c# a << 64 == a, in our version a << 64 == 0.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ulong Lsh(ulong a, int n)
         {
-            int n1 = n >> 1;
-            int n2 = n - n1;
-            return a << n1 << n2;
+            return a << n;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
