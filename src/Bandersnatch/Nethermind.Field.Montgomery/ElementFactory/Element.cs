@@ -4,6 +4,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Nethermind.Int256;
+using FE = Nethermind.Field.Montgomery.ElementFactory.Element;
 
 namespace Nethermind.Field.Montgomery.ElementFactory
 {
@@ -41,7 +42,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
         {
             UInt256 val = new UInt256(bytes, isBigEndian);
             val.Mod(_modulus.Value, out UInt256 res);
-            Element inp = new Element(res.u0, res.u1, res.u2, res.u3);
+            FE inp = new FE(res.u0, res.u1, res.u2, res.u3);
             ToMontgomery(inp, out this);
         }
 

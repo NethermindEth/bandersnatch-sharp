@@ -1,270 +1,271 @@
 using System.Numerics;
 using Nethermind.Int256;
+using FE = Nethermind.Field.Montgomery.FpEElement.FpE;
 
 namespace Nethermind.Field.Montgomery.FpEElement
 {
     public readonly partial struct FpE
     {
 
-        public static FpE operator +(in FpE a, in FpE b)
+        public static FE operator +(in FE a, in FE b)
         {
-            AddMod(in a, in b, out FpE res);
+            AddMod(in a, in b, out FE res);
             return res;
         }
 
-        public static FpE operator -(in FpE a, in FpE b)
+        public static FE operator -(in FE a, in FE b)
         {
-            SubtractMod(in a, in b, out FpE c);
+            SubtractMod(in a, in b, out FE c);
             return c;
         }
 
-        public static FpE operator *(in FpE a, in FpE b)
+        public static FE operator *(in FE a, in FE b)
         {
-            MultiplyMod(a, b, out FpE x);
+            MultiplyMod(a, b, out FE x);
             return x;
         }
 
 
-        public static FpE operator /(in FpE a, in FpE b)
+        public static FE operator /(in FE a, in FE b)
         {
-            Divide(in a, in b, out FpE c);
+            Divide(in a, in b, out FE c);
             return c;
         }
 
-        public static FpE operator >> (in FpE a, int n)
+        public static FE operator >> (in FE a, int n)
         {
-            a.RightShift(n, out FpE res);
+            a.RightShift(n, out FE res);
             return res;
         }
-        public static FpE operator <<(in FpE a, int n)
+        public static FE operator <<(in FE a, int n)
         {
-            a.LeftShift(n, out FpE res);
+            a.LeftShift(n, out FE res);
             return res;
         }
 
-        public static bool operator ==(in FpE a, int b)
+        public static bool operator ==(in FE a, int b)
         {
             return a.Equals(b);
         }
-        public static bool operator ==(int a, in FpE b)
+        public static bool operator ==(int a, in FE b)
         {
             return b.Equals(a);
         }
-        public static bool operator ==(in FpE a, uint b)
+        public static bool operator ==(in FE a, uint b)
         {
             return a.Equals(b);
         }
-        public static bool operator ==(uint a, in FpE b)
+        public static bool operator ==(uint a, in FE b)
         {
             return b.Equals(a);
         }
-        public static bool operator ==(in FpE a, long b)
+        public static bool operator ==(in FE a, long b)
         {
             return a.Equals(b);
         }
-        public static bool operator ==(long a, in FpE b)
+        public static bool operator ==(long a, in FE b)
         {
             return b.Equals(a);
         }
-        public static bool operator ==(in FpE a, ulong b)
+        public static bool operator ==(in FE a, ulong b)
         {
             return a.Equals(b);
         }
-        public static bool operator ==(ulong a, in FpE b)
+        public static bool operator ==(ulong a, in FE b)
         {
             return b.Equals(a);
         }
-        public static bool operator !=(in FpE a, int b)
+        public static bool operator !=(in FE a, int b)
         {
             return !a.Equals(b);
         }
-        public static bool operator !=(int a, in FpE b)
+        public static bool operator !=(int a, in FE b)
         {
             return !b.Equals(a);
         }
-        public static bool operator !=(in FpE a, uint b)
+        public static bool operator !=(in FE a, uint b)
         {
             return !a.Equals(b);
         }
-        public static bool operator !=(uint a, in FpE b)
+        public static bool operator !=(uint a, in FE b)
         {
             return !b.Equals(a);
         }
-        public static bool operator !=(in FpE a, long b)
+        public static bool operator !=(in FE a, long b)
         {
             return !a.Equals(b);
         }
-        public static bool operator !=(long a, in FpE b)
+        public static bool operator !=(long a, in FE b)
         {
             return !b.Equals(a);
         }
-        public static bool operator !=(in FpE a, ulong b)
+        public static bool operator !=(in FE a, ulong b)
         {
             return !a.Equals(b);
         }
-        public static bool operator !=(ulong a, in FpE b)
+        public static bool operator !=(ulong a, in FE b)
         {
             return !b.Equals(a);
         }
 
-        public static bool operator <(in FpE a, in FpE b)
+        public static bool operator <(in FE a, in FE b)
         {
             return LessThan(in a, in b);
         }
-        public static bool operator <(in FpE a, int b)
+        public static bool operator <(in FE a, int b)
         {
             return LessThan(in a, b);
         }
-        public static bool operator <(int a, in FpE b)
+        public static bool operator <(int a, in FE b)
         {
             return LessThan(a, in b);
         }
-        public static bool operator <(in FpE a, uint b)
+        public static bool operator <(in FE a, uint b)
         {
             return LessThan(in a, b);
         }
-        public static bool operator <(uint a, in FpE b)
+        public static bool operator <(uint a, in FE b)
         {
             return LessThan(a, in b);
         }
-        public static bool operator <(in FpE a, long b)
+        public static bool operator <(in FE a, long b)
         {
             return LessThan(in a, b);
         }
-        public static bool operator <(long a, in FpE b)
+        public static bool operator <(long a, in FE b)
         {
             return LessThan(a, in b);
         }
-        public static bool operator <(in FpE a, ulong b)
+        public static bool operator <(in FE a, ulong b)
         {
             return LessThan(in a, b);
         }
-        public static bool operator <(ulong a, in FpE b)
+        public static bool operator <(ulong a, in FE b)
         {
             return LessThan(a, in b);
         }
-        public static bool operator <=(in FpE a, in FpE b)
+        public static bool operator <=(in FE a, in FE b)
         {
             return !LessThan(in b, in a);
         }
-        public static bool operator <=(in FpE a, int b)
+        public static bool operator <=(in FE a, int b)
         {
             return !LessThan(b, in a);
         }
-        public static bool operator <=(int a, in FpE b)
+        public static bool operator <=(int a, in FE b)
         {
             return !LessThan(in b, a);
         }
-        public static bool operator <=(in FpE a, uint b)
+        public static bool operator <=(in FE a, uint b)
         {
             return !LessThan(b, in a);
         }
-        public static bool operator <=(uint a, in FpE b)
+        public static bool operator <=(uint a, in FE b)
         {
             return !LessThan(in b, a);
         }
-        public static bool operator <=(in FpE a, long b)
+        public static bool operator <=(in FE a, long b)
         {
             return !LessThan(b, in a);
         }
-        public static bool operator <=(long a, in FpE b)
+        public static bool operator <=(long a, in FE b)
         {
             return !LessThan(in b, a);
         }
-        public static bool operator <=(in FpE a, ulong b)
+        public static bool operator <=(in FE a, ulong b)
         {
             return !LessThan(b, in a);
         }
-        public static bool operator <=(ulong a, FpE b)
+        public static bool operator <=(ulong a, FE b)
         {
             return !LessThan(in b, a);
         }
-        public static bool operator >(in FpE a, in FpE b)
+        public static bool operator >(in FE a, in FE b)
         {
             return LessThan(in b, in a);
         }
-        public static bool operator >(in FpE a, int b)
+        public static bool operator >(in FE a, int b)
         {
             return LessThan(b, in a);
         }
-        public static bool operator >(int a, in FpE b)
+        public static bool operator >(int a, in FE b)
         {
             return LessThan(in b, a);
         }
-        public static bool operator >(in FpE a, uint b)
+        public static bool operator >(in FE a, uint b)
         {
             return LessThan(b, in a);
         }
-        public static bool operator >(uint a, in FpE b)
+        public static bool operator >(uint a, in FE b)
         {
             return LessThan(in b, a);
         }
-        public static bool operator >(in FpE a, long b)
+        public static bool operator >(in FE a, long b)
         {
             return LessThan(b, in a);
         }
-        public static bool operator >(long a, in FpE b)
+        public static bool operator >(long a, in FE b)
         {
             return LessThan(in b, a);
         }
-        public static bool operator >(in FpE a, ulong b)
+        public static bool operator >(in FE a, ulong b)
         {
             return LessThan(b, in a);
         }
-        public static bool operator >(ulong a, in FpE b)
+        public static bool operator >(ulong a, in FE b)
         {
             return LessThan(in b, a);
         }
-        public static bool operator >=(in FpE a, in FpE b)
+        public static bool operator >=(in FE a, in FE b)
         {
             return !LessThan(in a, in b);
         }
-        public static bool operator >=(in FpE a, int b)
+        public static bool operator >=(in FE a, int b)
         {
             return !LessThan(in a, b);
         }
-        public static bool operator >=(int a, in FpE b)
+        public static bool operator >=(int a, in FE b)
         {
             return !LessThan(a, in b);
         }
-        public static bool operator >=(in FpE a, uint b)
+        public static bool operator >=(in FE a, uint b)
         {
             return !LessThan(in a, b);
         }
-        public static bool operator >=(uint a, in FpE b)
+        public static bool operator >=(uint a, in FE b)
         {
             return !LessThan(a, in b);
         }
-        public static bool operator >=(in FpE a, long b)
+        public static bool operator >=(in FE a, long b)
         {
             return !LessThan(in a, b);
         }
-        public static bool operator >=(long a, in FpE b)
+        public static bool operator >=(long a, in FE b)
         {
             return !LessThan(a, in b);
         }
-        public static bool operator >=(in FpE a, ulong b)
+        public static bool operator >=(in FE a, ulong b)
         {
             return !LessThan(in a, b);
         }
-        public static bool operator >=(ulong a, in FpE b)
+        public static bool operator >=(ulong a, in FE b)
         {
             return !LessThan(a, in b);
         }
 
-        public static implicit operator FpE(ulong value)
+        public static implicit operator FE(ulong value)
         {
-            return new FpE(value);
+            return new FE(value);
         }
-        public static implicit operator FpE(ulong[] value)
+        public static implicit operator FE(ulong[] value)
         {
-            return new FpE(value[0], value[1], value[2], value[3]);
+            return new FE(value[0], value[1], value[2], value[3]);
         }
 
-        public static explicit operator FpE(in BigInteger value)
+        public static explicit operator FE(in BigInteger value)
         {
             byte[] bytes32 = value.ToBytes32(true);
-            return new FpE(bytes32, true);
+            return new FE(bytes32, true);
         }
 
     }
