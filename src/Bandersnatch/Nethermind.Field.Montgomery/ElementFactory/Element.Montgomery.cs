@@ -1,11 +1,13 @@
+using FE = Nethermind.Field.Montgomery.ElementFactory.Element;
+
 namespace Nethermind.Field.Montgomery.ElementFactory
 {
     public readonly partial struct Element
     {
 
-        public static int Legendre(in Element z)
+        public static int Legendre(in FE z)
         {
-            Exp(z, _bLegendreExponentElement.Value, out Element res);
+            Exp(z, _bLegendreExponentElement.Value, out FE res);
 
             if (res.IsZero) return 0;
 
@@ -16,12 +18,12 @@ namespace Nethermind.Field.Montgomery.ElementFactory
 
         public bool LexicographicallyLargest()
         {
-            FromMontgomery(in this, out Element mont);
+            FromMontgomery(in this, out FE mont);
             return !ElementUtils.SubtractUnderflow(mont.u0, mont.u1, mont.u2, mont.u3,
                 qMinOne.u0, qMinOne.u1, qMinOne.u2, qMinOne.u3, out ulong _, out ulong _, out ulong _, out ulong _);
         }
 
-        public static void Inverse(in Element x, out Element z)
+        public static void Inverse(in FE x, out FE z)
         {
             if (x.IsZero)
             {
@@ -30,11 +32,11 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             }
 
             // initialize u = q
-            Element u = qElement;
+            FE u = qElement;
             // initialize s = r^2
-            Element s = rSquare;
-            Element r = new Element(0);
-            Element v = x;
+            FE s = rSquare;
+            FE r = new FE(0);
+            FE v = x;
 
 
             while (true)
@@ -45,7 +47,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                     if ((s[0] & 1) == 1)
                     {
                         ElementUtils.AddOverflow(in s.u0, in s.u1, in s.u2, in s.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                        s = new Element(u0, u1, u2, u3);
+                        s = new FE(u0, u1, u2, u3);
                     }
                     s >>= 1;
                 }
@@ -56,7 +58,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                     if ((r[0] & 1) == 1)
                     {
                         ElementUtils.AddOverflow(in r.u0, in r.u1, in r.u2, in r.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                        r = new Element(u0, u1, u2, u3);
+                        r = new FE(u0, u1, u2, u3);
                     }
                     r >>= 1;
                 }
@@ -64,13 +66,13 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                 if (!LessThan(v, u))
                 {
                     ElementUtils.SubtractUnderflow(in v.u0, in v.u1, in v.u2, in v.u3, in u.u0, in u.u1, in u.u2, in u.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                    v = new Element(u0, u1, u2, u3);
+                    v = new FE(u0, u1, u2, u3);
                     SubtractMod(s, r, out s);
                 }
                 else
                 {
                     ElementUtils.SubtractUnderflow(in u.u0, u.u1, u.u2, u.u3, in v.u0, v.u1, v.u2, v.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                    u = new Element(u0, u1, u2, u3);
+                    u = new FE(u0, u1, u2, u3);
                     SubtractMod(r, s, out r);
                 }
 
@@ -88,7 +90,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             }
         }
 
-        public static void MultiplyMod(in Element x, in Element y, out Element res)
+        public static void MultiplyMod(in FE x, in FE y, out FE res)
         {
             ulong[] t = new ulong[4];
             ulong[] c = new ulong[3];
@@ -156,14 +158,14 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             res = z;
         }
 
-        public static Element[] MultiInverse(Element[] values)
+        public static FE[] MultiInverse(FE[] values)
         {
-            if (values.Length == 0) return Array.Empty<Element>();
+            if (values.Length == 0) return Array.Empty<FE>();
 
-            Element[] results = new Element[values.Length];
+            FE[] results = new FE[values.Length];
             bool[] zeros = new bool[values.Length];
 
-            Element accumulator = One;
+            FE accumulator = One;
 
             for (int i = 0; i < values.Length; i++)
             {
@@ -188,14 +190,14 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             return results;
         }
 
-        public static bool Sqrt(in Element x, out Element z)
+        public static bool Sqrt(in FE x, out FE z)
         {
-            Exp(in x, _bSqrtExponentElement.Value, out Element w);
-            MultiplyMod(x, w, out Element y);
-            MultiplyMod(w, y, out Element b);
+            Exp(in x, _bSqrtExponentElement.Value, out FE w);
+            MultiplyMod(x, w, out FE y);
+            MultiplyMod(w, y, out FE b);
 
             ulong r = SqrtR;
-            Element t = b;
+            FE t = b;
 
             for (ulong i = 0; i < r - 1; i++)
             {
@@ -214,7 +216,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                 return false;
             }
 
-            Element g = gResidue;
+            FE g = gResidue;
             while (true)
             {
                 ulong m = 0;

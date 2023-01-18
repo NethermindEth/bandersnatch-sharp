@@ -1,35 +1,36 @@
 using System.Runtime.CompilerServices;
+using FE = Nethermind.Field.Montgomery.FpEElement.FpE;
 
 namespace Nethermind.Field.Montgomery.FpEElement
 {
     public readonly partial struct FpE
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool LessThan(in FpE a, long b)
+        private static bool LessThan(in FE a, long b)
         {
             return b >= 0 && a.u3 == 0 && a.u2 == 0 && a.u1 == 0 && a.u0 < (ulong)b;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool LessThan(long a, in FpE b)
+        private static bool LessThan(long a, in FE b)
         {
             return a < 0 || b.u1 != 0 || b.u2 != 0 || b.u3 != 0 || (ulong)a < b.u0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool LessThan(in FpE a, ulong b)
+        private static bool LessThan(in FE a, ulong b)
         {
             return a.u3 == 0 && a.u2 == 0 && a.u1 == 0 && a.u0 < b;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool LessThan(ulong a, in FpE b)
+        private static bool LessThan(ulong a, in FE b)
         {
             return b.u3 != 0 || b.u2 != 0 || b.u1 != 0 || a < b.u0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool LessThan(in FpE a, in FpE b)
+        private static bool LessThan(in FE a, in FE b)
         {
             if (a.u3 != b.u3)
                 return a.u3 < b.u3;
@@ -40,7 +41,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
             return a.u0 < b.u0;
         }
 
-        public static bool LessThanSubModulus(FpE x)
+        public static bool LessThanSubModulus(FE x)
         {
             return LessThan(x, qElement);
         }
@@ -66,16 +67,16 @@ namespace Nethermind.Field.Montgomery.FpEElement
 
         public override bool Equals(object? obj)
         {
-            return obj is FpE other && Equals(other);
+            return obj is FE other && Equals(other);
         }
 
-        public bool Equals(FpE other)
+        public bool Equals(FE other)
         {
             return u0 == other.u0 && u1 == other.u1 && u2 == other.u2 && u3 == other.u3;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Equals(in FpE other)
+        private bool Equals(in FE other)
         {
             return u0 == other.u0 &&
                    u1 == other.u1 &&
@@ -83,7 +84,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
                    u3 == other.u3;
         }
 
-        public int CompareTo(FpE b)
+        public int CompareTo(FE b)
         {
             return this < b ? -1 : Equals(b) ? 0 : 1;
         }

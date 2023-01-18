@@ -1,13 +1,14 @@
 using System.Numerics;
 using Nethermind.Int256;
+using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {
     public readonly partial struct FrE
     {
-        public FrE Dup()
+        public FE Dup()
         {
-            return new FrE(u0, u1, u2, u3);
+            return new FE(u0, u1, u2, u3);
         }
 
         public bool Bit(int n)
@@ -28,60 +29,60 @@ namespace Nethermind.Field.Montgomery.FrEElement
                         : ElementUtils.Len64(u0);
         }
 
-        public static FrE SetElement(ulong u0 = 0, ulong u1 = 0, ulong u2 = 0, ulong u3 = 0)
+        public static FE SetElement(ulong u0 = 0, ulong u1 = 0, ulong u2 = 0, ulong u3 = 0)
         {
-            FrE newElem = new FrE(u0, u1, u2, u3);
-            ToMontgomery(in newElem, out FrE res);
+            FE newElem = new FE(u0, u1, u2, u3);
+            ToMontgomery(in newElem, out FE res);
             return res;
         }
 
-        public static FrE SetElement(BigInteger value)
+        public static FE SetElement(BigInteger value)
         {
-            FrE newElem = new FrE(value);
-            ToMontgomery(in newElem, out FrE res);
+            FE newElem = new FE(value);
+            ToMontgomery(in newElem, out FE res);
             return res;
         }
 
         public Span<byte> ToBytes()
         {
-            ToRegular(in this, out FrE x);
+            ToRegular(in this, out FE x);
             return ElementUtils.ToLittleEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
         public Span<byte> ToBytesBigEndian()
         {
-            ToRegular(in this, out FrE x);
+            ToRegular(in this, out FE x);
             return ElementUtils.ToBigEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
-        public static FrE FromBytes(byte[] byteEncoded, bool isBigEndian = false)
+        public static FE FromBytes(byte[] byteEncoded, bool isBigEndian = false)
         {
             UInt256 val = new UInt256(byteEncoded, isBigEndian);
             if (val > _modulus.Value) throw new ArgumentException("FromBytes: byteEncoded should be less than modulus - use FromBytesReduced instead.");
-            FrE inp = new FrE(val.u0, val.u1, val.u2, val.u3);
-            ToMontgomery(inp, out FrE resF);
+            FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
+            ToMontgomery(inp, out FE resF);
             return resF;
         }
 
-        public static FrE FromBytesReduced(byte[] byteEncoded, bool isBigEndian = false)
+        public static FE FromBytesReduced(byte[] byteEncoded, bool isBigEndian = false)
         {
             UInt256 val = new UInt256(byteEncoded, isBigEndian);
             val.Mod(_modulus.Value, out UInt256 res);
-            FrE inp = new FrE(res.u0, res.u1, res.u2, res.u3);
-            ToMontgomery(inp, out FrE resF);
+            FE inp = new FE(res.u0, res.u1, res.u2, res.u3);
+            ToMontgomery(inp, out FE resF);
             return resF;
         }
-        public static void ToMontgomery(in FrE x, out FrE z)
+        public static void ToMontgomery(in FE x, out FE z)
         {
             MultiplyMod(x, rSquare, out z);
         }
 
-        public static void ToRegular(in FrE x, out FrE z)
+        public static void ToRegular(in FE x, out FE z)
         {
             FromMontgomery(in x, out z);
         }
 
-        public static void FromMontgomery(in FrE x, out FrE res)
+        public static void FromMontgomery(in FE x, out FE res)
         {
             ulong[] z = new ulong[4];
             z[0] = x[0];

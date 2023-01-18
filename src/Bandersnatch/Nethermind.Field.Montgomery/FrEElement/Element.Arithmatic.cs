@@ -1,44 +1,45 @@
 using System.Data;
 using System.Runtime.CompilerServices;
 using Nethermind.Int256;
+using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {
     public readonly partial struct FrE
     {
-        public static IEnumerable<FrE> GetRandom()
+        public static IEnumerable<FE> GetRandom()
         {
             byte[] data = new byte[32];
             Random rand = new Random(0);
             rand.NextBytes(data);
-            yield return new FrE(data);
+            yield return new FE(data);
         }
 
-        public FrE Negative()
+        public FE Negative()
         {
-            SubtractMod(Zero, this, out FrE res);
+            SubtractMod(Zero, this, out FE res);
             return res;
         }
 
-        public void LeftShift(int n, out FrE res)
+        public void LeftShift(int n, out FE res)
         {
             Lsh(this, n, out res);
         }
-        public void RightShift(int n, out FrE res)
+        public void RightShift(int n, out FE res)
         {
             Rsh(this, n, out res);
         }
 
 
-        public static void AddMod(in FrE a, in FrE b, out FrE res)
+        public static void AddMod(in FE a, in FE b, out FE res)
         {
             bool overflow = ElementUtils.AddOverflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
             // remove this extra allocation
-            res = new FrE(u0, u1, u2, u3);
+            res = new FE(u0, u1, u2, u3);
             if (overflow)
             {
                 ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3);
-                res = new FrE(u0, u1, u2, u3);
+                res = new FE(u0, u1, u2, u3);
                 return;
             }
 
@@ -49,16 +50,16 @@ namespace Nethermind.Field.Montgomery.FrEElement
                     throw new InvalidConstraintException("this should now be possible");
                 }
             }
-            res = new FrE(u0, u1, u2, u3);
+            res = new FE(u0, u1, u2, u3);
         }
-        public static void Divide(in FrE x, in FrE y, out FrE z)
+        public static void Divide(in FE x, in FE y, out FE z)
         {
-            Inverse(y, out FrE yInv);
+            Inverse(y, out FE yInv);
             MultiplyMod(x, yInv, out z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SubtractMod(in FrE a, in FrE b, out FrE res)
+        public static void SubtractMod(in FE a, in FE b, out FE res)
         {
             ulong u0;
             ulong u1;
@@ -67,13 +68,13 @@ namespace Nethermind.Field.Montgomery.FrEElement
             if (ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
                 ElementUtils.AddOverflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
 
-            res = new FrE(u0, u1, u2, u3);
+            res = new FE(u0, u1, u2, u3);
         }
 
-        public static void Exp(in FrE b, in UInt256 e, out FrE result)
+        public static void Exp(in FE b, in UInt256 e, out FE result)
         {
             result = One;
-            FrE bs = b;
+            FE bs = b;
             int len = e.BitLen;
             for (int i = 0; i < len; i++)
             {
@@ -85,7 +86,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
             }
         }
 
-        public static void Lsh(in FrE x, int n, out FrE res)
+        public static void Lsh(in FE x, int n, out FE res)
         {
             if (n % 64 == 0)
             {
@@ -154,11 +155,11 @@ namespace Nethermind.Field.Montgomery.FrEElement
         sh192:
             z3 = ElementUtils.Lsh(res.u3, n) | a;
 
-            res = new FrE(z0, z1, z2, z3);
+            res = new FE(z0, z1, z2, z3);
         }
 
 
-        public static void Rsh(in FrE x, int n, out FrE res)
+        public static void Rsh(in FE x, int n, out FE res)
         {
             // n % 64 == 0
             if ((n & 0x3f) == 0)
@@ -244,44 +245,44 @@ namespace Nethermind.Field.Montgomery.FrEElement
         sh192:
             z0 = ElementUtils.Rsh(res.u0, n) | a;
 
-            res = new FrE(z0, z1, z2, z3);
+            res = new FE(z0, z1, z2, z3);
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Lsh64(out FrE res)
+        internal void Lsh64(out FE res)
         {
-            res = new FrE(0, u0, u1, u2);
+            res = new FE(0, u0, u1, u2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Lsh128(out FrE res)
+        internal void Lsh128(out FE res)
         {
-            res = new FrE(0, 0, u0, u1);
+            res = new FE(0, 0, u0, u1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Lsh192(out FrE res)
+        internal void Lsh192(out FE res)
         {
-            res = new FrE(0, 0, 0, u0);
+            res = new FE(0, 0, 0, u0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Rsh64(out FrE res)
+        internal void Rsh64(out FE res)
         {
-            res = new FrE(u1, u2, u3);
+            res = new FE(u1, u2, u3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Rsh128(out FrE res)
+        private void Rsh128(out FE res)
         {
-            res = new FrE(u2, u3);
+            res = new FE(u2, u3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Rsh192(out FrE res)
+        private void Rsh192(out FE res)
         {
-            res = new FrE(u3);
+            res = new FE(u3);
         }
     }
 }
