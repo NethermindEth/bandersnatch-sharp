@@ -93,6 +93,23 @@ namespace Nethermind.Field.Montgomery.Test
         }
 
         [Test]
+        public void ProfileMultiplication()
+        {
+            using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();
+            for (int i = 0; i < 1000; i++)
+            {
+                FpE x = set.Current;
+                if (x.IsZero)
+                {
+                    set.MoveNext();
+                    continue;
+                }
+                FpE.MultiplyMod(x, x, out FpE z);
+                set.MoveNext();
+            }
+        }
+
+        [Test]
         public void TestSerialize()
         {
             using IEnumerator<FpE> set = FpE.GetRandom().GetEnumerator();

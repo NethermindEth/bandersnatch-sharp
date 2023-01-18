@@ -34,8 +34,6 @@ namespace Nethermind.Field.Montgomery.FpEElement
         public static void AddMod(in FE a, in FE b, out FE res)
         {
             bool overflow = ElementUtils.AddOverflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-            // remove this extra allocation
-            res = new FE(u0, u1, u2, u3);
             if (overflow)
             {
                 ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3);
@@ -43,7 +41,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
                 return;
             }
 
-            if (!LessThan(res, qElement))
+            if (!LessThanSubModulus(u0, u1, u2, u3))
             {
                 if (ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3))
                 {

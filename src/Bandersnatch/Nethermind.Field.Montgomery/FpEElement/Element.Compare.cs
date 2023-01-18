@@ -41,6 +41,30 @@ namespace Nethermind.Field.Montgomery.FpEElement
             return a.u0 < b.u0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool LessThan(in ulong a0, in ulong a1, in ulong a2, in ulong a3, in ulong b0, in ulong b1, in ulong b2, in ulong b3)
+        {
+            if (a3 != b3)
+                return a3 < b3;
+            if (a2 != b2)
+                return a2 < b2;
+            if (a1 != b1)
+                return a1 < b1;
+            return a0 < b0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool LessThanSubModulus(in ulong a0, in ulong a1, in ulong a2, in ulong a3)
+        {
+            if (a3 != Q3)
+                return a3 < Q3;
+            if (a2 != Q2)
+                return a2 < Q2;
+            if (a1 != Q1)
+                return a1 < Q1;
+            return a0 < Q0;
+        }
+
         public static bool LessThanSubModulus(FE x)
         {
             return LessThan(x, qElement);
