@@ -33,7 +33,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
             Rsh(this, n, out res);
         }
 
-        private void RightShiftByOne(out FE res)
+        internal void RightShiftByOne(out FE res)
         {
             res = new FE(
                 u0 >> 1 | u1 << 63,
@@ -286,13 +286,13 @@ namespace Nethermind.Field.Montgomery.FrEElement
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Rsh128(out FE res)
+        internal void Rsh128(out FE res)
         {
             res = new FE(u2, u3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Rsh192(out FE res)
+        internal void Rsh192(out FE res)
         {
             res = new FE(u3);
         }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Nethermind.Field.Montgomery.FrEElement;
 using NUnit.Framework;
+using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.Test
 {
@@ -10,12 +10,12 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestNegativeValues()
         {
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
-                FrE y = 0 - x;
-                FrE z = y + x;
+                FE x = set.Current;
+                FE y = 0 - x;
+                FE z = y + x;
                 Assert.IsTrue(z.IsZero);
                 set.MoveNext();
             }
@@ -24,36 +24,50 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestAddition()
         {
-            FrE X = FrE.qElement - 1;
-            FrE Y = X + X;
-            FrE Z = Y - X;
+            FE X = FE.qElement - 1;
+            FE Y = X + X;
+            FE Z = Y - X;
             Assert.IsTrue(Z.Equals(X));
 
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
-                FrE y = x + x + x + x;
-                FrE z = y - x - x - x - x;
+                FE x = set.Current;
+                FE y = x + x + x + x;
+                FE z = y - x - x - x - x;
                 Assert.IsTrue(z.IsZero);
                 set.MoveNext();
             }
         }
 
         [Test]
-        public void TestInverse()
+        public void TestHotPath()
         {
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
+                FE current = set.Current;
+                FE x = set.Current * set.Current;
+                FE.Inverse(in current, out FE y);
+
+                Assert.IsTrue(current.Equals(x * y));
+            }
+        }
+
+        [Test]
+        public void TestInverse()
+        {
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+            for (int i = 0; i < 1000; i++)
+            {
+                FE x = set.Current;
                 if (x.IsZero)
                 {
                     set.MoveNext();
                     continue;
                 }
-                FrE.Inverse(x, out FrE y);
-                FrE.Inverse(y, out FrE z);
+                FE.Inverse(x, out FE y);
+                FE.Inverse(y, out FE z);
                 Assert.IsTrue(z.Equals(x));
                 set.MoveNext();
             }
@@ -62,18 +76,35 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestInverseMultiplication()
         {
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
+                FE x = set.Current;
                 if (x.IsZero)
                 {
                     set.MoveNext();
                     continue;
                 }
-                FrE.Inverse(x, out FrE y);
-                FrE.MultiplyMod(x, y, out FrE z);
+                FE.Inverse(x, out FE y);
+                FE.MultiplyMod(x, y, out FE z);
                 Assert.IsTrue(z.IsOne);
+                set.MoveNext();
+            }
+        }
+
+        [Test]
+        public void ProfileMultiplication()
+        {
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+            for (int i = 0; i < 100000; i++)
+            {
+                FE x = set.Current;
+                if (x.IsZero)
+                {
+                    set.MoveNext();
+                    continue;
+                }
+                FE.MultiplyMod(x, x, out FE z);
                 set.MoveNext();
             }
         }
@@ -81,12 +112,12 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestSerialize()
         {
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
+                FE x = set.Current;
                 Span<byte> bytes = x.ToBytes();
-                FrE elem = FrE.FromBytes(bytes.ToArray());
+                FE elem = FE.FromBytes(bytes.ToArray());
                 Assert.IsTrue(x.Equals(elem));
                 set.MoveNext();
             }
@@ -95,12 +126,12 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestSerializeBigEndian()
         {
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
+                FE x = set.Current;
                 Span<byte> bytes = x.ToBytesBigEndian();
-                FrE elem = FrE.FromBytes(bytes.ToArray(), true);
+                FE elem = FE.FromBytes(bytes.ToArray(), true);
                 Assert.IsTrue(x.Equals(elem));
                 set.MoveNext();
             }
@@ -109,17 +140,17 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestSqrt()
         {
-            using IEnumerator<FrE> set = FrE.GetRandom().GetEnumerator();
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
             for (int i = 0; i < 1000; i++)
             {
-                FrE x = set.Current;
-                if (FrE.Legendre(x) != 1)
+                FE x = set.Current;
+                if (FE.Legendre(x) != 1)
                 {
                     set.MoveNext();
                     continue;
                 }
-                FrE.Sqrt(x, out FrE sqrtElem);
-                FrE.Exp(sqrtElem, 2, out FrE res);
+                FE.Sqrt(x, out FE sqrtElem);
+                FE.Exp(sqrtElem, 2, out FE res);
                 Assert.IsTrue(x.Equals(res));
                 set.MoveNext();
             }
@@ -128,13 +159,13 @@ namespace Nethermind.Field.Montgomery.Test
         [Test]
         public void TestMultiInv()
         {
-            FrE[] values =
+            FE[] values = new[]
             {
-                FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3)
+                FE.SetElement(1), FE.SetElement(2), FE.SetElement(3)
             };
 
-            FrE[] gotInverse = FrE.MultiInverse(values);
-            FrE?[] expectedInverse = NaiveMultiInverse(values);
+            FE[] gotInverse = FE.MultiInverse(values);
+            FE?[] expectedInverse = NaiveMultiInverse(values);
 
             Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
             for (int i = 0; i < gotInverse.Length; i++)
@@ -143,12 +174,12 @@ namespace Nethermind.Field.Montgomery.Test
             }
         }
 
-        private static FrE?[] NaiveMultiInverse(IReadOnlyList<FrE> values)
+        static private FE?[] NaiveMultiInverse(IReadOnlyList<FE> values)
         {
-            FrE?[] res = new FrE?[values.Count];
+            FE?[] res = new FE?[values.Count];
             for (int i = 0; i < values.Count; i++)
             {
-                FrE.Inverse(values[i], out FrE x);
+                FE.Inverse(values[i], out FE x);
                 res[i] = x;
             }
             return res;

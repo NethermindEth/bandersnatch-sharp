@@ -2,9 +2,12 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Nethermind.Int256;
 using FE = Nethermind.Field.Montgomery.ElementFactory.Element;
+
+[assembly: InternalsVisibleTo("Nethermind.Field.Montgomery.Test")]
 
 namespace Nethermind.Field.Montgomery.ElementFactory
 {
