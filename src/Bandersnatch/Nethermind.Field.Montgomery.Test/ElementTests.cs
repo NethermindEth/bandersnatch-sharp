@@ -43,16 +43,21 @@ namespace Nethermind.Field.Montgomery.Test
         }
 
         [Test]
-        public void TestHotPath()
+        public void ProfileHotPath()
         {
             using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100000; i++)
             {
-                FE current = set.Current;
-                FE x = set.Current * set.Current;
-                FE.Inverse(in current, out FE y);
-
-                Assert.IsTrue(current.Equals(x * y));
+                FE x = set.Current;
+                if (x.IsZero)
+                {
+                    set.MoveNext();
+                    continue;
+                }
+                FE.Inverse(x, out FE y);
+                FE.MultiplyMod(x, y, out FE z);
+                Assert.IsTrue(z.IsOne);
+                set.MoveNext();
             }
         }
 

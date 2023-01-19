@@ -64,7 +64,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
                     r.RightShiftByOne(out r);
                 }
 
-                if (!LessThan(v, u))
+                if (!ElementUtils.LessThan(ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in v)), ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in u))))
                 {
                     ElementUtils.SubtractUnderflow(in v.u0, in v.u1, in v.u2, in v.u3, in u.u0, in u.u1, in u.u2, in u.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
                     v = new FE(u0, u1, u2, u3);
@@ -148,7 +148,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
                 c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
                 z[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
             }
-            if (LessThan(qElement, z))
+            if (ElementUtils.LessThan(ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in qElement)), ref Unsafe.As<ulong[], ulong>(ref Unsafe.AsRef(in z))))
             {
                 ElementUtils.SubtractUnderflow(z[0], z[1], z[2], z[3], Q0, Q1, Q2, Q3, out z[0], out z[1], out z[2], out z[3]);
             }

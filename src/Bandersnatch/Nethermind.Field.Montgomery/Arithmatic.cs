@@ -39,6 +39,18 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool LessThan(ref ulong a, ref ulong b)
+        {
+            if (Unsafe.Add(ref a, 3) != Unsafe.Add(ref b, 3))
+                return Unsafe.Add(ref a, 3) < Unsafe.Add(ref b, 3);
+            if (Unsafe.Add(ref a, 2) != Unsafe.Add(ref b, 2))
+                return Unsafe.Add(ref a, 2) < Unsafe.Add(ref b, 2);
+            if (Unsafe.Add(ref a, 1) != Unsafe.Add(ref b, 1))
+                return Unsafe.Add(ref a, 1) < Unsafe.Add(ref b, 1);
+            return a < b;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AddOverflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
         {
             ulong carry = 0ul;

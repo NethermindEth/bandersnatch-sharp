@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Nethermind.Int256;
 using FE = Nethermind.Field.Montgomery.ElementFactory.Element;
 
@@ -118,7 +119,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
-            if (LessThan(qElement, z))
+            if (ElementUtils.LessThan(ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in qElement)), ref Unsafe.As<ulong[], ulong>(ref Unsafe.AsRef(in z))))
             {
                 ElementUtils.SubtractUnderflow(z[0], z[1], z[2], z[3], Q0, Q1, Q2, Q3, out z[0], out z[1], out z[2], out z[3]);
             }
