@@ -1,218 +1,42 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-    <meta charset='utf-8'/>
-    <title>Nethermind.Field.Montgomery.Benchmark.SubtractMod-20221124-124539</title>
+<meta charset='utf-8' />
+<title>Nethermind.Field.Montgomery.Benchmark.SubtractMod-20230119-200438</title>
 
-    <style type="text/css">
-        table {
-            border-collapse: collapse;
-            display: block;
-            width: 100%;
-            overflow: auto;
-        }
-
-        td, th {
-            padding: 6px 13px;
-            border: 1px solid #ddd;
-            text-align: right;
-        }
-
-        tr {
-            background-color: #fff;
-            border-top: 1px solid #ccc;
-        }
-
-        tr:nth-child(even) {
-            background: #f8f8f8;
-        }
-    </style>
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.13.2, OS=ubuntu 22.04
-AMD EPYC 7713, 1 CPU, 8 logical and 8 physical cores
-.NET SDK=6.0.110
-  [Host]   : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
-  .NET 6.0 : .NET 6.0.10 (6.0.1022.47701), X64 RyuJIT AVX2
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.102
+  [Host]   : .NET 7.0.2 (7.0.222.60605), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.2 (7.0.222.60605), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 6.0  Runtime=.NET 6.0
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
 </code></pre>
 
 <table>
-    <thead>
-    <tr>
-        <th> Method</th>
-        <th> _a</th>
-        <th> _b</th>
-        <th>Mean</th>
-        <th>Error</th>
-        <th>StdDev</th>
-        <th>Ratio</th>
-        <th>RatioSD</th>
-        <th>Gen0</th>
-        <th>Allocated</th>
-        <th>Alloc Ratio</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>SubtractMod_BigInteger</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>63.251 ns</td>
-        <td>1.2663 ns</td>
-        <td>2.0449 ns</td>
-        <td>1.00</td>
-        <td>0.00</td>
-        <td>0.0006</td>
-        <td>56 B</td>
-        <td>1.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_UInt256</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>10.724 ns</td>
-        <td>0.2684 ns</td>
-        <td>0.3296 ns</td>
-        <td>0.17</td>
-        <td>0.01</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_Element</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>9.354 ns</td>
-        <td>0.1110 ns</td>
-        <td>0.0984 ns</td>
-        <td>0.15</td>
-        <td>0.01</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_BigInteger</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>101.775 ns</td>
-        <td>1.9000 ns</td>
-        <td>1.7772 ns</td>
-        <td>1.00</td>
-        <td>0.00</td>
-        <td>0.0013</td>
-        <td>112 B</td>
-        <td>1.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_UInt256</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>89.925 ns</td>
-        <td>1.8597 ns</td>
-        <td>2.4826 ns</td>
-        <td>0.88</td>
-        <td>0.02</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_Element</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>13.412 ns</td>
-        <td>0.2527 ns</td>
-        <td>0.2240 ns</td>
-        <td>0.13</td>
-        <td>0.00</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_BigInteger</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>101.471 ns</td>
-        <td>1.2030 ns</td>
-        <td>1.0664 ns</td>
-        <td>1.00</td>
-        <td>0.00</td>
-        <td>0.0013</td>
-        <td>112 B</td>
-        <td>1.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_UInt256</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>94.184 ns</td>
-        <td>1.8786 ns</td>
-        <td>2.1634 ns</td>
-        <td>0.93</td>
-        <td>0.02</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_Element</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>(115(...)FpE) [204]</td>
-        <td>9.361 ns</td>
-        <td>0.1070 ns</td>
-        <td>0.1001 ns</td>
-        <td>0.09</td>
-        <td>0.00</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_BigInteger</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>63.099 ns</td>
-        <td>1.2539 ns</td>
-        <td>1.9522 ns</td>
-        <td>1.00</td>
-        <td>0.00</td>
-        <td>0.0006</td>
-        <td>56 B</td>
-        <td>1.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_UInt256</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>10.502 ns</td>
-        <td>0.1751 ns</td>
-        <td>0.1367 ns</td>
-        <td>0.17</td>
-        <td>0.01</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    <tr>
-        <td>SubtractMod_Element</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>(619(...)FpE) [200]</td>
-        <td>9.319 ns</td>
-        <td>0.0775 ns</td>
-        <td>0.0647 ns</td>
-        <td>0.15</td>
-        <td>0.01</td>
-        <td>-</td>
-        <td>-</td>
-        <td>0.00</td>
-    </tr>
-    </tbody>
-</table>
+<thead><tr><th>          Method</th><th>           _a</th><th>           _b</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>SubtractMod_BigInteger</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>18.313 ns</td><td>0.2546 ns</td><td>0.2381 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>SubtractMod_UInt256</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>4.968 ns</td><td>0.0560 ns</td><td>0.0524 ns</td><td>0.27</td><td>0.01</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>SubtractMod_Element</td><td>(115(...)FpE) [204]</td><td>(115(...)FpE) [204]</td><td>2.068 ns</td><td>0.0295 ns</td><td>0.0275 ns</td><td>0.11</td><td>0.00</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>SubtractMod_BigInteger</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>37.689 ns</td><td>0.2657 ns</td><td>0.2219 ns</td><td>1.00</td><td>0.00</td><td>0.0013</td><td>112 B</td><td>1.00</td>
+</tr><tr><td>SubtractMod_UInt256</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>37.872 ns</td><td>0.0949 ns</td><td>0.0842 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>SubtractMod_Element</td><td>(115(...)FpE) [204]</td><td>(619(...)FpE) [200]</td><td>3.430 ns</td><td>0.0383 ns</td><td>0.0340 ns</td><td>0.09</td><td>0.00</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>SubtractMod_BigInteger</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>38.951 ns</td><td>0.7186 ns</td><td>0.6371 ns</td><td>1.00</td><td>0.00</td><td>0.0013</td><td>112 B</td><td>1.00</td>
+</tr><tr><td>SubtractMod_UInt256</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>40.780 ns</td><td>0.3684 ns</td><td>0.3076 ns</td><td>1.05</td><td>0.02</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>SubtractMod_Element</td><td>(619(...)FpE) [200]</td><td>(115(...)FpE) [204]</td><td>2.123 ns</td><td>0.0304 ns</td><td>0.0284 ns</td><td>0.05</td><td>0.00</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>SubtractMod_BigInteger</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>18.476 ns</td><td>0.1140 ns</td><td>0.1066 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>SubtractMod_UInt256</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>4.892 ns</td><td>0.0183 ns</td><td>0.0171 ns</td><td>0.26</td><td>0.00</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>SubtractMod_Element</td><td>(619(...)FpE) [200]</td><td>(619(...)FpE) [200]</td><td>2.087 ns</td><td>0.0166 ns</td><td>0.0147 ns</td><td>0.11</td><td>0.00</td><td>-</td><td>-</td><td>NA</td>
+</tr></tbody></table>
 </body>
 </html>
