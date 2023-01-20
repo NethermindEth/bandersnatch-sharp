@@ -1,11 +1,14 @@
+using System.Runtime.CompilerServices;
+using FE = Nethermind.Field.Montgomery.ElementFactory.Element;
+
 namespace Nethermind.Field.Montgomery.ElementFactory
 {
     public readonly partial struct Element
     {
 
-        public static int Legendre(in Element z)
+        public static int Legendre(in FE z)
         {
-            Exp(z, _bLegendreExponentElement.Value, out Element res);
+            Exp(z, _bLegendreExponentElement.Value, out FE res);
 
             if (res.IsZero) return 0;
 
@@ -16,12 +19,12 @@ namespace Nethermind.Field.Montgomery.ElementFactory
 
         public bool LexicographicallyLargest()
         {
-            FromMontgomery(in this, out Element mont);
+            FromMontgomery(in this, out FE mont);
             return !ElementUtils.SubtractUnderflow(mont.u0, mont.u1, mont.u2, mont.u3,
                 qMinOne.u0, qMinOne.u1, qMinOne.u2, qMinOne.u3, out ulong _, out ulong _, out ulong _, out ulong _);
         }
 
-        public static void Inverse(in Element x, out Element z)
+        public static void Inverse(in FE x, out FE z)
         {
             if (x.IsZero)
             {
@@ -30,47 +33,47 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             }
 
             // initialize u = q
-            Element u = qElement;
+            FE u = qElement;
             // initialize s = r^2
-            Element s = rSquare;
-            Element r = new Element(0);
-            Element v = x;
+            FE s = rSquare;
+            FE r = new FE(0);
+            FE v = x;
 
 
             while (true)
             {
                 while ((v[0] & 1) == 0)
                 {
-                    v >>= 1;
+                    v.RightShiftByOne(out v);
                     if ((s[0] & 1) == 1)
                     {
                         ElementUtils.AddOverflow(in s.u0, in s.u1, in s.u2, in s.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                        s = new Element(u0, u1, u2, u3);
+                        s = new FE(u0, u1, u2, u3);
                     }
-                    s >>= 1;
+                    s.RightShiftByOne(out s);
                 }
 
                 while ((u[0] & 1) == 0)
                 {
-                    u >>= 1;
+                    u.RightShiftByOne(out u);
                     if ((r[0] & 1) == 1)
                     {
                         ElementUtils.AddOverflow(in r.u0, in r.u1, in r.u2, in r.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                        r = new Element(u0, u1, u2, u3);
+                        r = new FE(u0, u1, u2, u3);
                     }
-                    r >>= 1;
+                    r.RightShiftByOne(out r);
                 }
 
                 if (!LessThan(v, u))
                 {
                     ElementUtils.SubtractUnderflow(in v.u0, in v.u1, in v.u2, in v.u3, in u.u0, in u.u1, in u.u2, in u.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                    v = new Element(u0, u1, u2, u3);
+                    v = new FE(u0, u1, u2, u3);
                     SubtractMod(s, r, out s);
                 }
                 else
                 {
                     ElementUtils.SubtractUnderflow(in u.u0, u.u1, u.u2, u.u3, in v.u0, v.u1, v.u2, v.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                    u = new Element(u0, u1, u2, u3);
+                    u = new FE(u0, u1, u2, u3);
                     SubtractMod(r, s, out r);
                 }
 
@@ -88,66 +91,62 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             }
         }
 
-        public static void MultiplyMod(in Element x, in Element y, out Element res)
+        public static void MultiplyMod(in FE x, in FE y, out FE res)
         {
+            ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in x));
+            ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in y));
+
             ulong[] t = new ulong[4];
             ulong[] c = new ulong[3];
             ulong[] z = new ulong[4];
 
             {
                 // round 0
-
-                ulong v = x[0];
-                (c[1], c[0]) = ElementUtils.Multiply64(v, y[0]);
+                c[1] = Math.BigMul(rx, ry, out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[1], c[1]);
-                (c[2], t[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[2], c[1]);
-                (c[2], t[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[3], c[1]);
-                (t[3], t[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd1(rx, Unsafe.Add(ref ry, 1), c[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = ElementUtils.MAdd1(rx, Unsafe.Add(ref ry, 2), c[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = ElementUtils.MAdd1(rx, Unsafe.Add(ref ry, 3), c[1], out c[0]);
+                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 1
-                ulong v = x[1];
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[0], t[0]);
+                c[1] = ElementUtils.MAdd1(Unsafe.Add(ref rx, 1), ry, t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[1], c[1], t[1]);
-                (c[2], t[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[2], c[1], t[2]);
-                (c[2], t[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[3], c[1], t[3]);
-                (t[3], t[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
+                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 2
-
-                ulong v = x[2];
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[0], t[0]);
+                c[1] = ElementUtils.MAdd1(Unsafe.Add(ref rx, 2), ry, t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[1], c[1], t[1]);
-                (c[2], t[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[2], c[1], t[2]);
-                (c[2], t[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[3], c[1], t[3]);
-                (t[3], t[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
+                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 3
-
-                ulong v = x[3];
-                (c[1], c[0]) = ElementUtils.MAdd1(v, y[0], t[0]);
+                c[1] = ElementUtils.MAdd1(Unsafe.Add(ref rx, 3), ry, t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
                 c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[1], c[1], t[1]);
-                (c[2], z[0]) = ElementUtils.MAdd2(m, Q1, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[2], c[1], t[2]);
-                (c[2], z[1]) = ElementUtils.MAdd2(m, Q2, c[2], c[0]);
-                (c[1], c[0]) = ElementUtils.MAdd2(v, y[3], c[1], t[3]);
-                (z[3], z[2]) = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out z[0]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
+                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out z[1]);
+                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
+                z[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
             }
             if (LessThan(qElement, z))
             {
@@ -156,14 +155,14 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             res = z;
         }
 
-        public static Element[] MultiInverse(Element[] values)
+        public static FE[] MultiInverse(FE[] values)
         {
-            if (values.Length == 0) return Array.Empty<Element>();
+            if (values.Length == 0) return Array.Empty<FE>();
 
-            Element[] results = new Element[values.Length];
+            FE[] results = new FE[values.Length];
             bool[] zeros = new bool[values.Length];
 
-            Element accumulator = One;
+            FE accumulator = One;
 
             for (int i = 0; i < values.Length; i++)
             {
@@ -188,14 +187,14 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             return results;
         }
 
-        public static bool Sqrt(in Element x, out Element z)
+        public static bool Sqrt(in FE x, out FE z)
         {
-            Exp(in x, _bSqrtExponentElement.Value, out Element w);
-            MultiplyMod(x, w, out Element y);
-            MultiplyMod(w, y, out Element b);
+            Exp(in x, _bSqrtExponentElement.Value, out FE w);
+            MultiplyMod(x, w, out FE y);
+            MultiplyMod(w, y, out FE b);
 
             ulong r = SqrtR;
-            Element t = b;
+            FE t = b;
 
             for (ulong i = 0; i < r - 1; i++)
             {
@@ -214,7 +213,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                 return false;
             }
 
-            Element g = gResidue;
+            FE g = gResidue;
             while (true)
             {
                 ulong m = 0;

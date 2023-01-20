@@ -1,64 +1,77 @@
 using System.Data;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
+using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {
     public readonly partial struct FrE
     {
-        public static IEnumerable<FrE> GetRandom()
+        public static IEnumerable<FE> GetRandom()
         {
             byte[] data = new byte[32];
             Random rand = new Random(0);
             rand.NextBytes(data);
-            yield return new FrE(data);
+            yield return new FE(data);
         }
 
-        public FrE Negative()
+        public FE Negative()
         {
-            SubtractMod(Zero, this, out FrE res);
+            SubtractMod(Zero, this, out FE res);
             return res;
         }
 
-        public void LeftShift(int n, out FrE res)
+        public void LeftShift(int n, out FE res)
         {
             Lsh(this, n, out res);
         }
-        public void RightShift(int n, out FrE res)
+        public void RightShift(int n, out FE res)
         {
             Rsh(this, n, out res);
         }
 
+        private void RightShiftByOne(out FE res)
+        {
+            res = new FE(
+                u0 >> 1 | u1 << 63,
+                u1 >> 1 | u2 << 63,
+                u2 >> 1 | u3 << 63,
+                u3 >> 1
+            );
+        }
 
-        public static void AddMod(in FrE a, in FrE b, out FrE res)
+
+        public static void AddMod(in FE a, in FE b, out FE res)
         {
             bool overflow = ElementUtils.AddOverflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-            // remove this extra allocation
-            res = new FrE(u0, u1, u2, u3);
+
             if (overflow)
             {
                 ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3);
-                res = new FrE(u0, u1, u2, u3);
+                res = new FE(u0, u1, u2, u3);
                 return;
             }
 
-            if (!LessThan(res, qElement))
+            if (!LessThanSubModulus(u0, u1, u2, u3))
             {
                 if (ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3))
                 {
                     throw new InvalidConstraintException("this should now be possible");
                 }
             }
-            res = new FrE(u0, u1, u2, u3);
+            res = new FE(u0, u1, u2, u3);
         }
-        public static void Divide(in FrE x, in FrE y, out FrE z)
+        public static void Divide(in FE x, in FE y, out FE z)
         {
-            Inverse(y, out FrE yInv);
+            Inverse(y, out FE yInv);
             MultiplyMod(x, yInv, out z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SubtractMod(in FrE a, in FrE b, out FrE res)
+        public static void SubtractMod(in FE a, in FE b, out FE res)
         {
             ulong u0;
             ulong u1;
@@ -67,13 +80,13 @@ namespace Nethermind.Field.Montgomery.FrEElement
             if (ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
                 ElementUtils.AddOverflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
 
-            res = new FrE(u0, u1, u2, u3);
+            res = new FE(u0, u1, u2, u3);
         }
 
-        public static void Exp(in FrE b, in UInt256 e, out FrE result)
+        public static void Exp(in FE b, in UInt256 e, out FE result)
         {
             result = One;
-            FrE bs = b;
+            FE bs = b;
             int len = e.BitLen;
             for (int i = 0; i < len; i++)
             {
@@ -85,7 +98,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
             }
         }
 
-        public static void Lsh(in FrE x, int n, out FrE res)
+        public static void Lsh(in FE x, int n, out FE res)
         {
             if (n % 64 == 0)
             {
@@ -154,11 +167,11 @@ namespace Nethermind.Field.Montgomery.FrEElement
         sh192:
             z3 = ElementUtils.Lsh(res.u3, n) | a;
 
-            res = new FrE(z0, z1, z2, z3);
+            res = new FE(z0, z1, z2, z3);
         }
 
 
-        public static void Rsh(in FrE x, int n, out FrE res)
+        public static void Rsh(in FE x, int n, out FE res)
         {
             // n % 64 == 0
             if ((n & 0x3f) == 0)
@@ -244,44 +257,178 @@ namespace Nethermind.Field.Montgomery.FrEElement
         sh192:
             z0 = ElementUtils.Rsh(res.u0, n) | a;
 
-            res = new FrE(z0, z1, z2, z3);
+            res = new FE(z0, z1, z2, z3);
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Lsh64(out FrE res)
+        internal void Lsh64(out FE res)
         {
-            res = new FrE(0, u0, u1, u2);
+            res = new FE(0, u0, u1, u2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Lsh128(out FrE res)
+        internal void Lsh128(out FE res)
         {
-            res = new FrE(0, 0, u0, u1);
+            res = new FE(0, 0, u0, u1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Lsh192(out FrE res)
+        internal void Lsh192(out FE res)
         {
-            res = new FrE(0, 0, 0, u0);
+            res = new FE(0, 0, 0, u0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Rsh64(out FrE res)
+        internal void Rsh64(out FE res)
         {
-            res = new FrE(u1, u2, u3);
+            res = new FE(u1, u2, u3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Rsh128(out FrE res)
+        private void Rsh128(out FE res)
         {
-            res = new FrE(u2, u3);
+            res = new FE(u2, u3);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Rsh192(out FrE res)
+        private void Rsh192(out FE res)
         {
-            res = new FrE(u3);
+            res = new FE(u3);
+        }
+
+        public static bool SubtractUnderflow(in FE a, in FE b, out FE res)
+        {
+            ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
+            ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
+            ulong borrow = 0ul;
+            ElementUtils.SubtractWithBorrow(rx, ry, ref borrow, out ulong res0);
+            ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref borrow, out ulong res1);
+            ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref borrow, out ulong res2);
+            ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref borrow, out ulong res3);
+            res = new FE(res0, res1, res2, res3);
+            return borrow != 0;
+        }
+
+        public static bool AddOverflow(in FE a, in FE b, out FE res)
+        {
+            ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
+            ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
+            ulong carry = 0ul;
+            ElementUtils.AddWithCarry(rx, ry, ref carry, out ulong res0);
+            ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref carry, out ulong res1);
+            ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref carry, out ulong res2);
+            ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref carry, out ulong res3);
+            res = new FE(res0, res1, res2, res3);
+            return carry != 0;
+        }
+
+        public static bool AddImpl(in FE a, in FE b, out FE res)
+        {
+            if (Avx2.IsSupported)
+            {
+                Vector256<ulong> av = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in a));
+                Vector256<ulong> bv = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in b));
+
+                Vector256<ulong> result = Avx2.Add(av, bv);
+                Vector256<ulong> carryFromBothHighBits = Avx2.And(av, bv);
+                Vector256<ulong> eitherHighBit = Avx2.Or(av, bv);
+                Vector256<ulong> highBitNotInResult = Avx2.AndNot(result, eitherHighBit);
+
+                // Set high bits where carry occurs
+                Vector256<ulong> vCarry = Avx2.Or(carryFromBothHighBits, highBitNotInResult);
+                // Move carry from Vector space to int
+                int carry = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCarry));
+
+                // All bits set will cascade another carry when carry is added to it
+                Vector256<ulong> vCascade = Avx2.CompareEqual(result, Vector256<ulong>.AllBitsSet);
+                // Move cascade from Vector space to int
+                int cascade = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCascade));
+
+                // Use ints to work out the Vector cross lane cascades
+                // Move carry to next bit and add cascade
+                carry = cascade + 2 * carry; // lea
+                // Remove cascades not effected by carry
+                cascade ^= carry;
+                // Choice of 16 vectors
+                cascade &= 0x0f;
+
+                // Lookup the carries to broadcast to the Vectors
+                Vector256<ulong> cascadedCarries = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(ElementUtils.SBroadcastLookup)), cascade);
+
+                // Mark res as initalized so we can use it as left said of ref assignment
+                Unsafe.SkipInit(out res);
+                // Add the cascadedCarries to the result
+                Unsafe.As<FE,Vector256<ulong>>(ref res) = Avx2.Add(result, cascadedCarries);
+                return (carry & 0b1_0000) != 0;
+            }
+            else
+            {
+                ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
+                ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
+                ulong carry = 0ul;
+                ElementUtils.AddWithCarry(rx, ry, ref carry, out ulong res0);
+                ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref carry, out ulong res1);
+                ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref carry, out ulong res2);
+                ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref carry, out ulong res3);
+                res = new FE(res0, res1, res2, res3);
+                return carry != 0;
+            }
+        }
+
+        public static bool SubtractImpl(in FE a, in FE b, out FE res)
+        {
+            if (Avx2.IsSupported)
+            {
+                Vector256<ulong> av = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in a));
+                Vector256<ulong> bv = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in b));
+
+                Vector256<ulong> result = Avx2.Subtract(av, bv);
+                // Invert top bits as Avx2.CompareGreaterThan is only available for longs, not unsigned
+                Vector256<ulong> resultSigned = Avx2.Xor(result, Vector256.Create<ulong>(0x8000_0000_0000_0000));
+                Vector256<ulong> avSigned = Avx2.Xor(av, Vector256.Create<ulong>(0x8000_0000_0000_0000));
+
+                // Which vectors need to borrow from the next
+                Vector256<long> vBorrow = Avx2.CompareGreaterThan(Unsafe.As<Vector256<ulong>, Vector256<long>>(ref resultSigned),
+                                                      Unsafe.As<Vector256<ulong>, Vector256<long>>(ref avSigned));
+
+                // Move borrow from Vector space to int
+                int borrow = Avx.MoveMask(Unsafe.As<Vector256<long>, Vector256<double>>(ref vBorrow));
+
+                // All zeros will cascade another borrow when borrow is subtracted from it
+                Vector256<ulong> vCascade = Avx2.CompareEqual(result, Vector256<ulong>.Zero);
+                // Move cascade from Vector space to int
+                int cascade = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCascade));
+
+                // Use ints to work out the Vector cross lane cascades
+                // Move borrow to next bit and add cascade
+                borrow = cascade + 2 * borrow; // lea
+                // Remove cascades not effected by borrow
+                cascade ^= borrow;
+                // Choice of 16 vectors
+                cascade &= 0x0f;
+
+                // Lookup the borrows to broadcast to the Vectors
+                Vector256<ulong> cascadedBorrows = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(ElementUtils.SBroadcastLookup)), cascade);
+
+                // Mark res as initalized so we can use it as left said of ref assignment
+                Unsafe.SkipInit(out res);
+                // Subtract the cascadedBorrows from the result
+                Unsafe.As<FE, Vector256<ulong>>(ref res) = Avx2.Subtract(result, cascadedBorrows);
+                return (borrow & 0b1_0000) != 0;
+            }
+            else
+            {
+                ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
+                ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
+                ulong borrow = 0ul;
+                ElementUtils.SubtractWithBorrow(rx, ry, ref borrow, out ulong res0);
+                ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref borrow, out ulong res1);
+                ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref borrow, out ulong res2);
+                ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref borrow, out ulong res3);
+                res = new FE(res0, res1, res2, res3);
+                return borrow != 0;
+            }
         }
     }
 }
