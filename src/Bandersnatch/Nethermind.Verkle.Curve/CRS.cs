@@ -11,7 +11,9 @@ namespace Nethermind.Verkle.Curve
         public readonly Banderwagon[] BasisG;
         public Banderwagon BasisQ;
 
-        public CRS(Banderwagon[] basisG)
+        public static readonly CRS Instance = Default();
+
+        private CRS(Banderwagon[] basisG)
         {
             BasisG = basisG;
             BasisQ = Banderwagon.Generator();
@@ -46,7 +48,7 @@ namespace Nethermind.Verkle.Curve
             return new CRS(points);
         }
 
-        public static CRS Default()
+        private static CRS Default()
         {
             Banderwagon[]? crs = CRSStruct.GetCRS();
             return new CRS(crs);

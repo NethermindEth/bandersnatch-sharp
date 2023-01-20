@@ -36,7 +36,7 @@ namespace Nethermind.Verkle.Proofs.Test
                 lagrangePoly.AddRange(_poly);
             }
 
-            CRS crs = CRS.Default();
+            CRS crs = CRS.Instance;
             Banderwagon commitment = crs.Commit(lagrangePoly.ToArray());
 
             Assert.IsTrue(Convert.ToHexString(commitment.ToBytes()).ToLower()

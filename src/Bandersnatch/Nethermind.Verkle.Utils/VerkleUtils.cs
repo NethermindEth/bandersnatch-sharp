@@ -40,10 +40,10 @@ namespace Nethermind.Verkle.Utils
                 return FrE.SetElement(res.u0, res.u1, res.u2, res.u3);
             }
         }
-        public static byte[] ToAddress32(byte[] address20)
+        public static Span<byte> ToAddress32(ReadOnlySpan<byte> address20)
         {
-            byte[] address32 = new byte[32];
-            address20.CopyTo(address32, 0);
+            Span<byte> address32 = new byte[32];
+            address20.CopyTo(address32);
             return address32;
         }
 

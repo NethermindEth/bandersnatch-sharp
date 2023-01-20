@@ -28,7 +28,7 @@ namespace Nethermind.Verkle.Proofs.Test
                 polyEvalA.AddRange(_poly);
                 polyEvalB.AddRange(_poly.Reverse());
             }
-            CRS crs = CRS.Default();
+            CRS crs = CRS.Instance;
             Banderwagon cA = crs.Commit(polyEvalA.ToArray());
             Banderwagon cB = crs.Commit(polyEvalB.ToArray());
 

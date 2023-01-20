@@ -21,7 +21,7 @@ namespace Nethermind.Verkle.Tree
 
         public static byte[] GetTreeKeyPrefix(byte[] address20, UInt256 treeIndex)
         {
-            byte[]? address32 = VerkleUtils.ToAddress32(address20);
+            Span<byte> address32 = VerkleUtils.ToAddress32(address20);
             return PedersenHash.Hash(address32, treeIndex);
         }
 

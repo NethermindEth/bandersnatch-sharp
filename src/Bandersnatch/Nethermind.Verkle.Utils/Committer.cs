@@ -6,7 +6,7 @@ namespace Nethermind.Verkle.Utils
 {
     public struct Committer
     {
-        private static readonly CRS Constants = CRS.Default();
+        private static readonly CRS Constants = CRS.Instance;
 
         public static Banderwagon Commit(FrE[] value)
         {
