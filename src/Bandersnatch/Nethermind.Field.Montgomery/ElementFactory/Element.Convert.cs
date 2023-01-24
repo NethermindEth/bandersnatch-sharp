@@ -21,12 +21,12 @@ namespace Nethermind.Field.Montgomery.ElementFactory
         public int BitLen()
         {
             return u3 != 0
-                ? 192 + ElementUtils.Len64(u3)
+                ? 192 + Len64(u3)
                 : u2 != 0
-                    ? 128 + ElementUtils.Len64(u2)
+                    ? 128 + Len64(u2)
                     : u1 != 0
-                        ? 64 + ElementUtils.Len64(u1)
-                        : ElementUtils.Len64(u0);
+                        ? 64 + Len64(u1)
+                        : Len64(u0);
         }
 
         public static FE SetElement(ulong u0 = 0, ulong u1 = 0, ulong u2 = 0, ulong u3 = 0)
@@ -46,13 +46,13 @@ namespace Nethermind.Field.Montgomery.ElementFactory
         public Span<byte> ToBytes()
         {
             ToRegular(in this, out FE x);
-            return ElementUtils.ToLittleEndian(x.u0, x.u1, x.u2, x.u3);
+            return ToLittleEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
         public Span<byte> ToBytesBigEndian()
         {
             ToRegular(in this, out FE x);
-            return ElementUtils.ToBigEndian(x.u0, x.u1, x.u2, x.u3);
+            return ToBigEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
         public static FE FromBytes(byte[] byteEncoded, bool isBigEndian = false)
@@ -91,31 +91,31 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             z[3] = x[3];
 
             ulong m = z[0] * QInvNeg;
-            ulong c = ElementUtils.MAdd0(m, Q0, z[0]);
-            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
-            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
-            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
+            ulong c = MAdd0(m, Q0, z[0]);
+            c = MAdd2(m, Q1, z[1], c, out z[0]);
+            c = MAdd2(m, Q2, z[2], c, out z[1]);
+            c = MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             m = z[0] * QInvNeg;
-            c = ElementUtils.MAdd0(m, Q0, z[0]);
-            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
-            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
-            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
+            c = MAdd0(m, Q0, z[0]);
+            c = MAdd2(m, Q1, z[1], c, out z[0]);
+            c = MAdd2(m, Q2, z[2], c, out z[1]);
+            c = MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             m = z[0] * QInvNeg;
-            c = ElementUtils.MAdd0(m, Q0, z[0]);
-            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
-            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
-            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
+            c = MAdd0(m, Q0, z[0]);
+            c = MAdd2(m, Q1, z[1], c, out z[0]);
+            c = MAdd2(m, Q2, z[2], c, out z[1]);
+            c = MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             m = z[0] * QInvNeg;
-            c = ElementUtils.MAdd0(m, Q0, z[0]);
-            c = ElementUtils.MAdd2(m, Q1, z[1], c, out z[0]);
-            c = ElementUtils.MAdd2(m, Q2, z[2], c, out z[1]);
-            c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
+            c = MAdd0(m, Q0, z[0]);
+            c = MAdd2(m, Q1, z[1], c, out z[0]);
+            c = MAdd2(m, Q2, z[2], c, out z[1]);
+            c = MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
             res = z;

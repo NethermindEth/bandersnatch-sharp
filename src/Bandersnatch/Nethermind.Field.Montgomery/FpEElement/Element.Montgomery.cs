@@ -100,49 +100,49 @@ namespace Nethermind.Field.Montgomery.FpEElement
                 // round 0
                 c[1] = Math.BigMul(rx, ry, out c[0]);
                 ulong m = c[0] * QInvNeg;
-                c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                c[1] = ElementUtils.MAdd1(rx, Unsafe.Add(ref ry, 1), c[1], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
-                c[1] = ElementUtils.MAdd1(rx, Unsafe.Add(ref ry, 2), c[1], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
-                c[1] = ElementUtils.MAdd1(rx, Unsafe.Add(ref ry, 3), c[1], out c[0]);
-                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
+                c[2] = MAdd0(m, Q0, c[0]);
+                c[1] = MAdd1(rx, Unsafe.Add(ref ry, 1), c[1], out c[0]);
+                c[2] = MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = MAdd1(rx, Unsafe.Add(ref ry, 2), c[1], out c[0]);
+                c[2] = MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = MAdd1(rx, Unsafe.Add(ref ry, 3), c[1], out c[0]);
+                t[3] = MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 1
-                c[1] = ElementUtils.MAdd1(Unsafe.Add(ref rx, 1), ry, t[0], out c[0]);
+                c[1] = MAdd1(Unsafe.Add(ref rx, 1), ry, t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
-                c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
-                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
+                c[2] = MAdd0(m, Q0, c[0]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
+                c[2] = MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
+                c[2] = MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
+                t[3] = MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 2
-                c[1] = ElementUtils.MAdd1(Unsafe.Add(ref rx, 2), ry, t[0], out c[0]);
+                c[1] = MAdd1(Unsafe.Add(ref rx, 2), ry, t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
-                c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out t[0]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out t[1]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
-                t[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
+                c[2] = MAdd0(m, Q0, c[0]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
+                c[2] = MAdd2(m, Q1, c[2], c[0], out t[0]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
+                c[2] = MAdd2(m, Q2, c[2], c[0], out t[1]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
+                t[3] = MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
             }
             {
                 // round 3
-                c[1] = ElementUtils.MAdd1(Unsafe.Add(ref rx, 3), ry, t[0], out c[0]);
+                c[1] = MAdd1(Unsafe.Add(ref rx, 3), ry, t[0], out c[0]);
                 ulong m = c[0] * QInvNeg;
-                c[2] = ElementUtils.MAdd0(m, Q0, c[0]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q1, c[2], c[0], out z[0]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
-                c[2] = ElementUtils.MAdd2(m, Q2, c[2], c[0], out z[1]);
-                c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
-                z[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
+                c[2] = MAdd0(m, Q0, c[0]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
+                c[2] = MAdd2(m, Q1, c[2], c[0], out z[0]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
+                c[2] = MAdd2(m, Q2, c[2], c[0], out z[1]);
+                c[1] = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
+                z[3] = MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
             }
             res = z;
             if (LessThan(qElement, res))
