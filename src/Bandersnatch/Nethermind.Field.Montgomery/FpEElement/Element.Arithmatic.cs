@@ -10,14 +10,6 @@ namespace Nethermind.Field.Montgomery.FpEElement
 {
     public readonly partial struct FpE
     {
-        public static IEnumerable<FE> GetRandom()
-        {
-            byte[] data = new byte[32];
-            Random rand = new Random(0);
-            rand.NextBytes(data);
-            yield return new FE(data);
-        }
-
         public FE Negative()
         {
             SubtractMod(Zero, this, out FE res);
@@ -42,7 +34,6 @@ namespace Nethermind.Field.Montgomery.FpEElement
                 u3 >> 1
             );
         }
-
 
         public static void AddMod(in FE a, in FE b, out FE res)
         {
@@ -71,10 +62,6 @@ namespace Nethermind.Field.Montgomery.FpEElement
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SubtractMod(in FE a, in FE b, out FE res)
         {
-            ulong u0;
-            ulong u1;
-            ulong u2;
-            ulong u3;
             if (SubtractUnderflow(a, b, out res))
                 AddOverflow(qElement, res, out res);
         }
@@ -294,70 +281,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
         }
         public static bool SubtractUnderflow(in FE a, in FE b, out FE res)
         {
-            return SubtractImpl(a, b, out res);
-        }
-
-        public static bool AddOverflow(in FE a, in FE b, out FE res)
-        {
-            return AddImpl(a, b, out res);
-        }
-
-        public static bool AddImpl(in FE a, in FE b, out FE res, bool useIntrinsics = true)
-        {
-            if (useIntrinsics && Avx2.IsSupported)
-            {
-                Vector256<ulong> av = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in a));
-                Vector256<ulong> bv = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in b));
-
-                Vector256<ulong> result = Avx2.Add(av, bv);
-                Vector256<ulong> carryFromBothHighBits = Avx2.And(av, bv);
-                Vector256<ulong> eitherHighBit = Avx2.Or(av, bv);
-                Vector256<ulong> highBitNotInResult = Avx2.AndNot(result, eitherHighBit);
-
-                // Set high bits where carry occurs
-                Vector256<ulong> vCarry = Avx2.Or(carryFromBothHighBits, highBitNotInResult);
-                // Move carry from Vector space to int
-                int carry = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCarry));
-
-                // All bits set will cascade another carry when carry is added to it
-                Vector256<ulong> vCascade = Avx2.CompareEqual(result, Vector256<ulong>.AllBitsSet);
-                // Move cascade from Vector space to int
-                int cascade = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCascade));
-
-                // Use ints to work out the Vector cross lane cascades
-                // Move carry to next bit and add cascade
-                carry = cascade + 2 * carry; // lea
-                // Remove cascades not effected by carry
-                cascade ^= carry;
-                // Choice of 16 vectors
-                cascade &= 0x0f;
-
-                // Lookup the carries to broadcast to the Vectors
-                Vector256<ulong> cascadedCarries = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)), cascade);
-
-                // Mark res as initalized so we can use it as left said of ref assignment
-                Unsafe.SkipInit(out res);
-                // Add the cascadedCarries to the result
-                Unsafe.As<FE,Vector256<ulong>>(ref res) = Avx2.Add(result, cascadedCarries);
-                return (carry & 0b1_0000) != 0;
-            }
-            else
-            {
-                ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
-                ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
-                ulong carry = 0ul;
-                AddWithCarry(rx, ry, ref carry, out ulong res0);
-                AddWithCarry(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref carry, out ulong res1);
-                AddWithCarry(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref carry, out ulong res2);
-                AddWithCarry(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref carry, out ulong res3);
-                res = new FE(res0, res1, res2, res3);
-                return carry != 0;
-            }
-        }
-
-        public static bool SubtractImpl(in FE a, in FE b, out FE res, bool useIntrinsics = true)
-        {
-            if (useIntrinsics && Avx2.IsSupported)
+            if (Avx2.IsSupported)
             {
                 Vector256<ulong> av = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in a));
                 Vector256<ulong> bv = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in b));
@@ -407,6 +331,59 @@ namespace Nethermind.Field.Montgomery.FpEElement
                 SubtractWithBorrow(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref borrow, out ulong res3);
                 res = new FE(res0, res1, res2, res3);
                 return borrow != 0;
+            }
+        }
+
+        public static bool AddOverflow(in FE a, in FE b, out FE res)
+        {
+            if (Avx2.IsSupported)
+            {
+                Vector256<ulong> av = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in a));
+                Vector256<ulong> bv = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in b));
+
+                Vector256<ulong> result = Avx2.Add(av, bv);
+                Vector256<ulong> carryFromBothHighBits = Avx2.And(av, bv);
+                Vector256<ulong> eitherHighBit = Avx2.Or(av, bv);
+                Vector256<ulong> highBitNotInResult = Avx2.AndNot(result, eitherHighBit);
+
+                // Set high bits where carry occurs
+                Vector256<ulong> vCarry = Avx2.Or(carryFromBothHighBits, highBitNotInResult);
+                // Move carry from Vector space to int
+                int carry = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCarry));
+
+                // All bits set will cascade another carry when carry is added to it
+                Vector256<ulong> vCascade = Avx2.CompareEqual(result, Vector256<ulong>.AllBitsSet);
+                // Move cascade from Vector space to int
+                int cascade = Avx.MoveMask(Unsafe.As<Vector256<ulong>, Vector256<double>>(ref vCascade));
+
+                // Use ints to work out the Vector cross lane cascades
+                // Move carry to next bit and add cascade
+                carry = cascade + 2 * carry; // lea
+                // Remove cascades not effected by carry
+                cascade ^= carry;
+                // Choice of 16 vectors
+                cascade &= 0x0f;
+
+                // Lookup the carries to broadcast to the Vectors
+                Vector256<ulong> cascadedCarries = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)), cascade);
+
+                // Mark res as initalized so we can use it as left said of ref assignment
+                Unsafe.SkipInit(out res);
+                // Add the cascadedCarries to the result
+                Unsafe.As<FE,Vector256<ulong>>(ref res) = Avx2.Add(result, cascadedCarries);
+                return (carry & 0b1_0000) != 0;
+            }
+            else
+            {
+                ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
+                ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
+                ulong carry = 0ul;
+                AddWithCarry(rx, ry, ref carry, out ulong res0);
+                AddWithCarry(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref carry, out ulong res1);
+                AddWithCarry(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref carry, out ulong res2);
+                AddWithCarry(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref carry, out ulong res3);
+                res = new FE(res0, res1, res2, res3);
+                return carry != 0;
             }
         }
     }

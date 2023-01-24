@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Nethermind.Int256;
+using FE = Nethermind.Field.Montgomery.FpEElement.FpE;
 
 namespace Nethermind.Field.Montgomery.FpEElement
 {
@@ -32,6 +33,14 @@ namespace Nethermind.Field.Montgomery.FpEElement
 
         public bool IsZero => (u0 | u1 | u2 | u3) == 0;
         public bool IsOne => Equals(One);
+
+        public static IEnumerable<FE> GetRandom()
+        {
+            byte[] data = new byte[32];
+            Random rand = new Random(0);
+            rand.NextBytes(data);
+            yield return new FE(data);
+        }
 
         private static void SubtractMod(in UInt256 a, in UInt256 b, in UInt256 m, out UInt256 res)
         {
