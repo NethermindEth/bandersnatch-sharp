@@ -302,7 +302,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
             return AddImpl(a, b, out res);
         }
 
-        public static bool AddImpl(in FE a, in FE b, out FE res, bool useIntrinsics = false)
+        public static bool AddImpl(in FE a, in FE b, out FE res, bool useIntrinsics = true)
         {
             if (useIntrinsics && Avx2.IsSupported)
             {
@@ -355,7 +355,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
             }
         }
 
-        public static bool SubtractImpl(in FE a, in FE b, out FE res, bool useIntrinsics = false)
+        public static bool SubtractImpl(in FE a, in FE b, out FE res, bool useIntrinsics = true)
         {
             if (useIntrinsics && Avx2.IsSupported)
             {
