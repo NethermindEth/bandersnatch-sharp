@@ -332,7 +332,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                 cascade &= 0x0f;
 
                 // Lookup the carries to broadcast to the Vectors
-                Vector256<ulong> cascadedCarries = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(ElementUtils.SBroadcastLookup)), cascade);
+                Vector256<ulong> cascadedCarries = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)), cascade);
 
                 // Mark res as initalized so we can use it as left said of ref assignment
                 Unsafe.SkipInit(out res);
@@ -387,7 +387,7 @@ namespace Nethermind.Field.Montgomery.ElementFactory
                 cascade &= 0x0f;
 
                 // Lookup the borrows to broadcast to the Vectors
-                Vector256<ulong> cascadedBorrows = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(ElementUtils.SBroadcastLookup)), cascade);
+                Vector256<ulong> cascadedBorrows = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)), cascade);
 
                 // Mark res as initalized so we can use it as left said of ref assignment
                 Unsafe.SkipInit(out res);
