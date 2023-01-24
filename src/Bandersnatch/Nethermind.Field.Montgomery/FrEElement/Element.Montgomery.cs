@@ -21,8 +21,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
         public bool LexicographicallyLargest()
         {
             FromMontgomery(in this, out FE mont);
-            return !ElementUtils.SubtractUnderflow(mont.u0, mont.u1, mont.u2, mont.u3,
-                qMinOne.u0, qMinOne.u1, qMinOne.u2, qMinOne.u3, out ulong _, out ulong _, out ulong _, out ulong _);
+            return !SubtractUnderflow(mont, qMinOne, out _);
         }
 
         public static void Inverse(in FE x, out FE z)
@@ -48,8 +47,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
                     v.RightShiftByOne(out v);
                     if ((s[0] & 1) == 1)
                     {
-                        ElementUtils.AddOverflow(in s.u0, in s.u1, in s.u2, in s.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                        s = new FE(u0, u1, u2, u3);
+                        AddOverflow(s, qElement, out s);
                     }
                     s.RightShiftByOne(out s);
                 }
@@ -59,22 +57,19 @@ namespace Nethermind.Field.Montgomery.FrEElement
                     u.RightShiftByOne(out u);
                     if ((r[0] & 1) == 1)
                     {
-                        ElementUtils.AddOverflow(in r.u0, in r.u1, in r.u2, in r.u3, Q0, Q1, Q2, Q3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                        r = new FE(u0, u1, u2, u3);
+                        AddOverflow(r, qElement, out r);
                     }
                     r.RightShiftByOne(out r);
                 }
 
                 if (!LessThan(v, u))
                 {
-                    ElementUtils.SubtractUnderflow(in v.u0, in v.u1, in v.u2, in v.u3, in u.u0, in u.u1, in u.u2, in u.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                    v = new FE(u0, u1, u2, u3);
+                    SubtractUnderflow(v, u, out v);
                     SubtractMod(s, r, out s);
                 }
                 else
                 {
-                    ElementUtils.SubtractUnderflow(in u.u0, u.u1, u.u2, u.u3, in v.u0, v.u1, v.u2, v.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-                    u = new FE(u0, u1, u2, u3);
+                    SubtractUnderflow(u, v, out u);
                     SubtractMod(r, s, out r);
                 }
 
@@ -149,11 +144,11 @@ namespace Nethermind.Field.Montgomery.FrEElement
                 c[1] = ElementUtils.MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
                 z[3] = ElementUtils.MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
             }
-            if (LessThan(qElement, z))
-            {
-                ElementUtils.SubtractUnderflow(z[0], z[1], z[2], z[3], Q0, Q1, Q2, Q3, out z[0], out z[1], out z[2], out z[3]);
-            }
             res = z;
+            if (LessThan(qElement, res))
+            {
+                SubtractUnderflow(res, qElement, out res);
+            }
         }
 
         public static FE[] MultiInverse(FE[] values)

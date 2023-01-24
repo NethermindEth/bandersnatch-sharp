@@ -38,16 +38,16 @@ namespace Nethermind.Field.Montgomery
             return a << n;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AddOverflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
-        {
-            ulong carry = 0ul;
-            AddWithCarry(aU0, bU0, ref carry, out u0);
-            AddWithCarry(aU1, bU1, ref carry, out u1);
-            AddWithCarry(aU2, bU2, ref carry, out u2);
-            AddWithCarry(aU3, bU3, ref carry, out u3);
-            return carry != 0;
-        }
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public static bool AddOverflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
+        // {
+        //     ulong carry = 0ul;
+        //     AddWithCarry(aU0, bU0, ref carry, out u0);
+        //     AddWithCarry(aU1, bU1, ref carry, out u1);
+        //     AddWithCarry(aU2, bU2, ref carry, out u2);
+        //     AddWithCarry(aU3, bU3, ref carry, out u3);
+        //     return carry != 0;
+        // }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
@@ -102,16 +102,16 @@ namespace Nethermind.Field.Montgomery
             return hi;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SubtractUnderflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
-        {
-            ulong borrow = 0;
-            SubtractWithBorrow(aU0, bU0, ref borrow, out u0);
-            SubtractWithBorrow(aU1, bU1, ref borrow, out u1);
-            SubtractWithBorrow(aU2, bU2, ref borrow, out u2);
-            SubtractWithBorrow(aU3, bU3, ref borrow, out u3);
-            return borrow != 0;
-        }
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public static bool SubtractUnderflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
+        // {
+        //     ulong borrow = 0;
+        //     SubtractWithBorrow(aU0, bU0, ref borrow, out u0);
+        //     SubtractWithBorrow(aU1, bU1, ref borrow, out u1);
+        //     SubtractWithBorrow(aU2, bU2, ref borrow, out u2);
+        //     SubtractWithBorrow(aU3, bU3, ref borrow, out u3);
+        //     return borrow != 0;
+        // }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SubtractWithBorrow(ulong a, ulong b, ref ulong borrow, out ulong res)

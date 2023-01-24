@@ -118,11 +118,11 @@ namespace Nethermind.Field.Montgomery.FrEElement
             c = ElementUtils.MAdd2(m, Q3, z[3], c, out z[2]);
             z[3] = c;
 
-            if (LessThan(qElement, z))
-            {
-                ElementUtils.SubtractUnderflow(z[0], z[1], z[2], z[3], Q0, Q1, Q2, Q3, out z[0], out z[1], out z[2], out z[3]);
-            }
             res = z;
+            if (LessThan(qElement, res))
+            {
+                SubtractUnderflow(res, qElement, out res);
+            }
         }
     }
 }

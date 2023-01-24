@@ -45,24 +45,22 @@ namespace Nethermind.Field.Montgomery.ElementFactory
 
         public static void AddMod(in FE a, in FE b, out FE res)
         {
-            bool overflow = ElementUtils.AddOverflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out ulong u0, out ulong u1, out ulong u2, out ulong u3);
-
+            bool overflow = AddOverflow(a, b, out res);
             if (overflow)
             {
-                ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3);
-                res = new FE(u0, u1, u2, u3);
+                SubtractUnderflow(res, qElement, out res);
                 return;
             }
 
-            if (!LessThanSubModulus(u0, u1, u2, u3))
+            if (!LessThanSubModulus(res))
             {
-                if (ElementUtils.SubtractUnderflow(u0, u1, u2, u3, Q0, Q1, Q2, Q3, out u0, out u1, out u2, out u3))
+                if (SubtractUnderflow(res, qElement, out res))
                 {
                     throw new InvalidConstraintException("this should now be possible");
                 }
             }
-            res = new FE(u0, u1, u2, u3);
         }
+
         public static void Divide(in FE x, in FE y, out FE z)
         {
             Inverse(y, out FE yInv);
@@ -76,10 +74,8 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             ulong u1;
             ulong u2;
             ulong u3;
-            if (ElementUtils.SubtractUnderflow(a.u0, a.u1, a.u2, a.u3, b.u0, b.u1, b.u2, b.u3, out u0, out u1, out u2, out u3))
-                ElementUtils.AddOverflow(Q0, Q1, Q2, Q3, u0, u1, u2, u3, out u0, out u1, out u2, out u3);
-
-            res = new FE(u0, u1, u2, u3);
+            if (SubtractUnderflow(a, b, out res))
+                AddOverflow(qElement, res, out res);
         }
 
         public static void Exp(in FE b, in UInt256 e, out FE result)
@@ -295,36 +291,19 @@ namespace Nethermind.Field.Montgomery.ElementFactory
         {
             res = new FE(u3);
         }
-
         public static bool SubtractUnderflow(in FE a, in FE b, out FE res)
         {
-            ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
-            ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
-            ulong borrow = 0ul;
-            ElementUtils.SubtractWithBorrow(rx, ry, ref borrow, out ulong res0);
-            ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref borrow, out ulong res1);
-            ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref borrow, out ulong res2);
-            ElementUtils.SubtractWithBorrow(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref borrow, out ulong res3);
-            res = new FE(res0, res1, res2, res3);
-            return borrow != 0;
+            return SubtractImpl(a, b, out res);
         }
 
         public static bool AddOverflow(in FE a, in FE b, out FE res)
         {
-            ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in a));
-            ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in b));
-            ulong carry = 0ul;
-            ElementUtils.AddWithCarry(rx, ry, ref carry, out ulong res0);
-            ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), ref carry, out ulong res1);
-            ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), ref carry, out ulong res2);
-            ElementUtils.AddWithCarry(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), ref carry, out ulong res3);
-            res = new FE(res0, res1, res2, res3);
-            return carry != 0;
+            return AddImpl(a, b, out res);
         }
 
-        public static bool AddImpl(in FE a, in FE b, out FE res)
+        public static bool AddImpl(in FE a, in FE b, out FE res, bool useIntrinsics = false)
         {
-            if (Avx2.IsSupported)
+            if (useIntrinsics && Avx2.IsSupported)
             {
                 Vector256<ulong> av = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in a));
                 Vector256<ulong> bv = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in b));
@@ -375,9 +354,9 @@ namespace Nethermind.Field.Montgomery.ElementFactory
             }
         }
 
-        public static bool SubtractImpl(in FE a, in FE b, out FE res)
+        public static bool SubtractImpl(in FE a, in FE b, out FE res, bool useIntrinsics = false)
         {
-            if (Avx2.IsSupported)
+            if (useIntrinsics && Avx2.IsSupported)
             {
                 Vector256<ulong> av = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in a));
                 Vector256<ulong> bv = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in b));
