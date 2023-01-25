@@ -1,17 +1,48 @@
 // Copyright 2022 Demerzel Solutions Limited
-// Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
+// Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
 using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Nethermind.Int256;
+using FE = Nethermind.Field.Montgomery.ElementFactory.Element;
 
-namespace Nethermind.Field.Montgomery
+namespace Nethermind.Field.Montgomery.ElementFactory
 {
-    public static class ElementUtils
+    public readonly partial struct Element
     {
-        public static void SubtractMod(in UInt256 a, in UInt256 b, in UInt256 m, out UInt256 res)
+        /* in little endian order so u3 is the most significant ulong */
+        [FieldOffset(0)]
+        public readonly ulong u0;
+        [FieldOffset(8)]
+        public readonly ulong u1;
+        [FieldOffset(16)]
+        public readonly ulong u2;
+        [FieldOffset(24)]
+        public readonly ulong u3;
+
+        public ulong this[int index] => index switch
+        {
+            0 => u0,
+            1 => u1,
+            2 => u2,
+            3 => u3,
+            var _ => throw new IndexOutOfRangeException()
+        };
+
+        public bool IsZero => (u0 | u1 | u2 | u3) == 0;
+        public bool IsOne => Equals(One);
+
+        public static IEnumerable<FE> GetRandom()
+        {
+            byte[] data = new byte[32];
+            Random rand = new Random(0);
+            rand.NextBytes(data);
+            yield return new FE(data);
+        }
+
+        private static void SubtractMod(in UInt256 a, in UInt256 b, in UInt256 m, out UInt256 res)
         {
             if (UInt256.SubtractUnderflow(a, b, out res))
             {
@@ -26,38 +57,27 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ulong Rsh(ulong a, int n)
+        private static ulong Rsh(ulong a, int n)
         {
             return a >> n;
         }
 
         // It avoids c#'s way of shifting a 64-bit number by 64-bit, i.e. in c# a << 64 == a, in our version a << 64 == 0.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ulong Lsh(ulong a, int n)
+        private static ulong Lsh(ulong a, int n)
         {
             return a << n;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AddOverflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
-        {
-            ulong carry = 0ul;
-            AddWithCarry(aU0, bU0, ref carry, out u0);
-            AddWithCarry(aU1, bU1, ref carry, out u1);
-            AddWithCarry(aU2, bU2, ref carry, out u2);
-            AddWithCarry(aU3, bU3, ref carry, out u3);
-            return carry != 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
+        private static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
         {
             sum = x + y + carry;
             carry = sum < x || sum < y? 1UL : 0UL;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong MAdd0(ulong a, ulong b, ulong c)
+        private static ulong MAdd0(ulong a, ulong b, ulong c)
         {
             ulong carry = 0;
             ulong hi = Math.BigMul(a, b, out ulong lo);
@@ -66,7 +86,7 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong MAdd1(ulong a, ulong b, ulong c, out ulong lo)
+        private static ulong MAdd1(ulong a, ulong b, ulong c, out ulong lo)
         {
             ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
@@ -77,7 +97,7 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong MAdd2(ulong a, ulong b, ulong c, ulong d, out ulong lo)
+        private static ulong MAdd2(ulong a, ulong b, ulong c, ulong d, out ulong lo)
         {
             ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
@@ -90,7 +110,7 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong MAdd3(ulong a, ulong b, ulong c, ulong d, ulong e, out ulong lo)
+        private static ulong MAdd3(ulong a, ulong b, ulong c, ulong d, ulong e, out ulong lo)
         {
             ulong hi = Math.BigMul(a, b, out lo);
             ulong carry = 0;
@@ -103,27 +123,16 @@ namespace Nethermind.Field.Montgomery
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool SubtractUnderflow(in ulong aU0, in ulong aU1, in ulong aU2, in ulong aU3, in ulong bU0, in ulong bU1, in ulong bU2, in ulong bU3, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
-        {
-            ulong borrow = 0;
-            SubtractWithBorrow(aU0, bU0, ref borrow, out u0);
-            SubtractWithBorrow(aU1, bU1, ref borrow, out u1);
-            SubtractWithBorrow(aU2, bU2, ref borrow, out u2);
-            SubtractWithBorrow(aU3, bU3, ref borrow, out u3);
-            return borrow != 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SubtractWithBorrow(ulong a, ulong b, ref ulong borrow, out ulong res)
+        private static void SubtractWithBorrow(ulong a, ulong b, ref ulong borrow, out ulong res)
         {
             res = a - b - borrow;
             borrow = (~a & b | ~(a ^ b) & res) >> 63;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Len64(ulong x) => 64 - BitOperations.LeadingZeroCount(x);
+        private static int Len64(ulong x) => 64 - BitOperations.LeadingZeroCount(x);
 
-        public static void FromBytes(in ReadOnlySpan<byte> bytes, bool isBigEndian, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
+        private static void FromBytes(in ReadOnlySpan<byte> bytes, bool isBigEndian, out ulong u0, out ulong u1, out ulong u2, out ulong u3)
         {
             if (bytes.Length == 32)
             {
@@ -214,7 +223,7 @@ namespace Nethermind.Field.Montgomery
             }
         }
 
-        public static Span<byte> ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
+        private static Span<byte> ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
         {
             Span<byte> target = new byte[32];
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(0, 8), u3);
@@ -224,7 +233,7 @@ namespace Nethermind.Field.Montgomery
             return target;
         }
 
-        public static Span<byte> ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
+        private static Span<byte> ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
         {
             Span<byte> target = new byte[32];
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
@@ -234,9 +243,7 @@ namespace Nethermind.Field.Montgomery
             return target;
         }
 
-        public static byte SBroadcastLookupM = MemoryMarshal.GetReference(SBroadcastLookup);
-
-        public static Span<byte> SBroadcastLookup => new byte[]
+        private static ReadOnlySpan<byte> SBroadcastLookup => new byte[]
         {
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

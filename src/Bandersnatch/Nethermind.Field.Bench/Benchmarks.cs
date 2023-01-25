@@ -9,7 +9,7 @@ using BenchmarkDotNet.Jobs;
 using Nethermind.Field.Montgomery.FpEElement;
 using Nethermind.Int256;
 
-namespace Nethermind.Field.Montgomery.Benchmark
+namespace Nethermind.Field.Bench
 {
     using TestElement = FpE;
 

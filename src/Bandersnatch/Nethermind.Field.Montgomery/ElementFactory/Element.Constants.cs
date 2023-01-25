@@ -11,13 +11,13 @@ namespace Nethermind.Field.Montgomery.ElementFactory
         private const ulong SqrtR = 5;
         private const ulong QInvNeg = 17410672245482742751;
 
-        public static readonly FE Zero = new FE(0);
+        private static readonly FE Zero = new FE(0);
 
         private const ulong One0 = 6347764673676886264;
         private const ulong One1 = 253265890806062196;
         private const ulong One2 = 11064306276430008312;
         private const ulong One3 = 1739710354780652911;
-        public static readonly FE One = new FE(One0, One1, One2, One3);
+        private static readonly FE One = new FE(One0, One1, One2, One3);
 
         private const ulong Q0 = 8429901452645165025;
         private const ulong Q1 = 18415085837358793841;
@@ -43,17 +43,17 @@ namespace Nethermind.Field.Montgomery.ElementFactory
         private const ulong QM3 = 436996551065533341;
         private static readonly FE qMinOne = new FE(QM0, QM1, QM2, QM3);
 
-        public static Lazy<UInt256> _modulus = new Lazy<UInt256>(() =>
+        private static Lazy<UInt256> _modulus = new Lazy<UInt256>(() =>
         {
             UInt256.TryParse("13108968793781547619861935127046491459309155893440570251786403306729687672801", out UInt256 output);
             return output;
         });
-        public static Lazy<UInt256> _bLegendreExponentElement = new Lazy<UInt256>(() =>
+        private static Lazy<UInt256> _bLegendreExponentElement = new Lazy<UInt256>(() =>
         {
             UInt256 output = new UInt256(Convert.FromHexString("0e7db4ea6533afa906673b0101343b007fc7c3803a0c8238ba7e835a943b73f0"), true);
             return output;
         });
-        public static Lazy<UInt256> _bSqrtExponentElement = new Lazy<UInt256>(() =>
+        private static Lazy<UInt256> _bSqrtExponentElement = new Lazy<UInt256>(() =>
         {
             UInt256 output = new UInt256(Convert.FromHexString("073eda753299d7d483339d80809a1d803fe3e1c01d06411c5d3f41ad4a1db9f"), true);
             return output;
