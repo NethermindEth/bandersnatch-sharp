@@ -173,7 +173,7 @@ namespace Nethermind.Field.Montgomery.Test
             Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
             for (int i = 0; i < gotInverse.Length; i++)
             {
-                Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i].Value));
+                Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i]!.Value));
             }
         }
 
