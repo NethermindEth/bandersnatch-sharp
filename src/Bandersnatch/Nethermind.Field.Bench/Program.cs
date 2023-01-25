@@ -2,7 +2,7 @@ using System.Diagnostics;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-namespace Nethermind.Field.Montgomery.Benchmark
+namespace Nethermind.Field.Bench
 {
     public class Program
     {

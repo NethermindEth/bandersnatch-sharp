@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Nethermind.Field.Montgomery.Benchmark</RootNamespace>
+    <RootNamespace>Nethermind.Field.Bench</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformTarget>AnyCPU</PlatformTarget>

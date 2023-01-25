@@ -1,8 +1,8 @@
 using System.Numerics;
 
-namespace Nethermind.Field.Montgomery.Benchmark
+namespace Nethermind.Field.Bench
 {
-    public static class Numbers
+    public static class TestNumbers
     {
         public static readonly BigInteger _twoTo64 = new BigInteger(ulong.MaxValue) + 1;
         public static readonly BigInteger _twoTo128 = _twoTo64 * _twoTo64;
