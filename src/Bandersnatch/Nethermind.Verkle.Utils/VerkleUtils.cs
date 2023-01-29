@@ -43,7 +43,8 @@ namespace Nethermind.Verkle.Utils
         public static Span<byte> ToAddress32(ReadOnlySpan<byte> address20)
         {
             Span<byte> address32 = new byte[32];
-            address20.CopyTo(address32);
+            Span<byte> x = address32[12..];
+            address20.CopyTo(x);
             return address32;
         }
 

@@ -26,7 +26,7 @@ namespace Nethermind.Verkle.Utils
                 res += crs.BasisG[i] * pedersenVec[i];
             }
 
-            return res.ToBytes();
+            return res.ToBytesLittleEndian();
         }
         public static byte[] Hash(ReadOnlySpan<byte> address32, UInt256 treeIndex)
         {
@@ -40,7 +40,7 @@ namespace Nethermind.Verkle.Utils
              + crs.BasisG[3] * FrE.SetElement(treeIndex.u0, treeIndex.u1)
              + crs.BasisG[4] * FrE.SetElement(treeIndex.u2, treeIndex.u3);
 
-            return res.ToBytes();
+            return res.ToBytesLittleEndian();
         }
     }
 }

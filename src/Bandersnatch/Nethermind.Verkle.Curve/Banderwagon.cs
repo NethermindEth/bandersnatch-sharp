@@ -119,6 +119,18 @@ namespace Nethermind.Verkle.Curve
             return x.Value.ToBytesBigEndian().ToArray();
         }
 
+        public byte[] ToBytesLittleEndian()
+        {
+            AffinePoint? affine = _point.ToAffine();
+            FpE? x = affine.X.Dup();
+            if (affine.Y.LexicographicallyLargest() == false)
+            {
+                x = affine.X.Negative();
+            }
+
+            return x.Value.ToBytes().ToArray();
+        }
+
         public static Banderwagon Double(Banderwagon p)
         {
             return new Banderwagon(ExtendedPoint.Double(p._point));
