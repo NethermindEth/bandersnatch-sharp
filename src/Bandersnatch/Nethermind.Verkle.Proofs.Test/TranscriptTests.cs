@@ -1,15 +1,12 @@
-using System;
-using System.Linq;
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
-using NUnit.Framework;
 
-namespace Nethermind.Ipa.Test
+namespace Nethermind.Verkle.Proofs.Test
 {
     public class TranscriptTests
     {
         [Test]
-        public void test_prover_verifier_consistency()
+        public void TestProverVerifierConsistency()
         {
             Banderwagon point = Banderwagon.Generator();
             Random random = new Random();
@@ -33,11 +30,11 @@ namespace Nethermind.Ipa.Test
 
             FrE verifierQ = verifierTranscript.ChallengeScalar("q");
 
-            Assert.IsTrue(proverQ.Equals(verifierQ));
+            Assert.That(proverQ, Is.EqualTo(verifierQ));
         }
 
         [Test]
-        public void test_vector_0()
+        public void TestVector0()
         {
             Transcript transcript = new Transcript("foo");
             FrE firstChallenge = transcript.ChallengeScalar("f");
@@ -46,16 +43,16 @@ namespace Nethermind.Ipa.Test
         }
 
         [Test]
-        public void test_vector_1()
+        public void TestVector1()
         {
             Transcript transcript = new Transcript("simple_protocol");
             FrE challenge = transcript.ChallengeScalar("simple_challenge");
-            Assert.IsTrue(Convert.ToHexString(challenge.ToBytes()).ToLower()
+            Assert.That(Convert.ToHexString(challenge.ToBytes()).ToLower()
                 .SequenceEqual("c2aa02607cbdf5595f00ee0dd94a2bbff0bed6a2bf8452ada9011eadb538d003"));
         }
 
         [Test]
-        public void test_vector_2()
+        public void TestVector2()
         {
             Transcript transcript = new Transcript("simple_protocol");
             FrE scalar = FrE.SetElement(5);
@@ -64,12 +61,12 @@ namespace Nethermind.Ipa.Test
             transcript.AppendScalar(scalar, "five again");
 
             FrE challenge = transcript.ChallengeScalar("simple_challenge");
-            Assert.IsTrue(Convert.ToHexString(challenge.ToBytes()).ToLower()
-                .SequenceEqual("498732b694a8ae1622d4a9347535be589e4aee6999ffc0181d13fe9e4d037b0b"));
+            Assert.That(Convert.ToHexString(challenge.ToBytes()).ToLower()
+                .SequenceEqual("498732b694a8ae1622d4a9347535be589e4aee6999ffc0181d13fe9e4d037b0b"), Is.True);
         }
 
         [Test]
-        public void test_vector_3()
+        public void TestVector3()
         {
             Transcript transcript = new Transcript("simple_protocol");
             FrE minusOne = FrE.SetElement(-1);
@@ -81,12 +78,12 @@ namespace Nethermind.Ipa.Test
             transcript.AppendScalar(one, "now 1");
 
             FrE challenge = transcript.ChallengeScalar("simple_challenge");
-            Assert.IsTrue(Convert.ToHexString(challenge.ToBytes()).ToLower()
-                .SequenceEqual("14f59938e9e9b1389e74311a464f45d3d88d8ac96adf1c1129ac466de088d618"));
+            Assert.That(Convert.ToHexString(challenge.ToBytes()).ToLower()
+                .SequenceEqual("14f59938e9e9b1389e74311a464f45d3d88d8ac96adf1c1129ac466de088d618"), Is.True);
         }
 
         [Test]
-        public void test_vector_4()
+        public void TestVector4()
         {
             Transcript transcript = new Transcript("simple_protocol");
 
@@ -95,8 +92,8 @@ namespace Nethermind.Ipa.Test
             transcript.AppendPoint(generator, "generator");
             FrE challenge = transcript.ChallengeScalar("simple_challenge");
 
-            Assert.IsTrue(Convert.ToHexString(challenge.ToBytes()).ToLower()
-                .SequenceEqual("8c2dafe7c0aabfa9ed542bb2cbf0568399ae794fc44fdfd7dff6cc0e6144921c"));
+            Assert.That(Convert.ToHexString(challenge.ToBytes()).ToLower()
+                .SequenceEqual("8c2dafe7c0aabfa9ed542bb2cbf0568399ae794fc44fdfd7dff6cc0e6144921c"), Is.True);
         }
     }
 }

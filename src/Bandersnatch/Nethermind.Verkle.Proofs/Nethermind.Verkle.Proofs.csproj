@@ -6,4 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Field.Montgomery\Nethermind.Field.Montgomery.csproj" />
+      <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
+      <ProjectReference Include="..\Nethermind.Verkle.Polynomial\Nethermind.Verkle.Polynomial.csproj" />
+    </ItemGroup>
+
 </Project>

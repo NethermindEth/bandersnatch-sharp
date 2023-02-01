@@ -1,4 +1,3 @@
-using System.Net.Quic;
 using System.Runtime.CompilerServices;
 using FE = Nethermind.Field.Montgomery.FpEElement.FpE;
 

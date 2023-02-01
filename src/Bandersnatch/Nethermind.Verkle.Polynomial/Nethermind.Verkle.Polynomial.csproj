@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Field.Montgomery\Nethermind.Field.Montgomery.csproj" />
+    </ItemGroup>
+
 </Project>

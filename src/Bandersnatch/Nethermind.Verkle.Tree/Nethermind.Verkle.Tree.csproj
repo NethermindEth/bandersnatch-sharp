@@ -33,8 +33,6 @@
     <ProjectReference Include="..\Nethermind.Utils\Nethermind.Utils.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle.Db\Nethermind.Verkle.Db.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
-    <ProjectReference Include="..\Nethermind.Polynomial\Nethermind.Polynomial.csproj" />
-    <ProjectReference Include="..\Nethermind.Ipa\Nethermind.Ipa.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle.Utils\Nethermind.Verkle.Utils.csproj" />
   </ItemGroup>
 

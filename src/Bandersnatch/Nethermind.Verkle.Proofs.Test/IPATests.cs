@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nethermind.Field.Montgomery.FrEElement;
-using Nethermind.Polynomial;
 using Nethermind.Verkle.Curve;
-using NUnit.Framework;
+using Nethermind.Verkle.Polynomial;
 
-namespace Nethermind.Ipa.Test
+
+namespace Nethermind.Verkle.Proofs.Test
 {
-    public class IPATests
+    public class IpaTests
     {
         private readonly FrE[] _poly =
         {
@@ -27,7 +24,7 @@ namespace Nethermind.Ipa.Test
                 domain[i] = FrE.SetElement(i);
             }
 
-            PreComputeWeights weights = PreComputeWeights.Init(domain);
+            PreComputeWeights weights = PreComputeWeights.Init(256);
 
             List<FrE> lagrangePoly = new List<FrE>();
 
@@ -39,19 +36,15 @@ namespace Nethermind.Ipa.Test
             CRS crs = CRS.Instance;
             Banderwagon commitment = crs.Commit(lagrangePoly.ToArray());
 
-            Assert.IsTrue(Convert.ToHexString(commitment.ToBytes()).ToLower()
+            Assert.That(Convert.ToHexString(commitment.ToBytes()).ToLower()
                 .SequenceEqual("1b9dff8f5ebbac250d291dfe90e36283a227c64b113c37f1bfb9e7a743cdb128"));
 
             Transcript proverTranscript = new Transcript("test");
 
             FrE inputPoint = FrE.SetElement(2101);
             FrE[] b = weights.BarycentricFormulaConstants(inputPoint);
-            ProverQuery query = new ProverQuery(lagrangePoly.ToArray(), commitment, inputPoint, b);
+            IpaProverQuery query = new IpaProverQuery(lagrangePoly.ToArray(), commitment, inputPoint, b);
 
-            byte[] hash =
-            {
-                59, 242, 0, 139, 181, 46, 10, 203, 105, 140, 230, 43, 108, 173, 120, 136, 17, 42, 116, 137, 73, 212, 87, 150, 5, 145, 25, 202, 179, 251, 7, 191
-            };
             List<byte> cache = new List<byte>();
             foreach (FrE i in lagrangePoly)
             {
@@ -64,19 +57,19 @@ namespace Nethermind.Ipa.Test
                 cache.AddRange(i.ToBytes().ToArray());
             }
 
-            (FrE outputPoint, ProofStruct proof) = IPA.MakeIpaProof(crs, proverTranscript, query);
+            (FrE outputPoint, IpaProofStruct proof) = IPA.MakeIpaProof(crs, proverTranscript, query);
             FrE pChallenge = proverTranscript.ChallengeScalar("state");
 
-            Assert.IsTrue(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
+            Assert.That(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
                 .SequenceEqual("0a81881cbfd7d7197a54ebd67ed6a68b5867f3c783706675b34ece43e85e7306"));
 
             Transcript verifierTranscript = new Transcript("test");
 
-            VerifierQuery queryX = new VerifierQuery(commitment, inputPoint, b, outputPoint, proof);
+            IpaVerifierQuery queryX = new IpaVerifierQuery(commitment, inputPoint, b, outputPoint, proof);
 
             bool ok = IPA.CheckIpaProof(crs, verifierTranscript, queryX);
 
-            Assert.IsTrue(ok);
+            Assert.That(ok);
         }
 
         [Test]
@@ -95,7 +88,7 @@ namespace Nethermind.Ipa.Test
             FrE expectedResult = FrE.SetElement(204);
 
             FrE gotResult = IPA.InnerProduct(a, b);
-            Assert.IsTrue(gotResult.Equals(expectedResult));
+            Assert.That(gotResult, Is.EqualTo(expectedResult));
         }
     }
 }

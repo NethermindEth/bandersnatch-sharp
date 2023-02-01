@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Nethermind.Field.Montgomery.FrEElement;
 using NUnit.Framework;
 using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 

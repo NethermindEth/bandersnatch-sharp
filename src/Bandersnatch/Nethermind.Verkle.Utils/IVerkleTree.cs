@@ -1,5 +1,5 @@
 using Nethermind.Field.Montgomery.FrEElement;
-using Nethermind.Ipa;
+using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Utils
 {
@@ -17,7 +17,7 @@ namespace Nethermind.Verkle.Utils
     {
         public VerificationHint VerifyHint;
         public Fr[] CommsSorted;
-        public MultiProofStruct Proof;
+        public VerkleProofStruct Proof;
     }
 
     public struct VerificationHint
