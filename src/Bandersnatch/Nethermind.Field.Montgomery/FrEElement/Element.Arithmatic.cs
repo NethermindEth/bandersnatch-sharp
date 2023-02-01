@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
-using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
+using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {
@@ -139,15 +139,15 @@ namespace Nethermind.Field.Montgomery.FrEElement
             a = Rsh(res.u0, 64 - n);
             z0 = Lsh(res.u0, n);
 
-        sh64:
+sh64:
             b = Rsh(res.u1, 64 - n);
             z1 = Lsh(res.u1, n) | a;
 
-        sh128:
+sh128:
             a = Rsh(res.u2, 64 - n);
             z2 = Lsh(res.u2, n) | b;
 
-        sh192:
+sh192:
             z3 = Lsh(res.u3, n) | a;
 
             res = new FE(z0, z1, z2, z3);
@@ -229,15 +229,15 @@ namespace Nethermind.Field.Montgomery.FrEElement
             a = Lsh(res.u3, 64 - n);
             z3 = Rsh(res.u3, n);
 
-        sh64:
+sh64:
             b = Lsh(res.u2, 64 - n);
             z2 = Rsh(res.u2, n) | a;
 
-        sh128:
+sh128:
             a = Lsh(res.u1, 64 - n);
             z1 = Rsh(res.u1, n) | b;
 
-        sh192:
+sh192:
             z0 = Rsh(res.u0, n) | a;
 
             res = new FE(z0, z1, z2, z3);
@@ -338,8 +338,8 @@ namespace Nethermind.Field.Montgomery.FrEElement
         {
             if (Avx2.IsSupported)
             {
-                Vector256<ulong> av = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in a));
-                Vector256<ulong> bv = Unsafe.As<FE,Vector256<ulong>>(ref Unsafe.AsRef(in b));
+                Vector256<ulong> av = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in a));
+                Vector256<ulong> bv = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in b));
 
                 Vector256<ulong> result = Avx2.Add(av, bv);
                 Vector256<ulong> carryFromBothHighBits = Avx2.And(av, bv);
@@ -370,7 +370,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
                 // Mark res as initalized so we can use it as left said of ref assignment
                 Unsafe.SkipInit(out res);
                 // Add the cascadedCarries to the result
-                Unsafe.As<FE,Vector256<ulong>>(ref res) = Avx2.Add(result, cascadedCarries);
+                Unsafe.As<FE, Vector256<ulong>>(ref res) = Avx2.Add(result, cascadedCarries);
                 return (carry & 0b1_0000) != 0;
             }
             else

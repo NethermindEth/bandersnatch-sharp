@@ -620,11 +620,11 @@ namespace Nethermind.Serialization.Rlp
                     result = 1 + contentLength;
                     break;
                 default:
-                {
-                    int lengthOfLength = LengthOfLength(contentLength);
-                    result = 1 + lengthOfLength + contentLength;
-                    break;
-                }
+                    {
+                        int lengthOfLength = LengthOfLength(contentLength);
+                        result = 1 + lengthOfLength + contentLength;
+                        break;
+                    }
             }
 
             return result;

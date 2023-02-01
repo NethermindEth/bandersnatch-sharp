@@ -3,14 +3,14 @@ using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Proofs
 {
-    public static class IPA
+    public static class Ipa
     {
-        public static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
+        private static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
         {
             return Banderwagon.MSM(elements, values);
         }
 
-        public static FrE InnerProduct(FrE[] a, FrE[] b)
+        public static FrE InnerProduct(IEnumerable<FrE> a, IEnumerable<FrE> b)
         {
             FrE result = FrE.SetElement();
 
@@ -28,16 +28,16 @@ namespace Nethermind.Verkle.Proofs
         {
             transcript.DomainSep("ipa");
 
-            int n = query.Polynomial.Length;
+            int n = query._polynomial.Length;
             int m = n / 2;
-            FrE[] a = query.Polynomial;
-            FrE[] b = query.PointEvaluations;
+            FrE[] a = query._polynomial;
+            FrE[] b = query._pointEvaluations;
             FrE y = InnerProduct(a, b);
 
             IpaProofStruct ipaProof = new IpaProofStruct(new List<Banderwagon>(), FrE.Zero, new List<Banderwagon>());
 
-            transcript.AppendPoint(query.Commitment, "C"u8.ToArray());
-            transcript.AppendScalar(query.Point, "input point"u8.ToArray());
+            transcript.AppendPoint(query._commitment, "C"u8.ToArray());
+            transcript.AppendScalar(query._point, "input point"u8.ToArray());
             transcript.AppendScalar(y, "output point"u8.ToArray());
             FrE w = transcript.ChallengeScalar("w"u8.ToArray());
 
@@ -57,36 +57,36 @@ namespace Nethermind.Verkle.Proofs
                 Banderwagon cL = VarBaseCommit(aR, currentBasis[..m]) + q * zL;
                 Banderwagon cR = VarBaseCommit(aL, currentBasis[m..]) + q * zR;
 
-                ipaProof.L.Add(cL);
-                ipaProof.R.Add(cR);
+                ipaProof._l.Add(cL);
+                ipaProof._r.Add(cR);
 
                 transcript.AppendPoint(cL, "L"u8.ToArray());
                 transcript.AppendPoint(cR, "R"u8.ToArray());
                 FrE x = transcript.ChallengeScalar("x"u8.ToArray());
 
-                FrE.Inverse(x, out FrE xinv);
+                FrE.Inverse(x, out FrE xInv);
 
                 a = new FrE[aL.Length];
                 int i = 0;
-                foreach ((FrE V, FrE W) in aL.Zip(aR))
+                foreach ((FrE v1, FrE v2) in aL.Zip(aR))
                 {
-                    a[i] = V + x * W;
+                    a[i] = v1 + x * v2;
                     i++;
                 }
 
                 b = new FrE[aL.Length];
                 i = 0;
-                foreach ((FrE V, FrE W) in bL.Zip(bR))
+                foreach ((FrE v1, FrE v2) in bL.Zip(bR))
                 {
-                    b[i] = V + xinv * W;
+                    b[i] = v1 + xInv * v2;
                     i++;
                 }
 
                 Banderwagon[] currentBasisN = new Banderwagon[m];
                 i = 0;
-                foreach ((Banderwagon V, Banderwagon W) in currentBasis[..m].Zip(currentBasis[m..]))
+                foreach ((Banderwagon v1, Banderwagon v2) in currentBasis[..m].Zip(currentBasis[m..]))
                 {
-                    currentBasisN[i] = V + W * xinv;
+                    currentBasisN[i] = v1 + v2 * xInv;
                     i++;
                 }
 
@@ -95,7 +95,7 @@ namespace Nethermind.Verkle.Proofs
                 m = n / 2;
             }
 
-            ipaProof.A = a[0];
+            ipaProof._a = a[0];
 
             return (y, ipaProof);
         }
@@ -105,61 +105,61 @@ namespace Nethermind.Verkle.Proofs
         {
             transcript.DomainSep("ipa"u8.ToArray());
 
-            int n = query.PointEvaluations.Length;
+            int n = query._pointEvaluations.Length;
             int m = n / 2;
 
 
-            Banderwagon C = query.Commitment;
-            FrE z = query.Point;
-            FrE[] b = query.PointEvaluations;
+            Banderwagon c = query._commitment;
+            FrE z = query._point;
+            FrE[] b = query._pointEvaluations;
             IpaProofStruct ipaProof = query._ipaProof;
-            FrE y = query.OutputPoint;
+            FrE y = query._outputPoint;
 
-            transcript.AppendPoint(C, "C"u8.ToArray());
+            transcript.AppendPoint(c, "C"u8.ToArray());
             transcript.AppendScalar(z, "input point"u8.ToArray());
             transcript.AppendScalar(y, "output point"u8.ToArray());
             FrE w = transcript.ChallengeScalar("w"u8.ToArray());
 
             Banderwagon q = crs.BasisQ * w;
 
-            Banderwagon currentCommitment = C + q * y;
+            Banderwagon currentCommitment = c + q * y;
 
             int i = 0;
             List<FrE> xs = new List<FrE>();
-            List<FrE> xinvs = new List<FrE>();
+            List<FrE> xInvList = new List<FrE>();
 
 
             while (n > 1)
             {
-                Banderwagon C_L = ipaProof.L[i];
-                Banderwagon C_R = ipaProof.R[i];
+                Banderwagon cL = ipaProof._l[i];
+                Banderwagon cR = ipaProof._r[i];
 
-                transcript.AppendPoint(C_L, "L"u8.ToArray());
-                transcript.AppendPoint(C_R, "R"u8.ToArray());
+                transcript.AppendPoint(cL, "L"u8.ToArray());
+                transcript.AppendPoint(cR, "R"u8.ToArray());
                 FrE x = transcript.ChallengeScalar("x"u8.ToArray());
 
-                FrE.Inverse(in x, out FrE xinv);
+                FrE.Inverse(in x, out FrE xInv);
 
                 xs.Add(x);
-                xinvs.Add(xinv);
+                xInvList.Add(xInv);
 
-                currentCommitment = currentCommitment + C_L * x + C_R * xinv;
+                currentCommitment = currentCommitment + cL * x + cR * xInv;
                 n = m;
                 m = n / 2;
-                i = i + 1;
+                i += 1;
             }
 
             Banderwagon[] currentBasis = crs.BasisG;
 
             for (int j = 0; j < xs.Count; j++)
             {
-                (Banderwagon[] G_L, Banderwagon[] G_R) = SplitPoints(currentBasis);
-                (FrE[] b_L, FrE[] b_R) = SplitScalars(b);
+                (Banderwagon[] gL, Banderwagon[] gR) = SplitPoints(currentBasis);
+                (FrE[] bL, FrE[] bR) = SplitScalars(b);
 
-                FrE x_inv = xinvs[j];
+                FrE xInv = xInvList[j];
 
-                b = FoldScalars(b_L, b_R, x_inv);
-                currentBasis = FoldPoints(G_L, G_R, x_inv);
+                b = FoldScalars(bL, bR, xInv);
+                currentBasis = FoldPoints(gL, gR, xInv);
 
             }
 
@@ -171,12 +171,12 @@ namespace Nethermind.Verkle.Proofs
             FrE b0 = b[0];
             Banderwagon g0 = currentBasis[0];
 
-            Banderwagon gotCommitment = g0 * ipaProof.A + q * (ipaProof.A * b0);
+            Banderwagon gotCommitment = g0 * ipaProof._a + q * (ipaProof._a * b0);
 
             return currentCommitment == gotCommitment;
         }
 
-        public static (T[] firstHalf, T[] secondHalf) SplitListInHalf<T>(T[] x)
+        private static (T[] firstHalf, T[] secondHalf) SplitListInHalf<T>(T[] x)
         {
             if (x.Length % 2 != 0)
                 throw new Exception();
@@ -185,23 +185,23 @@ namespace Nethermind.Verkle.Proofs
             return (x[..mid], x[mid..]);
         }
 
-        public static (Banderwagon[] firstHalf, Banderwagon[] secondHalf) SplitPoints(Banderwagon[] x)
+        private static (Banderwagon[] firstHalf, Banderwagon[] secondHalf) SplitPoints(Banderwagon[] x)
         {
             return SplitListInHalf(x);
         }
 
-        public static (FrE[] firstHalf, FrE[] secondHalf) SplitScalars(FrE[] x)
+        private static (FrE[] firstHalf, FrE[] secondHalf) SplitScalars(FrE[] x)
         {
             return SplitListInHalf(x);
         }
 
-        public static FrE[] FoldScalars(FrE[] a, FrE[] b, FrE foldingChallenge)
+        private static FrE[] FoldScalars(IReadOnlyList<FrE> a, IReadOnlyList<FrE> b, FrE foldingChallenge)
         {
-            if (a.Length != b.Length)
+            if (a.Count != b.Count)
                 throw new Exception();
 
-            FrE[] result = new FrE[a.Length];
-            for (int i = 0; i < a.Length; i++)
+            FrE[] result = new FrE[a.Count];
+            for (int i = 0; i < a.Count; i++)
             {
                 result[i] = a[i] + b[i] * foldingChallenge;
             }
@@ -209,13 +209,13 @@ namespace Nethermind.Verkle.Proofs
             return result;
         }
 
-        public static Banderwagon[] FoldPoints(Banderwagon[] a, Banderwagon[] b, FrE foldingChallenge)
+        private static Banderwagon[] FoldPoints(IReadOnlyList<Banderwagon> a, IReadOnlyList<Banderwagon> b, FrE foldingChallenge)
         {
-            if (a.Length != b.Length)
+            if (a.Count != b.Count)
                 throw new Exception();
 
-            Banderwagon[] result = new Banderwagon[a.Length];
-            for (int i = 0; i < a.Length; i++)
+            Banderwagon[] result = new Banderwagon[a.Count];
+            for (int i = 0; i < a.Count; i++)
             {
                 result[i] = a[i] + b[i] * foldingChallenge;
             }

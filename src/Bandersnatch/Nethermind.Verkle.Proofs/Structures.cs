@@ -9,49 +9,49 @@ namespace Nethermind.Verkle.Proofs
 {
     public struct IpaProverQuery
     {
-        public FrE[] Polynomial;
-        public Banderwagon Commitment;
-        public FrE Point;
-        public FrE[] PointEvaluations;
+        public readonly FrE[] _polynomial;
+        public readonly Banderwagon _commitment;
+        public FrE _point;
+        public readonly FrE[] _pointEvaluations;
 
         public IpaProverQuery(FrE[] polynomial, Banderwagon commitment, FrE point,
             FrE[] pointEvaluations)
         {
-            Polynomial = polynomial;
-            Commitment = commitment;
-            Point = point;
-            PointEvaluations = pointEvaluations;
+            _polynomial = polynomial;
+            _commitment = commitment;
+            _point = point;
+            _pointEvaluations = pointEvaluations;
         }
     }
 
     public struct IpaProofStruct
     {
-        public List<Banderwagon> L;
-        public FrE A;
-        public List<Banderwagon> R;
+        public readonly List<Banderwagon> _l;
+        public FrE _a;
+        public readonly List<Banderwagon> _r;
 
         public IpaProofStruct(List<Banderwagon> l, FrE a, List<Banderwagon> r)
         {
-            L = l;
-            A = a;
-            R = r;
+            _l = l;
+            _a = a;
+            _r = r;
         }
     }
 
     public struct IpaVerifierQuery
     {
-        public Banderwagon Commitment;
-        public FrE Point;
-        public FrE[] PointEvaluations;
-        public FrE OutputPoint;
+        public readonly Banderwagon _commitment;
+        public FrE _point;
+        public readonly FrE[] _pointEvaluations;
+        public FrE _outputPoint;
         public IpaProofStruct _ipaProof;
 
         public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint, IpaProofStruct ipaProof)
         {
-            Commitment = commitment;
-            Point = point;
-            PointEvaluations = pointEvaluations;
-            OutputPoint = outputPoint;
+            _commitment = commitment;
+            _point = point;
+            _pointEvaluations = pointEvaluations;
+            _outputPoint = outputPoint;
             _ipaProof = ipaProof;
         }
     }
@@ -59,42 +59,42 @@ namespace Nethermind.Verkle.Proofs
     public struct VerkleProofStruct
     {
         public IpaProofStruct _ipaProof;
-        public Banderwagon D;
+        public readonly Banderwagon _d;
 
         public VerkleProofStruct(IpaProofStruct ipaProof, Banderwagon d)
         {
             _ipaProof = ipaProof;
-            D = d;
+            _d = d;
         }
     }
 
     public struct VerkleProverQuery
     {
-        public LagrangeBasis f;
-        public Banderwagon C;
-        public FrE z;
-        public FrE y;
+        public readonly LagrangeBasis _childHashPoly;
+        public readonly Banderwagon _nodeCommitPoint;
+        public FrE _childIndex;
+        public FrE _childHash;
 
-        public VerkleProverQuery(LagrangeBasis _f, Banderwagon _C, FrE _z, FrE _y)
+        public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
         {
-            f = _f;
-            C = _C;
-            z = _z;
-            y = _y;
+            _childHashPoly = childHashPoly;
+            _nodeCommitPoint = nodeCommitPoint;
+            _childIndex = childIndex;
+            _childHash = childHash;
         }
     }
 
     public struct VerkleVerifierQuery
     {
-        public Banderwagon C;
-        public FrE z;
-        public FrE y;
+        public readonly Banderwagon _nodeCommitPoint;
+        public FrE _childIndex;
+        public FrE _childHash;
 
-        public VerkleVerifierQuery(Banderwagon _C, FrE _z, FrE _y)
+        public VerkleVerifierQuery(Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
         {
-            C = _C;
-            z = _z;
-            y = _y;
+            _nodeCommitPoint = nodeCommitPoint;
+            _childIndex = childIndex;
+            _childHash = childHash;
         }
     }
 }

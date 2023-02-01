@@ -24,7 +24,7 @@ namespace Nethermind.Verkle.Proofs.Test
                 domain[i] = FrE.SetElement(i);
             }
 
-            PreComputeWeights weights = PreComputeWeights.Init(256);
+            PreComputeWeights weights = PreComputeWeights.Init();
 
             List<FrE> lagrangePoly = new List<FrE>();
 
@@ -57,7 +57,7 @@ namespace Nethermind.Verkle.Proofs.Test
                 cache.AddRange(i.ToBytes().ToArray());
             }
 
-            (FrE outputPoint, IpaProofStruct proof) = IPA.MakeIpaProof(crs, proverTranscript, query);
+            (FrE outputPoint, IpaProofStruct proof) = Ipa.MakeIpaProof(crs, proverTranscript, query);
             FrE pChallenge = proverTranscript.ChallengeScalar("state");
 
             Assert.That(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
@@ -67,7 +67,7 @@ namespace Nethermind.Verkle.Proofs.Test
 
             IpaVerifierQuery queryX = new IpaVerifierQuery(commitment, inputPoint, b, outputPoint, proof);
 
-            bool ok = IPA.CheckIpaProof(crs, verifierTranscript, queryX);
+            bool ok = Ipa.CheckIpaProof(crs, verifierTranscript, queryX);
 
             Assert.That(ok);
         }
@@ -87,7 +87,7 @@ namespace Nethermind.Verkle.Proofs.Test
 
             FrE expectedResult = FrE.SetElement(204);
 
-            FrE gotResult = IPA.InnerProduct(a, b);
+            FrE gotResult = Ipa.InnerProduct(a, b);
             Assert.That(gotResult, Is.EqualTo(expectedResult));
         }
     }

@@ -81,7 +81,9 @@ namespace Nethermind.Db
         {
             return new DbSettings(GetTitleDbName(dbName), dbName)
             {
-                UpdateReadMetrics = updateReadsMetrics, UpdateWriteMetrics = updateWriteMetrics, DeleteOnStart = deleteOnStart
+                UpdateReadMetrics = updateReadsMetrics,
+                UpdateWriteMetrics = updateWriteMetrics,
+                DeleteOnStart = deleteOnStart
             };
         }
     }

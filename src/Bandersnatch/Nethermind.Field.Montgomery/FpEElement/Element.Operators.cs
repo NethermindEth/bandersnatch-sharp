@@ -32,7 +32,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
             return c;
         }
 
-        public static FE operator >> (in FE a, int n)
+        public static FE operator >>(in FE a, int n)
         {
             a.RightShift(n, out FE res);
             return res;

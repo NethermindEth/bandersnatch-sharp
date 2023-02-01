@@ -73,7 +73,7 @@ namespace Nethermind.Field.Montgomery.FpEElement
         private static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
         {
             sum = x + y + carry;
-            carry = sum < x || sum < y? 1UL : 0UL;
+            carry = sum < x || sum < y ? 1UL : 0UL;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

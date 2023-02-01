@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
+using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {

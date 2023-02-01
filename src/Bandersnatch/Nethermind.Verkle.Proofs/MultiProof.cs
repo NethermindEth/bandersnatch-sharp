@@ -7,27 +7,27 @@ namespace Nethermind.Verkle.Proofs
     public class MultiProof
     {
         private readonly CRS _crs;
-        private readonly PreComputeWeights _precomp;
+        private readonly PreComputeWeights _preComp;
 
-        public MultiProof(CRS cRs, int domain)
+        public MultiProof(CRS cRs, PreComputeWeights preComp)
         {
-            _precomp = PreComputeWeights.Init(domain);
+            _preComp = preComp;
             _crs = cRs;
         }
 
-        public VerkleProofStruct MakeMultiProof(Transcript transcript, VerkleProverQuery[] queries)
+        public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
         {
-            int domainSize = _precomp.Domain.Length;
+            int domainSize = _preComp._domain.Length;
             transcript.DomainSep("multiproof");
 
             foreach (VerkleProverQuery query in queries)
             {
-                transcript.AppendPoint(query.C, "C");
-                transcript.AppendScalar(query.z, "z");
-                transcript.AppendScalar(query.y, "y");
+                transcript.AppendPoint(query._nodeCommitPoint, "C");
+                transcript.AppendScalar(query._childIndex, "z");
+                transcript.AppendScalar(query._childHash, "y");
             }
-
             FrE r = transcript.ChallengeScalar("r");
+
             FrE[] g = new FrE[domainSize];
             for (int i = 0; i < domainSize; i++)
             {
@@ -36,21 +36,17 @@ namespace Nethermind.Verkle.Proofs
 
             FrE powerOfR = FrE.One;
 
-            foreach (VerkleProverQuery query in queries)
+            foreach (FrE[] quotient in from query in queries let f = query._childHashPoly let index = query._childIndex select Quotient.ComputeQuotientInsideDomain(_preComp, f, index))
             {
-                LagrangeBasis f = query.f;
-                FrE index = query.z;
-                FrE[] quotient = Quotient.ComputeQuotientInsideDomain(_precomp, f, index);
                 for (int i = 0; i < domainSize; i++)
                 {
                     g[i] += powerOfR * quotient[i];
                 }
-
                 powerOfR *= r;
             }
 
-            Banderwagon D = _crs.Commit(g);
-            transcript.AppendPoint(D, "D");
+            Banderwagon d = _crs.Commit(g);
+            transcript.AppendPoint(d, "D");
             FrE t = transcript.ChallengeScalar("t");
 
             FrE[] h = new FrE[domainSize];
@@ -63,16 +59,14 @@ namespace Nethermind.Verkle.Proofs
 
             foreach (VerkleProverQuery query in queries)
             {
-                LagrangeBasis f = query.f;
-                int index = (int)query.z.u0;
-                FrE.Inverse(t - _precomp.Domain[index], out FrE denominatorInv);
-
+                LagrangeBasis f = query._childHashPoly;
+                int index = (int)query._childIndex.u0;
+                FrE.Inverse(t - _preComp._domain[index], out FrE denominatorInv);
                 for (int i = 0; i < domainSize; i++)
                 {
                     h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
                 }
-
-                powerOfR = powerOfR * r;
+                powerOfR *= r;
             }
 
             FrE[] hMinusG = new FrE[domainSize];
@@ -81,35 +75,35 @@ namespace Nethermind.Verkle.Proofs
                 hMinusG[i] = h[i] - g[i];
             }
 
-            Banderwagon E = _crs.Commit(h);
-            transcript.AppendPoint(E, "E");
+            Banderwagon e = _crs.Commit(h);
+            transcript.AppendPoint(e, "E");
 
-            Banderwagon ipaCommitment = E - D;
-            FrE[] inputPointVector = _precomp.BarycentricFormulaConstants(t);
+            Banderwagon ipaCommitment = e - d;
+            FrE[] inputPointVector = _preComp.BarycentricFormulaConstants(t);
             IpaProverQuery pQuery = new IpaProverQuery(hMinusG, ipaCommitment,
                 t, inputPointVector);
 
-            (FrE outputPoint, IpaProofStruct ipaProof) = IPA.MakeIpaProof(_crs, transcript, pQuery);
+            (FrE _, IpaProofStruct ipaProof) = Ipa.MakeIpaProof(_crs, transcript, pQuery);
 
-            return new VerkleProofStruct(ipaProof, D);
+            return new VerkleProofStruct(ipaProof, d);
 
         }
 
         public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
         {
             transcript.DomainSep("multiproof");
-            Banderwagon D = proof.D;
+            Banderwagon d = proof._d;
             IpaProofStruct ipaIpaProof = proof._ipaProof;
             foreach (VerkleVerifierQuery query in queries)
             {
-                transcript.AppendPoint(query.C, "C");
-                transcript.AppendScalar(query.z, "z");
-                transcript.AppendScalar(query.y, "y");
+                transcript.AppendPoint(query._nodeCommitPoint, "C");
+                transcript.AppendScalar(query._childIndex, "z");
+                transcript.AppendScalar(query._childHash, "y");
             }
 
             FrE r = transcript.ChallengeScalar("r");
 
-            transcript.AppendPoint(D, "D");
+            transcript.AppendPoint(d, "D");
             FrE t = transcript.ChallengeScalar("t");
 
             Dictionary<byte[], FrE> eCoefficients = new Dictionary<byte[], FrE>();
@@ -120,12 +114,12 @@ namespace Nethermind.Verkle.Proofs
 
             foreach (VerkleVerifierQuery query in queries)
             {
-                Banderwagon C = query.C;
-                int z = (int)query.z.u0;
-                FrE y = query.y;
-                FrE eCoefficient = powerOfR / t - _precomp.Domain[z];
-                byte[] cSerialized = C.ToBytes();
-                cBySerialized[cSerialized] = C;
+                Banderwagon c = query._nodeCommitPoint;
+                int z = (int)query._childIndex.u0;
+                FrE y = query._childHash;
+                FrE eCoefficient = powerOfR / t - _preComp._domain[z];
+                byte[] cSerialized = c.ToBytes();
+                cBySerialized[cSerialized] = c;
                 if (!eCoefficients.ContainsKey(cSerialized))
                 {
                     eCoefficients[cSerialized] = eCoefficient;
@@ -137,7 +131,7 @@ namespace Nethermind.Verkle.Proofs
 
                 g2OfT += eCoefficient * y;
 
-                powerOfR = powerOfR * r;
+                powerOfR *= r;
             }
 
             Banderwagon[] elems = new Banderwagon[eCoefficients.Count];
@@ -146,21 +140,20 @@ namespace Nethermind.Verkle.Proofs
                 elems[i] = cBySerialized[eCoefficients.Keys.ToArray()[i]];
             }
 
-            Banderwagon E = VarBaseCommit(eCoefficients.Values.ToArray(), elems);
-            transcript.AppendPoint(E, "E");
+            Banderwagon e = VarBaseCommit(eCoefficients.Values.ToArray(), elems);
+            transcript.AppendPoint(e, "E");
 
             FrE yO = g2OfT;
-            Banderwagon ipaCommitment = E - D;
-            FrE[] inputPointVector = _precomp.BarycentricFormulaConstants(t);
+            Banderwagon ipaCommitment = e - d;
+            FrE[] inputPointVector = _preComp.BarycentricFormulaConstants(t);
 
             IpaVerifierQuery queryX = new IpaVerifierQuery(ipaCommitment, t,
                 inputPointVector, yO, ipaIpaProof);
 
-            return IPA.CheckIpaProof(_crs, transcript, queryX);
-
+            return Ipa.CheckIpaProof(_crs, transcript, queryX);
         }
 
-        public static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
+        private static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
         {
             return Banderwagon.MSM(elements, values);
         }

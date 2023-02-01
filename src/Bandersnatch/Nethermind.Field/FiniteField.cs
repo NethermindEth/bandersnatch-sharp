@@ -214,7 +214,8 @@ namespace Nethermind.Field
         {
             FiniteField? ret = new FiniteField
             {
-                Modulus = Modulus, Value = Value
+                Modulus = Modulus,
+                Value = Value
             };
             return ret;
         }

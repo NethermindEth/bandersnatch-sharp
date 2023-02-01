@@ -50,14 +50,14 @@ namespace Nethermind.Verkle.Proofs.Test
             VerkleProverQuery queryA = new VerkleProverQuery(new LagrangeBasis(fs[0]), cs[0], zs[0], ys[0]);
             VerkleProverQuery queryB = new VerkleProverQuery(new LagrangeBasis(fs[1]), cs[1], zs[1], ys[1]);
 
-            MultiProof multiproof = new MultiProof(crs, 256);
+            MultiProof multiproof = new MultiProof(crs, PreComputeWeights.Init());
 
             Transcript proverTranscript = new Transcript("test");
             VerkleProverQuery[] queries =
             {
                 queryA, queryB
             };
-            VerkleProofStruct proof = multiproof.MakeMultiProof(proverTranscript, queries);
+            VerkleProofStruct proof = multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(queries));
             FrE pChallenge = proverTranscript.ChallengeScalar("state");
 
             Assert.IsTrue(Convert.ToHexString(pChallenge.ToBytes()).ToLower()

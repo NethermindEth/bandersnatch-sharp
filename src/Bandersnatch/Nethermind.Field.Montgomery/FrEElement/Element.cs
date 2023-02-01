@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Nethermind.Int256;
-using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
+using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 
 [assembly: InternalsVisibleTo("Nethermind.Field.Montgomery.Test")]
 

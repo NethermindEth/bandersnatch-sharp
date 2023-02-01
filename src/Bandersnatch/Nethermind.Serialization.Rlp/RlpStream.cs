@@ -77,19 +77,19 @@ namespace Nethermind.Serialization.Rlp
                     // the single byte of content will be written without any prefix
                     break;
                 case < 56:
-                {
-                    byte smallPrefix = (byte)(contentLength + 128);
-                    WriteByte(smallPrefix);
-                    break;
-                }
+                    {
+                        byte smallPrefix = (byte)(contentLength + 128);
+                        WriteByte(smallPrefix);
+                        break;
+                    }
                 default:
-                {
-                    int lengthOfLength = Rlp.LengthOfLength(contentLength);
-                    byte prefix = (byte)(183 + lengthOfLength);
-                    WriteByte(prefix);
-                    WriteEncodedLength(contentLength);
-                    break;
-                }
+                    {
+                        int lengthOfLength = Rlp.LengthOfLength(contentLength);
+                        byte prefix = (byte)(183 + lengthOfLength);
+                        WriteByte(prefix);
+                        WriteEncodedLength(contentLength);
+                        break;
+                    }
             }
         }
 

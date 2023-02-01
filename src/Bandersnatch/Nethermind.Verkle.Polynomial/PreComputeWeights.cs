@@ -4,71 +4,66 @@ namespace Nethermind.Verkle.Polynomial
 {
     public class PreComputeWeights
     {
-        public MonomialBasis A;
-        public MonomialBasis APrime;
-        public FrE[] APrimeDomain;
-        public FrE[] APrimeDomainInv;
-        public FrE[] Domain;
-        public FrE[] DomainInv;
+        private const int VerkleNodeWidth = 256;
+        public readonly MonomialBasis _a;
+        public readonly MonomialBasis _aPrime;
+        public readonly FrE[] _aPrimeDomain;
+        public readonly FrE[] _aPrimeDomainInv;
+        public readonly FrE[] _domain;
+        public readonly FrE[] _domainInv;
 
         private PreComputeWeights()
         {
+            _domain = new FrE[VerkleNodeWidth];
+            for (int i = 0; i < VerkleNodeWidth; i++)
+            {
+                _domain[i] = FrE.SetElement(i);
+            }
+            _a = MonomialBasis.VanishingPoly(_domain);
+            _aPrime = MonomialBasis.FormalDerivative(_a);
+
+            _aPrimeDomain = new FrE[VerkleNodeWidth];
+            _aPrimeDomainInv = new FrE[VerkleNodeWidth];
+
+            for (int i = 0; i < VerkleNodeWidth; i++)
+            {
+                FrE aPrimeX = _aPrime.Evaluate(FrE.SetElement(i));
+                FrE.Inverse(in aPrimeX, out FrE aPrimeXInv);
+                _aPrimeDomain[i] = aPrimeX;
+                _aPrimeDomainInv[i] = aPrimeXInv;
+            }
+
+            _domainInv = new FrE[2 * VerkleNodeWidth - 1];
+
+            int index = 0;
+            for (int i = 0; i < VerkleNodeWidth; i++)
+            {
+                FrE.Inverse(FrE.SetElement(i), out _domainInv[index]);
+                index++;
+            }
+
+            for (int i = 1 - VerkleNodeWidth; i < 0; i++)
+            {
+                FrE.Inverse(FrE.SetElement(i), out _domainInv[index]);
+                index++;
+            }
 
         }
 
-        public static PreComputeWeights Init(int domainSize)
+        public static PreComputeWeights Init()
         {
-            FrE[] domain = new FrE[domainSize];
-            for (int i = 0; i < domainSize; i++)
-            {
-                domain[i] = FrE.SetElement(i);
-            }
-            PreComputeWeights res = new PreComputeWeights();
-            res.Domain = domain;
-
-            res.A = MonomialBasis.VanishingPoly(domain);
-            res.APrime = MonomialBasis.FormalDerivative(res.A);
-
-            FrE[] aPrimeDom = new FrE[domain.Length];
-            FrE[] aPrimeDomInv = new FrE[domain.Length];
-
-            for (int i = 0; i < domain.Length; i++)
-            {
-                FrE aPrimeX = res.APrime.Evaluate(FrE.SetElement(i));
-                FrE.Inverse(in aPrimeX, out FrE aPrimeXInv);
-                aPrimeDom[i] = aPrimeX;
-                aPrimeDomInv[i] = aPrimeXInv;
-            }
-
-            res.APrimeDomain = aPrimeDom;
-            res.APrimeDomainInv = aPrimeDomInv;
-
-            res.DomainInv = new FrE[2 * domainSize - 1];
-
-            int index = 0;
-            for (int i = 0; i < domainSize; i++)
-            {
-                FrE.Inverse(FrE.SetElement(i), out res.DomainInv[index]);
-                index++;
-            }
-
-            for (int i = 1 - domainSize; i < 0; i++)
-            {
-                FrE.Inverse(FrE.SetElement(i), out res.DomainInv[index]);
-                index++;
-            }
-
-            return res;
+            // add cache here - write to file
+            return new PreComputeWeights();
         }
 
         public FrE[] BarycentricFormulaConstants(FrE z)
         {
-            FrE Az = A.Evaluate(z);
+            FrE az = _a.Evaluate(z);
 
-            FrE[] elems = new FrE[Domain.Length];
-            for (int i = 0; i < Domain.Length; i++)
+            FrE[] elems = new FrE[VerkleNodeWidth];
+            for (int i = 0; i < VerkleNodeWidth; i++)
             {
-                elems[i] = z - Domain[i];
+                elems[i] = z - _domain[i];
             }
 
             FrE[] inverses = FrE.MultiInverse(elems);
@@ -77,7 +72,7 @@ namespace Nethermind.Verkle.Polynomial
 
             for (int i = 0; i < inverses.Length; i++)
             {
-                r[i] = Az * APrimeDomainInv[i] * inverses[i];
+                r[i] = az * _aPrimeDomainInv[i] * inverses[i];
             }
 
             return r;
