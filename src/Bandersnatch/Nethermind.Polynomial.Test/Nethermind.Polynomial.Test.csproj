@@ -4,11 +4,10 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Nethermind.Verkle.Utils.Test</RootNamespace>
+    <RootNamespace>Nethermind.Polynomial.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
@@ -16,12 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Utils\Nethermind.Utils.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
     <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     <ProjectReference Include="..\Nethermind.Polynomial\Nethermind.Polynomial.csproj" />
-    <ProjectReference Include="..\Nethermind.Ipa\Nethermind.Ipa.csproj" />
-    <ProjectReference Include="..\Nethermind.Verkle.Utils\Nethermind.Verkle.Utils.csproj" />
   </ItemGroup>
 
 </Project>

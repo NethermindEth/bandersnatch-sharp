@@ -1,5 +1,5 @@
 using Nethermind.Field.Montgomery.FrEElement;
-using Nethermind.Verkle.Proofs;
+using Nethermind.Ipa;
 
 namespace Nethermind.Verkle.Utils
 {

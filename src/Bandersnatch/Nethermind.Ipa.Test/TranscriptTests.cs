@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Nethermind.Field.Montgomery.FrEElement;
+using Nethermind.Ipa;
 using Nethermind.Verkle.Curve;
 using NUnit.Framework;
 

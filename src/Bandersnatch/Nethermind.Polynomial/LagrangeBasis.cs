@@ -1,6 +1,6 @@
 using Nethermind.Field.Montgomery.FrEElement;
 
-namespace Nethermind.Verkle.Polynomial
+namespace Nethermind.Polynomial
 {
     public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
     {

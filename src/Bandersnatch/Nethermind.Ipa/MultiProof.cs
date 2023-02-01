@@ -1,8 +1,8 @@
 using Nethermind.Field.Montgomery.FrEElement;
+using Nethermind.Polynomial;
 using Nethermind.Verkle.Curve;
-using Nethermind.Verkle.Polynomial;
 
-namespace Nethermind.Verkle.Proofs
+namespace Nethermind.Ipa
 {
     public class MultiProof
     {

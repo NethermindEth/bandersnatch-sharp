@@ -1,7 +1,7 @@
 using Nethermind.Field.Montgomery.FrEElement;
 using NUnit.Framework;
 
-namespace Nethermind.Verkle.Polynomial.Test
+namespace Nethermind.Polynomial.Test
 {
     public class LagrangeBasisTests
     {

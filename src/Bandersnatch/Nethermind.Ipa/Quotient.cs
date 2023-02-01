@@ -1,7 +1,7 @@
 using Nethermind.Field.Montgomery.FrEElement;
-using Nethermind.Verkle.Polynomial;
+using Nethermind.Polynomial;
 
-namespace Nethermind.Verkle.Proofs
+namespace Nethermind.Ipa
 {
     public static class Quotient
     {

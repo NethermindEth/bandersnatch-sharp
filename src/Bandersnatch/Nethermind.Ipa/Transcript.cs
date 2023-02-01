@@ -3,7 +3,7 @@ using System.Text;
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 
-namespace Nethermind.Verkle.Proofs
+namespace Nethermind.Ipa
 {
     public class Transcript
     {

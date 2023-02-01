@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nethermind.Field.Montgomery.FrEElement;
+using Nethermind.Ipa;
 using Nethermind.Verkle.Curve;
-using Nethermind.Verkle.Polynomial;
+using Nethermind.Polynomial;
 using NUnit.Framework;
 
 namespace Nethermind.Verkle.Proofs.Test
