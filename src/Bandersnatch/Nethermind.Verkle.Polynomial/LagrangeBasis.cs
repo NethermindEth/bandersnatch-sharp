@@ -2,36 +2,33 @@ using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Polynomial
 {
-    public class LagrangeBasis : IEqualityComparer<LagrangeBasis>
+    public class LagrangeBasis
     {
-        public FrE[] Domain;
-        public FrE[] Evaluations;
+        private readonly int _domain;
+        public readonly FrE[] Evaluations;
 
-        private LagrangeBasis()
+        private LagrangeBasis() : this(Array.Empty<FrE>())
         {
-            Evaluations = new FrE[]
-            {
-            };
-            Domain = new FrE[]
-            {
-            };
         }
 
-        public LagrangeBasis(FrE[] evaluations, FrE[] domain)
+
+        public LagrangeBasis(FrE[] evaluations)
         {
             Evaluations = evaluations;
-            Domain = domain;
+            _domain = evaluations.Length;
         }
 
-        public bool Equals(LagrangeBasis x, LagrangeBasis y)
+        public static bool Equals(LagrangeBasis? x, LagrangeBasis? y)
         {
-            return x!.Evaluations.SequenceEqual(y!.Evaluations);
+            if (x is null) return y is null;
+            return y is not null && x.Evaluations.SequenceEqual(y.Evaluations);
         }
 
-        public int GetHashCode(LagrangeBasis obj)
+        public static int GetHashCode(LagrangeBasis obj)
         {
-            return HashCode.Combine(obj.Evaluations, obj.Domain);
+            return HashCode.Combine(obj.Evaluations, obj._domain);
         }
+
         private static LagrangeBasis Empty()
         {
             return new LagrangeBasis();
@@ -44,7 +41,7 @@ namespace Nethermind.Verkle.Polynomial
 
         private static LagrangeBasis ArithmeticOp(LagrangeBasis lhs, LagrangeBasis rhs, ArithmeticOps op)
         {
-            if (!lhs.Domain.SequenceEqual(rhs.Domain)) throw new Exception();
+            if (lhs._domain != rhs._domain) throw new ArgumentException("Domain should be same");
 
             FrE[] result = new FrE[lhs.Evaluations.Length];
 
@@ -55,11 +52,11 @@ namespace Nethermind.Verkle.Polynomial
                     ArithmeticOps.Add => lhs.Evaluations[i] + rhs.Evaluations[i],
                     ArithmeticOps.Sub => lhs.Evaluations[i] - rhs.Evaluations[i],
                     ArithmeticOps.Mul => lhs.Evaluations[i] * rhs.Evaluations[i],
-                    var _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
+                    _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
                 };
             });
 
-            return new LagrangeBasis(result, lhs.Domain);
+            return new LagrangeBasis(result);
         }
 
         public static LagrangeBasis Add(LagrangeBasis lhs, LagrangeBasis rhs)
@@ -85,20 +82,31 @@ namespace Nethermind.Verkle.Polynomial
             {
                 result[i] = poly.Evaluations[i] * constant;
             }
-            return new LagrangeBasis(result, poly.Domain);
+            return new LagrangeBasis(result);
+        }
+
+        private FrE[] GenerateDomainPoly()
+        {
+            FrE[] domain = new FrE[_domain];
+            for (int i = 0; i < _domain; i++)
+            {
+                domain[i] = FrE.SetElement(i);
+            }
+            return domain;
         }
 
         public FrE EvaluateOutsideDomain(LagrangeBasis precomputedWeights, FrE z)
         {
             FrE r = FrE.Zero;
-            MonomialBasis a = MonomialBasis.VanishingPoly(Domain);
+            FrE[] domain = GenerateDomainPoly();
+            MonomialBasis a = MonomialBasis.VanishingPoly(domain);
             FrE az = a.Evaluate(z);
 
             if (az.IsZero)
                 throw new Exception("vanishing polynomial evaluated to zero. z is therefore a point on the domain");
 
 
-            FrE[] inverses = FrE.MultiInverse(Domain.Select(x => z - x).ToArray());
+            FrE[] inverses = FrE.MultiInverse(domain.Select(x => z - x).ToArray());
 
             for (int i = 0; i < inverses.Length; i++)
             {
@@ -113,7 +121,7 @@ namespace Nethermind.Verkle.Polynomial
 
         public MonomialBasis Interpolate()
         {
-            FrE[] xs = Domain;
+            FrE[] xs = GenerateDomainPoly();
             FrE[] ys = Evaluations;
 
             MonomialBasis root = MonomialBasis.VanishingPoly(xs);
@@ -140,7 +148,7 @@ namespace Nethermind.Verkle.Polynomial
                 FrE ySlice = ys[i] * invDenoms[i];
                 for (int j = 0; j < ys.Length; j++)
                 {
-                    b[j] += nums[i].Coeffs[j] * ySlice;
+                    b[j] += nums[i]._coeffs[j] * ySlice;
                 }
             }
 
@@ -175,16 +183,6 @@ namespace Nethermind.Verkle.Polynomial
         public static LagrangeBasis operator *(in FrE a, in LagrangeBasis b)
         {
             return Scale(b, a);
-        }
-
-        public static bool operator ==(in LagrangeBasis a, in LagrangeBasis b)
-        {
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(in LagrangeBasis a, in LagrangeBasis b)
-        {
-            return !(a == b);
         }
 
         private enum ArithmeticOps

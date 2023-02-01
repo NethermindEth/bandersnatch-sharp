@@ -2,31 +2,16 @@ using Nethermind.Field.Montgomery.FrEElement;
 
 namespace Nethermind.Verkle.Polynomial
 {
-    public class MonomialBasis : IEqualityComparer<MonomialBasis>
+    public class MonomialBasis
     {
-        public readonly FrE[] Coeffs;
+        public readonly FrE[] _coeffs;
 
         public MonomialBasis(FrE[] coeffs)
         {
-            Coeffs = coeffs;
+            _coeffs = coeffs;
         }
 
-        public bool Equals(MonomialBasis x, MonomialBasis y)
-        {
-            return x!.Coeffs.SequenceEqual(y!.Coeffs);
-        }
-
-        public int GetHashCode(MonomialBasis obj)
-        {
-            return obj.Coeffs.GetHashCode();
-        }
-
-        public static MonomialBasis Empty()
-        {
-            return new MonomialBasis(new FrE[]
-            {
-            });
-        }
+        public static MonomialBasis Empty() => new MonomialBasis(Array.Empty<FrE>());
 
         private static MonomialBasis Mul(MonomialBasis a, MonomialBasis b)
         {
@@ -35,7 +20,7 @@ namespace Nethermind.Verkle.Polynomial
             {
                 for (int j = 0; j < b.Length(); j++)
                 {
-                    output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
+                    output[i + j] += a._coeffs[i]! * b._coeffs[j]!;
                 }
             }
             return new MonomialBasis(output);
@@ -48,7 +33,7 @@ namespace Nethermind.Verkle.Polynomial
                 throw new Exception();
             }
 
-            FrE[] x = a.Coeffs.ToArray();
+            FrE[] x = a._coeffs.ToArray();
             List<FrE> output = new List<FrE>();
 
             int aPos = a.Length() - 1;
@@ -57,11 +42,11 @@ namespace Nethermind.Verkle.Polynomial
             int diff = aPos - bPos;
             while (diff >= 0)
             {
-                FrE quot = x[aPos]! / b.Coeffs[bPos]!;
+                FrE quot = x[aPos]! / b._coeffs[bPos]!;
                 output.Insert(0, quot!);
                 for (int i = bPos; i > -1; i--)
                 {
-                    x[diff + i] -= b.Coeffs[i] * quot;
+                    x[diff + i] -= b._coeffs[i] * quot;
                 }
 
                 aPos -= 1;
@@ -75,7 +60,7 @@ namespace Nethermind.Verkle.Polynomial
         {
             FrE y = FrE.Zero;
             FrE powerOfX = FrE.One;
-            foreach (FrE pCoeff in Coeffs)
+            foreach (FrE pCoeff in _coeffs)
             {
                 y += powerOfX * pCoeff!;
                 powerOfX *= x;
@@ -89,7 +74,7 @@ namespace Nethermind.Verkle.Polynomial
             FrE[] derivative = new FrE[f.Length() - 1];
             for (int i = 1; i < f.Length(); i++)
             {
-                FrE x = FrE.SetElement(i) * f.Coeffs[i]!;
+                FrE x = FrE.SetElement(i) * f._coeffs[i]!;
                 derivative[i - 1] = x;
             }
             return new MonomialBasis(derivative.ToArray());
@@ -115,7 +100,7 @@ namespace Nethermind.Verkle.Polynomial
 
         public int Length()
         {
-            return Coeffs.Length;
+            return _coeffs.Length;
         }
 
         public static MonomialBasis operator /(in MonomialBasis a, in MonomialBasis b)
@@ -128,31 +113,5 @@ namespace Nethermind.Verkle.Polynomial
             return Mul(a, b);
         }
 
-        public static bool operator ==(in MonomialBasis a, in MonomialBasis b)
-        {
-            return a.Coeffs == b.Coeffs;
-        }
-
-        public static bool operator !=(in MonomialBasis a, in MonomialBasis b)
-        {
-            return !(a == b);
-        }
-
-        private bool Equals(MonomialBasis other)
-        {
-            return Coeffs.Equals(other.Coeffs);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((MonomialBasis)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return Coeffs.GetHashCode();
-        }
     }
 }

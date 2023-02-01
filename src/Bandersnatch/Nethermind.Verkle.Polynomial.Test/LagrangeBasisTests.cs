@@ -1,57 +1,44 @@
 using Nethermind.Field.Montgomery.FrEElement;
-using NUnit.Framework;
 
 namespace Nethermind.Verkle.Polynomial.Test
 {
     public class LagrangeBasisTests
     {
         [Test]
-        public void test_add_sub()
+        public void TestAddSub()
         {
-            FrE[] domain =
-            {
-                FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
-            };
 
-            FrE[] domainSq =
-            {
+            FrE[] domainSq = {
                 FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(4), FrE.SetElement(9), FrE.SetElement(16), FrE.SetElement(25)
             };
 
-            FrE[] domain_2 =
-            {
+            FrE[] domain2 = {
                 FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5), FrE.SetElement(6), FrE.SetElement(7)
             };
 
-            LagrangeBasis a = new LagrangeBasis(domainSq, domain);
-            LagrangeBasis b = new LagrangeBasis(domain_2, domain);
+            LagrangeBasis a = new LagrangeBasis(domainSq);
+            LagrangeBasis b = new LagrangeBasis(domain2);
 
-            FrE[] expected =
-            {
+            FrE[] expected = {
                 FrE.SetElement(2), FrE.SetElement(4), FrE.SetElement(8), FrE.SetElement(14), FrE.SetElement(22), FrE.SetElement(32)
             };
-            LagrangeBasis ex = new LagrangeBasis(expected, domain);
+            LagrangeBasis ex = new LagrangeBasis(expected);
             LagrangeBasis result = a + b;
 
             for (int i = 0; i < ex.Evaluations.Length; i++)
             {
-                Assert.IsTrue(ex.Evaluations[i].Equals(result.Evaluations[i]));
+                Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
             }
             ex -= b;
             for (int i = 0; i < ex.Evaluations.Length; i++)
             {
-                Assert.IsTrue(ex.Evaluations[i].Equals(a.Evaluations[i]));
+                Assert.That(ex.Evaluations[i], Is.EqualTo(a.Evaluations[i]));
             }
         }
 
         [Test]
-        public void test_mul()
+        public void TestMul()
         {
-            FrE[] domain =
-            {
-                FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
-            };
-
             FrE[] domainSq =
             {
                 FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(4), FrE.SetElement(9), FrE.SetElement(16), FrE.SetElement(25)
@@ -62,24 +49,20 @@ namespace Nethermind.Verkle.Polynomial.Test
             };
 
 
-            LagrangeBasis a = new LagrangeBasis(domainSq, domain);
+            LagrangeBasis a = new LagrangeBasis(domainSq);
             LagrangeBasis result = a * a;
 
-            LagrangeBasis ex = new LagrangeBasis(domainPow4, domain);
+            LagrangeBasis ex = new LagrangeBasis(domainPow4);
 
             for (int i = 0; i < ex.Evaluations.Length; i++)
             {
-                Assert.IsTrue(ex.Evaluations[i].Equals(result.Evaluations[i]));
+                Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
             }
         }
 
         [Test]
-        public void test_scale()
+        public void TestScale()
         {
-            FrE[] domain =
-            {
-                FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
-            };
 
             FrE[] domainSq =
             {
@@ -88,35 +71,30 @@ namespace Nethermind.Verkle.Polynomial.Test
 
             FrE constant = FrE.SetElement(10);
 
-            LagrangeBasis a = new LagrangeBasis(domainSq, domain);
+            LagrangeBasis a = new LagrangeBasis(domainSq);
             LagrangeBasis result = a * constant;
 
             FrE[] expected =
             {
                 FrE.SetElement(), FrE.SetElement(10), FrE.SetElement(40), FrE.SetElement(90), FrE.SetElement(160), FrE.SetElement(250)
             };
-            LagrangeBasis ex = new LagrangeBasis(expected, domain);
+            LagrangeBasis ex = new LagrangeBasis(expected);
 
             for (int i = 0; i < ex.Evaluations.Length; i++)
             {
-                Assert.IsTrue(ex.Evaluations[i].Equals(result.Evaluations[i]));
+                Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
             }
         }
 
         [Test]
-        public void test_interpolation()
+        public void TestInterpolation()
         {
-            FrE[] domain =
-            {
-                FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
-            };
-
             FrE[] domainSq =
             {
                 FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(4), FrE.SetElement(9), FrE.SetElement(16), FrE.SetElement(25)
             };
 
-            LagrangeBasis xSquaredLagrange = new LagrangeBasis(domainSq, domain);
+            LagrangeBasis xSquaredLagrange = new LagrangeBasis(domainSq);
             MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
 
             MonomialBasis expectedXSquaredCoeff = new MonomialBasis(
@@ -125,9 +103,9 @@ namespace Nethermind.Verkle.Polynomial.Test
                     FrE.Zero, FrE.Zero, FrE.One
                 });
 
-            for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
+            for (int i = 0; i < expectedXSquaredCoeff._coeffs.Length; i++)
             {
-                Assert.IsTrue(expectedXSquaredCoeff.Coeffs[i].Equals(xSquaredCoeff.Coeffs[i]));
+                Assert.That(expectedXSquaredCoeff._coeffs[i], Is.EqualTo(xSquaredCoeff._coeffs[i]));
             }
         }
     }

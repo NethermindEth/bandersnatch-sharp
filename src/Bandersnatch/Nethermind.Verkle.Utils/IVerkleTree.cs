@@ -17,7 +17,7 @@ namespace Nethermind.Verkle.Utils
     {
         public VerificationHint VerifyHint;
         public Fr[] CommsSorted;
-        public MultiProofStruct Proof;
+        public VerkleProofStruct Proof;
     }
 
     public struct VerificationHint

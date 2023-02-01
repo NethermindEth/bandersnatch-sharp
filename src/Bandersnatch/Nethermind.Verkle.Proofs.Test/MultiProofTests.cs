@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
-using NUnit.Framework;
 
 namespace Nethermind.Verkle.Proofs.Test
 {
@@ -44,47 +40,42 @@ namespace Nethermind.Verkle.Proofs.Test
             {
                 polyEvalA.ToArray(), polyEvalB.ToArray()
             };
-            ;
+
             Banderwagon[] cs =
             {
                 cA, cB
             };
 
-            FrE[] domain = new FrE[256];
-            for (int i = 0; i < 256; i++)
-            {
-                domain[i] = FrE.SetElement(i);
-            }
 
-            MultiProofProverQuery queryA = new MultiProofProverQuery(new LagrangeBasis(fs[0], domain), cs[0], zs[0], ys[0]);
-            MultiProofProverQuery queryB = new MultiProofProverQuery(new LagrangeBasis(fs[1], domain), cs[1], zs[1], ys[1]);
+            VerkleProverQuery queryA = new VerkleProverQuery(new LagrangeBasis(fs[0]), cs[0], zs[0], ys[0]);
+            VerkleProverQuery queryB = new VerkleProverQuery(new LagrangeBasis(fs[1]), cs[1], zs[1], ys[1]);
 
-            MultiProof multiproof = new MultiProof(domain, crs);
+            MultiProof multiproof = new MultiProof(crs, PreComputeWeights.Init());
 
             Transcript proverTranscript = new Transcript("test");
-            MultiProofProverQuery[] queries =
+            VerkleProverQuery[] queries =
             {
                 queryA, queryB
             };
-            MultiProofStruct proof = multiproof.MakeMultiProof(proverTranscript, queries);
+            VerkleProofStruct proof = multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(queries));
             FrE pChallenge = proverTranscript.ChallengeScalar("state");
 
             Assert.IsTrue(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
                 .SequenceEqual("eee8a80357ff74b766eba39db90797d022e8d6dee426ded71234241be504d519"));
 
             Transcript verifierTranscript = new Transcript("test");
-            MultiProofVerifierQuery queryAx = new MultiProofVerifierQuery(cs[0], zs[0], ys[0]);
-            MultiProofVerifierQuery queryBx = new MultiProofVerifierQuery(cs[1], zs[1], ys[1]);
+            VerkleVerifierQuery queryAx = new VerkleVerifierQuery(cs[0], zs[0], ys[0]);
+            VerkleVerifierQuery queryBx = new VerkleVerifierQuery(cs[1], zs[1], ys[1]);
 
-            MultiProofVerifierQuery[] queriesX =
+            VerkleVerifierQuery[] queriesX =
             {
                 queryAx, queryBx
             };
             bool ok = multiproof.CheckMultiProof(verifierTranscript, queriesX, proof);
-            Assert.IsTrue(ok);
+            Assert.That(ok, Is.True);
 
             FrE vChallenge = verifierTranscript.ChallengeScalar("state");
-            Assert.IsTrue(vChallenge.Equals(pChallenge));
+            Assert.That(vChallenge, Is.EqualTo(pChallenge));
         }
     }
 }

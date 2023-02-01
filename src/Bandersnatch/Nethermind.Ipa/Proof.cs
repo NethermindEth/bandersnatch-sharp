@@ -1,4 +1,4 @@
-namespace Nethermind.Verkle.Proofs
+namespace Nethermind.Ipa
 {
     public class Proof
     {

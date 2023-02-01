@@ -8,10 +8,10 @@ namespace Nethermind.Verkle.Proofs
         public static FrE[] ComputeQuotientInsideDomain(PreComputeWeights precomp, LagrangeBasis f,
             FrE index)
         {
-            int domainSize = precomp.Domain.Length;
-            FrE[] inverses = precomp.DomainInv;
-            FrE[] aPrimeDomain = precomp.APrimeDomain;
-            FrE[] aPrimeDomainInv = precomp.APrimeDomainInv;
+            int domainSize = precomp._domain.Length;
+            FrE[] inverses = precomp._domainInv;
+            FrE[] aPrimeDomain = precomp._aPrimeDomain;
+            FrE[] aPrimeDomainInv = precomp._aPrimeDomainInv;
 
             int indexI = (int)index.u0;
 
@@ -38,7 +38,7 @@ namespace Nethermind.Verkle.Proofs
         public static FrE[] ComputeQuotientOutsideDomain(PreComputeWeights precom, LagrangeBasis f, FrE z,
             FrE y)
         {
-            FrE[] domain = precom.Domain;
+            FrE[] domain = precom._domain;
             int domainSize = domain.Length;
 
             FrE[] q = new FrE[domainSize];

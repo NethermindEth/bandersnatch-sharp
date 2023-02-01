@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsPackable>true</IsPackable>
-    <RootNamespace>Nethermind.Verkle.Polynomial</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
+    <PropertyGroup>
+      <TargetFramework>net7.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
+      <IsPackable>true</IsPackable>
+      <RootNamespace>Nethermind.Verkle.Polynomial</RootNamespace>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
 
   <PropertyGroup Label="Nethermind">
-    <Version>0.0.4-alpha</Version>
+    <Version>0.0.5-alpha</Version>
     <Authors>Tanishq Jasoria</Authors>
     <Company>Nethermind</Company>
     <Copyright>Demerzel Solutions Limited</Copyright>
@@ -24,8 +24,8 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj"/>
-  </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Nethermind.Field.Montgomery\Nethermind.Field.Montgomery.csproj" />
+    </ItemGroup>
 
 </Project>

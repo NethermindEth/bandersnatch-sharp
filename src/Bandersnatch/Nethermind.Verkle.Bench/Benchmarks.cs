@@ -3,7 +3,6 @@
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Nethermind.Field.Montgomery.FpEElement;
 using Nethermind.Int256;
 using Nethermind.Verkle.Utils;
 

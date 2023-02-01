@@ -1,12 +1,11 @@
 using Nethermind.Field.Montgomery.FrEElement;
-using NUnit.Framework;
 
 namespace Nethermind.Verkle.Polynomial.Test
 {
     public class MonomialBasisTests
     {
         [Test]
-        public void test_vanishing_poly()
+        public void TestVanishingPoly()
         {
             FrE[] xs =
             {
@@ -17,12 +16,12 @@ namespace Nethermind.Verkle.Polynomial.Test
 
             foreach (FrE x in xs)
             {
-                Assert.IsTrue(z.Evaluate(x).IsZero);
+                Assert.That(z.Evaluate(x).IsZero);
             }
         }
 
         [Test]
-        public void test_poly_div()
+        public void TestPolyDivision()
         {
             FrE[] aL =
             {
@@ -36,12 +35,15 @@ namespace Nethermind.Verkle.Polynomial.Test
             MonomialBasis b = new MonomialBasis(bL);
 
             MonomialBasis result = a / b;
-            Assert.IsTrue(result.Coeffs[0].Equals(FrE.SetElement(2)));
-            Assert.IsTrue(result.Coeffs[1].Equals(FrE.SetElement(1)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result._coeffs[0], Is.EqualTo(FrE.SetElement(2)));
+                Assert.That(result._coeffs[1], Is.EqualTo(FrE.SetElement(1)));
+            });
         }
 
         [Test]
-        public void test_derivative()
+        public void TestDerivative()
         {
             FrE[] aL =
             {
@@ -57,7 +59,7 @@ namespace Nethermind.Verkle.Polynomial.Test
             MonomialBasis gotAPrime = MonomialBasis.FormalDerivative(a);
             for (int i = 0; i < gotAPrime.Length(); i++)
             {
-                Assert.IsTrue(b.Coeffs[i].Equals(gotAPrime.Coeffs[i]));
+                Assert.That(b._coeffs[i], Is.EqualTo(gotAPrime._coeffs[i]));
             }
         }
     }

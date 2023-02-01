@@ -1,6 +1,6 @@
 using System.Numerics;
 using Nethermind.Int256;
-using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
+using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {

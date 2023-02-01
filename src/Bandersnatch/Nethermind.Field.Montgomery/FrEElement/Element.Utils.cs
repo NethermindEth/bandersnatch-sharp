@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Nethermind.Int256;
-using FE=Nethermind.Field.Montgomery.FrEElement.FrE;
+using FE = Nethermind.Field.Montgomery.FrEElement.FrE;
 
 namespace Nethermind.Field.Montgomery.FrEElement
 {
@@ -73,7 +73,7 @@ namespace Nethermind.Field.Montgomery.FrEElement
         private static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
         {
             sum = x + y + carry;
-            carry = sum < x || sum < y? 1UL : 0UL;
+            carry = sum < x || sum < y ? 1UL : 0UL;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

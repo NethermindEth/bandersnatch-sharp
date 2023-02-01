@@ -8,20 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.8.0"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0"/>
-    <PackageReference Include="NUnit" Version="3.13.2"/>
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0"/>
-    <PackageReference Include="coverlet.collector" Version="3.1.0"/>
+    <PackageReference Include="FluentAssertions" Version="6.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <PackageReference Include="coverlet.collector" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj"/>
-    <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj"/>
-    <ProjectReference Include="..\Nethermind.Verkle.Polynomial\Nethermind.Verkle.Polynomial.csproj"/>
-    <ProjectReference Include="..\Nethermind.Verkle.Proofs\Nethermind.Verkle.Proofs.csproj"/>
-    <ProjectReference Include="..\Nethermind.Verkle.Tree\Nethermind.Verkle.Tree.csproj"/>
-    <ProjectReference Include="..\Nethermind.Verkle.Utils\Nethermind.Verkle.Utils.csproj"/>
+    <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
+    <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
+    <ProjectReference Include="..\Nethermind.Verkle.Tree\Nethermind.Verkle.Tree.csproj" />
+    <ProjectReference Include="..\Nethermind.Verkle.Utils\Nethermind.Verkle.Utils.csproj" />
   </ItemGroup>
 
 </Project>

@@ -156,7 +156,8 @@ namespace Nethermind.Field
         {
             FixedFiniteField<T> ret = new FixedFiniteField<T>
             {
-                Value = Value, Modulus = Modulus
+                Value = Value,
+                Modulus = Modulus
             };
             return ret;
         }
