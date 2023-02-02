@@ -5,13 +5,13 @@ namespace Nethermind.Verkle.Proofs
 {
     public static class Quotient
     {
-        public static FrE[] ComputeQuotientInsideDomain(PreComputeWeights precomp, LagrangeBasis f,
+        public static FrE[] ComputeQuotientInsideDomain(PreComputeWeights preComp, LagrangeBasis f,
             FrE index)
         {
-            int domainSize = precomp._domain.Length;
-            FrE[] inverses = precomp._domainInv;
-            FrE[] aPrimeDomain = precomp._aPrimeDomain;
-            FrE[] aPrimeDomainInv = precomp._aPrimeDomainInv;
+            int domainSize = preComp._domain.Length;
+            FrE[] inverses = preComp._domainInv;
+            FrE[] aPrimeDomain = preComp._aPrimeDomain;
+            FrE[] aPrimeDomainInv = preComp._aPrimeDomainInv;
 
             int indexI = (int)index.u0;
 
@@ -24,21 +24,19 @@ namespace Nethermind.Verkle.Proofs
 
             for (int i = 0; i < domainSize; i++)
             {
-                if (i != indexI)
-                {
-                    q[i] = (f.Evaluations[i] - y) * inverses[i - indexI];
-                    q[indexI] += (f.Evaluations[i] - y) * inverses[indexI - i < 0 ? inverses.Length + indexI - i : indexI - i] * aPrimeDomain[indexI] *
-                                 aPrimeDomainInv[i];
-                }
+                if (i == indexI) continue;
+                q[i] = (f.Evaluations[i] - y) * inverses[(i - indexI) < 0 ? inverses.Length + (i - indexI): (i - indexI)];
+                q[indexI] += (f.Evaluations[i] - y) * inverses[indexI - i < 0 ? inverses.Length + indexI - i : indexI - i] * aPrimeDomain[indexI] *
+                             aPrimeDomainInv[i];
             }
 
             return q;
         }
 
-        public static FrE[] ComputeQuotientOutsideDomain(PreComputeWeights precom, LagrangeBasis f, FrE z,
+        public static FrE[] ComputeQuotientOutsideDomain(PreComputeWeights preComp, LagrangeBasis f, FrE z,
             FrE y)
         {
-            FrE[] domain = precom._domain;
+            FrE[] domain = preComp._domain;
             int domainSize = domain.Length;
 
             FrE[] q = new FrE[domainSize];
