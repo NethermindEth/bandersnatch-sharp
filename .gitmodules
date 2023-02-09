@@ -1,3 +1,0 @@
-[submodule "src/int256"]
-	path = src/int256
-	url = https://github.com/tanishqjasoria/int256.git
