@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Nethermind">
-    <Version>0.0.6-alpha</Version>
+    <Version>0.0.7-alpha</Version>
     <Authors>Tanishq Jasoria</Authors>
     <Company>Nethermind</Company>
     <Copyright>Demerzel Solutions Limited</Copyright>
@@ -23,10 +23,5 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
-    <ProjectReference Include="..\Nethermind.Verkle.Proofs\Nethermind.Verkle.Proofs.csproj" />
-  </ItemGroup>
 
 </Project>

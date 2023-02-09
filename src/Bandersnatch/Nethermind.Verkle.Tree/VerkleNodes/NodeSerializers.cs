@@ -2,8 +2,8 @@
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
 using Nethermind.Serialization.Rlp;
-using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Utils;
+using Nethermind.Verkle.Curve;
 
 namespace Nethermind.Verkle.Tree.VerkleNodes
 {

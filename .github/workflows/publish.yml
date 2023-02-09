@@ -36,8 +36,4 @@ jobs:
         run: |
           dotnet pack -c ${{ env.BUILD_CONFIG }} --no-build
           dotnet nuget push --skip-duplicate Nethermind.Field/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
-          dotnet nuget push --skip-duplicate Nethermind.Field.Montgomery/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
-          dotnet nuget push --skip-duplicate Nethermind.Verkle.Curve/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
-          dotnet nuget push --skip-duplicate Nethermind.Verkle.Polynomial/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
-          dotnet nuget push --skip-duplicate Nethermind.Verkle.Proofs/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
-          dotnet nuget push --skip-duplicate Nethermind.Verkle.Utils/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
+          dotnet nuget push --skip-duplicate Nethermind.Verkle/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json

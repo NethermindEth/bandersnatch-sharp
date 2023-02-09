@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Ipa\Nethermind.Ipa.csproj" />
     <ProjectReference Include="..\Nethermind.Polynomial\Nethermind.Polynomial.csproj" />
     <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
   </ItemGroup>

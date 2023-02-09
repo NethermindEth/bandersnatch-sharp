@@ -6,7 +6,7 @@ using System.Linq;
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Nethermind.Field.Montgomery.FpEElement;
+using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Int256;
 
 namespace Nethermind.Field.Bench
