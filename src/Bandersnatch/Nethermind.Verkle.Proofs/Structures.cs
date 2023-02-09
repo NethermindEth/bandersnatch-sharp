@@ -1,6 +1,7 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
+using System.Text;
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
@@ -36,6 +37,45 @@ namespace Nethermind.Verkle.Proofs
             _a = a;
             _r = r;
         }
+
+        public byte[] Encode()
+        {
+            List<byte> encoded = new List<byte>();
+
+            foreach (Banderwagon l in _l)
+            {
+                encoded.AddRange(l.ToBytesLittleEndian().Reverse().ToArray());
+            }
+
+            foreach (Banderwagon r in _r)
+            {
+                encoded.AddRange(r.ToBytesLittleEndian().Reverse().ToArray());
+            }
+
+            encoded.AddRange(_a.ToBytes().ToArray());
+
+            return encoded.ToArray();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("\n#[_l]#\n");
+            foreach (Banderwagon l in _l)
+            {
+                stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
+                stringBuilder.Append('\n');
+            }
+            stringBuilder.Append("\n#[_a]#\n");
+            stringBuilder.AppendJoin(", ", _a.ToBytes().ToArray());
+            stringBuilder.Append("\n#[_r]#\n");
+            foreach (Banderwagon l in _r)
+            {
+                stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
+                stringBuilder.Append('\n');
+            }
+            return stringBuilder.ToString();
+        }
     }
 
     public struct IpaVerifierQuery
@@ -65,6 +105,26 @@ namespace Nethermind.Verkle.Proofs
         {
             _ipaProof = ipaProof;
             _d = d;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("\n##[IPA Proof]##\n");
+            stringBuilder.Append(_ipaProof.ToString());
+            stringBuilder.Append("\n##[_d]##\n");
+            stringBuilder.AppendJoin(", ", _d.ToBytesLittleEndian().Reverse().ToArray());
+            return stringBuilder.ToString();
+        }
+
+        public byte[] Encode()
+        {
+            List<byte> encoded = new List<byte>();
+
+            encoded.AddRange(_d.ToBytesLittleEndian().Reverse().ToArray());
+            encoded.AddRange(_ipaProof.Encode());
+
+            return encoded.ToArray();
         }
     }
 

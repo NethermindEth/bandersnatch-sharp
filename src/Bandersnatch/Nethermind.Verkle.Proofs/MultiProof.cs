@@ -1,3 +1,4 @@
+
 using Nethermind.Field.Montgomery.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
@@ -18,8 +19,9 @@ namespace Nethermind.Verkle.Proofs
         public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
         {
             int domainSize = _preComp._domain.Length;
-            transcript.DomainSep("multiproof");
 
+            // create transcript for multiproof
+            transcript.DomainSep("multiproof");
             foreach (VerkleProverQuery query in queries)
             {
                 transcript.AppendPoint(query._nodeCommitPoint, "C");
@@ -36,12 +38,17 @@ namespace Nethermind.Verkle.Proofs
 
             FrE powerOfR = FrE.One;
 
-            foreach (FrE[] quotient in from query in queries let f = query._childHashPoly let index = query._childIndex select Quotient.ComputeQuotientInsideDomain(_preComp, f, index))
+            foreach (VerkleProverQuery query in queries)
             {
-                for (int i = 0; i < domainSize; i++)
+                LagrangeBasis f = query._childHashPoly;
+                FrE index = query._childIndex;
+                FrE[] quotient = Quotient.ComputeQuotientInsideDomain(_preComp, f, index);
+
+                for (int i = 0; i < quotient.Length; i++)
                 {
                     g[i] += powerOfR * quotient[i];
                 }
+
                 powerOfR *= r;
             }
 
@@ -59,10 +66,10 @@ namespace Nethermind.Verkle.Proofs
 
             foreach (VerkleProverQuery query in queries)
             {
-                LagrangeBasis f = query._childHashPoly;
-                int index = (int)query._childIndex.u0;
+                int index = query._childIndex.ToBytes()[0];
                 FrE.Inverse(t - _preComp._domain[index], out FrE denominatorInv);
-                for (int i = 0; i < domainSize; i++)
+                LagrangeBasis f = query._childHashPoly;
+                for (int i = 0; i < f.Evaluations.Length; i++)
                 {
                     h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
                 }
@@ -115,7 +122,7 @@ namespace Nethermind.Verkle.Proofs
             foreach (VerkleVerifierQuery query in queries)
             {
                 Banderwagon c = query._nodeCommitPoint;
-                int z = (int)query._childIndex.u0;
+                int z = query._childIndex.ToBytes()[0];
                 FrE y = query._childHash;
                 FrE eCoefficient = powerOfR / t - _preComp._domain[z];
                 byte[] cSerialized = c.ToBytes();
