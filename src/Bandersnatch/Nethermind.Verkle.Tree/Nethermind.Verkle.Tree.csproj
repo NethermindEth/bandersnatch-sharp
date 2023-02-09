@@ -32,8 +32,7 @@
     <ProjectReference Include="..\Nethermind.Serialization.Rlp\Nethermind.Serialization.Rlp.csproj" />
     <ProjectReference Include="..\Nethermind.Utils\Nethermind.Utils.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle.Db\Nethermind.Verkle.Db.csproj" />
-    <ProjectReference Include="..\Nethermind.Verkle.Curve\Nethermind.Verkle.Curve.csproj" />
-    <ProjectReference Include="..\Nethermind.Verkle.Utils\Nethermind.Verkle.Utils.csproj" />
+    <ProjectReference Include="..\Nethermind.Verkle\Nethermind.Verkle.csproj" />
   </ItemGroup>
 
 </Project>

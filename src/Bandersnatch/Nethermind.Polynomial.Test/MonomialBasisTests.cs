@@ -1,5 +1,3 @@
-using Nethermind.Field.Montgomery.FrEElement;
-using NUnit.Framework;
 
 namespace Nethermind.Polynomial.Test
 {
