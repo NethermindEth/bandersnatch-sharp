@@ -182,13 +182,33 @@ namespace Nethermind.Verkle.Fields.FpEElement
             return results;
         }
 
+        /// <summary>
+        /// Sqrt z = √x (mod q)
+        /// if the square root doesn't exist (x is not a square mod q)
+        /// Sqrt returns false
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="z"></param>
+        /// <returns>if the square root doesn't exist Sqrt returns false, else true</returns>
         public static bool Sqrt(in FE x, out FE z)
         {
+            // q ≡ 1 (mod 4)
+            // see modSqrtTonelliShanks in math/big/int.go
+            // using https://www.maa.org/sites/default/files/pdf/upload_library/22/Polya/07468342.di020786.02p0470a.pdf
+
+            // w = x^CONST, where CONST=((s-1)/2))
             Exp(in x, _bSqrtExponentElement.Value, out FE w);
+
+            // y = x^((s+1)/2)) = w * x
             MultiplyMod(x, w, out FE y);
+
+            // b = x^s = w * w * x = y * x
             MultiplyMod(w, y, out FE b);
 
             ulong r = SqrtR;
+
+            // compute legendre symbol
+            // t = x^((q-1)/2) = r-1 squaring of xˢ
             FE t = b;
 
             for (ulong i = 0; i < r - 1; i++)
@@ -204,10 +224,12 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
             if (!t.IsOne)
             {
+                // t != 1, we don't have a square root
                 z = Zero;
                 return false;
             }
 
+            // g = nonResidue ^ s
             FE g = gResidue;
             while (true)
             {
@@ -225,9 +247,10 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     z = y;
                     return true;
                 }
+
+                // t = g^(2^(r-m-1)) (mod q)
                 int ge = (int)(r - m - 1);
                 t = g;
-
                 while (ge > 0)
                 {
                     MultiplyMod(in t, in t, out t);
