@@ -1,6 +1,7 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -22,20 +23,8 @@ namespace Nethermind.Field.Bench
         {
             Numbers._uInt256Max
         }.Concat(UnaryOps.RandomUnsigned(1));
-        public IEnumerable<UInt256> ValuesUint256 => Values.Select(x => (UInt256)x);
-        public IEnumerable<TestElement> ValuesElement => Values.Select(x => (TestElement)x);
         public IEnumerable<(BigInteger, UInt256, TestElement)> ValuesTuple => Values.Select(x => (x, (UInt256)x, (TestElement)x));
-
         public IEnumerable<int> ValuesInt => UnaryOps.RandomInt(3);
-    }
-
-    public class IntTwoParamBenchmarkBase : BenchmarkBase
-    {
-        [ParamsSource(nameof(ValuesTuple))]
-        protected (BigInteger, UInt256, TestElement) _a;
-
-        [ParamsSource(nameof(ValuesInt))]
-        protected int _d;
     }
 
     public class TwoParamBenchmarkBase : BenchmarkBase
@@ -45,12 +34,6 @@ namespace Nethermind.Field.Bench
 
         [ParamsSource(nameof(ValuesTuple))]
         public (BigInteger, UInt256, TestElement) _b;
-    }
-
-    public class ThreeParamBenchmarkBase : TwoParamBenchmarkBase
-    {
-        [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, TestElement) _c;
     }
 
     [SimpleJob(RuntimeMoniker.Net70)]
@@ -142,13 +125,14 @@ namespace Nethermind.Field.Bench
         [Benchmark(Baseline = true)]
         public BigInteger Divide_BigInteger()
         {
-            return _a.Item1 / _b.Item1;
+            return BigInteger.Remainder(BigInteger.Divide(_a.Item1, _b.Item1), _bMod);
         }
 
         [Benchmark]
         public UInt256 Divide_UInt256()
         {
             UInt256.Divide(_a.Item2, _b.Item2, out UInt256 res);
+            res.Mod(_uMod, out res);
             return res;
         }
 
@@ -185,55 +169,55 @@ namespace Nethermind.Field.Bench
         }
     }
 
-    [SimpleJob(RuntimeMoniker.Net70)]
-    [MemoryDiagnoser]
-    public class LeftShift : IntTwoParamBenchmarkBase
-    {
-        [Benchmark(Baseline = true)]
-        public BigInteger LeftShift_BigInteger()
-        {
-            return (_a.Item1 << _d) % Numbers._twoTo256;
-        }
-
-        [Benchmark]
-        public UInt256 LeftShift_UInt256()
-        {
-            _a.Item2.LeftShift(_d, out UInt256 res);
-            return res;
-        }
-
-        [Benchmark]
-        public TestElement LeftShift_Element()
-        {
-            _a.Item3.LeftShift(_d, out TestElement res);
-            return res;
-        }
-    }
-
-    [SimpleJob(RuntimeMoniker.Net70)]
-    [MemoryDiagnoser]
-    public class RightShift : IntTwoParamBenchmarkBase
-    {
-        [Benchmark(Baseline = true)]
-        public BigInteger RightShift_BigInteger()
-        {
-            return (_a.Item1 >> _d) % Numbers._twoTo256;
-        }
-
-        [Benchmark]
-        public UInt256 RightShift_UInt256()
-        {
-            _a.Item2.RightShift(_d, out UInt256 res);
-            return res;
-        }
-
-        [Benchmark]
-        public TestElement RightShift_Element()
-        {
-            _a.Item3.RightShift(_d, out TestElement res);
-            return res;
-        }
-    }
+    // [SimpleJob(RuntimeMoniker.Net70)]
+    // [MemoryDiagnoser]
+    // public class LeftShift : IntTwoParamBenchmarkBase
+    // {
+    //     [Benchmark(Baseline = true)]
+    //     public BigInteger LeftShift_BigInteger()
+    //     {
+    //         return (_a.Item1 << _d) % Numbers._twoTo256;
+    //     }
+    //
+    //     [Benchmark]
+    //     public UInt256 LeftShift_UInt256()
+    //     {
+    //         _a.Item2.LeftShift(_d, out UInt256 res);
+    //         return res;
+    //     }
+    //
+    //     [Benchmark]
+    //     public TestElement LeftShift_Element()
+    //     {
+    //         _a.Item3.LeftShift(_d, out TestElement res);
+    //         return res;
+    //     }
+    // }
+    //
+    // [SimpleJob(RuntimeMoniker.Net70)]
+    // [MemoryDiagnoser]
+    // public class RightShift : IntTwoParamBenchmarkBase
+    // {
+    //     [Benchmark(Baseline = true)]
+    //     public BigInteger RightShift_BigInteger()
+    //     {
+    //         return (_a.Item1 >> _d) % Numbers._twoTo256;
+    //     }
+    //
+    //     [Benchmark]
+    //     public UInt256 RightShift_UInt256()
+    //     {
+    //         _a.Item2.RightShift(_d, out UInt256 res);
+    //         return res;
+    //     }
+    //
+    //     [Benchmark]
+    //     public TestElement RightShift_Element()
+    //     {
+    //         _a.Item3.RightShift(_d, out TestElement res);
+    //         return res;
+    //     }
+    // }
 
     [SimpleJob(RuntimeMoniker.Net70)]
     [MemoryDiagnoser]
@@ -267,7 +251,7 @@ namespace Nethermind.Field.Bench
         [Benchmark(Baseline = true)]
         public BigInteger Sqrt_BigInteger()
         {
-            return BigInteger.ModPow(_a.Item1, _b.Item1, _bMod);
+            return (BigInteger)Math.Exp(BigInteger.Log(_a.Item1) / 2);
         }
 
         [Benchmark]
