@@ -1,14 +1,18 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
+using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using Nethermind.Field.Bench;
 using Nethermind.Int256;
+using Nethermind.Verkle.Fields.FpEElement;
+using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Utils;
 
 namespace Nethermind.Verkle.Bench
 {
-    public class BenchmarkBase
+    public class BenchmarkVerkleBase
     {
         private static IEnumerable<byte[]> RandomBytes(int count)
         {
@@ -29,14 +33,25 @@ namespace Nethermind.Verkle.Bench
 
     }
 
-    [SimpleJob(RuntimeMoniker.Net70)]
-    [MemoryDiagnoser]
-    public class PedersenHashBench : BenchmarkBase
+    public class BenchmarkOpsBase
     {
-        [Benchmark(Baseline = true)]
-        public byte[] Bench()
+
+        protected static UInt256 _uMod = FpE._modulus.Value;
+        protected static BigInteger _bMod = (BigInteger)_uMod;
+        private static IEnumerable<BigInteger> Values => new[]
         {
-            return PedersenHash.Hash(_a.Item1, _a.Item2);
-        }
+            Numbers._uInt256Max
+        }.Concat(UnaryOps.RandomUnsigned(1));
+        public IEnumerable<(BigInteger, UInt256, FpE)> ValuesTuple => Values.Select(x => (x, (UInt256)x, (FpE)x));
+        public IEnumerable<int> ValuesInt => UnaryOps.RandomInt(3);
+    }
+
+    public class TwoParamBenchmarkBase : BenchmarkOpsBase
+    {
+        [ParamsSource(nameof(ValuesTuple))]
+        public (BigInteger, UInt256, FpE) _a;
+
+        [ParamsSource(nameof(ValuesTuple))]
+        public (BigInteger, UInt256, FpE) _b;
     }
 }

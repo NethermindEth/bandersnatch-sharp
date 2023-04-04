@@ -26,5 +26,8 @@
     <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle\Nethermind.Verkle.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BenchmarkResults\HWAccelerated" />
+  </ItemGroup>
 
 </Project>
