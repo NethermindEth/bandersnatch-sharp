@@ -4,7 +4,7 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
-    public class Banderwagon
+    public readonly struct Banderwagon
     {
         private static readonly FpE A = CurveParams.A;
         private readonly ExtendedPoint _point;
@@ -13,7 +13,7 @@ namespace Nethermind.Verkle.Curve
         {
             if (unsafeBandersnatchPoint is not null)
             {
-                _point = unsafeBandersnatchPoint;
+                _point = unsafeBandersnatchPoint.Value;
             }
             else
             {
@@ -110,26 +110,26 @@ namespace Nethermind.Verkle.Curve
 
         public byte[] ToBytes()
         {
-            AffinePoint? affine = _point.ToAffine();
-            FpE? x = affine.X.Dup();
+            AffinePoint affine = _point.ToAffine();
+            FpE x = affine.X;
             if (affine.Y.LexicographicallyLargest() == false)
             {
                 x = affine.X.Negative();
             }
 
-            return x.Value.ToBytesBigEndian().ToArray();
+            return x.ToBytesBigEndian().ToArray();
         }
 
         public byte[] ToBytesLittleEndian()
         {
-            AffinePoint? affine = _point.ToAffine();
-            FpE? x = affine.X.Dup();
+            AffinePoint affine = _point.ToAffine();
+            FpE x = affine.X;
             if (affine.Y.LexicographicallyLargest() == false)
             {
                 x = affine.X.Negative();
             }
 
-            return x.Value.ToBytes().ToArray();
+            return x.ToBytes().ToArray();
         }
 
         public static Banderwagon Double(Banderwagon p)
@@ -140,11 +140,6 @@ namespace Nethermind.Verkle.Curve
         public bool IsOnCurve()
         {
             return _point.ToAffine().IsOnCurve();
-        }
-
-        public Banderwagon Dup()
-        {
-            return new Banderwagon(_point.Dup());
         }
 
         public static Banderwagon ScalarMul(Banderwagon element, FrE scalar)
@@ -159,19 +154,14 @@ namespace Nethermind.Verkle.Curve
 
         public static Banderwagon TwoTorsionPoint()
         {
-            AffinePoint? affinePoint = new AffinePoint(FpE.Zero, FpE.One.Negative());
+            AffinePoint affinePoint = new AffinePoint(FpE.Zero, FpE.One.Negative());
             return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
         }
 
         public static Banderwagon MSM(Banderwagon[] points, FrE[] scalars)
         {
-            Banderwagon? res = Identity();
-            for (int i = 0; i < points.Length; i++)
-            {
-                Banderwagon? partialRes = scalars[i] * points[i];
-                res += partialRes;
-            }
-            return res;
+            Banderwagon res = Identity();
+            return points.Select((t, i) => scalars[i] * t).Aggregate(res, (current, partialRes) => current + partialRes);
         }
 
         public static Banderwagon operator +(in Banderwagon a, in Banderwagon b)
@@ -212,9 +202,7 @@ namespace Nethermind.Verkle.Curve
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Banderwagon)obj);
+            return obj.GetType() == GetType() && Equals((Banderwagon)obj);
         }
 
         public override int GetHashCode()

@@ -5,11 +5,12 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
-    public class AffinePoint
+    public readonly struct AffinePoint
     {
-
+        // serialization constants
         private const byte MCompressedNegative = 128;
         private const byte MCompressedPositive = 0;
+
         public readonly FpE X;
         public readonly FpE Y;
 
@@ -24,9 +25,7 @@ namespace Nethermind.Verkle.Curve
 
         public static AffinePoint Generator()
         {
-            FpE yTe = CurveParams.YTe.Dup();
-            FpE xTe = CurveParams.XTe.Dup();
-            return new AffinePoint(xTe, yTe);
+            return new AffinePoint(CurveParams.XTe, CurveParams.YTe);
         }
 
         public static AffinePoint Neg(AffinePoint p)
@@ -36,25 +35,20 @@ namespace Nethermind.Verkle.Curve
 
         public static AffinePoint Add(AffinePoint p, AffinePoint q)
         {
-            FpE x1 = p.X;
-            FpE y1 = p.Y;
-            FpE x2 = q.X;
-            FpE y2 = q.Y;
+            FpE x1Y2 = p.X * q.Y;
+            FpE y1X2 = p.Y * q.X;
+            FpE x1X2A = p.X * q.X * A;
+            FpE y1Y2 = p.Y * q.Y;
 
-            FpE x1y2 = x1 * y2;
-            FpE y1x2 = y1 * x2;
-            FpE ax1x2 = x1 * x2 * A;
-            FpE y1y2 = y1 * y2;
+            FpE x1X2Y1Y2D = x1Y2 * y1X2 * D;
 
-            FpE dx1x2y1y2 = x1y2 * y1x2 * D;
+            FpE xNum = x1Y2 + y1X2;
 
-            FpE xNum = x1y2 + y1x2;
+            FpE xDen = FpE.One + x1X2Y1Y2D;
 
-            FpE xDen = FpE.One + dx1x2y1y2;
+            FpE yNum = y1Y2 - x1X2A;
 
-            FpE yNum = y1y2 - ax1x2;
-
-            FpE yDen = FpE.One - dx1x2y1y2;
+            FpE yDen = FpE.One - x1X2Y1Y2D;
 
             FpE x = xNum / xDen;
 
@@ -65,13 +59,32 @@ namespace Nethermind.Verkle.Curve
 
         public static AffinePoint Sub(AffinePoint p, AffinePoint q)
         {
-            AffinePoint? negQ = Neg(q);
+            AffinePoint negQ = Neg(q);
             return Add(p, negQ);
         }
 
         public static AffinePoint Double(AffinePoint p)
         {
-            return Add(p, p);
+            FpE.MultiplyMod(p.X, p.X, out FpE xSq);
+            FpE.MultiplyMod(p.Y, p.Y, out FpE ySq);
+
+            FpE xY = p.X * p.Y;
+            FpE xSqA = xSq * A;
+
+            FpE xSqYSqD = xSq * ySq * D;
+
+            FpE xNum = xY + xY;
+
+            FpE xDen = FpE.One + xSqYSqD;
+
+            FpE yNum = ySq - xSqA;
+
+            FpE yDen = FpE.One - xSqYSqD;
+
+            FpE.Divide(xNum, xDen, out FpE x);
+            FpE.Divide(yNum, yDen, out FpE y);
+
+            return new AffinePoint(x, y);
         }
 
         public bool IsOnCurve()
@@ -92,28 +105,23 @@ namespace Nethermind.Verkle.Curve
 
         public byte[] ToBytes()
         {
-            byte[] xBytes = X.ToBytes().ToArray();
-
+            // This is here to test that we have the correct generator element
+            // banderwagon uses a different serialisation algorithm
             byte mask = MCompressedPositive;
             if (Y.LexicographicallyLargest())
                 mask = MCompressedNegative;
 
+            byte[] xBytes = X.ToBytes().ToArray();
             xBytes[31] |= mask;
             return xBytes;
         }
 
-        public AffinePoint Dup()
-        {
-            return new AffinePoint(X.Dup(), Y.Dup());
-        }
-
         public static AffinePoint ScalarMultiplication(AffinePoint point, FrE scalar)
         {
-            AffinePoint? result = Identity();
-            AffinePoint? temp = point.Dup();
-
+            AffinePoint result = Identity();
             byte[] bytes = scalar.ToBytes().ToArray();
 
+            // using double and add : https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
             foreach (byte idx in bytes)
             {
                 string? binaryString = Convert.ToString(bytes[idx], 2);
@@ -121,9 +129,9 @@ namespace Nethermind.Verkle.Curve
                 {
                     if (i < binaryString.Length && binaryString[i] == '1')
                     {
-                        result = Add(result, temp);
+                        result = Add(result, point);
                     }
-                    temp = Double(temp);
+                    point = Double(point);
                 }
             }
 
@@ -138,8 +146,8 @@ namespace Nethermind.Verkle.Curve
         public static FpE? GetYCoordinate(FpE x, bool returnPositiveY)
         {
             FpE one = FpE.One;
-            FpE? num = x * x;
-            FpE? den = num * D - one;
+            FpE num = x * x;
+            FpE den = num * D - one;
             num = num * A - one;
 
             FpE? y = num / den;
@@ -193,7 +201,6 @@ namespace Nethermind.Verkle.Curve
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
             return obj.GetType() == GetType() && Equals((AffinePoint)obj);
         }
 

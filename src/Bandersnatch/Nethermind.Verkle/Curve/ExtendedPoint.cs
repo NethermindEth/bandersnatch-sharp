@@ -3,7 +3,7 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
-    public class ExtendedPoint
+    public readonly struct ExtendedPoint
     {
         public readonly FpE X;
         public readonly FpE Y;
@@ -42,10 +42,6 @@ namespace Nethermind.Verkle.Curve
         public static ExtendedPoint Generator()
         {
             return new ExtendedPoint(AffinePoint.Generator());
-        }
-        public ExtendedPoint Dup()
-        {
-            return new ExtendedPoint(X.Dup(), Y.Dup(), Z.Dup());
         }
 
         public static bool Equals(ExtendedPoint p, ExtendedPoint q)
@@ -117,8 +113,7 @@ namespace Nethermind.Verkle.Curve
 
         public static ExtendedPoint ScalarMultiplication(ExtendedPoint point, FrE scalarMont)
         {
-            ExtendedPoint? result = Identity();
-            ExtendedPoint? temp = point.Dup();
+            ExtendedPoint result = Identity();
 
             FrE.ToRegular(in scalarMont, out FrE scalar);
 
@@ -128,7 +123,7 @@ namespace Nethermind.Verkle.Curve
                 result = Double(result);
                 if (scalar.Bit(i))
                 {
-                    result += temp;
+                    result += point;
                 }
             }
             return result;
@@ -190,7 +185,6 @@ namespace Nethermind.Verkle.Curve
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
             return obj.GetType() == GetType() && Equals((ExtendedPoint)obj);
         }
 

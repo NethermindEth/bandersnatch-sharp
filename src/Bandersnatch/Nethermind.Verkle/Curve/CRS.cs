@@ -67,7 +67,7 @@ namespace Nethermind.Verkle.Curve
                 scalars.Add(keyVal.Value);
             }
 
-            Banderwagon? commitment = Banderwagon.MSM(points.ToArray(), scalars.ToArray());
+            Banderwagon commitment = Banderwagon.MSM(points.ToArray(), scalars.ToArray());
             return commitment;
         }
 

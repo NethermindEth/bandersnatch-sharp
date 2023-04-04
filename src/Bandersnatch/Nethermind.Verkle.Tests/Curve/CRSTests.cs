@@ -22,9 +22,9 @@ namespace Nethermind.Verkle.Tests.Curve
 
             SHA256? hasher = SHA256.Create();
             List<byte> hashData = new List<byte>();
-            foreach (Banderwagon? point in crs)
+            foreach (Banderwagon point in crs)
             {
-                hashData.AddRange(point!.ToBytes());
+                hashData.AddRange(point.ToBytes());
             }
 
             string? result = Convert.ToHexString(hasher.ComputeHash(hashData.ToArray())).ToLower();

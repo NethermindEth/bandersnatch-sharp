@@ -20,22 +20,22 @@ namespace Nethermind.Verkle.Tests.Curve
             };
 
             List<Banderwagon> points = new List<Banderwagon>();
-            Banderwagon? point = Banderwagon.Generator();
+            Banderwagon point = Banderwagon.Generator();
 
             foreach (string? bitString in expectedBitStrings)
             {
-                byte[]? bytes = point.ToBytes();
+                byte[] bytes = point.ToBytes();
                 Convert.ToHexString(bytes).Should().BeEquivalentTo(bitString);
 
-                points.Add(point.Dup());
+                points.Add(point);
                 point = Banderwagon.Double(point);
             }
 
             for (int i = 0; i < expectedBitStrings.Length; i++)
             {
-                string? bitString = expectedBitStrings[i];
-                Banderwagon? expectedPoint = points[i];
-                Banderwagon? decodedPoint = new Banderwagon(Convert.FromHexString(bitString));
+                string bitString = expectedBitStrings[i];
+                Banderwagon expectedPoint = points[i];
+                Banderwagon decodedPoint = new Banderwagon(Convert.FromHexString(bitString));
                 Assert.NotNull(point);
                 Assert.IsTrue(decodedPoint == expectedPoint);
             }
@@ -44,9 +44,9 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestTwoTorsion()
         {
-            Banderwagon? gen = Banderwagon.Generator();
-            Banderwagon? twoTorsion = Banderwagon.TwoTorsionPoint();
-            Banderwagon? result = Banderwagon.Add(gen, twoTorsion);
+            Banderwagon gen = Banderwagon.Generator();
+            Banderwagon twoTorsion = Banderwagon.TwoTorsionPoint();
+            Banderwagon result = Banderwagon.Add(gen, twoTorsion);
 
             Assert.IsTrue(result == gen);
         }

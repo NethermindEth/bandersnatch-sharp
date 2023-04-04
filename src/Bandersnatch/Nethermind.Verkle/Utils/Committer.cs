@@ -52,7 +52,7 @@ namespace Nethermind.Verkle.Utils
 
         public Commitment Dup()
         {
-            return new Commitment(Point.Dup());
+            return new Commitment(Point);
         }
 
         private void SetCommitmentToField()
