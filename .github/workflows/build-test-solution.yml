@@ -10,12 +10,15 @@ defaults:
   run:
     working-directory: src/Bandersnatch
 
-env:
-  BUILD_CONFIG: release
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            build-config: [ debug, release ]
+            hardware-intrinsics: [ 0, 1 ]
+    env:
+        DOTNET_EnableHWIntrinsic: ${{ matrix.hardware-intrinsics }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -25,7 +28,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 7
 
     - name: Install dependencies
       run: |
@@ -33,8 +36,8 @@ jobs:
 
     - name: Build
       run: |
-        dotnet build Bandersnatch.sln -c ${{ env.BUILD_CONFIG }} --no-restore
+        dotnet build Bandersnatch.sln -c ${{ matrix.build-config }} --no-restore
 
     - name: Test
       run: |
-        dotnet test -c ${{ env.BUILD_CONFIG }}
+        dotnet test -c ${{ matrix.build-config }}
