@@ -11,6 +11,21 @@ namespace Nethermind.Verkle.Fields.FpEElement
         private const ulong SqrtR = 32;
         private const ulong QInvNeg = 18446744069414584319;
 
+        private const int K = 32;
+        private const ulong signBitSelector = (ulong)(1) << 63;
+        private const int approxLowBitsN = K - 1;
+        private const int approxHighBitsN = K + 1;
+
+        const long updateFactorsConversionBias = 0x7fffffff7fffffff; // (2³¹ - 1)(2³² + 1)
+        const long updateFactorIdentityMatrixRow0 = 1;
+        const long  updateFactorIdentityMatrixRow1 = 4294967296;
+        private const int invIterationsN = 18;
+
+        private const ulong inversionCorrectionFactorWord0 = 10120633560485349752;
+        private const ulong inversionCorrectionFactorWord1 = 6708885176490223342;
+        private const ulong inversionCorrectionFactorWord2 = 15589610060228208133;
+        private const ulong inversionCorrectionFactorWord3 = 1857276366933877101;
+
         public static readonly FE Zero = new FE(0);
 
         private const ulong One0 = 8589934590;
@@ -29,7 +44,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
         private const ulong R1 = 3129137299524312099;
         private const ulong R2 = 419701826671360399;
         private const ulong R3 = 524908885293268753;
-        private static readonly FE rSquare = new FE(R0, R1, R2, R3);
+        public static readonly FE rSquare = new FE(R0, R1, R2, R3);
 
         private const ulong G0 = 11289237133041595516;
         private const ulong G1 = 2081200955273736677;

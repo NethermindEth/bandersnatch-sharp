@@ -23,69 +23,6 @@ namespace Nethermind.Verkle.Fields.FrEElement
             return !SubtractUnderflow(mont, qMinOne, out _);
         }
 
-        public static void Inverse(in FE x, out FE z)
-        {
-            if (x.IsZero)
-            {
-                z = Zero;
-                return;
-            }
-
-            // initialize u = q
-            FE u = qElement;
-            // initialize s = r^2
-            FE s = rSquare;
-            FE r = new FE(0);
-            FE v = x;
-
-
-            while (true)
-            {
-                while ((v[0] & 1) == 0)
-                {
-                    v.RightShiftByOne(out v);
-                    if ((s[0] & 1) == 1)
-                    {
-                        AddOverflow(s, qElement, out s);
-                    }
-                    s.RightShiftByOne(out s);
-                }
-
-                while ((u[0] & 1) == 0)
-                {
-                    u.RightShiftByOne(out u);
-                    if ((r[0] & 1) == 1)
-                    {
-                        AddOverflow(r, qElement, out r);
-                    }
-                    r.RightShiftByOne(out r);
-                }
-
-                if (!LessThan(v, u))
-                {
-                    SubtractUnderflow(v, u, out v);
-                    SubtractMod(s, r, out s);
-                }
-                else
-                {
-                    SubtractUnderflow(u, v, out u);
-                    SubtractMod(r, s, out r);
-                }
-
-
-                if (u[0] == 1 && (u[3] | u[2] | u[1]) == 0)
-                {
-                    z = r;
-                    return;
-                }
-                if (v[0] == 1 && (v[3] | v[2] | v[1]) == 0)
-                {
-                    z = s;
-                    return;
-                }
-            }
-        }
-
         public static void MultiplyMod(in FE x, in FE y, out FE res)
         {
             ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in x));
