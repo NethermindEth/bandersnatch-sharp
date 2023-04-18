@@ -36,10 +36,14 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
         public static IEnumerable<FE> GetRandom()
         {
-            byte[] data = new byte[32];
             Random rand = new Random(0);
-            rand.NextBytes(data);
-            yield return new FE(data);
+            byte[] data = new byte[32];
+
+            while (true)
+            {
+                rand.NextBytes(data);
+                yield return new FE(data);
+            }
         }
 
         private static void SubtractMod(in UInt256 a, in UInt256 b, in UInt256 m, out UInt256 res)
