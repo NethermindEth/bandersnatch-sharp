@@ -22,8 +22,6 @@
     <PackageReference Include="Nethermind.Numerics.Int256" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.Field.Bench\Nethermind.Field.Bench.csproj" />
-    <ProjectReference Include="..\Nethermind.Field\Nethermind.Field.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle\Nethermind.Verkle.csproj" />
   </ItemGroup>
   <ItemGroup>

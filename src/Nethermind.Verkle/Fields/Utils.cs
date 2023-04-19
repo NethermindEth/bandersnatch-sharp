@@ -1,6 +1,6 @@
 using Nethermind.Int256;
 
-namespace Nethermind.Field
+namespace Nethermind.Verkle.Fields
 {
     // TODO: remove this when PR merged: https://github.com/NethermindEth/int256/pull/23
     public static class UInt256Extension

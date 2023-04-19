@@ -55,7 +55,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
         });
         private static Lazy<UInt256> _bSqrtExponentElement = new Lazy<UInt256>(() =>
         {
-            UInt256 output = new UInt256(Convert.FromHexString("073eda753299d7d483339d80809a1d803fe3e1c01d06411c5d3f41ad4a1db9f"), true);
+            UInt256 output = new UInt256(Convert.FromHexString("73eda753299d7d483339d80809a1d803fe3e1c01d06411c5d3f41ad4a1db9f"), true);
             return output;
         });
     }
