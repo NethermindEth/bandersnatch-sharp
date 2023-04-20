@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.MultiplyMod-20230420-111124</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.203
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>          Method</th><th>           _a</th><th>           _b</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>MultiplyMod_BigInteger</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>147.3 ns</td><td>0.71 ns</td><td>0.67 ns</td><td>1.00</td><td>0.0017</td><td>144 B</td><td>1.00</td>
+</tr><tr><td>MultiplyMod_UInt256</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>188.3 ns</td><td>0.22 ns</td><td>0.18 ns</td><td>1.28</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>MultiplyMod_Element</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>153.2 ns</td><td>0.16 ns</td><td>0.14 ns</td><td>1.04</td><td>0.0019</td><td>160 B</td><td>1.11</td>
+</tr><tr><td>MultiplyMod_BigInteger</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>163.3 ns</td><td>0.27 ns</td><td>0.25 ns</td><td>1.00</td><td>0.0017</td><td>144 B</td><td>1.00</td>
+</tr><tr><td>MultiplyMod_UInt256</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>188.1 ns</td><td>0.67 ns</td><td>0.63 ns</td><td>1.15</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>MultiplyMod_Element</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>143.5 ns</td><td>0.83 ns</td><td>0.78 ns</td><td>0.88</td><td>0.0019</td><td>160 B</td><td>1.11</td>
+</tr><tr><td>MultiplyMod_BigInteger</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>162.5 ns</td><td>0.53 ns</td><td>0.50 ns</td><td>1.00</td><td>0.0017</td><td>144 B</td><td>1.00</td>
+</tr><tr><td>MultiplyMod_UInt256</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>189.4 ns</td><td>1.00 ns</td><td>0.89 ns</td><td>1.17</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>MultiplyMod_Element</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>141.0 ns</td><td>1.56 ns</td><td>1.46 ns</td><td>0.87</td><td>0.0019</td><td>160 B</td><td>1.11</td>
+</tr><tr><td>MultiplyMod_BigInteger</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>159.0 ns</td><td>0.17 ns</td><td>0.15 ns</td><td>1.00</td><td>0.0017</td><td>144 B</td><td>1.00</td>
+</tr><tr><td>MultiplyMod_UInt256</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>186.9 ns</td><td>0.55 ns</td><td>0.49 ns</td><td>1.18</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>MultiplyMod_Element</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>149.3 ns</td><td>0.24 ns</td><td>0.21 ns</td><td>0.94</td><td>0.0019</td><td>160 B</td><td>1.11</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.ExpMod-20230420-004503</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.203
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>     Method</th><th>           _a</th><th>           _b</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>ExpMod_BigInteger</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>73.68 &mu;s</td><td>2.842 &mu;s</td><td>8.381 &mu;s</td><td>75.34 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>56 B</td><td>1.00</td>
+</tr><tr><td>ExpMod_UInt256</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>57.70 &mu;s</td><td>1.130 &mu;s</td><td>1.256 &mu;s</td><td>57.74 &mu;s</td><td>0.76</td><td>0.06</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>ExpMod_Element</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>47.38 &mu;s</td><td>0.178 &mu;s</td><td>0.158 &mu;s</td><td>47.41 &mu;s</td><td>0.59</td><td>0.03</td><td>0.9766</td><td>81920 B</td><td>1,462.86</td>
+</tr><tr><td>ExpMod_BigInteger</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>47.17 &mu;s</td><td>0.036 &mu;s</td><td>0.034 &mu;s</td><td>47.17 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>56 B</td><td>1.00</td>
+</tr><tr><td>ExpMod_UInt256</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>43.32 &mu;s</td><td>0.743 &mu;s</td><td>0.695 &mu;s</td><td>43.22 &mu;s</td><td>0.92</td><td>0.01</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>ExpMod_Element</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>38.63 &mu;s</td><td>0.142 &mu;s</td><td>0.133 &mu;s</td><td>38.63 &mu;s</td><td>0.82</td><td>0.00</td><td>0.6714</td><td>60800 B</td><td>1,085.71</td>
+</tr><tr><td>ExpMod_BigInteger</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>79.99 &mu;s</td><td>4.651 &mu;s</td><td>13.715 &mu;s</td><td>85.47 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>56 B</td><td>1.00</td>
+</tr><tr><td>ExpMod_UInt256</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>58.23 &mu;s</td><td>0.683 &mu;s</td><td>0.639 &mu;s</td><td>58.00 &mu;s</td><td>0.69</td><td>0.12</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>ExpMod_Element</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>53.34 &mu;s</td><td>0.202 &mu;s</td><td>0.179 &mu;s</td><td>53.28 &mu;s</td><td>0.63</td><td>0.12</td><td>0.9766</td><td>81920 B</td><td>1,462.86</td>
+</tr><tr><td>ExpMod_BigInteger</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>52.78 &mu;s</td><td>1.838 &mu;s</td><td>5.418 &mu;s</td><td>49.52 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>56 B</td><td>1.00</td>
+</tr><tr><td>ExpMod_UInt256</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>43.77 &mu;s</td><td>0.079 &mu;s</td><td>0.066 &mu;s</td><td>43.79 &mu;s</td><td>0.77</td><td>0.05</td><td>-</td><td>-</td><td>0.00</td>
+</tr><tr><td>ExpMod_Element</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>37.79 &mu;s</td><td>0.306 &mu;s</td><td>0.286 &mu;s</td><td>37.76 &mu;s</td><td>0.68</td><td>0.06</td><td>0.6714</td><td>60800 B</td><td>1,085.71</td>
+</tr></tbody></table>
+</body>
+</html>
