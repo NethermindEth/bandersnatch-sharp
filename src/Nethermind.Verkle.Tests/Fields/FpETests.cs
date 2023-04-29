@@ -71,6 +71,33 @@ namespace Nethermind.Verkle.Tests.Fields
         }
 
         [Test]
+        public void TestInverseNew()
+        {
+            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+            for (int i = 0; i < 1000; i++)
+            {
+                FE x = set.Current;
+                if (x.IsZero)
+                {
+                    set.MoveNext();
+                    continue;
+                }
+                FE.InverseOptimized(x, out FE y);
+                FE.InverseOptimized(y, out FE z);
+                Assert.IsTrue(z.Equals(x));
+                set.MoveNext();
+            }
+        }
+
+        [Test]
+        public void TestInversesNew()
+        {
+            FE x = new FE(11055281967085613784, 9995184009937160182, 11266707295813342183, 6309950090107223578);
+            FE.InverseOptimized(x, out FE res);
+            Console.WriteLine(res);
+        }
+
+        [Test]
         public void ProfileInverseMultiplication()
         {
             using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();

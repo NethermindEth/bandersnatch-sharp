@@ -167,6 +167,13 @@ namespace Nethermind.Verkle.Bench
             FpE.Inverse(_a.Item3, out FpE res);
             return res;
         }
+
+        [Benchmark]
+        public FpE InverseNew_Element()
+        {
+            FpE.InverseOptimized(_a.Item3, out FpE res);
+            return res;
+        }
     }
 
     [SimpleJob(RuntimeMoniker.Net70)]

@@ -6,6 +6,10 @@ namespace Nethermind.Verkle.Fields.FpEElement
 {
     public readonly partial struct FpE
     {
+        public new string ToString()
+        {
+            return $"[{u0} {u1} {u2} {u3}]";
+        }
         public FE Dup()
         {
             return new FE(u0, u1, u2, u3);

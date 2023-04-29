@@ -58,5 +58,20 @@ namespace Nethermind.Verkle.Fields.FpEElement
             UInt256 output = new UInt256(Convert.FromHexString("39f6d3a994cebea4199cec0404d0ec02a9ded2017fff2dff7fffffff"), true);
             return output;
         });
+
+        private const int K = 32;
+        private const ulong signBitSelector = (ulong)(1) << 63;
+        private const int approxLowBitsN = K - 1;
+        private const int approxHighBitsN = K + 1;
+
+        const long updateFactorsConversionBias = 0x7fffffff7fffffff; // (2³¹ - 1)(2³² + 1)
+        const long updateFactorIdentityMatrixRow0 = 1;
+        const long  updateFactorIdentityMatrixRow1 = 4294967296;
+        private const int invIterationsN = 18;
+
+        private const ulong inversionCorrectionFactorWord0 = 10120633560485349752;
+        private const ulong inversionCorrectionFactorWord1 = 6708885176490223342;
+        private const ulong inversionCorrectionFactorWord2 = 15589610060228208133;
+        private const ulong inversionCorrectionFactorWord3 = 1857276366933877101;
     }
 }
