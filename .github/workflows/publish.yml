@@ -20,20 +20,19 @@ jobs:
           dotnet-version: 7
 
       - name: Install dependencies
-        working-directory: src/Bandersnatch
+        working-directory: src
         run: dotnet restore
 
       - name: Build
-        working-directory: src/Bandersnatch
+        working-directory: src
         run: dotnet build -c ${{ env.BUILD_CONFIG }} --no-restore -p:ContinuousIntegrationBuild=true
 
       - name: Test
-        working-directory: src/Bandersnatch
+        working-directory: src
         run: dotnet test -c ${{ env.BUILD_CONFIG }} --no-restore
 
       - name: Publish
-        working-directory: src/Bandersnatch
+        working-directory: src
         run: |
           dotnet pack -c ${{ env.BUILD_CONFIG }} --no-build
-          dotnet nuget push --skip-duplicate Nethermind.Field/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
           dotnet nuget push --skip-duplicate Nethermind.Verkle/bin/${{ env.BUILD_CONFIG }}/*.nupkg -k ${{ secrets.NUGET_TEST_API_KEY }} -s https://apiint.nugettest.org/v3/index.json
