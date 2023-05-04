@@ -9,7 +9,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestCrsIsConsistent()
         {
-            Banderwagon[]? crs = CRSStruct.GetCRS();
+            Banderwagon[]? crs = CrsStruct.Generate();
             Assert.IsTrue(256 == crs.Length);
 
             string? gotFirstPoint = Convert.ToHexString(crs[0].ToBytes()).ToLower();
@@ -35,7 +35,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestCrsNotGenerator()
         {
-            Banderwagon[]? crs = CRSStruct.GetCRS();
+            Banderwagon[]? crs = CrsStruct.Generate();
             Banderwagon? generator = Banderwagon.Generator();
 
             foreach (Banderwagon? point in crs)
@@ -47,7 +47,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestCrsGenerator()
         {
-            CRS x = CRS.GenerateCRS(256);
+            CRS x = CRS.Generate(256);
             Banderwagon generator = Banderwagon.Generator();
 
             foreach (Banderwagon? point in x.BasisG)
@@ -55,7 +55,7 @@ namespace Nethermind.Verkle.Tests.Curve
                 Assert.IsTrue(generator != point);
             }
 
-            Banderwagon[] crs = CRSStruct.GetCRS();
+            Banderwagon[] crs = CrsStruct.Generate();
 
             for (int i = 0; i < 256; i++)
             {

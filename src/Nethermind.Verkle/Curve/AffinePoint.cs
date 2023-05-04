@@ -7,12 +7,14 @@ namespace Nethermind.Verkle.Curve
 {
     public readonly struct AffinePoint
     {
-        // serialization constants
+        /// <summary>
+        /// serialization constants
+        /// </summary>
         private const byte MCompressedNegative = 128;
         private const byte MCompressedPositive = 0;
 
-        public readonly FpE X;
-        public readonly FpE Y;
+        public  FpE X { get; }
+        public  FpE Y { get; }
 
         public AffinePoint(FpE x, FpE y)
         {

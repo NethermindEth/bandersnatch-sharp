@@ -5,9 +5,9 @@ namespace Nethermind.Verkle.Curve
 {
     public readonly struct ExtendedPoint
     {
-        public readonly FpE X;
-        public readonly FpE Y;
-        public readonly FpE Z;
+        public FpE X { get; }
+        public FpE Y { get; }
+        private FpE Z { get; }
 
         public ExtendedPoint(FpE x, FpE y)
         {
@@ -177,7 +177,7 @@ namespace Nethermind.Verkle.Curve
             return !(a == b);
         }
 
-        private bool Equals(ExtendedPoint other)
+        public bool Equals(ExtendedPoint other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
         }

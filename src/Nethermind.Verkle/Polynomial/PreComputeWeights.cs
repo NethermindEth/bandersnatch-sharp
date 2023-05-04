@@ -5,8 +5,7 @@ namespace Nethermind.Verkle.Polynomial
     public class PreComputeWeights
     {
         private const int VerkleNodeWidth = 256;
-        public readonly MonomialBasis _a;
-        public readonly MonomialBasis _aPrime;
+        private readonly MonomialBasis _a;
         public readonly FrE[] _aPrimeDomain;
         public readonly FrE[] _aPrimeDomainInv;
         public readonly FrE[] _domain;
@@ -20,14 +19,14 @@ namespace Nethermind.Verkle.Polynomial
                 _domain[i] = FrE.SetElement(i);
             }
             _a = MonomialBasis.VanishingPoly(_domain);
-            _aPrime = MonomialBasis.FormalDerivative(_a);
+            MonomialBasis aPrime = MonomialBasis.FormalDerivative(_a);
 
             _aPrimeDomain = new FrE[VerkleNodeWidth];
             _aPrimeDomainInv = new FrE[VerkleNodeWidth];
 
             for (int i = 0; i < VerkleNodeWidth; i++)
             {
-                FrE aPrimeX = _aPrime.Evaluate(FrE.SetElement(i));
+                FrE aPrimeX = aPrime.Evaluate(FrE.SetElement(i));
                 FrE.Inverse(in aPrimeX, out FrE aPrimeXInv);
                 _aPrimeDomain[i] = aPrimeX;
                 _aPrimeDomainInv[i] = aPrimeXInv;
@@ -52,7 +51,7 @@ namespace Nethermind.Verkle.Polynomial
 
         public static PreComputeWeights Init()
         {
-            // add cache here - write to file
+            // TODO: add a cache - generate a file with precomputed values
             return new PreComputeWeights();
         }
 

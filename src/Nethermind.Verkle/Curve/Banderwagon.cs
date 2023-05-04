@@ -6,7 +6,7 @@ namespace Nethermind.Verkle.Curve
 {
     public readonly struct Banderwagon
     {
-        private static readonly FpE A = CurveParams.A;
+        private static FpE A => CurveParams.A;
         private readonly ExtendedPoint _point;
 
         public Banderwagon(byte[]? serialisedBytesBigEndian, ExtendedPoint? unsafeBandersnatchPoint = null)

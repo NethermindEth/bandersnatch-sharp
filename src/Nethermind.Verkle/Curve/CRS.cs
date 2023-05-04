@@ -6,12 +6,13 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
+    // ReSharper disable once InconsistentNaming
     public class CRS
     {
         public readonly Banderwagon[] BasisG;
-        public Banderwagon BasisQ;
+        public readonly Banderwagon BasisQ;
 
-        public static readonly CRS Instance = Default();
+        public static readonly CRS Instance =  new CRS(CrsStruct.Generate());
 
         private CRS(Banderwagon[] basisG)
         {
@@ -19,7 +20,7 @@ namespace Nethermind.Verkle.Curve
             BasisQ = Banderwagon.Generator();
         }
 
-        public static CRS GenerateCRS(long numPoints)
+        public static CRS Generate(long numPoints)
         {
             const string seed = "eth_verkle_oct_2021";
             Span<byte> seedSpan = Encoding.ASCII.GetBytes(seed);
@@ -48,12 +49,6 @@ namespace Nethermind.Verkle.Curve
             return new CRS(points);
         }
 
-        private static CRS Default()
-        {
-            Banderwagon[]? crs = CRSStruct.GetCRS();
-            return new CRS(crs);
-        }
-
         public Banderwagon CommitSparse(Dictionary<int, FrE> values)
         {
             if (values.Count == 0)
@@ -78,9 +73,9 @@ namespace Nethermind.Verkle.Curve
         }
     }
 
-    public struct CRSStruct
+    public struct CrsStruct
     {
-        private static readonly string[] CRSConstant =
+        private static readonly string[] _constants =
         {
             "01587ad1336675eb912550ec2a28eb8923b824b490dd2ba82e48f14590a298a0", "6c6e607df0723edfff382fa914bfc38136f3300ab2e06fb97007b559fd323b82", "326be3bebfd97ed9d0d4ca1b8bc47e036a24b129f1488110b71c2cae1463db8f",
             "6bd241cc12dc9b2c0ad6fc85e016605c49c1a92939c7faeea0a555d2a1c3ddf8", "00d4bb940478cca48a5b822533d2b3215857ae7c6643c5954c96a0084ebffb2c", "1c817b76e1c869c4a74f9ce5b8bc04dc810dae7a61ee05616a29eca128e60d3b",
@@ -170,18 +165,14 @@ namespace Nethermind.Verkle.Curve
             "3de2be346b539395b0c0de56a5ccca54a317f1b5c80107b0802af9a62276a4d8"
         };
 
-        public CRSStruct()
+        public static Banderwagon[] Generate()
         {
-        }
-
-        public static Banderwagon[] GetCRS()
-        {
-            int crsLength = CRSConstant.Length;
+            int crsLength = _constants.Length;
             Banderwagon[] points = new Banderwagon[crsLength];
 
             for (int i = 0; i < crsLength; i++)
             {
-                points[i] = new Banderwagon(CRSConstant[i]);
+                points[i] = new Banderwagon(_constants[i]);
             }
 
             return points;

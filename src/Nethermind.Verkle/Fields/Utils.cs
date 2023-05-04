@@ -2,25 +2,6 @@ using Nethermind.Int256;
 
 namespace Nethermind.Verkle.Fields
 {
-    // TODO: remove this when PR merged: https://github.com/NethermindEth/int256/pull/23
-    public static class UInt256Extension
-    {
-        public static void SubtractMod(in UInt256 a, in UInt256 b, in UInt256 m, out UInt256 res)
-        {
-            if (UInt256.SubtractUnderflow(a, b, out res))
-            {
-                UInt256.Subtract(b, a, out res);
-                UInt256.Mod(res, m, out res);
-                UInt256.Subtract(m, res, out res);
-            }
-            else
-            {
-                UInt256.Mod(res, m, out res);
-            }
-        }
-    }
-
-
     public static class FieldMethods
     {
         public static UInt256? ModSqrt(UInt256 a, UInt256 p)
@@ -92,7 +73,7 @@ namespace Nethermind.Verkle.Fields
                 r = m;
             }
         }
-        public static int LegendreSymbol(UInt256 a, UInt256 p)
+        private static int LegendreSymbol(UInt256 a, UInt256 p)
         {
             UInt256.Divide(p - 1, 2, out UInt256 exp);
             UInt256.ExpMod(a, exp, p, out UInt256 ls);
