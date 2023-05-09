@@ -19,10 +19,15 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" Condition="'$(OS)' == 'Windows_NT'" />
-    <PackageReference Include="Nethermind.Numerics.Int256" Version="1.0.0" />
+    <PackageReference Include="Nethermind.Numerics.Int256" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nethermind.Verkle\Nethermind.Verkle.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\.nuget\packages\nunit\3.13.3\lib\netstandard2.0\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

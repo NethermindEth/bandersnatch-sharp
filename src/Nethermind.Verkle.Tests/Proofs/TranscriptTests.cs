@@ -40,7 +40,7 @@ namespace Nethermind.Verkle.Tests.Proofs
             Transcript transcript = new Transcript("foo");
             FrE firstChallenge = transcript.ChallengeScalar("f");
             FrE secondChallenge = transcript.ChallengeScalar("f");
-            Assert.IsTrue(!firstChallenge.Equals(secondChallenge));
+            Assert.That(firstChallenge, Is.Not.EqualTo(secondChallenge));
         }
 
         [Test]

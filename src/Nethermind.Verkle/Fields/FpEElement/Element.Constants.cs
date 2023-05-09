@@ -48,7 +48,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             UInt256.TryParse("52435875175126190479447740508185965837690552500527637822603658699938581184513", out UInt256 output);
             return output;
         });
-        private static Lazy<UInt256> _bLegendreExponentElement = new Lazy<UInt256>(() =>
+        public static Lazy<UInt256> _bLegendreExponentElement = new Lazy<UInt256>(() =>
         {
             UInt256 output = new UInt256(Convert.FromHexString("39f6d3a994cebea4199cec0404d0ec02a9ded2017fff2dff7fffffff80000000"), true);
             return output;

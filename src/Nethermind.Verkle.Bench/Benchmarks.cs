@@ -27,31 +27,31 @@ namespace Nethermind.Verkle.Bench
 
         private static IEnumerable<byte[]> Values => RandomBytes(1);
         public static IEnumerable<(byte[], UInt256)> ValuesTuple => Values.Select(x => (x, new UInt256(x)));
-
-        [ParamsSource(nameof(ValuesTuple))]
-        protected (byte[], UInt256) _a;
-
     }
 
     public class BenchmarkOpsBase
     {
-
-        protected static UInt256 _uMod = FpE._modulus.Value;
-        protected static BigInteger _bMod = (BigInteger)_uMod;
-        private static IEnumerable<BigInteger> Values => new[]
+        private static IEnumerable<byte[]> RandomBytes(int count)
         {
-            Numbers._uInt256Max
-        }.Concat(UnaryOps.RandomUnsigned(1));
-        public IEnumerable<(BigInteger, UInt256, FpE)> ValuesTuple => Values.Select(x => (x, (UInt256)x, (FpE)x));
-        public IEnumerable<int> ValuesInt => UnaryOps.RandomInt(3);
+            Random rand = new Random(1);
+            byte[] data = new byte[32];
+            for (int i = 0; i < count; i++)
+            {
+                rand.NextBytes(data);
+                yield return data;
+            }
+        }
+        private static IEnumerable<byte[]> Values => RandomBytes(5);
+        public static IEnumerable<FpE> ValuesFpETuple => Values.Select(x => new FpE(x));
+        public static IEnumerable<FrE> ValuesFrETuple => Values.Select(x => new FrE(x));
     }
 
     public class TwoParamBenchmarkBase : BenchmarkOpsBase
     {
-        [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, FpE) _a;
+        [ParamsSource(nameof(ValuesFpETuple))]
+        public  FpE _a;
 
-        [ParamsSource(nameof(ValuesTuple))]
-        public (BigInteger, UInt256, FpE) _b;
+        [ParamsSource(nameof(ValuesFpETuple))]
+        public FpE _b;
     }
 }
