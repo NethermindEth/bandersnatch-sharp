@@ -397,4 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea/*
-src/Bandersnatch/.idea/
+src/.idea/

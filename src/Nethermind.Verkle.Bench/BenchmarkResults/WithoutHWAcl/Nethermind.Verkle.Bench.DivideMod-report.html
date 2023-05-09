@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.DivideMod-20230420-105228</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.203
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>     Method</th><th>           _a</th><th>           _b</th><th>  Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Divide_BigInteger</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>24.424 ns</td><td>0.5032 ns</td><td>0.8544 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_UInt256</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>5.027 ns</td><td>0.0111 ns</td><td>0.0104 ns</td><td>0.20</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_Element</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>2,623.324 ns</td><td>5.3240 ns</td><td>4.9801 ns</td><td>105.52</td><td>2.91</td><td>160 B</td><td>NA</td>
+</tr><tr><td>Divide_BigInteger</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>24.633 ns</td><td>0.0977 ns</td><td>0.0866 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_UInt256</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>50.720 ns</td><td>0.5105 ns</td><td>0.4525 ns</td><td>2.06</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_Element</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>2,776.440 ns</td><td>16.9724 ns</td><td>14.1728 ns</td><td>112.74</td><td>0.78</td><td>160 B</td><td>NA</td>
+</tr><tr><td>Divide_BigInteger</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>19.071 ns</td><td>0.1859 ns</td><td>0.1452 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_UInt256</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>4.481 ns</td><td>0.0250 ns</td><td>0.0209 ns</td><td>0.23</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_Element</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>2,671.697 ns</td><td>32.2200 ns</td><td>26.9052 ns</td><td>140.15</td><td>1.97</td><td>160 B</td><td>NA</td>
+</tr><tr><td>Divide_BigInteger</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>24.603 ns</td><td>0.0746 ns</td><td>0.0661 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_UInt256</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>5.347 ns</td><td>0.0139 ns</td><td>0.0130 ns</td><td>0.22</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Divide_Element</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>2,837.234 ns</td><td>18.3212 ns</td><td>15.2990 ns</td><td>115.34</td><td>0.65</td><td>160 B</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

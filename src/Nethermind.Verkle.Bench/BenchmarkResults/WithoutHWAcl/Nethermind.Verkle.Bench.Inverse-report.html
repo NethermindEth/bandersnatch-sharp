@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.Inverse-20230420-110450</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.203
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>      Method</th><th>           _a</th><th>           _b</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Inverse_BigInteger</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>63.445 &mu;s</td><td>1.2602 &mu;s</td><td>2.8956 &mu;s</td><td>64.064 &mu;s</td><td>1.00</td><td>0.00</td><td>112 B</td><td>1.00</td>
+</tr><tr><td>Inverse_UInt256</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>81.334 &mu;s</td><td>0.5341 &mu;s</td><td>0.4996 &mu;s</td><td>81.377 &mu;s</td><td>1.29</td><td>0.07</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_Element</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>2.481 &mu;s</td><td>0.0097 &mu;s</td><td>0.0081 &mu;s</td><td>2.483 &mu;s</td><td>0.04</td><td>0.00</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_BigInteger</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>63.377 &mu;s</td><td>1.2534 &mu;s</td><td>2.2601 &mu;s</td><td>63.772 &mu;s</td><td>1.00</td><td>0.00</td><td>112 B</td><td>1.00</td>
+</tr><tr><td>Inverse_UInt256</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>81.633 &mu;s</td><td>1.2259 &mu;s</td><td>1.1467 &mu;s</td><td>82.296 &mu;s</td><td>1.30</td><td>0.05</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_Element</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>2.495 &mu;s</td><td>0.0115 &mu;s</td><td>0.0107 &mu;s</td><td>2.496 &mu;s</td><td>0.04</td><td>0.00</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_BigInteger</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>65.220 &mu;s</td><td>2.2165 &mu;s</td><td>6.5354 &mu;s</td><td>67.202 &mu;s</td><td>1.00</td><td>0.00</td><td>112 B</td><td>1.00</td>
+</tr><tr><td>Inverse_UInt256</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>83.120 &mu;s</td><td>0.2391 &mu;s</td><td>0.1997 &mu;s</td><td>83.159 &mu;s</td><td>1.45</td><td>0.14</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_Element</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>2.675 &mu;s</td><td>0.0465 &mu;s</td><td>0.0695 &mu;s</td><td>2.661 &mu;s</td><td>0.04</td><td>0.01</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_BigInteger</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>65.823 &mu;s</td><td>1.8662 &mu;s</td><td>5.5026 &mu;s</td><td>67.400 &mu;s</td><td>1.00</td><td>0.00</td><td>112 B</td><td>1.00</td>
+</tr><tr><td>Inverse_UInt256</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>81.965 &mu;s</td><td>0.2043 &mu;s</td><td>0.1595 &mu;s</td><td>82.020 &mu;s</td><td>1.37</td><td>0.18</td><td>-</td><td>0.00</td>
+</tr><tr><td>Inverse_Element</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>2.642 &mu;s</td><td>0.0161 &mu;s</td><td>0.0150 &mu;s</td><td>2.640 &mu;s</td><td>0.04</td><td>0.01</td><td>-</td><td>0.00</td>
+</tr></tbody></table>
+</body>
+</html>
