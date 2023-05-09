@@ -109,53 +109,33 @@ namespace Nethermind.Verkle.Proofs
             }
 
             FrE r = transcript.ChallengeScalar("r");
+            FrE[] powersOfR = new FrE[queries.Length];
+            powersOfR[0] = FrE.One;
+
+            for (int i = 1; i < queries.Length; i++)
+            {
+                powersOfR[i] = powersOfR[i - 1] * r;
+            }
 
             transcript.AppendPoint(d, "D");
             FrE t = transcript.ChallengeScalar("t");
 
-            Dictionary<byte[], FrE> eCoefficients = new Dictionary<byte[], FrE>();
-            FrE g2OfT = FrE.Zero;
-            FrE powerOfR = FrE.One;
+            FrE[] g2Den = queries.Select(query => t - query._childIndex).ToArray();
+            g2Den = FrE.MultiInverse(g2Den);
 
-            Dictionary<byte[], Banderwagon> cBySerialized = new Dictionary<byte[], Banderwagon>();
+            FrE[] helperScalars = powersOfR.Zip(g2Den).Select((elem, i) => elem.First * elem.Second).ToArray();
+            FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second._childHash).Aggregate(FrE.Zero, (current, elem) => current + elem);
+            IEnumerable<Banderwagon> comms = queries.Select(query => query._nodeCommitPoint);
 
-            foreach (VerkleVerifierQuery query in queries)
-            {
-                Banderwagon c = query._nodeCommitPoint;
-                int z = query._childIndex.ToBytes()[0];
-                FrE y = query._childHash;
-                FrE eCoefficient = powerOfR / t - _preComp._domain[z];
-                byte[] cSerialized = c.ToBytes();
-                cBySerialized[cSerialized] = c;
-                if (!eCoefficients.ContainsKey(cSerialized))
-                {
-                    eCoefficients[cSerialized] = eCoefficient;
-                }
-                else
-                {
-                    eCoefficients[cSerialized] += eCoefficient;
-                }
+            Banderwagon g1Comm = VarBaseCommit(helperScalars.ToArray(), comms.ToArray());
 
-                g2OfT += eCoefficient * y;
+            transcript.AppendPoint(g1Comm, "E");
 
-                powerOfR *= r;
-            }
-
-            Banderwagon[] elems = new Banderwagon[eCoefficients.Count];
-            for (int i = 0; i < eCoefficients.Count; i++)
-            {
-                elems[i] = cBySerialized[eCoefficients.Keys.ToArray()[i]];
-            }
-
-            Banderwagon e = VarBaseCommit(eCoefficients.Values.ToArray(), elems);
-            transcript.AppendPoint(e, "E");
-
-            FrE yO = g2OfT;
-            Banderwagon ipaCommitment = e - d;
+            Banderwagon ipaCommitment = g1Comm - d;
             FrE[] inputPointVector = _preComp.BarycentricFormulaConstants(t);
 
             IpaVerifierQuery queryX = new IpaVerifierQuery(ipaCommitment, t,
-                inputPointVector, yO, ipaIpaProof);
+                inputPointVector, g2T, ipaIpaProof);
 
             return Ipa.CheckIpaProof(_crs, transcript, queryX);
         }
