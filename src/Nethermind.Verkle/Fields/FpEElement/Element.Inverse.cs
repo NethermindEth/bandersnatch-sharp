@@ -9,7 +9,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
 {
     public readonly partial struct FpE
     {
-        public static void InverseOptimized(in FE x, out FE z)
+        public static void Inverse(in FE x, out FE z)
         {
             // Implements "Optimized Binary GCD for Modular Inversion"
             // https://github.com/pornin/bingcd/blob/main/doc/bingcd.pdf
@@ -355,7 +355,6 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     AddOverflow(new FE(res[0], res[1], res[2], neg1), qElement, out res);
                 }
             }
-
         }
     }
 }

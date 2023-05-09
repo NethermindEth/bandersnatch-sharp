@@ -23,7 +23,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             return !SubtractUnderflow(mont, qMinOne, out _);
         }
 
-        public static void Inverse(in FE x, out FE z)
+        public static void InverseOld(in FE x, out FE z)
         {
             if (x.IsZero)
             {

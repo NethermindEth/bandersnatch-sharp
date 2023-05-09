@@ -164,14 +164,14 @@ namespace Nethermind.Verkle.Bench
         [Benchmark]
         public FpE Inverse_Element()
         {
-            FpE.Inverse(_a.Item3, out FpE res);
+            FpE.InverseOld(_a.Item3, out FpE res);
             return res;
         }
 
         [Benchmark]
         public FpE InverseNew_Element()
         {
-            FpE.InverseOptimized(_a.Item3, out FpE res);
+            FpE.Inverse(_a.Item3, out FpE res);
             return res;
         }
     }

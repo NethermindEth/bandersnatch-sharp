@@ -63,8 +63,8 @@ namespace Nethermind.Verkle.Tests.Fields
                     set.MoveNext();
                     continue;
                 }
-                FE.Inverse(x, out FE y);
-                FE.Inverse(y, out FE z);
+                FE.InverseOld(x, out FE y);
+                FE.InverseOld(y, out FE z);
                 Assert.IsTrue(z.Equals(x));
                 set.MoveNext();
             }
@@ -82,8 +82,8 @@ namespace Nethermind.Verkle.Tests.Fields
                     set.MoveNext();
                     continue;
                 }
-                FE.InverseOptimized(x, out FE y);
-                FE.InverseOptimized(y, out FE z);
+                FE.Inverse(x, out FE y);
+                FE.Inverse(y, out FE z);
                 Assert.IsTrue(z.Equals(x));
                 set.MoveNext();
             }
@@ -93,7 +93,7 @@ namespace Nethermind.Verkle.Tests.Fields
         public void TestInversesNew()
         {
             FE x = new FE(11055281967085613784, 9995184009937160182, 11266707295813342183, 6309950090107223578);
-            FE.InverseOptimized(x, out FE res);
+            FE.Inverse(x, out FE res);
             Console.WriteLine(res);
         }
 
