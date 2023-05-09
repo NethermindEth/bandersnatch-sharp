@@ -38,8 +38,8 @@ namespace Nethermind.Verkle.Tests.Polynomial
             MonomialBasis result = a / b;
             Assert.Multiple(() =>
             {
-                Assert.That(result._coeffs[0], Is.EqualTo(FrE.SetElement(2)));
-                Assert.That(result._coeffs[1], Is.EqualTo(FrE.SetElement(1)));
+                Assert.That(result.Coeffs[0], Is.EqualTo(FrE.SetElement(2)));
+                Assert.That(result.Coeffs[1], Is.EqualTo(FrE.SetElement(1)));
             });
         }
 
@@ -60,7 +60,7 @@ namespace Nethermind.Verkle.Tests.Polynomial
             MonomialBasis gotAPrime = MonomialBasis.FormalDerivative(a);
             for (int i = 0; i < gotAPrime.Length(); i++)
             {
-                Assert.That(b._coeffs[i], Is.EqualTo(gotAPrime._coeffs[i]));
+                Assert.That(b.Coeffs[i], Is.EqualTo(gotAPrime.Coeffs[i]));
             }
         }
     }

@@ -162,7 +162,7 @@ namespace Nethermind.Verkle.Tests.Proofs
             VerkleProverQuery queryA = new VerkleProverQuery(new LagrangeBasis(fs[0]), cs[0], zs[0], ys[0]);
             VerkleProverQuery queryB = new VerkleProverQuery(new LagrangeBasis(fs[1]), cs[1], zs[1], ys[1]);
 
-            MultiProof multiproof = new MultiProof(crs, PreComputeWeights.Init());
+            MultiProof multiproof = new MultiProof(crs, PreComputedWeights.Instance);
 
             Transcript proverTranscript = new Transcript("test");
             VerkleProverQuery[] queries =
@@ -193,7 +193,7 @@ namespace Nethermind.Verkle.Tests.Proofs
         public void TestBasicFailingProofTest()
         {
             Transcript proverTranscript = new Transcript("vt");
-            MultiProof multiproof = new MultiProof(CRS.Instance, PreComputeWeights.Init());
+            MultiProof multiproof = new MultiProof(CRS.Instance, PreComputedWeights.Instance);
             List<VerkleVerifierQuery> queries = (from queryString in _basicTestVerifierQueries
                 let point = new Banderwagon(queryString[0])
                 let childIndex = new FrE(Convert.FromHexString(queryString[1]))

@@ -7,27 +7,27 @@ namespace Nethermind.Verkle.Proofs
 {
     public class Transcript
     {
-        public List<byte> CurrentHash = new List<byte>();
+        private List<byte> _currentHash = new List<byte>();
 
         public Transcript(IEnumerable<byte> label)
         {
-            CurrentHash.AddRange(label);
+            _currentHash.AddRange(label);
         }
 
         public Transcript(string label)
         {
-            CurrentHash.AddRange(Encoding.ASCII.GetBytes(label));
+            _currentHash.AddRange(Encoding.ASCII.GetBytes(label));
         }
 
-        public static FrE ByteToField(byte[] bytes)
+        private static FrE ByteToField(byte[] bytes)
         {
             return FrE.FromBytesReduced(bytes);
         }
 
-        public void AppendBytes(IEnumerable<byte> message, IEnumerable<byte> label)
+        private void AppendBytes(IEnumerable<byte> message, IEnumerable<byte> label)
         {
-            CurrentHash.AddRange(label);
-            CurrentHash.AddRange(message);
+            _currentHash.AddRange(label);
+            _currentHash.AddRange(message);
         }
 
         public void AppendBytes(string message, string label)
@@ -56,9 +56,9 @@ namespace Nethermind.Verkle.Proofs
         public FrE ChallengeScalar(byte[] label)
         {
             DomainSep(label);
-            byte[] hash = SHA256.Create().ComputeHash(CurrentHash.ToArray());
+            byte[] hash = SHA256.HashData(_currentHash.ToArray());
             FrE challenge = ByteToField(hash);
-            CurrentHash = new List<byte>();
+            _currentHash = new List<byte>();
 
             AppendScalar(challenge, label);
             return challenge;
@@ -70,7 +70,7 @@ namespace Nethermind.Verkle.Proofs
 
         public void DomainSep(byte[] label)
         {
-            CurrentHash.AddRange(label);
+            _currentHash.AddRange(label);
         }
         public void DomainSep(string label)
         {

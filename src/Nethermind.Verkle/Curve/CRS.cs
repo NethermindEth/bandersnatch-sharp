@@ -9,10 +9,10 @@ namespace Nethermind.Verkle.Curve
     // ReSharper disable once InconsistentNaming
     public class CRS
     {
-        public readonly Banderwagon[] BasisG;
-        public readonly Banderwagon BasisQ;
+        public Banderwagon[] BasisG { get; }
+        public Banderwagon BasisQ { get; }
 
-        public static readonly CRS Instance =  new CRS(CrsStruct.Generate());
+        public static CRS Instance { get; } = new CRS(CrsStruct.Generate());
 
         private CRS(Banderwagon[] basisG)
         {
@@ -24,18 +24,22 @@ namespace Nethermind.Verkle.Curve
         {
             const string seed = "eth_verkle_oct_2021";
             Span<byte> seedSpan = Encoding.ASCII.GetBytes(seed);
-            Span<byte> target = new byte[8];
-            ulong increment = 0;
 
             Banderwagon[] points = new Banderwagon[numPoints];
 
             ulong generatedPoints = 0;
-            SHA256 sha256Hash = SHA256.Create();
 
+            ulong increment = 0;
             while (generatedPoints != (ulong)numPoints)
             {
-                BinaryPrimitives.WriteUInt64BigEndian(target[..8], increment);
-                byte[] hash = sha256Hash.ComputeHash(seedSpan.ToArray().Concat(target.ToArray()).ToArray());
+                byte[] toHash = new byte[seedSpan.Length + 8];
+                Span<byte> toHashSpan = toHash;
+
+                seedSpan.CopyTo(toHashSpan);
+                BinaryPrimitives.WriteUInt64BigEndian(toHashSpan[seedSpan.Length..], increment);
+
+                byte[] hash = SHA256.HashData(toHash);
+
                 FpE x = new FpE(hash, true);
                 increment++;
 
@@ -62,14 +66,14 @@ namespace Nethermind.Verkle.Curve
                 scalars.Add(keyVal.Value);
             }
 
-            Banderwagon commitment = Banderwagon.MSM(points.ToArray(), scalars.ToArray());
+            Banderwagon commitment = Banderwagon.MultiScalarMul(points.ToArray(), scalars.ToArray());
             return commitment;
         }
 
         public Banderwagon Commit(FrE[] values)
         {
-            Banderwagon[]? elements = BasisG[..values.Length];
-            return Banderwagon.MSM(elements, values);
+            Banderwagon[] elements = BasisG[..values.Length];
+            return Banderwagon.MultiScalarMul(elements, values);
         }
     }
 

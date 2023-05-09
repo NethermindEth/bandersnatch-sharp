@@ -5,12 +5,11 @@ namespace Nethermind.Verkle.Polynomial
     public class LagrangeBasis
     {
         private readonly int _domain;
-        public readonly FrE[] Evaluations;
+        public FrE[] Evaluations { get; }
 
         private LagrangeBasis() : this(Array.Empty<FrE>())
         {
         }
-
 
         public LagrangeBasis(FrE[] evaluations)
         {
@@ -34,11 +33,6 @@ namespace Nethermind.Verkle.Polynomial
             return new LagrangeBasis();
         }
 
-        public FrE[] Values()
-        {
-            return Evaluations;
-        }
-
         private static LagrangeBasis ArithmeticOp(LagrangeBasis lhs, LagrangeBasis rhs, ArithmeticOps op)
         {
             if (lhs._domain != rhs._domain) throw new ArgumentException("Domain should be same");
@@ -59,22 +53,22 @@ namespace Nethermind.Verkle.Polynomial
             return new LagrangeBasis(result);
         }
 
-        public static LagrangeBasis Add(LagrangeBasis lhs, LagrangeBasis rhs)
+        private static LagrangeBasis Add(LagrangeBasis lhs, LagrangeBasis rhs)
         {
             return ArithmeticOp(lhs, rhs, ArithmeticOps.Add);
         }
 
-        public static LagrangeBasis Sub(LagrangeBasis lhs, LagrangeBasis rhs)
+        private static LagrangeBasis Sub(LagrangeBasis lhs, LagrangeBasis rhs)
         {
             return ArithmeticOp(lhs, rhs, ArithmeticOps.Sub);
         }
 
-        public static LagrangeBasis Mul(LagrangeBasis lhs, LagrangeBasis rhs)
+        private static LagrangeBasis Mul(LagrangeBasis lhs, LagrangeBasis rhs)
         {
             return ArithmeticOp(lhs, rhs, ArithmeticOps.Mul);
         }
 
-        public static LagrangeBasis Scale(LagrangeBasis poly, FrE constant)
+        private static LagrangeBasis Scale(LagrangeBasis poly, FrE constant)
         {
             FrE[] result = new FrE[poly.Evaluations.Length];
 
@@ -97,22 +91,17 @@ namespace Nethermind.Verkle.Polynomial
 
         public FrE EvaluateOutsideDomain(LagrangeBasis precomputedWeights, FrE z)
         {
-            FrE r = FrE.Zero;
             FrE[] domain = GenerateDomainPoly();
             MonomialBasis a = MonomialBasis.VanishingPoly(domain);
             FrE az = a.Evaluate(z);
 
             if (az.IsZero)
-                throw new Exception("vanishing polynomial evaluated to zero. z is therefore a point on the domain");
+                throw new InvalidOperationException("vanishing polynomial evaluated to zero. z is therefore a point on the domain");
 
 
             FrE[] inverses = FrE.MultiInverse(domain.Select(x => z - x).ToArray());
-
-            for (int i = 0; i < inverses.Length; i++)
-            {
-                FrE x = inverses[i];
-                r += Evaluations[i] * precomputedWeights.Evaluations[i] * x;
-            }
+            IEnumerable<FrE> helperVector = precomputedWeights.Evaluations.Zip(Evaluations).Select(((elements, _) => elements.First * elements.Second));
+            FrE r = helperVector.Zip(inverses).Select((elem, i) => elem.First * elem.Second).Aggregate(FrE.Zero, (current, elem) => current + elem);
 
             r *= az;
 
@@ -128,27 +117,20 @@ namespace Nethermind.Verkle.Polynomial
             if (root.Length() != ys.Length + 1)
                 throw new Exception();
 
-            List<MonomialBasis> nums = xs.Select(x => new[]
-                {
-                    x.Negative(), FrE.One
-                })
+            List<MonomialBasis> nums = xs.Select(x => new[] { x.Negative(), FrE.One })
                 .Select(s => root / new MonomialBasis(s))
                 .ToList();
 
-            FrE[] invDenoms = FrE.MultiInverse(xs.Select((t, i) => nums[i].Evaluate(t)).ToArray());
+            FrE[] invDenominators = FrE.MultiInverse(xs.Select((t, i) => nums[i].Evaluate(t)).ToArray());
 
             FrE[] b = new FrE[ys.Length];
-            for (int i = 0; i < b.Length; i++)
-            {
-                b[i] = FrE.Zero;
-            }
 
             for (int i = 0; i < xs.Length; i++)
             {
-                FrE ySlice = ys[i] * invDenoms[i];
+                FrE ySlice = ys[i] * invDenominators[i];
                 for (int j = 0; j < ys.Length; j++)
                 {
-                    b[j] += nums[i]._coeffs[j] * ySlice;
+                    b[j] += nums[i].Coeffs[j] * ySlice;
                 }
             }
 

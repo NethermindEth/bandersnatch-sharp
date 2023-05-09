@@ -104,9 +104,9 @@ namespace Nethermind.Verkle.Tests.Polynomial
                     FrE.Zero, FrE.Zero, FrE.One
                 });
 
-            for (int i = 0; i < expectedXSquaredCoeff._coeffs.Length; i++)
+            for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
             {
-                Assert.That(expectedXSquaredCoeff._coeffs[i], Is.EqualTo(xSquaredCoeff._coeffs[i]));
+                Assert.That(expectedXSquaredCoeff.Coeffs[i], Is.EqualTo(xSquaredCoeff.Coeffs[i]));
             }
         }
     }

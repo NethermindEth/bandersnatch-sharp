@@ -5,11 +5,11 @@ namespace Nethermind.Verkle.Polynomial
 {
     public class MonomialBasis
     {
-        public readonly FrE[] _coeffs;
+        public FrE[] Coeffs { get; }
 
         public MonomialBasis(FrE[] coeffs)
         {
-            _coeffs = coeffs;
+            Coeffs = coeffs;
         }
 
         public static MonomialBasis Empty() => new MonomialBasis(Array.Empty<FrE>());
@@ -21,7 +21,7 @@ namespace Nethermind.Verkle.Polynomial
             {
                 for (int j = 0; j < b.Length(); j++)
                 {
-                    output[i + j] += a._coeffs[i]! * b._coeffs[j]!;
+                    output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
                 }
             }
             return new MonomialBasis(output);
@@ -34,7 +34,7 @@ namespace Nethermind.Verkle.Polynomial
                 throw new Exception();
             }
 
-            FrE[] x = a._coeffs.ToArray();
+            FrE[] x = a.Coeffs.ToArray();
             List<FrE> output = new List<FrE>();
 
             int aPos = a.Length() - 1;
@@ -43,11 +43,11 @@ namespace Nethermind.Verkle.Polynomial
             int diff = aPos - bPos;
             while (diff >= 0)
             {
-                FrE quot = x[aPos]! / b._coeffs[bPos]!;
+                FrE quot = x[aPos]! / b.Coeffs[bPos]!;
                 output.Insert(0, quot!);
                 for (int i = bPos; i > -1; i--)
                 {
-                    x[diff + i] -= b._coeffs[i] * quot;
+                    x[diff + i] -= b.Coeffs[i] * quot;
                 }
 
                 aPos -= 1;
@@ -61,7 +61,7 @@ namespace Nethermind.Verkle.Polynomial
         {
             FrE y = FrE.Zero;
             FrE powerOfX = FrE.One;
-            foreach (FrE pCoeff in _coeffs)
+            foreach (FrE pCoeff in Coeffs)
             {
                 y += powerOfX * pCoeff!;
                 powerOfX *= x;
@@ -75,7 +75,7 @@ namespace Nethermind.Verkle.Polynomial
             FrE[] derivative = new FrE[f.Length() - 1];
             for (int i = 1; i < f.Length(); i++)
             {
-                FrE x = FrE.SetElement(i) * f._coeffs[i]!;
+                FrE x = FrE.SetElement(i) * f.Coeffs[i]!;
                 derivative[i - 1] = x;
             }
             return new MonomialBasis(derivative.ToArray());
@@ -101,7 +101,7 @@ namespace Nethermind.Verkle.Polynomial
 
         public int Length()
         {
-            return _coeffs.Length;
+            return Coeffs.Length;
         }
 
         public static MonomialBasis operator /(in MonomialBasis a, in MonomialBasis b)

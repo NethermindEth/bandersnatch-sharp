@@ -7,42 +7,38 @@ namespace Nethermind.Verkle.Proofs
 {
     public class MultiProof
     {
-        private readonly CRS _crs;
-        private readonly PreComputeWeights _preComp;
+        private CRS Crs { get; }
+        private PreComputedWeights PreComp { get; }
 
-        public MultiProof(CRS cRs, PreComputeWeights preComp)
+        public MultiProof(CRS cRs, PreComputedWeights preComp)
         {
-            _preComp = preComp;
-            _crs = cRs;
+            PreComp = preComp;
+            Crs = cRs;
         }
 
         public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
         {
-            int domainSize = _preComp._domain.Length;
+            int domainSize = PreComp.Domain.Length;
 
-            // create transcript for multiproof
             transcript.DomainSep("multiproof");
+
             foreach (VerkleProverQuery query in queries)
             {
-                transcript.AppendPoint(query._nodeCommitPoint, "C");
-                transcript.AppendScalar(query._childIndex, "z");
-                transcript.AppendScalar(query._childHash, "y");
+                transcript.AppendPoint(query.NodeCommitPoint, "C");
+                transcript.AppendScalar(query.ChildIndex, "z");
+                transcript.AppendScalar(query.ChildHash, "y");
             }
             FrE r = transcript.ChallengeScalar("r");
 
             FrE[] g = new FrE[domainSize];
-            for (int i = 0; i < domainSize; i++)
-            {
-                g[i] = FrE.Zero;
-            }
 
             FrE powerOfR = FrE.One;
 
             foreach (VerkleProverQuery query in queries)
             {
-                LagrangeBasis f = query._childHashPoly;
-                FrE index = query._childIndex;
-                FrE[] quotient = Quotient.ComputeQuotientInsideDomain(_preComp, f, index);
+                LagrangeBasis f = query.ChildHashPoly;
+                FrE index = query.ChildIndex;
+                FrE[] quotient = Quotient.ComputeQuotientInsideDomain(PreComp, f, index);
 
                 for (int i = 0; i < quotient.Length; i++)
                 {
@@ -52,7 +48,7 @@ namespace Nethermind.Verkle.Proofs
                 powerOfR *= r;
             }
 
-            Banderwagon d = _crs.Commit(g);
+            Banderwagon d = Crs.Commit(g);
             transcript.AppendPoint(d, "D");
             FrE t = transcript.ChallengeScalar("t");
 
@@ -66,9 +62,9 @@ namespace Nethermind.Verkle.Proofs
 
             foreach (VerkleProverQuery query in queries)
             {
-                int index = query._childIndex.ToBytes()[0];
-                FrE.Inverse(t - _preComp._domain[index], out FrE denominatorInv);
-                LagrangeBasis f = query._childHashPoly;
+                int index = query.ChildIndex.ToBytes()[0];
+                FrE.Inverse(t - PreComp.Domain[index], out FrE denominatorInv);
+                LagrangeBasis f = query.ChildHashPoly;
                 for (int i = 0; i < f.Evaluations.Length; i++)
                 {
                     h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
@@ -82,15 +78,15 @@ namespace Nethermind.Verkle.Proofs
                 hMinusG[i] = h[i] - g[i];
             }
 
-            Banderwagon e = _crs.Commit(h);
+            Banderwagon e = Crs.Commit(h);
             transcript.AppendPoint(e, "E");
 
             Banderwagon ipaCommitment = e - d;
-            FrE[] inputPointVector = _preComp.BarycentricFormulaConstants(t);
+            FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
             IpaProverQuery pQuery = new IpaProverQuery(hMinusG, ipaCommitment,
                 t, inputPointVector);
 
-            (FrE _, IpaProofStruct ipaProof) = Ipa.MakeIpaProof(_crs, transcript, pQuery);
+            (FrE _, IpaProofStruct ipaProof) = Ipa.MakeIpaProof(Crs, transcript, pQuery);
 
             return new VerkleProofStruct(ipaProof, d);
 
@@ -99,13 +95,13 @@ namespace Nethermind.Verkle.Proofs
         public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
         {
             transcript.DomainSep("multiproof");
-            Banderwagon d = proof._d;
-            IpaProofStruct ipaIpaProof = proof._ipaProof;
+            Banderwagon d = proof.D;
+            IpaProofStruct ipaIpaProof = proof.IpaProof;
             foreach (VerkleVerifierQuery query in queries)
             {
-                transcript.AppendPoint(query._nodeCommitPoint, "C");
-                transcript.AppendScalar(query._childIndex, "z");
-                transcript.AppendScalar(query._childHash, "y");
+                transcript.AppendPoint(query.NodeCommitPoint, "C");
+                transcript.AppendScalar(query.ChildIndex, "z");
+                transcript.AppendScalar(query.ChildHash, "y");
             }
 
             FrE r = transcript.ChallengeScalar("r");
@@ -120,29 +116,29 @@ namespace Nethermind.Verkle.Proofs
             transcript.AppendPoint(d, "D");
             FrE t = transcript.ChallengeScalar("t");
 
-            FrE[] g2Den = queries.Select(query => t - query._childIndex).ToArray();
+            FrE[] g2Den = queries.Select(query => t - query.ChildIndex).ToArray();
             g2Den = FrE.MultiInverse(g2Den);
 
             FrE[] helperScalars = powersOfR.Zip(g2Den).Select((elem, i) => elem.First * elem.Second).ToArray();
-            FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second._childHash).Aggregate(FrE.Zero, (current, elem) => current + elem);
-            IEnumerable<Banderwagon> comms = queries.Select(query => query._nodeCommitPoint);
+            FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second.ChildHash).Aggregate(FrE.Zero, (current, elem) => current + elem);
+            IEnumerable<Banderwagon> comms = queries.Select(query => query.NodeCommitPoint);
 
             Banderwagon g1Comm = VarBaseCommit(helperScalars.ToArray(), comms.ToArray());
 
             transcript.AppendPoint(g1Comm, "E");
 
             Banderwagon ipaCommitment = g1Comm - d;
-            FrE[] inputPointVector = _preComp.BarycentricFormulaConstants(t);
+            FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
 
             IpaVerifierQuery queryX = new IpaVerifierQuery(ipaCommitment, t,
                 inputPointVector, g2T, ipaIpaProof);
 
-            return Ipa.CheckIpaProof(_crs, transcript, queryX);
+            return Ipa.CheckIpaProof(Crs, transcript, queryX);
         }
 
-        private static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
+        private static Banderwagon VarBaseCommit(IEnumerable<FrE> values, IEnumerable<Banderwagon> elements)
         {
-            return Banderwagon.MSM(elements, values);
+            return Banderwagon.MultiScalarMul(elements, values);
         }
     }
 }

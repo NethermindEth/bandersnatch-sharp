@@ -10,49 +10,49 @@ namespace Nethermind.Verkle.Proofs
 {
     public struct IpaProverQuery
     {
-        public readonly FrE[] _polynomial;
-        public readonly Banderwagon _commitment;
-        public FrE _point;
-        public readonly FrE[] _pointEvaluations;
+        public FrE[] Polynomial { get; }
+        public Banderwagon Commitment { get; }
+        public FrE Point { get; }
+        public FrE[] PointEvaluations { get; }
 
         public IpaProverQuery(FrE[] polynomial, Banderwagon commitment, FrE point,
             FrE[] pointEvaluations)
         {
-            _polynomial = polynomial;
-            _commitment = commitment;
-            _point = point;
-            _pointEvaluations = pointEvaluations;
+            Polynomial = polynomial;
+            Commitment = commitment;
+            Point = point;
+            PointEvaluations = pointEvaluations;
         }
     }
 
     public struct IpaProofStruct
     {
-        public readonly List<Banderwagon> _l;
-        public FrE _a;
-        public readonly List<Banderwagon> _r;
+        public List<Banderwagon> L { get; }
+        public FrE A { get; set; }
+        public List<Banderwagon> R { get; }
 
         public IpaProofStruct(List<Banderwagon> l, FrE a, List<Banderwagon> r)
         {
-            _l = l;
-            _a = a;
-            _r = r;
+            L = l;
+            A = a;
+            R = r;
         }
 
         public byte[] Encode()
         {
             List<byte> encoded = new List<byte>();
 
-            foreach (Banderwagon l in _l)
+            foreach (Banderwagon l in L)
             {
                 encoded.AddRange(l.ToBytesLittleEndian().Reverse().ToArray());
             }
 
-            foreach (Banderwagon r in _r)
+            foreach (Banderwagon r in R)
             {
                 encoded.AddRange(r.ToBytesLittleEndian().Reverse().ToArray());
             }
 
-            encoded.AddRange(_a.ToBytes().ToArray());
+            encoded.AddRange(A.ToBytes().ToArray());
 
             return encoded.ToArray();
         }
@@ -61,15 +61,15 @@ namespace Nethermind.Verkle.Proofs
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("\n#[_l]#\n");
-            foreach (Banderwagon l in _l)
+            foreach (Banderwagon l in L)
             {
                 stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
                 stringBuilder.Append('\n');
             }
             stringBuilder.Append("\n#[_a]#\n");
-            stringBuilder.AppendJoin(", ", _a.ToBytes().ToArray());
+            stringBuilder.AppendJoin(", ", A.ToBytes().ToArray());
             stringBuilder.Append("\n#[_r]#\n");
-            foreach (Banderwagon l in _r)
+            foreach (Banderwagon l in R)
             {
                 stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
                 stringBuilder.Append('\n');
@@ -80,40 +80,40 @@ namespace Nethermind.Verkle.Proofs
 
     public struct IpaVerifierQuery
     {
-        public readonly Banderwagon _commitment;
-        public FrE _point;
-        public readonly FrE[] _pointEvaluations;
-        public FrE _outputPoint;
-        public IpaProofStruct _ipaProof;
+        public Banderwagon Commitment { get; }
+        public FrE Point { get; }
+        public FrE[] PointEvaluations { get; }
+        public FrE OutputPoint { get; }
+        public IpaProofStruct IpaProof { get; }
 
         public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint, IpaProofStruct ipaProof)
         {
-            _commitment = commitment;
-            _point = point;
-            _pointEvaluations = pointEvaluations;
-            _outputPoint = outputPoint;
-            _ipaProof = ipaProof;
+            Commitment = commitment;
+            Point = point;
+            PointEvaluations = pointEvaluations;
+            OutputPoint = outputPoint;
+            IpaProof = ipaProof;
         }
     }
 
-    public struct VerkleProofStruct
+    public readonly struct VerkleProofStruct
     {
-        public IpaProofStruct _ipaProof;
-        public readonly Banderwagon _d;
+        public IpaProofStruct IpaProof { get; }
+        public Banderwagon D { get; }
 
         public VerkleProofStruct(IpaProofStruct ipaProof, Banderwagon d)
         {
-            _ipaProof = ipaProof;
-            _d = d;
+            IpaProof = ipaProof;
+            D = d;
         }
 
         public override string ToString()
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append("\n##[IPA Proof]##\n");
-            stringBuilder.Append(_ipaProof.ToString());
+            stringBuilder.Append(IpaProof.ToString());
             stringBuilder.Append("\n##[_d]##\n");
-            stringBuilder.AppendJoin(", ", _d.ToBytesLittleEndian().Reverse().ToArray());
+            stringBuilder.AppendJoin(", ", D.ToBytesLittleEndian().Reverse().ToArray());
             return stringBuilder.ToString();
         }
 
@@ -121,8 +121,8 @@ namespace Nethermind.Verkle.Proofs
         {
             List<byte> encoded = new List<byte>();
 
-            encoded.AddRange(_d.ToBytesLittleEndian().Reverse().ToArray());
-            encoded.AddRange(_ipaProof.Encode());
+            encoded.AddRange(D.ToBytesLittleEndian().Reverse().ToArray());
+            encoded.AddRange(IpaProof.Encode());
 
             return encoded.ToArray();
         }
@@ -130,31 +130,31 @@ namespace Nethermind.Verkle.Proofs
 
     public struct VerkleProverQuery
     {
-        public readonly LagrangeBasis _childHashPoly;
-        public readonly Banderwagon _nodeCommitPoint;
-        public FrE _childIndex;
-        public FrE _childHash;
+        public LagrangeBasis ChildHashPoly { get; }
+        public Banderwagon NodeCommitPoint { get; }
+        public FrE ChildIndex { get; }
+        public FrE ChildHash { get; }
 
         public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
         {
-            _childHashPoly = childHashPoly;
-            _nodeCommitPoint = nodeCommitPoint;
-            _childIndex = childIndex;
-            _childHash = childHash;
+            ChildHashPoly = childHashPoly;
+            NodeCommitPoint = nodeCommitPoint;
+            ChildIndex = childIndex;
+            ChildHash = childHash;
         }
     }
 
     public struct VerkleVerifierQuery
     {
-        public readonly Banderwagon _nodeCommitPoint;
-        public FrE _childIndex;
-        public FrE _childHash;
+        public Banderwagon NodeCommitPoint { get; }
+        public FrE ChildIndex { get; }
+        public FrE ChildHash { get; }
 
         public VerkleVerifierQuery(Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
         {
-            _nodeCommitPoint = nodeCommitPoint;
-            _childIndex = childIndex;
-            _childHash = childHash;
+            NodeCommitPoint = nodeCommitPoint;
+            ChildIndex = childIndex;
+            ChildHash = childHash;
         }
     }
 }

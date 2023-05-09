@@ -5,39 +5,30 @@ namespace Nethermind.Verkle.Proofs
 {
     public static class Ipa
     {
-        private static Banderwagon VarBaseCommit(FrE[] values, Banderwagon[] elements)
+        private static Banderwagon VarBaseCommit(IEnumerable<FrE> values, IEnumerable<Banderwagon> elements)
         {
-            return Banderwagon.MSM(elements, values);
+            return Banderwagon.MultiScalarMul(elements, values);
         }
 
         public static FrE InnerProduct(IEnumerable<FrE> a, IEnumerable<FrE> b)
         {
-            FrE result = FrE.SetElement();
-
-            foreach ((FrE aI, FrE bI) in a.Zip(b))
-            {
-                FrE.MultiplyMod(aI, bI, out FrE term);
-                result += term;
-            }
-
-            return result;
+            return a.Zip(b).Select((elements => elements.First * elements.Second)).Aggregate(FrE.Zero, ((e, frE) => e + frE));
         }
 
-        public static (FrE Y, IpaProofStruct Proof) MakeIpaProof(CRS crs, Transcript transcript,
-            IpaProverQuery query)
+        public static (FrE Y, IpaProofStruct Proof) MakeIpaProof(CRS crs, Transcript transcript, IpaProverQuery query)
         {
             transcript.DomainSep("ipa");
 
-            int n = query._polynomial.Length;
+            int n = query.Polynomial.Length;
             int m = n / 2;
-            FrE[] a = query._polynomial;
-            FrE[] b = query._pointEvaluations;
+            FrE[] a = query.Polynomial;
+            FrE[] b = query.PointEvaluations;
             FrE y = InnerProduct(a, b);
 
             IpaProofStruct ipaProof = new IpaProofStruct(new List<Banderwagon>(), FrE.Zero, new List<Banderwagon>());
 
-            transcript.AppendPoint(query._commitment, "C"u8.ToArray());
-            transcript.AppendScalar(query._point, "input point"u8.ToArray());
+            transcript.AppendPoint(query.Commitment, "C"u8.ToArray());
+            transcript.AppendScalar(query.Point, "input point"u8.ToArray());
             transcript.AppendScalar(y, "output point"u8.ToArray());
             FrE w = transcript.ChallengeScalar("w"u8.ToArray());
 
@@ -57,8 +48,8 @@ namespace Nethermind.Verkle.Proofs
                 Banderwagon cL = VarBaseCommit(aR, currentBasis[..m]) + q * zL;
                 Banderwagon cR = VarBaseCommit(aL, currentBasis[m..]) + q * zR;
 
-                ipaProof._l.Add(cL);
-                ipaProof._r.Add(cR);
+                ipaProof.L.Add(cL);
+                ipaProof.R.Add(cR);
 
                 transcript.AppendPoint(cL, "L"u8.ToArray());
                 transcript.AppendPoint(cR, "R"u8.ToArray());
@@ -95,7 +86,7 @@ namespace Nethermind.Verkle.Proofs
                 m = n / 2;
             }
 
-            ipaProof._a = a[0];
+            ipaProof.A = a[0];
 
             return (y, ipaProof);
         }
@@ -105,15 +96,15 @@ namespace Nethermind.Verkle.Proofs
         {
             transcript.DomainSep("ipa"u8.ToArray());
 
-            int n = query._pointEvaluations.Length;
+            int n = query.PointEvaluations.Length;
             int m = n / 2;
 
 
-            Banderwagon c = query._commitment;
-            FrE z = query._point;
-            FrE[] b = query._pointEvaluations;
-            IpaProofStruct ipaProof = query._ipaProof;
-            FrE y = query._outputPoint;
+            Banderwagon c = query.Commitment;
+            FrE z = query.Point;
+            FrE[] b = query.PointEvaluations;
+            IpaProofStruct ipaProof = query.IpaProof;
+            FrE y = query.OutputPoint;
 
             transcript.AppendPoint(c, "C"u8.ToArray());
             transcript.AppendScalar(z, "input point"u8.ToArray());
@@ -131,8 +122,8 @@ namespace Nethermind.Verkle.Proofs
 
             while (n > 1)
             {
-                Banderwagon cL = ipaProof._l[i];
-                Banderwagon cR = ipaProof._r[i];
+                Banderwagon cL = ipaProof.L[i];
+                Banderwagon cR = ipaProof.R[i];
 
                 transcript.AppendPoint(cL, "L"u8.ToArray());
                 transcript.AppendPoint(cR, "R"u8.ToArray());
@@ -171,7 +162,7 @@ namespace Nethermind.Verkle.Proofs
             FrE b0 = b[0];
             Banderwagon g0 = currentBasis[0];
 
-            Banderwagon gotCommitment = g0 * ipaProof._a + q * (ipaProof._a * b0);
+            Banderwagon gotCommitment = g0 * ipaProof.A + q * (ipaProof.A * b0);
 
             return currentCommitment == gotCommitment;
         }

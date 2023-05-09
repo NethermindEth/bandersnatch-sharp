@@ -1,4 +1,5 @@
 
+using System.Numerics;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -158,10 +159,12 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
         }
 
-        public static Banderwagon MSM(Banderwagon[] points, FrE[] scalars)
+        public static Banderwagon MultiScalarMul(IEnumerable<Banderwagon> points, IEnumerable<FrE> scalars)
         {
             Banderwagon res = Identity();
-            return points.Select((t, i) => scalars[i] * t).Aggregate(res, (current, partialRes) => current + partialRes);
+            return points.Zip(scalars) // create a combined enumerator
+                .Select(((elements, _) => elements.First * elements.Second)) // multiple elementwise
+                .Aggregate(res, (current, partialRes) => current + partialRes); // aggregate sum
         }
 
         public static Banderwagon operator +(in Banderwagon a, in Banderwagon b)

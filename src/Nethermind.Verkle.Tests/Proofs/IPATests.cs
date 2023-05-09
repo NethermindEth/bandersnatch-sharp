@@ -24,7 +24,7 @@ namespace Nethermind.Verkle.Tests.Proofs
                 domain[i] = FrE.SetElement(i);
             }
 
-            PreComputeWeights weights = PreComputeWeights.Init();
+            PreComputedWeights weights = PreComputedWeights.Instance;
 
             List<FrE> lagrangePoly = new List<FrE>();
 

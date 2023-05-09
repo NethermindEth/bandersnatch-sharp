@@ -6,14 +6,14 @@ namespace Nethermind.Verkle.Utils
 {
     public struct Committer
     {
-        private static readonly CRS Constants = CRS.Instance;
+        private static readonly CRS _constants = CRS.Instance;
 
         public static Banderwagon Commit(FrE[] value)
         {
             Banderwagon elem = Banderwagon.Identity();
             for (int i = 0; i < value.Length; i++)
             {
-                elem += value[i] * Constants.BasisG[i];
+                elem += value[i] * _constants.BasisG[i];
             }
 
             return elem;
@@ -21,7 +21,7 @@ namespace Nethermind.Verkle.Utils
 
         public static Banderwagon ScalarMul(FrE value, int index)
         {
-            return Constants.BasisG[index] * value;
+            return _constants.BasisG[index] * value;
         }
     }
 
@@ -38,7 +38,9 @@ namespace Nethermind.Verkle.Utils
         {
             Point = Banderwagon.Identity();
         }
+
         public Banderwagon Point { get; private set; }
+
         public FrE PointAsField
         {
             get
