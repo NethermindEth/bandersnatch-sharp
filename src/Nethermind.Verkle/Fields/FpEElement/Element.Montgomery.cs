@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
@@ -5,7 +6,6 @@ namespace Nethermind.Verkle.Fields.FpEElement
 {
     public readonly partial struct FpE
     {
-
         public static int Legendre(in FE z)
         {
             Exp(z, _bLegendreExponentElement.Value, out FE res);
@@ -91,59 +91,64 @@ namespace Nethermind.Verkle.Fields.FpEElement
             ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in x));
             ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in y));
 
-            ulong[] t = new ulong[4];
-            ulong[] c = new ulong[3];
-            ulong[] z = new ulong[4];
+            U4 t = new U4();
+            U3 c = new U3();
+            U4 z = new U4();
 
             {
                 // round 0
-                c[1] = Math.BigMul(rx, ry, out c[0]);
-                ulong m = c[0] * QInvNeg;
-                c[2] = MAdd0(m, Q0, c[0]);
-                c[1] = MAdd1(rx, Unsafe.Add(ref ry, 1), c[1], out c[0]);
-                c[2] = MAdd2(m, Q1, c[2], c[0], out t[0]);
-                c[1] = MAdd1(rx, Unsafe.Add(ref ry, 2), c[1], out c[0]);
-                c[2] = MAdd2(m, Q2, c[2], c[0], out t[1]);
-                c[1] = MAdd1(rx, Unsafe.Add(ref ry, 3), c[1], out c[0]);
-                t[3] = MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
+                c.u1 = Math.BigMul(rx, ry, out c.u0);
+                ulong m = c.u0 * QInvNeg;
+                c.u2 = MAdd0(m, Q0, c.u0);
+                c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 1), c.u1, out c.u0);
+                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
+                c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 2), c.u1, out c.u0);
+                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
+                c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 3), c.u1, out c.u0);
+                t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
             }
             {
                 // round 1
-                c[1] = MAdd1(Unsafe.Add(ref rx, 1), ry, t[0], out c[0]);
-                ulong m = c[0] * QInvNeg;
-                c[2] = MAdd0(m, Q0, c[0]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
-                c[2] = MAdd2(m, Q1, c[2], c[0], out t[0]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
-                c[2] = MAdd2(m, Q2, c[2], c[0], out t[1]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
-                t[3] = MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
+                c.u1 = MAdd1(Unsafe.Add(ref rx, 1), ry, t.u0, out c.u0);
+                ulong m = c.u0 * QInvNeg;
+                c.u2 = MAdd0(m, Q0, c.u0);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
+                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
+                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
+                t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
             }
             {
                 // round 2
-                c[1] = MAdd1(Unsafe.Add(ref rx, 2), ry, t[0], out c[0]);
-                ulong m = c[0] * QInvNeg;
-                c[2] = MAdd0(m, Q0, c[0]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
-                c[2] = MAdd2(m, Q1, c[2], c[0], out t[0]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
-                c[2] = MAdd2(m, Q2, c[2], c[0], out t[1]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
-                t[3] = MAdd3(m, Q3, c[0], c[2], c[1], out t[2]);
+                c.u1 = MAdd1(Unsafe.Add(ref rx, 2), ry, t.u0, out c.u0);
+                ulong m = c.u0 * QInvNeg;
+                c.u2 = MAdd0(m, Q0, c.u0);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
+                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
+                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
+                t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
             }
+
+
             {
                 // round 3
-                c[1] = MAdd1(Unsafe.Add(ref rx, 3), ry, t[0], out c[0]);
-                ulong m = c[0] * QInvNeg;
-                c[2] = MAdd0(m, Q0, c[0]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c[1], t[1], out c[0]);
-                c[2] = MAdd2(m, Q1, c[2], c[0], out z[0]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c[1], t[2], out c[0]);
-                c[2] = MAdd2(m, Q2, c[2], c[0], out z[1]);
-                c[1] = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c[1], t[3], out c[0]);
-                z[3] = MAdd3(m, Q3, c[0], c[2], c[1], out z[2]);
+                c.u1 = MAdd1(Unsafe.Add(ref rx, 3), ry, t.u0, out c.u0);
+                ulong m = c.u0 * QInvNeg;
+                c.u2 = MAdd0(m, Q0, c.u0);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
+                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out z.u0);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
+                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out z.u1);
+                c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
+                z.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out z.u2);
             }
-            res = z;
+
+            Unsafe.SkipInit(out res);
+            Unsafe.As<FE, U4>(ref res) = z;
+            res = new FpE(z.u0, z.u1, z.u2, z.u3);
             if (LessThan(qElement, res))
             {
                 SubtractUnderflow(res, qElement, out res);
