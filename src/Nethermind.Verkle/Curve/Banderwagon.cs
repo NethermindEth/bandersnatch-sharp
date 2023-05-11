@@ -85,7 +85,6 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(ExtendedPoint.Generator());
         }
 
-
         public static Banderwagon Neg(Banderwagon p)
         {
             return new Banderwagon(ExtendedPoint.Neg(p._point));
@@ -155,7 +154,7 @@ namespace Nethermind.Verkle.Curve
 
         public static Banderwagon TwoTorsionPoint()
         {
-            AffinePoint affinePoint = new AffinePoint(FpE.Zero, FpE.One.Negative());
+            AffinePoint affinePoint = new(FpE.Zero, FpE.One.Negative());
             return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
         }
 

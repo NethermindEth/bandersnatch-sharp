@@ -23,6 +23,8 @@ public class BenchmarkIpaProve
     };
 
     private FrE[] lagPoly;
+    private PreComputedWeights weights;
+    private CRS crs;
 
     public BenchmarkIpaProve()
     {
@@ -40,14 +42,13 @@ public class BenchmarkIpaProve
         }
 
         lagPoly = lagrangePoly.ToArray();
+        weights = PreComputedWeights.Instance;
+        crs = CRS.Instance;
     }
 
     [Benchmark]
     public void TestBasicIpaProof()
     {
-        PreComputedWeights weights = PreComputedWeights.Instance;
-
-        CRS crs = CRS.Instance;
         Banderwagon commitment = crs.Commit(lagPoly);
 
         // Assert.That(Convert.ToHexString(commitment.ToBytes()).ToLower()

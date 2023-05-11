@@ -7,8 +7,8 @@ namespace Nethermind.Verkle.Proofs
 {
     public class MultiProof
     {
-        private CRS Crs { get; }
-        private PreComputedWeights PreComp { get; }
+        private readonly CRS Crs;
+        private readonly PreComputedWeights PreComp;
 
         public MultiProof(CRS cRs, PreComputedWeights preComp)
         {

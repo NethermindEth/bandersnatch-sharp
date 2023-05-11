@@ -13,8 +13,8 @@ namespace Nethermind.Verkle.Curve
         private const byte MCompressedNegative = 128;
         private const byte MCompressedPositive = 0;
 
-        public  FpE X { get; }
-        public  FpE Y { get; }
+        public readonly FpE X;
+        public readonly FpE Y;
 
         public AffinePoint(FpE x, FpE y)
         {

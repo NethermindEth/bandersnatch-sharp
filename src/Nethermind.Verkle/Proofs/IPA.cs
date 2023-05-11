@@ -96,10 +96,12 @@ namespace Nethermind.Verkle.Proofs
             int n = query.PointEvaluations.Length;
             int m = n / 2;
 
+            int numRounds = query.IpaProof.L.Length;
+
 
             Banderwagon c = query.Commitment;
             FrE z = query.Point;
-            FrE[] b = query.PointEvaluations;
+            Span<FrE> b = query.PointEvaluations;
             IpaProofStruct ipaProof = query.IpaProof;
             FrE y = query.OutputPoint;
 
@@ -112,12 +114,11 @@ namespace Nethermind.Verkle.Proofs
 
             Banderwagon currentCommitment = c + q * y;
 
-            int i = 0;
-            List<FrE> xs = new List<FrE>();
-            List<FrE> xInvList = new List<FrE>();
+            FrE[] xs = new FrE[numRounds];
+            FrE[] xInvList = new FrE[numRounds];
 
 
-            while (n > 1)
+            for (int i = 0; i < numRounds; i++)
             {
                 Banderwagon cL = ipaProof.L[i];
                 Banderwagon cR = ipaProof.R[i];
@@ -128,68 +129,50 @@ namespace Nethermind.Verkle.Proofs
 
                 FrE.Inverse(in x, out FrE xInv);
 
-                xs.Add(x);
-                xInvList.Add(xInv);
+                xs[i] = x;
+                xInvList[i] = xInv;
 
                 currentCommitment = currentCommitment + cL * x + cR * xInv;
                 n = m;
                 m = n / 2;
-                i += 1;
             }
 
             Span<Banderwagon> currentBasis = crs.BasisG;
+            n = crs.BasisG.Length;
+            m = n / 2;
 
-            for (int j = 0; j < xs.Count; j++)
+            for (int j = 0; j < numRounds; j++)
             {
-                (Banderwagon[] gL, Banderwagon[] gR) = SplitPoints(currentBasis.ToArray());
-                (FrE[] bL, FrE[] bR) = SplitScalars(b);
+                Span<Banderwagon> gL = currentBasis[..m];
+                Span<Banderwagon> gR = currentBasis[m..];
+
+                Span<FrE> bL = b[..m];
+                Span<FrE> bR = b[m..];
 
                 FrE xInv = xInvList[j];
 
                 b = FoldScalars(bL, bR, xInv);
                 currentBasis = FoldPoints(gL, gR, xInv);
-
+                n = m;
+                m = n / 2;
             }
 
-            if (b.Length != currentBasis.Length)
-                throw new Exception();
+            if (b.Length != currentBasis.Length) throw new Exception();
+            if (b.Length != 1)  throw new Exception();
 
-            if (b.Length != 1)
-                throw new Exception();
             FrE b0 = b[0];
             Banderwagon g0 = currentBasis[0];
-
             Banderwagon gotCommitment = g0 * ipaProof.A + q * (ipaProof.A * b0);
 
             return currentCommitment == gotCommitment;
         }
 
-        private static (T[] firstHalf, T[] secondHalf) SplitListInHalf<T>(T[] x)
+        private static FrE[] FoldScalars(Span<FrE> a, Span<FrE> b, in FrE foldingChallenge)
         {
-            if (x.Length % 2 != 0)
-                throw new Exception();
+            if (a.Length != b.Length) throw new Exception();
 
-            int mid = x.Length / 2;
-            return (x[..mid], x[mid..]);
-        }
-
-        private static (Banderwagon[] firstHalf, Banderwagon[] secondHalf) SplitPoints(Banderwagon[] x)
-        {
-            return SplitListInHalf(x);
-        }
-
-        private static (FrE[] firstHalf, FrE[] secondHalf) SplitScalars(FrE[] x)
-        {
-            return SplitListInHalf(x);
-        }
-
-        private static FrE[] FoldScalars(IReadOnlyList<FrE> a, IReadOnlyList<FrE> b, FrE foldingChallenge)
-        {
-            if (a.Count != b.Count)
-                throw new Exception();
-
-            FrE[] result = new FrE[a.Count];
-            for (int i = 0; i < a.Count; i++)
+            FrE[] result = new FrE[a.Length];
+            for (int i = 0; i < a.Length; i++)
             {
                 result[i] = a[i] + b[i] * foldingChallenge;
             }
@@ -197,13 +180,12 @@ namespace Nethermind.Verkle.Proofs
             return result;
         }
 
-        private static Banderwagon[] FoldPoints(IReadOnlyList<Banderwagon> a, IReadOnlyList<Banderwagon> b, FrE foldingChallenge)
+        private static Banderwagon[] FoldPoints(Span<Banderwagon> a, Span<Banderwagon> b, in FrE foldingChallenge)
         {
-            if (a.Count != b.Count)
-                throw new Exception();
+            if (a.Length != b.Length) throw new Exception();
 
-            Banderwagon[] result = new Banderwagon[a.Count];
-            for (int i = 0; i < a.Count; i++)
+            Banderwagon[] result = new Banderwagon[a.Length];
+            for (int i = 0; i < a.Length; i++)
             {
                 result[i] = a[i] + b[i] * foldingChallenge;
             }

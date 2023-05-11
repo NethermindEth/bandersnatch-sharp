@@ -5,7 +5,7 @@ namespace Nethermind.Verkle.Polynomial
 {
     public class MonomialBasis
     {
-        public FrE[] Coeffs { get; }
+        public readonly FrE[] Coeffs;
 
         public MonomialBasis(FrE[] coeffs)
         {

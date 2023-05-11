@@ -6,13 +6,13 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
-    // ReSharper disable once InconsistentNaming
+    // ReSharper disable InconsistentNaming
     public class CRS
     {
         public Span<Banderwagon> BasisG => _basisG;
 
         private readonly Banderwagon[] _basisG;
-        public Banderwagon BasisQ { get; }
+        public readonly Banderwagon BasisQ;
 
         public static CRS Instance { get; } = new CRS(CrsStruct.Generate());
 

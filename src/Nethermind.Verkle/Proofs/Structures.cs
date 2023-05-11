@@ -96,7 +96,7 @@ namespace Nethermind.Verkle.Proofs
         }
     }
 
-    public readonly struct VerkleProofStruct
+    public class VerkleProofStruct
     {
         public IpaProofStruct IpaProof { get; }
         public Banderwagon D { get; }
