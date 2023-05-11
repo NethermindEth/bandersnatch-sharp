@@ -12,28 +12,6 @@ namespace Nethermind.Verkle.Fields.FpEElement
 {
     public readonly partial struct FpE
     {
-        /* in little endian order so u3 is the most significant ulong */
-        [FieldOffset(0)]
-        public readonly ulong u0;
-        [FieldOffset(8)]
-        public readonly ulong u1;
-        [FieldOffset(16)]
-        public readonly ulong u2;
-        [FieldOffset(24)]
-        public readonly ulong u3;
-
-        public ulong this[int index] => index switch
-        {
-            0 => u0,
-            1 => u1,
-            2 => u2,
-            3 => u3,
-            var _ => throw new IndexOutOfRangeException()
-        };
-
-        public bool IsZero => (u0 | u1 | u2 | u3) == 0;
-        public bool IsOne => Equals(One);
-
         public static IEnumerable<FE> GetRandom()
         {
             Random rand = new Random(0);

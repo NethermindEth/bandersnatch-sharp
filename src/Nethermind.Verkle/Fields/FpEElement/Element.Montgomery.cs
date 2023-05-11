@@ -91,9 +91,9 @@ namespace Nethermind.Verkle.Fields.FpEElement
             ref ulong rx = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in x));
             ref ulong ry = ref Unsafe.As<FE, ulong>(ref Unsafe.AsRef(in y));
 
-            U4 t = new U4();
-            U3 c = new U3();
-            U4 z = new U4();
+            U4 t = new();
+            U3 c = new();
+            U4 z = new();
 
             {
                 // round 0
@@ -131,8 +131,6 @@ namespace Nethermind.Verkle.Fields.FpEElement
                 c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
                 t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
             }
-
-
             {
                 // round 3
                 c.u1 = MAdd1(Unsafe.Add(ref rx, 3), ry, t.u0, out c.u0);
@@ -148,7 +146,6 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
             Unsafe.SkipInit(out res);
             Unsafe.As<FE, U4>(ref res) = z;
-            res = new FpE(z.u0, z.u1, z.u2, z.u3);
             if (LessThan(qElement, res))
             {
                 SubtractUnderflow(res, qElement, out res);

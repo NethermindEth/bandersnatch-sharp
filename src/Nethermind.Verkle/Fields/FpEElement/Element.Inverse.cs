@@ -91,10 +91,10 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
                 // right-shift a by k-1 bits
 
-                ulong t0 = (a[0] >> approxLowBitsN) | ((a[1]) << approxHighBitsN);
-                ulong t1 = (a[1] >> approxLowBitsN) | ((a[2]) << approxHighBitsN);
-                ulong t2 = (a[2] >> approxLowBitsN) | ((a[3]) << approxHighBitsN);
-                ulong t3 = (a[3] >> approxLowBitsN) | (aHi << approxHighBitsN);
+                ulong t0 = (a.u0 >> approxLowBitsN) | ((a.u1) << approxHighBitsN);
+                ulong t1 = (a.u1 >> approxLowBitsN) | ((a.u2) << approxHighBitsN);
+                ulong t2 = (a.u2 >> approxLowBitsN) | ((a.u3) << approxHighBitsN);
+                ulong t3 = (a.u3 >> approxLowBitsN) | (aHi << approxHighBitsN);
                 a = new FE(t0, t1, t2, t3);
 
                 // from this point on c1 aliases for g0
@@ -108,10 +108,10 @@ namespace Nethermind.Verkle.Fields.FpEElement
                 }
 
                 // right-shift b by k-1 bits
-                t0 = (b[0] >> approxLowBitsN) | ((b[1]) << approxHighBitsN);
-                t1 = (b[1] >> approxLowBitsN) | ((b[2]) << approxHighBitsN);
-                t2 = (b[2] >> approxLowBitsN) | ((b[3]) << approxHighBitsN);
-                t3 = (b[3] >> approxLowBitsN) | (bHi << approxHighBitsN);
+                t0 = (b.u0 >> approxLowBitsN) | ((b.u1) << approxHighBitsN);
+                t1 = (b.u1 >> approxLowBitsN) | ((b.u2) << approxHighBitsN);
+                t2 = (b.u2 >> approxLowBitsN) | ((b.u3) << approxHighBitsN);
+                t3 = (b.u3 >> approxLowBitsN) | (bHi << approxHighBitsN);
                 b = new FE(t0, t1, t2, t3);
 
 
@@ -184,13 +184,14 @@ namespace Nethermind.Verkle.Fields.FpEElement
             long m = y >> 63;
             ulong w = (ulong)((y ^ m) - m);
 
-            ulong[] z = new ulong[4];
+            U4 z = new();
 
-            ulong c = Math.BigMul(x.u0, w, out z[0]);
-            c = MAdd1(x.u1, w, c, out z[1]);
-            c = MAdd1(x.u2, w, c, out z[2]);
-            c = MAdd1(x.u3, w, c, out z[3]);
-            res = z;
+            ulong c = Math.BigMul(x.u0, w, out z.u0);
+            c = MAdd1(x.u1, w, c, out z.u1);
+            c = MAdd1(x.u2, w, c, out z.u2);
+            c = MAdd1(x.u3, w, c, out z.u3);
+            Unsafe.SkipInit(out res);
+            Unsafe.As<FE, U4>(ref res) = z;
 
             if (y < 0)
                 c = NegL(res, c, out res);
@@ -227,7 +228,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             if (nBits <= 64) return x.u0;
 
             const ulong mask = ((ulong)1 << (Bytes - 1)) - 1;
-            ulong lo = mask & x[0];
+            ulong lo = mask & x.u0;
 
             int hiWordIndex = (nBits - 1) / 64;
 
@@ -283,59 +284,60 @@ namespace Nethermind.Verkle.Fields.FpEElement
             xHi &= signBitRemover;
             // with this a negative X is now represented as 2⁶³ r + X
 
-            ulong[] t = new ulong[2*Limbs - 1];
-            t[0] = 0;
+            U7 t = new U7 { u0 = 0 };
 
-            ulong m = x[0] * QInvNeg;
+            ulong m = x.u0 * QInvNeg;
 
-            ulong c = MAdd0(m, Q0, x[0]);
-            c = MAdd2(m, Q1, x[1], c, out t[1]);
-            c = MAdd2(m, Q2, x[2], c, out t[2]);
-            c = MAdd2(m, Q3, x[3], c, out t[3]);
+            ulong c = MAdd0(m, Q0, x.u0);
+            c = MAdd2(m, Q1, x.u1, c, out t.u1);
+            c = MAdd2(m, Q2, x.u2, c, out t.u2);
+            c = MAdd2(m, Q3, x.u3, c, out t.u3);
 
-            // m * qElement[3] ≤ (2⁶⁴ - 1) * (2⁶³ - 1) = 2¹²⁷ - 2⁶⁴ - 2⁶³ + 1
-            // x[3] + C ≤ 2*(2⁶⁴ - 1) = 2⁶⁵ - 2
-            // On LHS, (C, t[3]) ≤ 2¹²⁷ - 2⁶⁴ - 2⁶³ + 1 + 2⁶⁵ - 2 = 2¹²⁷ + 2⁶³ - 1
+            // m * qElement.u3 ≤ (2⁶⁴ - 1) * (2⁶³ - 1) = 2¹²⁷ - 2⁶⁴ - 2⁶³ + 1
+            // x.u3 + C ≤ 2*(2⁶⁴ - 1) = 2⁶⁵ - 2
+            // On LHS, (C, t.u3) ≤ 2¹²⁷ - 2⁶⁴ - 2⁶³ + 1 + 2⁶⁵ - 2 = 2¹²⁷ + 2⁶³ - 1
             // So on LHS, C ≤ 2⁶³
-            t[4] = xHi + c;
+            t.u4 = xHi + c;
             // xHi + C < 2⁶³ + 2⁶³ = 2⁶⁴
 
 
-            ulong[] z = new ulong[4];
+            U4 z = new U4();
             // <standard SOS>
             {
                 const int i = 1;
-                m = t[i] * QInvNeg;
+                m = t.u1 * QInvNeg;
 
-                c = MAdd0(m, Q0, t[i + 0]);
-                c = MAdd2(m, Q1, t[i + 1], c, out t[i + 1]);
-                c = MAdd2(m, Q2, t[i + 2], c, out t[i + 2]);
-                c = MAdd2(m, Q3, t[i + 3], c, out t[i + 3]);
+                c = MAdd0(m, Q0, t.u1);
+                c = MAdd2(m, Q1, t.u2, c, out t.u2);
+                c = MAdd2(m, Q2, t.u3, c, out t.u3);
+                c = MAdd2(m, Q3, t.u4, c, out t.u4);
 
-                t[i + Limbs] += c;
+                t.u5 += c;
             }
             {
                 const int i = 2;
-                m = t[i] * QInvNeg;
+                m = t.u2 * QInvNeg;
 
-                c = MAdd0(m, Q0, t[i + 0]);
-                c = MAdd2(m, Q1, t[i + 1], c, out t[i + 1]);
-                c = MAdd2(m, Q2, t[i + 2], c, out t[i + 2]);
-                c = MAdd2(m, Q3, t[i + 3], c, out t[i + 3]);
+                c = MAdd0(m, Q0, t.u2);
+                c = MAdd2(m, Q1, t.u3, c, out t.u3);
+                c = MAdd2(m, Q2, t.u4, c, out t.u4);
+                c = MAdd2(m, Q3, t.u5, c, out t.u5);
 
-                t[i + Limbs] += c;
+                t.u6 += c;
             }
             {
                 const int i = 3;
-                 m = t[i] * QInvNeg;
+                 m = t.u3 * QInvNeg;
 
-                c = MAdd0(m, Q0, t[i + 0]);
-                c = MAdd2(m, Q1, t[i + 1], c, out z[0]);
-                c = MAdd2(m, Q2, t[i + 2], c, out z[1]);
-                z[3] = MAdd2(m, Q3, t[i + 3], c, out z[2]);
+                c = MAdd0(m, Q0, t.u3);
+                c = MAdd2(m, Q1, t.u4, c, out z.u0);
+                c = MAdd2(m, Q2, t.u5, c, out z.u1);
+                z.u3 = MAdd2(m, Q3, t.u6, c, out z.u2);
             }
 
-            res = z;
+            Unsafe.SkipInit(out res);
+            Unsafe.As<FE, U4>(ref res) = z;
+
             if (!LessThan(res, qElement))
             {
                 SubtractUnderflow(res, qElement, out res);
@@ -349,10 +351,10 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
                 if (SubtractUnderflow(res, new FE(signBitSelector), out res))
                 {
-                    // z[3] = -1
+                    // z.u3 = -1
                     // negative: add q
                     const ulong neg1 = 0xFFFFFFFFFFFFFFFF;
-                    AddOverflow(new FE(res[0], res[1], res[2], neg1), qElement, out res);
+                    AddOverflow(new FE(res.u0, res.u1, res.u2, neg1), qElement, out res);
                 }
             }
         }
