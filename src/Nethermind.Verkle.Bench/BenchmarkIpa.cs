@@ -21,9 +21,9 @@ public class BenchmarkIpaProve
         FrE.SetElement(27), FrE.SetElement(28), FrE.SetElement(29), FrE.SetElement(30), FrE.SetElement(31), FrE.SetElement(32)
     };
 
-    private FrE[] lagPoly;
-    private PreComputedWeights weights;
-    private CRS crs;
+    private readonly FrE[] _lagPoly;
+    private readonly PreComputedWeights _weights;
+    private readonly CRS _crs;
 
     public BenchmarkIpaProve()
     {
@@ -40,23 +40,20 @@ public class BenchmarkIpaProve
             lagrangePoly.AddRange(_poly);
         }
 
-        lagPoly = lagrangePoly.ToArray();
-        weights = PreComputedWeights.Instance;
-        crs = CRS.Instance;
+        _lagPoly = lagrangePoly.ToArray();
+        _weights = PreComputedWeights.Instance;
+        _crs = CRS.Instance;
     }
 
     [Benchmark]
-    public void TestBasicIpaProof()
+    public void TestBasicIpaProve()
     {
-        Banderwagon commitment = crs.Commit(lagPoly);
-
-        Transcript proverTranscript = new Transcript("test");
-
+        Banderwagon commitment = _crs.Commit(_lagPoly);
         FrE inputPoint = FrE.SetElement(2101);
-        FrE[] b = weights.BarycentricFormulaConstants(inputPoint);
-        IpaProverQuery query = new (lagPoly, commitment, inputPoint, b);
-
-        Ipa.MakeIpaProof(crs, proverTranscript, query, out FrE outputPoint);
+        FrE[] b = _weights.BarycentricFormulaConstants(inputPoint);
+        IpaProverQuery query = new (_lagPoly, commitment, inputPoint, b);
+        Transcript proverTranscript = new Transcript("test");
+        Ipa.MakeIpaProof(_crs, proverTranscript, query, out FrE outputPoint);
     }
 }
 
@@ -71,12 +68,12 @@ public class BenchmarkIpaVerify
         FrE.SetElement(27), FrE.SetElement(28), FrE.SetElement(29), FrE.SetElement(30), FrE.SetElement(31), FrE.SetElement(32)
     };
 
-    private FrE[] lagPoly;
-
-    private IpaProofStruct proof;
-    private Banderwagon commitment;
-    private FrE inputPoint;
-    private FrE outputPoint;
+    private readonly IpaProofStruct _proof;
+    private readonly Banderwagon _commitment;
+    private readonly FrE _inputPoint;
+    private readonly FrE _outputPoint;
+    private readonly CRS _crs;
+    private readonly PreComputedWeights _weights;
 
     public BenchmarkIpaVerify()
     {
@@ -93,31 +90,28 @@ public class BenchmarkIpaVerify
             lagrangePoly.AddRange(_poly);
         }
 
-        lagPoly = lagrangePoly.ToArray();
+        FrE[] lagPoly = lagrangePoly.ToArray();
 
-        PreComputedWeights weights = PreComputedWeights.Instance;
+        _weights = PreComputedWeights.Instance;
 
-        CRS crs = CRS.Instance;
-        commitment = crs.Commit(lagPoly);
+        _crs = CRS.Instance;
+        _commitment = _crs.Commit(lagPoly);
 
         Transcript proverTranscript = new Transcript("test");
 
-        inputPoint = FrE.SetElement(2101);
-        FrE[] b = weights.BarycentricFormulaConstants(inputPoint);
-        IpaProverQuery query = new (lagPoly, commitment, inputPoint, b);
+        _inputPoint = FrE.SetElement(2101);
+        FrE[] b = _weights.BarycentricFormulaConstants(_inputPoint);
+        IpaProverQuery query = new (lagPoly, _commitment, _inputPoint, b);
 
-        proof = Ipa.MakeIpaProof(crs, proverTranscript, query, out outputPoint);
+        _proof = Ipa.MakeIpaProof(_crs, proverTranscript, query, out _outputPoint);
     }
 
     [Benchmark]
-    public void TestBasicIpaProof()
+    public void TestBasicIpaVerify()
     {
-        CRS crs = CRS.Instance;
-        PreComputedWeights weights = PreComputedWeights.Instance;
-        Transcript verifierTranscript = new Transcript("test");
-        FrE[] b = weights.BarycentricFormulaConstants(inputPoint);
-        IpaVerifierQuery queryX = new IpaVerifierQuery(commitment, inputPoint, b, outputPoint, proof);
-
-        bool ok = Ipa.CheckIpaProof(crs, verifierTranscript, queryX);
+        Transcript verifierTranscript = new("test");
+        FrE[] b = _weights.BarycentricFormulaConstants(_inputPoint);
+        IpaVerifierQuery queryX = new(_commitment, _inputPoint, b, _outputPoint, _proof);
+        Ipa.CheckIpaProof(_crs, verifierTranscript, queryX);
     }
 }
