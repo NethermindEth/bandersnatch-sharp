@@ -7,7 +7,6 @@ using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
 using Nethermind.Verkle.Proofs;
-using NUnit.Framework;
 
 namespace Nethermind.Verkle.Bench;
 
@@ -50,9 +49,6 @@ public class BenchmarkIpaProve
     public void TestBasicIpaProof()
     {
         Banderwagon commitment = crs.Commit(lagPoly);
-
-        // Assert.That(Convert.ToHexString(commitment.ToBytes()).ToLower()
-        //     .SequenceEqual("1b9dff8f5ebbac250d291dfe90e36283a227c64b113c37f1bfb9e7a743cdb128"));
 
         Transcript proverTranscript = new Transcript("test");
 
@@ -103,9 +99,6 @@ public class BenchmarkIpaVerify
 
         CRS crs = CRS.Instance;
         commitment = crs.Commit(lagPoly);
-
-        // Assert.That(Convert.ToHexString(commitment.ToBytes()).ToLower()
-        //     .SequenceEqual("1b9dff8f5ebbac250d291dfe90e36283a227c64b113c37f1bfb9e7a743cdb128"));
 
         Transcript proverTranscript = new Transcript("test");
 
