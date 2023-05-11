@@ -11,10 +11,6 @@ namespace Nethermind.Verkle.Fields.FpEElement
         {
             return $"[{u0} {u1} {u2} {u3}]";
         }
-        public FE Dup()
-        {
-            return new FE(u0, u1, u2, u3);
-        }
 
         public bool Bit(int n)
         {

@@ -303,37 +303,32 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
             U4 z = new U4();
             // <standard SOS>
-            {
-                const int i = 1;
-                m = t.u1 * QInvNeg;
 
-                c = MAdd0(m, Q0, t.u1);
-                c = MAdd2(m, Q1, t.u2, c, out t.u2);
-                c = MAdd2(m, Q2, t.u3, c, out t.u3);
-                c = MAdd2(m, Q3, t.u4, c, out t.u4);
+            m = t.u1 * QInvNeg;
 
-                t.u5 += c;
-            }
-            {
-                const int i = 2;
-                m = t.u2 * QInvNeg;
+            c = MAdd0(m, Q0, t.u1);
+            c = MAdd2(m, Q1, t.u2, c, out t.u2);
+            c = MAdd2(m, Q2, t.u3, c, out t.u3);
+            c = MAdd2(m, Q3, t.u4, c, out t.u4);
 
-                c = MAdd0(m, Q0, t.u2);
-                c = MAdd2(m, Q1, t.u3, c, out t.u3);
-                c = MAdd2(m, Q2, t.u4, c, out t.u4);
-                c = MAdd2(m, Q3, t.u5, c, out t.u5);
+            t.u5 += c;
 
-                t.u6 += c;
-            }
-            {
-                const int i = 3;
-                 m = t.u3 * QInvNeg;
+            m = t.u2 * QInvNeg;
 
-                c = MAdd0(m, Q0, t.u3);
-                c = MAdd2(m, Q1, t.u4, c, out z.u0);
-                c = MAdd2(m, Q2, t.u5, c, out z.u1);
-                z.u3 = MAdd2(m, Q3, t.u6, c, out z.u2);
-            }
+            c = MAdd0(m, Q0, t.u2);
+            c = MAdd2(m, Q1, t.u3, c, out t.u3);
+            c = MAdd2(m, Q2, t.u4, c, out t.u4);
+            c = MAdd2(m, Q3, t.u5, c, out t.u5);
+
+            t.u6 += c;
+
+             m = t.u3 * QInvNeg;
+
+            c = MAdd0(m, Q0, t.u3);
+            c = MAdd2(m, Q1, t.u4, c, out z.u0);
+            c = MAdd2(m, Q2, t.u5, c, out z.u1);
+            z.u3 = MAdd2(m, Q3, t.u6, c, out z.u2);
+
 
             Unsafe.SkipInit(out res);
             Unsafe.As<FE, U4>(ref res) = z;

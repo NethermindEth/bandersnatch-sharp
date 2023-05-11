@@ -41,20 +41,20 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
             while (true)
             {
-                while ((v[0] & 1) == 0)
+                while ((v.u0 & 1) == 0)
                 {
                     v.RightShiftByOne(out v);
-                    if ((s[0] & 1) == 1)
+                    if ((s.u0 & 1) == 1)
                     {
                         AddOverflow(s, qElement, out s);
                     }
                     s.RightShiftByOne(out s);
                 }
 
-                while ((u[0] & 1) == 0)
+                while ((u.u0 & 1) == 0)
                 {
                     u.RightShiftByOne(out u);
-                    if ((r[0] & 1) == 1)
+                    if ((r.u0 & 1) == 1)
                     {
                         AddOverflow(r, qElement, out r);
                     }
@@ -73,12 +73,12 @@ namespace Nethermind.Verkle.Fields.FpEElement
                 }
 
 
-                if (u[0] == 1 && (u[3] | u[2] | u[1]) == 0)
+                if (u.u0 == 1 && (u.u3 | u.u2 | u.u1) == 0)
                 {
                     z = r;
                     return;
                 }
-                if (v[0] == 1 && (v[3] | v[2] | v[1]) == 0)
+                if (v.u0 == 1 && (v.u3 | v.u2 | v.u1) == 0)
                 {
                     z = s;
                     return;
@@ -95,54 +95,50 @@ namespace Nethermind.Verkle.Fields.FpEElement
             U3 c = new();
             U4 z = new();
 
-            {
-                // round 0
-                c.u1 = Math.BigMul(rx, ry, out c.u0);
-                ulong m = c.u0 * QInvNeg;
-                c.u2 = MAdd0(m, Q0, c.u0);
-                c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 1), c.u1, out c.u0);
-                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
-                c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 2), c.u1, out c.u0);
-                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
-                c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 3), c.u1, out c.u0);
-                t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
-            }
-            {
-                // round 1
-                c.u1 = MAdd1(Unsafe.Add(ref rx, 1), ry, t.u0, out c.u0);
-                ulong m = c.u0 * QInvNeg;
-                c.u2 = MAdd0(m, Q0, c.u0);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
-                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
-                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
-                t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
-            }
-            {
-                // round 2
-                c.u1 = MAdd1(Unsafe.Add(ref rx, 2), ry, t.u0, out c.u0);
-                ulong m = c.u0 * QInvNeg;
-                c.u2 = MAdd0(m, Q0, c.u0);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
-                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
-                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
-                t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
-            }
-            {
-                // round 3
-                c.u1 = MAdd1(Unsafe.Add(ref rx, 3), ry, t.u0, out c.u0);
-                ulong m = c.u0 * QInvNeg;
-                c.u2 = MAdd0(m, Q0, c.u0);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
-                c.u2 = MAdd2(m, Q1, c.u2, c.u0, out z.u0);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
-                c.u2 = MAdd2(m, Q2, c.u2, c.u0, out z.u1);
-                c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
-                z.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out z.u2);
-            }
+            // round 0
+            c.u1 = Math.BigMul(rx, ry, out c.u0);
+            ulong m = c.u0 * QInvNeg;
+            c.u2 = MAdd0(m, Q0, c.u0);
+            c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 1), c.u1, out c.u0);
+            c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
+            c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 2), c.u1, out c.u0);
+            c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
+            c.u1 = MAdd1(rx, Unsafe.Add(ref ry, 3), c.u1, out c.u0);
+            t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
+
+            // round 1
+            c.u1 = MAdd1(Unsafe.Add(ref rx, 1), ry, t.u0, out c.u0);
+            m = c.u0 * QInvNeg;
+            c.u2 = MAdd0(m, Q0, c.u0);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
+            c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
+            c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 1), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
+            t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
+
+            // round 2
+            c.u1 = MAdd1(Unsafe.Add(ref rx, 2), ry, t.u0, out c.u0);
+            m = c.u0 * QInvNeg;
+            c.u2 = MAdd0(m, Q0, c.u0);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
+            c.u2 = MAdd2(m, Q1, c.u2, c.u0, out t.u0);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
+            c.u2 = MAdd2(m, Q2, c.u2, c.u0, out t.u1);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 2), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
+            t.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out t.u2);
+
+            // round 3
+            c.u1 = MAdd1(Unsafe.Add(ref rx, 3), ry, t.u0, out c.u0);
+            m = c.u0 * QInvNeg;
+            c.u2 = MAdd0(m, Q0, c.u0);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 1), c.u1, t.u1, out c.u0);
+            c.u2 = MAdd2(m, Q1, c.u2, c.u0, out z.u0);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 2), c.u1, t.u2, out c.u0);
+            c.u2 = MAdd2(m, Q2, c.u2, c.u0, out z.u1);
+            c.u1 = MAdd2(Unsafe.Add(ref rx, 3), Unsafe.Add(ref ry, 3), c.u1, t.u3, out c.u0);
+            z.u3 = MAdd3(m, Q3, c.u0, c.u2, c.u1, out z.u2);
+
 
             Unsafe.SkipInit(out res);
             Unsafe.As<FE, U4>(ref res) = z;
