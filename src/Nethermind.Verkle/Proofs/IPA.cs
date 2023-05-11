@@ -5,27 +5,29 @@ namespace Nethermind.Verkle.Proofs
 {
     public static class Ipa
     {
-        private static Banderwagon VarBaseCommit(IEnumerable<FrE> values, IEnumerable<Banderwagon> elements)
+        public static FrE InnerProduct(Span<FrE> a, Span<FrE> b)
         {
-            return Banderwagon.MultiScalarMul(elements, values);
+            FrE res = FrE.Zero;
+            for (int i = 0; i < a.Length; i++)
+            {
+                res += a[i] * b[i];
+            }
+            return res;
         }
 
-        public static FrE InnerProduct(IEnumerable<FrE> a, IEnumerable<FrE> b)
-        {
-            return a.Zip(b).Select((elements => elements.First * elements.Second)).Aggregate(FrE.Zero, ((e, frE) => e + frE));
-        }
-
-        public static (FrE Y, IpaProofStruct Proof) MakeIpaProof(CRS crs, Transcript transcript, IpaProverQuery query)
+        public static IpaProofStruct MakeIpaProof(CRS crs, Transcript transcript, IpaProverQuery query, out FrE y)
         {
             transcript.DomainSep("ipa");
 
             int n = query.Polynomial.Length;
             int m = n / 2;
-            FrE[] a = query.Polynomial;
-            FrE[] b = query.PointEvaluations;
-            FrE y = InnerProduct(a, b);
+            Span<FrE> a = query.Polynomial;
+            Span<FrE> b = query.PointEvaluations;
+            y = InnerProduct(a, b);
 
-            IpaProofStruct ipaProof = new IpaProofStruct(new List<Banderwagon>(), FrE.Zero, new List<Banderwagon>());
+            int numRounds = (int)Math.Log2(n);
+            Banderwagon[] l = new Banderwagon[numRounds];
+            Banderwagon[] r = new Banderwagon[numRounds];
 
             transcript.AppendPoint(query.Commitment, "C"u8.ToArray());
             transcript.AppendScalar(query.Point, "input point"u8.ToArray());
@@ -34,22 +36,25 @@ namespace Nethermind.Verkle.Proofs
 
             Banderwagon q = crs.BasisQ * w;
 
-            Banderwagon[] currentBasis = crs.BasisG;
+            Span<Banderwagon> currentBasis = crs.BasisG;
 
-            while (n > 1)
+            for (int round = 0; round < numRounds; round++)
             {
-                FrE[] aL = a[..m];
-                FrE[] aR = a[m..];
-                FrE[] bL = b[..m];
-                FrE[] bR = b[m..];
+                Span<FrE> aL = a[..m];
+                Span<FrE> aR = a[m..];
+                Span<FrE> bL = b[..m];
+                Span<FrE> bR = b[m..];
+                Span<Banderwagon> gL = currentBasis[..m];
+                Span<Banderwagon> gR = currentBasis[m..];
+
                 FrE zL = InnerProduct(aR, bL);
                 FrE zR = InnerProduct(aL, bR);
 
-                Banderwagon cL = VarBaseCommit(aR, currentBasis[..m]) + q * zL;
-                Banderwagon cR = VarBaseCommit(aL, currentBasis[m..]) + q * zR;
+                Banderwagon cL = Banderwagon.MultiScalarMul(gL, aR) + q * zL;
+                Banderwagon cR = Banderwagon.MultiScalarMul(gR, aL) + q * zR;
 
-                ipaProof.L.Add(cL);
-                ipaProof.R.Add(cR);
+                l[round] = cL;
+                r[round] = cR;
 
                 transcript.AppendPoint(cL, "L"u8.ToArray());
                 transcript.AppendPoint(cR, "R"u8.ToArray());
@@ -57,38 +62,30 @@ namespace Nethermind.Verkle.Proofs
 
                 FrE.Inverse(x, out FrE xInv);
 
-                a = new FrE[aL.Length];
-                int i = 0;
-                foreach ((FrE v1, FrE v2) in aL.Zip(aR))
+                a = new FrE[m];
+                for (int i = 0; i < m; i++)
                 {
-                    a[i] = v1 + x * v2;
-                    i++;
+                    a[i] = aL[i] + x * aR[i];
                 }
 
-                b = new FrE[aL.Length];
-                i = 0;
-                foreach ((FrE v1, FrE v2) in bL.Zip(bR))
+                b = new FrE[m];
+                for (int i = 0; i < m; i++)
                 {
-                    b[i] = v1 + xInv * v2;
-                    i++;
+                    b[i] = bL[i] + xInv * bR[i];
                 }
 
-                Banderwagon[] currentBasisN = new Banderwagon[m];
-                i = 0;
-                foreach ((Banderwagon v1, Banderwagon v2) in currentBasis[..m].Zip(currentBasis[m..]))
+
+                currentBasis = new Banderwagon[m];
+                for (int i = 0; i < m; i++)
                 {
-                    currentBasisN[i] = v1 + v2 * xInv;
-                    i++;
+                    currentBasis[i] = gL[i] + gR[i] * xInv;
                 }
 
-                currentBasis = currentBasisN;
                 n = m;
                 m = n / 2;
             }
 
-            ipaProof.A = a[0];
-
-            return (y, ipaProof);
+            return new IpaProofStruct(l, a[0], r);
         }
 
         public static bool CheckIpaProof(CRS crs, Transcript transcript,
@@ -140,11 +137,11 @@ namespace Nethermind.Verkle.Proofs
                 i += 1;
             }
 
-            Banderwagon[] currentBasis = crs.BasisG;
+            Span<Banderwagon> currentBasis = crs.BasisG;
 
             for (int j = 0; j < xs.Count; j++)
             {
-                (Banderwagon[] gL, Banderwagon[] gR) = SplitPoints(currentBasis);
+                (Banderwagon[] gL, Banderwagon[] gR) = SplitPoints(currentBasis.ToArray());
                 (FrE[] bL, FrE[] bR) = SplitScalars(b);
 
                 FrE xInv = xInvList[j];

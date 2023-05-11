@@ -159,12 +159,16 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
         }
 
-        public static Banderwagon MultiScalarMul(IEnumerable<Banderwagon> points, IEnumerable<FrE> scalars)
+        public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
         {
             Banderwagon res = Identity();
-            return points.Zip(scalars) // create a combined enumerator
-                .Select(((elements, _) => elements.First * elements.Second)) // multiple elementwise
-                .Aggregate(res, (current, partialRes) => current + partialRes); // aggregate sum
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                res += points[i] * scalars[i];
+            }
+
+            return res;
         }
 
         public static Banderwagon operator +(in Banderwagon a, in Banderwagon b)

@@ -9,14 +9,16 @@ namespace Nethermind.Verkle.Curve
     // ReSharper disable once InconsistentNaming
     public class CRS
     {
-        public Banderwagon[] BasisG { get; }
+        public Span<Banderwagon> BasisG => _basisG;
+
+        private readonly Banderwagon[] _basisG;
         public Banderwagon BasisQ { get; }
 
         public static CRS Instance { get; } = new CRS(CrsStruct.Generate());
 
         private CRS(Banderwagon[] basisG)
         {
-            BasisG = basisG;
+            _basisG = basisG;
             BasisQ = Banderwagon.Generator();
         }
 
@@ -62,7 +64,7 @@ namespace Nethermind.Verkle.Curve
             List<FrE> scalars = new List<FrE>();
             foreach (KeyValuePair<int, FrE> keyVal in values)
             {
-                points.Add(BasisG[keyVal.Key]);
+                points.Add(_basisG[keyVal.Key]);
                 scalars.Add(keyVal.Value);
             }
 
@@ -72,7 +74,7 @@ namespace Nethermind.Verkle.Curve
 
         public Banderwagon Commit(FrE[] values)
         {
-            Banderwagon[] elements = BasisG[..values.Length];
+            Banderwagon[] elements = _basisG[..values.Length];
             return Banderwagon.MultiScalarMul(elements, values);
         }
     }

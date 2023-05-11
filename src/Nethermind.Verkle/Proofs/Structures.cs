@@ -8,7 +8,7 @@ using Nethermind.Verkle.Polynomial;
 
 namespace Nethermind.Verkle.Proofs
 {
-    public struct IpaProverQuery
+    public class IpaProverQuery
     {
         public FrE[] Polynomial { get; }
         public Banderwagon Commitment { get; }
@@ -25,13 +25,13 @@ namespace Nethermind.Verkle.Proofs
         }
     }
 
-    public struct IpaProofStruct
+    public class IpaProofStruct
     {
-        public List<Banderwagon> L { get; }
-        public FrE A { get; set; }
-        public List<Banderwagon> R { get; }
+        public Banderwagon[] L { get; }
+        public FrE A { get; }
+        public Banderwagon[] R { get; }
 
-        public IpaProofStruct(List<Banderwagon> l, FrE a, List<Banderwagon> r)
+        public IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
         {
             L = l;
             A = a;
@@ -78,7 +78,7 @@ namespace Nethermind.Verkle.Proofs
         }
     }
 
-    public struct IpaVerifierQuery
+    public class IpaVerifierQuery
     {
         public Banderwagon Commitment { get; }
         public FrE Point { get; }
