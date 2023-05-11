@@ -48,7 +48,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             {
                 if (SubtractUnderflow(res, qElement, out res))
                 {
-                    throw new InvalidConstraintException("this should not be possible");
+                    throw new InvalidConstraintException("this should now be possible");
                 }
             }
         }

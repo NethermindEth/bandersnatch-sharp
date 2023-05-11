@@ -5,8 +5,6 @@ using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
 using FE = Nethermind.Verkle.Fields.FrEElement.FrE;
 
@@ -207,28 +205,24 @@ namespace Nethermind.Verkle.Fields.FrEElement
             }
         }
 
-        public void ToLittleEndian(Span<byte> target)
+        private static Span<byte> ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
         {
-            if (Avx.IsSupported)
-            {
-                Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(target)) = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
-            }
-            else
-            {
-                BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
-                BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(8, 8), u1);
-                BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(16, 8), u2);
-                BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(24, 8), u3);
-            }
-        }
-
-        public void ToBigEndian(Span<byte> target)
-        {
+            Span<byte> target = new byte[32];
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(0, 8), u3);
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(8, 8), u2);
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(16, 8), u1);
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(24, 8), u0);
+            return target;
+        }
 
+        private static Span<byte> ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2, scoped in ulong u3)
+        {
+            Span<byte> target = new byte[32];
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(8, 8), u1);
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(16, 8), u2);
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(24, 8), u3);
+            return target;
         }
 
         private static ReadOnlySpan<byte> SBroadcastLookup => new byte[]
