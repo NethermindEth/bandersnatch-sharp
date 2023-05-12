@@ -17,10 +17,6 @@ namespace Nethermind.Verkle.Proofs
             int indexI = index.ToBytes()[0];
 
             FrE[] q = new FrE[domainSize];
-            for (int i = 0; i < domainSize; i++)
-            {
-                q[i] = FrE.Zero;
-            }
             FrE y = f.Evaluations[indexI];
 
 

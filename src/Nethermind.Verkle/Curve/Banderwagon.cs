@@ -1,11 +1,12 @@
+// Copyright 2022 Demerzel Solutions Limited
+// Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
-using System.Numerics;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
-    public readonly struct Banderwagon
+    public readonly partial struct Banderwagon
     {
         private static FpE A => CurveParams.A;
         private readonly ExtendedPoint _point;
@@ -164,7 +165,7 @@ namespace Nethermind.Verkle.Curve
 
             for (int i = 0; i < points.Length; i++)
             {
-                res += points[i] * scalars[i];
+                res += ScalarMul(points[i], scalars[i]);
             }
 
             return res;

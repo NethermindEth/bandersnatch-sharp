@@ -2,6 +2,7 @@
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
+// ReSharper disable InconsistentNaming
 
 namespace Nethermind.Verkle.Proofs
 {
@@ -121,9 +122,9 @@ namespace Nethermind.Verkle.Proofs
 
             FrE[] helperScalars = powersOfR.Zip(g2Den).Select((elem, i) => elem.First * elem.Second).ToArray();
             FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second.ChildHash).Aggregate(FrE.Zero, (current, elem) => current + elem);
-            IEnumerable<Banderwagon> comms = queries.Select(query => query.NodeCommitPoint);
+            IEnumerable<Banderwagon> commitments = queries.Select(query => query.NodeCommitPoint);
 
-            Banderwagon g1Comm = Banderwagon.MultiScalarMul(comms.ToArray(), helperScalars.ToArray());
+            Banderwagon g1Comm = Banderwagon.MultiScalarMul(commitments.ToArray(), helperScalars.ToArray());
 
             transcript.AppendPoint(g1Comm, "E");
 
