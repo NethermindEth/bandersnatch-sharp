@@ -159,18 +159,6 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
         }
 
-        public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
-        {
-            Banderwagon res = Identity();
-
-            for (int i = 0; i < points.Length; i++)
-            {
-                res += ScalarMul(points[i], scalars[i]);
-            }
-
-            return res;
-        }
-
         public static Banderwagon operator +(in Banderwagon a, in Banderwagon b)
         {
             return Add(a, b);
