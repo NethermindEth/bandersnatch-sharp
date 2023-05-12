@@ -11,6 +11,7 @@ using Nethermind.Verkle.Proofs;
 namespace Nethermind.Verkle.Bench;
 
 [SimpleJob(RuntimeMoniker.Net70)]
+[NoIntrinsicsJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class BenchmarkIpaProve
 {
@@ -58,6 +59,7 @@ public class BenchmarkIpaProve
 }
 
 [SimpleJob(RuntimeMoniker.Net70)]
+[NoIntrinsicsJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
 public class BenchmarkIpaVerify
 {
