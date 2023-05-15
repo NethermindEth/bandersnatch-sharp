@@ -202,16 +202,16 @@ namespace Nethermind.Verkle.Tests.Proofs
 
             Banderwagon d = new Banderwagon(_basicProofStruct[0]);
             FrE a = new FrE(Convert.FromHexString(_basicProofStruct[1]));
-            List<Banderwagon> l = new List<Banderwagon>();
-            List<Banderwagon> r = new List<Banderwagon>();
+            Banderwagon[] l = new Banderwagon[8];
+            Banderwagon[] r = new Banderwagon[8];
 
             for (int i = 2; i < 10; i++)
             {
-                l.Add(new Banderwagon(_basicProofStruct[i]));
+                l[i - 2] = new Banderwagon(_basicProofStruct[i]);
             }
             for (int i = 10; i < 18; i++)
             {
-                r.Add(new Banderwagon(_basicProofStruct[i]));
+                r[i - 10] = new Banderwagon(_basicProofStruct[i]);
             }
 
             IpaProofStruct ipaProof = new IpaProofStruct(l, a, r);

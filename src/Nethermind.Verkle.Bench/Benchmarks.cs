@@ -4,7 +4,6 @@
 using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Nethermind.Field.Bench;
 using Nethermind.Int256;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
@@ -46,12 +45,4 @@ namespace Nethermind.Verkle.Bench
         public static IEnumerable<FrE> ValuesFrETuple => Values.Select(x => new FrE(x));
     }
 
-    public class TwoParamBenchmarkBase : BenchmarkOpsBase
-    {
-        [ParamsSource(nameof(ValuesFpETuple))]
-        public  FpE _a;
-
-        [ParamsSource(nameof(ValuesFpETuple))]
-        public FpE _b;
-    }
 }

@@ -1,11 +1,12 @@
+// Copyright 2022 Demerzel Solutions Limited
+// Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
-using System.Numerics;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve
 {
-    public readonly struct Banderwagon
+    public readonly partial struct Banderwagon
     {
         private static FpE A => CurveParams.A;
         private readonly ExtendedPoint _point;
@@ -85,7 +86,6 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(ExtendedPoint.Generator());
         }
 
-
         public static Banderwagon Neg(Banderwagon p)
         {
             return new Banderwagon(ExtendedPoint.Neg(p._point));
@@ -155,16 +155,8 @@ namespace Nethermind.Verkle.Curve
 
         public static Banderwagon TwoTorsionPoint()
         {
-            AffinePoint affinePoint = new AffinePoint(FpE.Zero, FpE.One.Negative());
+            AffinePoint affinePoint = new(FpE.Zero, FpE.One.Negative());
             return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
-        }
-
-        public static Banderwagon MultiScalarMul(IEnumerable<Banderwagon> points, IEnumerable<FrE> scalars)
-        {
-            Banderwagon res = Identity();
-            return points.Zip(scalars) // create a combined enumerator
-                .Select(((elements, _) => elements.First * elements.Second)) // multiple elementwise
-                .Aggregate(res, (current, partialRes) => current + partialRes); // aggregate sum
         }
 
         public static Banderwagon operator +(in Banderwagon a, in Banderwagon b)

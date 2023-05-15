@@ -1,32 +1,32 @@
 using System.Numerics;
 
-namespace Nethermind.Field.Bench
+namespace Nethermind.Verkle.Bench
 {
     public static class Numbers
     {
-        public static readonly BigInteger _twoTo64 = new BigInteger(ulong.MaxValue) + 1;
-        public static readonly BigInteger _twoTo128 = _twoTo64 * _twoTo64;
-        public static readonly BigInteger _uInt128Max = _twoTo128 - 1;
-        public static readonly BigInteger _twoTo192 = _twoTo128 * _twoTo64;
-        public static readonly BigInteger _uInt192Max = _twoTo192 - 1;
-        public static readonly BigInteger _twoTo256 = _twoTo128 * _twoTo128;
-        public static readonly BigInteger _uInt256Max = _twoTo256 - 1;
+        public static readonly BigInteger TwoTo64 = new BigInteger(ulong.MaxValue) + 1;
+        public static readonly BigInteger TwoTo128 = TwoTo64 * TwoTo64;
+        public static readonly BigInteger UInt128Max = TwoTo128 - 1;
+        public static readonly BigInteger TwoTo192 = TwoTo128 * TwoTo64;
+        public static readonly BigInteger UInt192Max = TwoTo192 - 1;
+        public static readonly BigInteger TwoTo256 = TwoTo128 * TwoTo128;
+        public static readonly BigInteger UInt256Max = TwoTo256 - 1;
 
-        public static readonly BigInteger _int256Max = (BigInteger.One << 255) - 1;
-        public static readonly BigInteger _int256Min = -_int256Max;
+        public static readonly BigInteger Int256Max = ( BigInteger.One << 255 ) - 1;
+        public static readonly BigInteger Int256Min = -Int256Max;
     }
 
     public static class TestNumbers
     {
-        public static readonly BigInteger _twoTo64 = new BigInteger(ulong.MaxValue) + 1;
-        public static readonly BigInteger _twoTo128 = _twoTo64 * _twoTo64;
-        public static readonly BigInteger _uInt128Max = _twoTo128 - 1;
-        public static readonly BigInteger _twoTo192 = _twoTo128 * _twoTo64;
-        public static readonly BigInteger _uInt192Max = _twoTo192 - 1;
-        public static readonly BigInteger _twoTo256 = _twoTo128 * _twoTo128;
-        public static readonly BigInteger _uInt256Max = _twoTo256 - 1;
+        public static readonly BigInteger TwoTo64 = new BigInteger(ulong.MaxValue) + 1;
+        public static readonly BigInteger TwoTo128 = TwoTo64 * TwoTo64;
+        public static readonly BigInteger UInt128Max = TwoTo128 - 1;
+        public static readonly BigInteger TwoTo192 = TwoTo128 * TwoTo64;
+        public static readonly BigInteger UInt192Max = TwoTo192 - 1;
+        public static readonly BigInteger TwoTo256 = TwoTo128 * TwoTo128;
+        public static readonly BigInteger UInt256Max = TwoTo256 - 1;
 
-        public static readonly BigInteger _int256Max = (BigInteger.One << 255) - 1;
-        public static readonly BigInteger _int256Min = -_int256Max;
+        public static readonly BigInteger Int256Max = (BigInteger.One << 255)-1;
+        public static readonly BigInteger Int256Min = -Int256Max;
     }
 }

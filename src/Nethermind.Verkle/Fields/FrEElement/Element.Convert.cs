@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Nethermind.Int256;
 using FE = Nethermind.Verkle.Fields.FrEElement.FrE;
 
@@ -6,9 +7,9 @@ namespace Nethermind.Verkle.Fields.FrEElement
 {
     public readonly partial struct FrE
     {
-        public FE Dup()
+        public new string ToString()
         {
-            return new FE(u0, u1, u2, u3);
+            return $"[{u0} {u1} {u2} {u3}]";
         }
 
         public bool Bit(int n)
@@ -82,43 +83,39 @@ namespace Nethermind.Verkle.Fields.FrEElement
             FromMontgomery(in x, out z);
         }
 
-        public static void FromMontgomery(in FE x, out FE res)
+        private static void FromMontgomery(in FE x, out FE res)
         {
-            ulong[] z = new ulong[4];
-            z[0] = x[0];
-            z[1] = x[1];
-            z[2] = x[2];
-            z[3] = x[3];
+            U4 z = new() { u0 = x.u0, u1 = x.u1, u2 = x.u2, u3 = x.u3 };
 
-            ulong m = z[0] * QInvNeg;
-            ulong c = MAdd0(m, Q0, z[0]);
-            c = MAdd2(m, Q1, z[1], c, out z[0]);
-            c = MAdd2(m, Q2, z[2], c, out z[1]);
-            c = MAdd2(m, Q3, z[3], c, out z[2]);
-            z[3] = c;
+            ulong m = z.u0 * QInvNeg;
+            ulong c = MAdd0(m, Q0, z.u0);
+            c = MAdd2(m, Q1, z.u1, c, out z.u0);
+            c = MAdd2(m, Q2, z.u2, c, out z.u1);
+            c = MAdd2(m, Q3, z.u3, c, out z.u2);
+            z.u3 = c;
 
-            m = z[0] * QInvNeg;
-            c = MAdd0(m, Q0, z[0]);
-            c = MAdd2(m, Q1, z[1], c, out z[0]);
-            c = MAdd2(m, Q2, z[2], c, out z[1]);
-            c = MAdd2(m, Q3, z[3], c, out z[2]);
-            z[3] = c;
+            m = z.u0 * QInvNeg;
+            c = MAdd0(m, Q0, z.u0);
+            c = MAdd2(m, Q1, z.u1, c, out z.u0);
+            c = MAdd2(m, Q2, z.u2, c, out z.u1);
+            c = MAdd2(m, Q3, z.u3, c, out z.u2);
+            z.u3 = c;
 
-            m = z[0] * QInvNeg;
-            c = MAdd0(m, Q0, z[0]);
-            c = MAdd2(m, Q1, z[1], c, out z[0]);
-            c = MAdd2(m, Q2, z[2], c, out z[1]);
-            c = MAdd2(m, Q3, z[3], c, out z[2]);
-            z[3] = c;
+            m = z.u0 * QInvNeg;
+            c = MAdd0(m, Q0, z.u0);
+            c = MAdd2(m, Q1, z.u1, c, out z.u0);
+            c = MAdd2(m, Q2, z.u2, c, out z.u1);
+            c = MAdd2(m, Q3, z.u3, c, out z.u2);
+            z.u3 = c;
 
-            m = z[0] * QInvNeg;
-            c = MAdd0(m, Q0, z[0]);
-            c = MAdd2(m, Q1, z[1], c, out z[0]);
-            c = MAdd2(m, Q2, z[2], c, out z[1]);
-            c = MAdd2(m, Q3, z[3], c, out z[2]);
-            z[3] = c;
-
-            res = z;
+            m = z.u0 * QInvNeg;
+            c = MAdd0(m, Q0, z.u0);
+            c = MAdd2(m, Q1, z.u1, c, out z.u0);
+            c = MAdd2(m, Q2, z.u2, c, out z.u1);
+            c = MAdd2(m, Q3, z.u3, c, out z.u2);
+            z.u3 = c;
+            Unsafe.SkipInit(out res);
+            Unsafe.As<FE, U4>(ref res) = z;
             if (LessThan(qElement, res))
             {
                 SubtractUnderflow(res, qElement, out res);

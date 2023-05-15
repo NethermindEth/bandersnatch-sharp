@@ -4,14 +4,14 @@ namespace Nethermind.Verkle.Polynomial
 {
     public class PreComputedWeights
     {
-        public static PreComputedWeights Instance { get; } = new PreComputedWeights();
+        public static readonly PreComputedWeights Instance = new PreComputedWeights();
 
         private const int VerkleNodeWidth = 256;
-        private MonomialBasis A { get; }
-        public FrE[] APrimeDomain { get; }
-        public FrE[] APrimeDomainInv { get; }
-        public FrE[] Domain { get; }
-        public FrE[] DomainInv { get; }
+        private MonomialBasis A;
+        public readonly FrE[] APrimeDomain;
+        public readonly FrE[] APrimeDomainInv;
+        public readonly FrE[] Domain;
+        public readonly FrE[] DomainInv;
 
         private PreComputedWeights()
         {

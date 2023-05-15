@@ -2,13 +2,14 @@
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
+// ReSharper disable InconsistentNaming
 
 namespace Nethermind.Verkle.Proofs
 {
     public class MultiProof
     {
-        private CRS Crs { get; }
-        private PreComputedWeights PreComp { get; }
+        private readonly CRS Crs;
+        private readonly PreComputedWeights PreComp;
 
         public MultiProof(CRS cRs, PreComputedWeights preComp)
         {
@@ -86,7 +87,7 @@ namespace Nethermind.Verkle.Proofs
             IpaProverQuery pQuery = new IpaProverQuery(hMinusG, ipaCommitment,
                 t, inputPointVector);
 
-            (FrE _, IpaProofStruct ipaProof) = Ipa.MakeIpaProof(Crs, transcript, pQuery);
+            IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
 
             return new VerkleProofStruct(ipaProof, d);
 
@@ -121,9 +122,9 @@ namespace Nethermind.Verkle.Proofs
 
             FrE[] helperScalars = powersOfR.Zip(g2Den).Select((elem, i) => elem.First * elem.Second).ToArray();
             FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second.ChildHash).Aggregate(FrE.Zero, (current, elem) => current + elem);
-            IEnumerable<Banderwagon> comms = queries.Select(query => query.NodeCommitPoint);
+            IEnumerable<Banderwagon> commitments = queries.Select(query => query.NodeCommitPoint);
 
-            Banderwagon g1Comm = VarBaseCommit(helperScalars.ToArray(), comms.ToArray());
+            Banderwagon g1Comm = Banderwagon.MultiScalarMul(commitments.ToArray(), helperScalars.ToArray());
 
             transcript.AppendPoint(g1Comm, "E");
 
@@ -134,11 +135,6 @@ namespace Nethermind.Verkle.Proofs
                 inputPointVector, g2T, ipaIpaProof);
 
             return Ipa.CheckIpaProof(Crs, transcript, queryX);
-        }
-
-        private static Banderwagon VarBaseCommit(IEnumerable<FrE> values, IEnumerable<Banderwagon> elements)
-        {
-            return Banderwagon.MultiScalarMul(elements, values);
         }
     }
 }

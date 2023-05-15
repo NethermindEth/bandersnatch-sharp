@@ -1,83 +1,39 @@
-using Nethermind.Int256;
+// Copyright 2022 Demerzel Solutions Limited
+// Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
-namespace Nethermind.Verkle.Fields
+using System.Runtime.InteropServices;
+
+namespace Nethermind.Verkle.Fields;
+
+[StructLayout(LayoutKind.Explicit)]
+public struct U4
 {
-    public static class FieldMethods
-    {
-        public static UInt256? ModSqrt(UInt256 a, UInt256 p)
-        {
-            if (LegendreSymbol(a, p) != 1)
-                return null;
-            if (a.IsZero)
-                return UInt256.Zero;
-            if (a == 2)
-                return UInt256.Zero;
-            UInt256.Mod(a, 4, out UInt256 res);
-            if (res == 4)
-            {
-                UInt256.Divide(a + 1, 4, out UInt256 exp);
-                UInt256.ExpMod(a, exp, p, out UInt256 ls);
-                return ls;
-            }
+    /* in little endian order so u3 is the most significant ulong */
+    [FieldOffset(0)] public ulong u0;
+    [FieldOffset(8)] public ulong u1;
+    [FieldOffset(16)] public ulong u2;
+    [FieldOffset(24)] public ulong u3;
+}
 
-            UInt256 s = p - 1;
-            UInt256 e = 0;
+[StructLayout(LayoutKind.Explicit)]
+public struct U3
+{
+    /* in little endian order so u3 is the most significant ulong */
+    [FieldOffset(0)] public ulong u0;
+    [FieldOffset(8)] public ulong u1;
+    [FieldOffset(16)] public ulong u2;
+    [FieldOffset(24)] public ulong u3;
+}
 
-            UInt256.Mod(s, 2, out UInt256 loopVar);
-            while (loopVar.IsZero)
-            {
-                UInt256.Divide(s, 2, out UInt256 ss);
-                s = ss;
-                e += 1;
-                UInt256.Mod(s, 2, out loopVar);
-            }
-
-            UInt256 n = 2;
-            while (LegendreSymbol(n, p) != -1)
-                n += 1;
-
-            UInt256.Divide(s + 1, 2, out UInt256 expX);
-            UInt256.ExpMod(a, expX, p, out UInt256 x);
-
-            UInt256.ExpMod(a, s, p, out UInt256 b);
-            UInt256.ExpMod(n, s, p, out UInt256 g);
-
-            UInt256 r = e;
-
-            while (true)
-            {
-                UInt256 t = b;
-                UInt256 m = UInt256.Zero;
-
-                for (; m < r; m++)
-                {
-                    if (t.IsOne)
-                    {
-                        break;
-                    }
-
-                    UInt256.ExpMod(t, 2, p, out UInt256 tt);
-                    t = tt;
-                }
-
-                if (m.IsZero)
-                    return x;
-
-                UInt256.Exp(2, r - m - 1, out UInt256 expGS);
-                UInt256.ExpMod(g, expGS, p, out UInt256 gs);
-
-                UInt256.MultiplyMod(gs, gs, p, out g);
-                UInt256.MultiplyMod(x, gs, p, out x);
-                UInt256.MultiplyMod(b, g, p, out b);
-
-                r = m;
-            }
-        }
-        private static int LegendreSymbol(UInt256 a, UInt256 p)
-        {
-            UInt256.Divide(p - 1, 2, out UInt256 exp);
-            UInt256.ExpMod(a, exp, p, out UInt256 ls);
-            return ls == p - 1 ? -1 : 1;
-        }
-    }
+[StructLayout(LayoutKind.Explicit)]
+public struct U7
+{
+    /* in little endian order so u3 is the most significant ulong */
+    [FieldOffset(0)] public ulong u0;
+    [FieldOffset(8)] public ulong u1;
+    [FieldOffset(16)] public ulong u2;
+    [FieldOffset(24)] public ulong u3;
+    [FieldOffset(32)] public ulong u4;
+    [FieldOffset(40)] public ulong u5;
+    [FieldOffset(48)] public ulong u6;
 }

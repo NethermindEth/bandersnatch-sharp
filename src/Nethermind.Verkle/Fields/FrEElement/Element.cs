@@ -4,6 +4,8 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
 using FE = Nethermind.Verkle.Fields.FrEElement.FrE;
 
@@ -14,17 +16,46 @@ namespace Nethermind.Verkle.Fields.FrEElement
     [StructLayout(LayoutKind.Explicit)]
     public readonly partial struct FrE
     {
+        /* in little endian order so u3 is the most significant ulong */
+        [FieldOffset(0)] public readonly ulong u0;
+        [FieldOffset(8)] public readonly ulong u1;
+        [FieldOffset(16)] public readonly ulong u2;
+        [FieldOffset(24)] public readonly ulong u3;
+
+        private ulong this[int index] => index switch
+        {
+            0 => u0,
+            1 => u1,
+            2 => u2,
+            3 => u3,
+            _ => throw new IndexOutOfRangeException()
+        };
+
+        public bool IsZero => (u0 | u1 | u2 | u3) == 0;
+        public bool IsOne => Equals(One);
+
         public FrE(ulong u0 = 0, ulong u1 = 0, ulong u2 = 0, ulong u3 = 0)
         {
-            this.u0 = u0;
-            this.u1 = u1;
-            this.u2 = u2;
-            this.u3 = u3;
+            if (Avx2.IsSupported)
+            {
+                Unsafe.SkipInit(out this.u0);
+                Unsafe.SkipInit(out this.u1);
+                Unsafe.SkipInit(out this.u2);
+                Unsafe.SkipInit(out this.u3);
+                Unsafe.As<ulong, Vector256<ulong>>(ref this.u0) = Vector256.Create(u0, u1, u2, u3);
+            }
+            else
+            {
+                this.u0 = u0;
+                this.u1 = u1;
+                this.u2 = u2;
+                this.u3 = u3;
+            }
         }
 
         public FrE(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
         {
-            UInt256 val = new UInt256(bytes, isBigEndian);
+            UInt256 val = new(bytes, isBigEndian);
             val.Mod(_modulus.Value, out UInt256 res);
             FE inp = new FE(res.u0, res.u1, res.u2, res.u3);
             ToMontgomery(inp, out this);
@@ -46,6 +77,5 @@ namespace Nethermind.Verkle.Fields.FrEElement
             u2 = res.u2;
             u3 = res.u3;
         }
-
     }
 }

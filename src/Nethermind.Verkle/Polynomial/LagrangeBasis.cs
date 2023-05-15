@@ -5,7 +5,7 @@ namespace Nethermind.Verkle.Polynomial
     public class LagrangeBasis
     {
         private readonly int _domain;
-        public FrE[] Evaluations { get; }
+        public readonly FrE[] Evaluations;
 
         private LagrangeBasis() : this(Array.Empty<FrE>())
         {

@@ -14,6 +14,9 @@ namespace Nethermind.Verkle.Tests.Proofs
             FrE.SetElement(27), FrE.SetElement(28), FrE.SetElement(29), FrE.SetElement(30), FrE.SetElement(31), FrE.SetElement(32)
         };
 
+        private static readonly PreComputedWeights _weights = PreComputedWeights.Instance;
+        private static readonly CRS _crs = CRS.Instance;
+
 
         [Test]
         public void TestBasicIpaProof()
@@ -24,8 +27,6 @@ namespace Nethermind.Verkle.Tests.Proofs
                 domain[i] = FrE.SetElement(i);
             }
 
-            PreComputedWeights weights = PreComputedWeights.Instance;
-
             List<FrE> lagrangePoly = new List<FrE>();
 
             for (int i = 0; i < 8; i++)
@@ -33,8 +34,8 @@ namespace Nethermind.Verkle.Tests.Proofs
                 lagrangePoly.AddRange(_poly);
             }
 
-            CRS crs = CRS.Instance;
-            Banderwagon commitment = crs.Commit(lagrangePoly.ToArray());
+
+            Banderwagon commitment = _crs.Commit(lagrangePoly.ToArray());
 
             Assert.That(Convert.ToHexString(commitment.ToBytes()).ToLower()
                 .SequenceEqual("1b9dff8f5ebbac250d291dfe90e36283a227c64b113c37f1bfb9e7a743cdb128"));
@@ -42,7 +43,7 @@ namespace Nethermind.Verkle.Tests.Proofs
             Transcript proverTranscript = new Transcript("test");
 
             FrE inputPoint = FrE.SetElement(2101);
-            FrE[] b = weights.BarycentricFormulaConstants(inputPoint);
+            FrE[] b = _weights.BarycentricFormulaConstants(inputPoint);
             IpaProverQuery query = new IpaProverQuery(lagrangePoly.ToArray(), commitment, inputPoint, b);
 
             List<byte> cache = new List<byte>();
@@ -57,7 +58,7 @@ namespace Nethermind.Verkle.Tests.Proofs
                 cache.AddRange(i.ToBytes().ToArray());
             }
 
-            (FrE outputPoint, IpaProofStruct proof) = Ipa.MakeIpaProof(crs, proverTranscript, query);
+            IpaProofStruct proof = Ipa.MakeIpaProof(_crs, proverTranscript, query, out FrE outputPoint);
             FrE pChallenge = proverTranscript.ChallengeScalar("state");
 
             Assert.That(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
@@ -67,7 +68,7 @@ namespace Nethermind.Verkle.Tests.Proofs
 
             IpaVerifierQuery queryX = new IpaVerifierQuery(commitment, inputPoint, b, outputPoint, proof);
 
-            bool ok = Ipa.CheckIpaProof(crs, verifierTranscript, queryX);
+            bool ok = Ipa.CheckIpaProof(_crs, verifierTranscript, queryX);
 
             Assert.That(ok);
         }

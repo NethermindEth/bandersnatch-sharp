@@ -1,3 +1,6 @@
+// Copyright 2022 Demerzel Solutions Limited
+// Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
+
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -5,9 +8,9 @@ namespace Nethermind.Verkle.Curve
 {
     public readonly struct ExtendedPoint
     {
-        public FpE X { get; }
-        public FpE Y { get; }
-        private FpE Z { get; }
+        public readonly FpE X;
+        public readonly FpE Y;
+        public readonly FpE Z;
 
         public ExtendedPoint(FpE x, FpE y)
         {
@@ -86,10 +89,41 @@ namespace Nethermind.Verkle.Curve
 
             return new ExtendedPoint(x3, y3, z3);
         }
+
+        public static ExtendedPoint Add(ExtendedPoint p, AffinePoint q)
+        {
+            FpE x1 = p.X;
+            FpE y1 = p.Y;
+            FpE z1 = p.Z;
+
+            FpE x2 = q.X;
+            FpE y2 = q.Y;
+            FpE z2 = FpE.One;
+
+            FpE a = z1 * z2;
+            FpE b = a * a;
+
+            FpE c = x1 * x2;
+
+            FpE d = y1 * y2;
+
+            FpE e = D * c * d;
+
+            FpE f = b - e;
+            FpE g = b + e;
+
+            FpE x3 = a * f * ((x1 + y1) * (x2 + y2) - c - d);
+            FpE y3 = a * g * (d - A * c);
+            FpE z3 = f * g;
+
+            return new ExtendedPoint(x3, y3, z3);
+        }
+
         public static ExtendedPoint Sub(ExtendedPoint p, ExtendedPoint q)
         {
             return Add(p, Neg(q));
         }
+
         public static ExtendedPoint Double(ExtendedPoint p)
         {
             FpE x1 = p.X;
@@ -136,6 +170,18 @@ namespace Nethermind.Verkle.Curve
             if (Z.IsOne) return new AffinePoint(X, Y);
 
             FpE.Inverse(Z, out FpE zInv);
+            FpE xAff = X * zInv;
+            FpE yAff = Y * zInv;
+
+            return new AffinePoint(xAff, yAff);
+        }
+
+        public AffinePoint ToAffine(in FpE zInv)
+        {
+            if (IsZero) return AffinePoint.Identity();
+            if (Z.IsZero) throw new Exception();
+            if (Z.IsOne) return new AffinePoint(X, Y);
+
             FpE xAff = X * zInv;
             FpE yAff = Y * zInv;
 
