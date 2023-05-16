@@ -45,7 +45,6 @@ namespace Nethermind.Verkle.Polynomial
                 FrE.Inverse(FrE.SetElement(i), out DomainInv[index]);
                 index++;
             }
-
         }
 
         public FrE[] BarycentricFormulaConstants(FrE z)

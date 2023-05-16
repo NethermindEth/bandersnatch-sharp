@@ -5,6 +5,5 @@ namespace Nethermind.Verkle.Bench
 {
     public class BenchCurveOps
     {
-        
     }
 }

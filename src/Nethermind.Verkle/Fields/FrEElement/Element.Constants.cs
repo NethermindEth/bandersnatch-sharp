@@ -45,17 +45,24 @@ namespace Nethermind.Verkle.Fields.FrEElement
 
         private static Lazy<UInt256> _modulus = new Lazy<UInt256>(() =>
         {
-            UInt256.TryParse("13108968793781547619861935127046491459309155893440570251786403306729687672801", out UInt256 output);
+            UInt256.TryParse("13108968793781547619861935127046491459309155893440570251786403306729687672801",
+                out UInt256 output);
             return output;
         });
+
         private static Lazy<UInt256> _bLegendreExponentElement = new Lazy<UInt256>(() =>
         {
-            UInt256 output = new UInt256(Convert.FromHexString("0e7db4ea6533afa906673b0101343b007fc7c3803a0c8238ba7e835a943b73f0"), true);
+            UInt256 output =
+                new UInt256(Convert.FromHexString("0e7db4ea6533afa906673b0101343b007fc7c3803a0c8238ba7e835a943b73f0"),
+                    true);
             return output;
         });
+
         private static Lazy<UInt256> _bSqrtExponentElement = new Lazy<UInt256>(() =>
         {
-            UInt256 output = new UInt256(Convert.FromHexString("73eda753299d7d483339d80809a1d803fe3e1c01d06411c5d3f41ad4a1db9f"), true);
+            UInt256 output =
+                new UInt256(Convert.FromHexString("73eda753299d7d483339d80809a1d803fe3e1c01d06411c5d3f41ad4a1db9f"),
+                    true);
             return output;
         });
     }

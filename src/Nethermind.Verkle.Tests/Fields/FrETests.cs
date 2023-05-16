@@ -63,6 +63,7 @@ namespace Nethermind.Verkle.Tests.Fields
                     set.MoveNext();
                     continue;
                 }
+
                 FE.Inverse(x, out FE y);
                 FE.Inverse(y, out FE z);
                 Assert.IsTrue(z.Equals(x));
@@ -82,6 +83,7 @@ namespace Nethermind.Verkle.Tests.Fields
                     set.MoveNext();
                     continue;
                 }
+
                 FE.Inverse(x, out FE y);
                 FE.MultiplyMod(x, y, out FE z);
                 Assert.IsTrue(z.IsOne);
@@ -101,6 +103,7 @@ namespace Nethermind.Verkle.Tests.Fields
                     set.MoveNext();
                     continue;
                 }
+
                 FE.MultiplyMod(x, x, out FE z);
                 set.MoveNext();
             }
@@ -146,6 +149,7 @@ namespace Nethermind.Verkle.Tests.Fields
                     set.MoveNext();
                     continue;
                 }
+
                 FE.Sqrt(x, out FE sqrtElem);
                 FE.Exp(sqrtElem, 2, out FE res);
                 Assert.IsTrue(x.Equals(res));
@@ -156,10 +160,7 @@ namespace Nethermind.Verkle.Tests.Fields
         [Test]
         public void TestMultiInv()
         {
-            FE[] values =
-            {
-                FE.SetElement(1), FE.SetElement(2), FE.SetElement(3)
-            };
+            FE[] values = { FE.SetElement(1), FE.SetElement(2), FE.SetElement(3) };
 
             FE[] gotInverse = FE.MultiInverse(values);
             FE?[] expectedInverse = NaiveMultiInverse(values);
@@ -179,6 +180,7 @@ namespace Nethermind.Verkle.Tests.Fields
                 FE.Inverse(values[i], out FE x);
                 res[i] = x;
             }
+
             return res;
         }
     }

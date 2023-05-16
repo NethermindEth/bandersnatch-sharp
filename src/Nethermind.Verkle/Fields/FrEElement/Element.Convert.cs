@@ -59,7 +59,9 @@ namespace Nethermind.Verkle.Fields.FrEElement
         public static FE FromBytes(byte[] byteEncoded, bool isBigEndian = false)
         {
             UInt256 val = new UInt256(byteEncoded, isBigEndian);
-            if (val > _modulus.Value) throw new ArgumentException("FromBytes: byteEncoded should be less than modulus - use FromBytesReduced instead.");
+            if (val > _modulus.Value)
+                throw new ArgumentException(
+                    "FromBytes: byteEncoded should be less than modulus - use FromBytesReduced instead.");
             FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
             ToMontgomery(inp, out FE resF);
             return resF;
@@ -73,6 +75,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
             ToMontgomery(inp, out FE resF);
             return resF;
         }
+
         public static void ToMontgomery(in FE x, out FE z)
         {
             MultiplyMod(x, rSquare, out z);
@@ -83,7 +86,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
             FromMontgomery(in x, out z);
         }
 
-        private static void FromMontgomery(in FE x, out FE res)
+        public static void FromMontgomery(in FE x, out FE res)
         {
             U4 z = new() { u0 = x.u0, u1 = x.u1, u2 = x.u2, u3 = x.u3 };
 

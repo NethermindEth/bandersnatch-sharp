@@ -39,6 +39,7 @@ namespace Nethermind.Verkle.Proofs
         {
             AppendBytes(scalar.ToBytes().ToArray(), label);
         }
+
         public void AppendScalar(FrE scalar, string label)
         {
             AppendScalar(scalar, Encoding.ASCII.GetBytes(label));
@@ -48,6 +49,7 @@ namespace Nethermind.Verkle.Proofs
         {
             AppendBytes(point.ToBytes(), label);
         }
+
         public void AppendPoint(Banderwagon point, string label)
         {
             AppendPoint(point, Encoding.ASCII.GetBytes(label));
@@ -63,6 +65,7 @@ namespace Nethermind.Verkle.Proofs
             AppendScalar(challenge, label);
             return challenge;
         }
+
         public FrE ChallengeScalar(string label)
         {
             return ChallengeScalar(Encoding.ASCII.GetBytes(label));
@@ -72,6 +75,7 @@ namespace Nethermind.Verkle.Proofs
         {
             _currentHash.AddRange(label);
         }
+
         public void DomainSep(string label)
         {
             DomainSep(Encoding.ASCII.GetBytes(label));

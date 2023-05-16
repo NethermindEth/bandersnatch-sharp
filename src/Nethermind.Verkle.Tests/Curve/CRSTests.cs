@@ -5,7 +5,6 @@ namespace Nethermind.Verkle.Tests.Curve
 {
     public class CRSTests
     {
-
         [Test]
         public void TestCrsIsConsistent()
         {

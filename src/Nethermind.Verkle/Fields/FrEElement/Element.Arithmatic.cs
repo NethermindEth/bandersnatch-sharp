@@ -20,6 +20,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
         {
             Lsh(this, n, out res);
         }
+
         public void RightShift(int n, out FE res)
         {
             Rsh(this, n, out res);
@@ -77,6 +78,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
                 {
                     MultiplyMod(result, bs, out result);
                 }
+
                 MultiplyMod(bs, bs, out bs);
             }
         }
@@ -121,33 +123,36 @@ namespace Nethermind.Verkle.Fields.FrEElement
                 n -= 192;
                 goto sh192;
             }
+
             if (n > 128)
             {
                 x.Lsh128(out res);
                 n -= 128;
                 goto sh128;
             }
+
             if (n > 64)
             {
                 x.Lsh64(out res);
                 n -= 64;
                 goto sh64;
             }
+
             res = x;
 
             // remaining shifts
             a = Rsh(res.u0, 64 - n);
             z0 = Lsh(res.u0, n);
 
-sh64:
+            sh64:
             b = Rsh(res.u1, 64 - n);
             z1 = Lsh(res.u1, n) | a;
 
-sh128:
+            sh128:
             a = Rsh(res.u2, 64 - n);
             z2 = Lsh(res.u2, n) | b;
 
-sh192:
+            sh192:
             z3 = Lsh(res.u3, n) | a;
 
             res = new FE(z0, z1, z2, z3);
@@ -199,6 +204,7 @@ sh192:
                 n -= 192;
                 goto sh192;
             }
+
             if (n > 128)
             {
                 x.Rsh128(out res);
@@ -209,6 +215,7 @@ sh192:
                 n -= 128;
                 goto sh128;
             }
+
             if (n > 64)
             {
                 x.Rsh64(out res);
@@ -219,6 +226,7 @@ sh192:
                 n -= 64;
                 goto sh64;
             }
+
             res = x;
             z0 = res.u0;
             z1 = res.u1;
@@ -229,15 +237,15 @@ sh192:
             a = Lsh(res.u3, 64 - n);
             z3 = Rsh(res.u3, n);
 
-sh64:
+            sh64:
             b = Lsh(res.u2, 64 - n);
             z2 = Rsh(res.u2, n) | a;
 
-sh128:
+            sh128:
             a = Lsh(res.u1, 64 - n);
             z1 = Rsh(res.u1, n) | b;
 
-sh192:
+            sh192:
             z0 = Rsh(res.u0, n) | a;
 
             res = new FE(z0, z1, z2, z3);
@@ -279,6 +287,7 @@ sh192:
         {
             res = new FE(u3);
         }
+
         public static bool SubtractUnderflow(in FE a, in FE b, out FE res)
         {
             if (Avx2.IsSupported)
@@ -292,8 +301,9 @@ sh192:
                 Vector256<ulong> avSigned = Avx2.Xor(av, Vector256.Create<ulong>(0x8000_0000_0000_0000));
 
                 // Which vectors need to borrow from the next
-                Vector256<long> vBorrow = Avx2.CompareGreaterThan(Unsafe.As<Vector256<ulong>, Vector256<long>>(ref resultSigned),
-                                                      Unsafe.As<Vector256<ulong>, Vector256<long>>(ref avSigned));
+                Vector256<long> vBorrow = Avx2.CompareGreaterThan(
+                    Unsafe.As<Vector256<ulong>, Vector256<long>>(ref resultSigned),
+                    Unsafe.As<Vector256<ulong>, Vector256<long>>(ref avSigned));
 
                 // Move borrow from Vector space to int
                 int borrow = Avx.MoveMask(Unsafe.As<Vector256<long>, Vector256<double>>(ref vBorrow));
@@ -312,7 +322,9 @@ sh192:
                 cascade &= 0x0f;
 
                 // Lookup the borrows to broadcast to the Vectors
-                Vector256<ulong> cascadedBorrows = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)), cascade);
+                Vector256<ulong> cascadedBorrows =
+                    Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)),
+                        cascade);
 
                 // Mark res as initalized so we can use it as left said of ref assignment
                 Unsafe.SkipInit(out res);
@@ -365,7 +377,9 @@ sh192:
                 cascade &= 0x0f;
 
                 // Lookup the carries to broadcast to the Vectors
-                Vector256<ulong> cascadedCarries = Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)), cascade);
+                Vector256<ulong> cascadedCarries =
+                    Unsafe.Add(ref Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(SBroadcastLookup)),
+                        cascade);
 
                 // Mark res as initalized so we can use it as left said of ref assignment
                 Unsafe.SkipInit(out res);

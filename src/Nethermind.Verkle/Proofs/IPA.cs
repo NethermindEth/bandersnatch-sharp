@@ -12,6 +12,7 @@ namespace Nethermind.Verkle.Proofs
             {
                 res += a[i] * b[i];
             }
+
             return res;
         }
 
@@ -158,7 +159,7 @@ namespace Nethermind.Verkle.Proofs
             }
 
             if (b.Length != currentBasis.Length) throw new Exception();
-            if (b.Length != 1)  throw new Exception();
+            if (b.Length != 1) throw new Exception();
 
             FrE b0 = b[0];
             Banderwagon g0 = currentBasis[0];

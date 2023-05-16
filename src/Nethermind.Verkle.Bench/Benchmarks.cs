@@ -40,9 +40,9 @@ namespace Nethermind.Verkle.Bench
                 yield return data;
             }
         }
+
         private static IEnumerable<byte[]> Values => RandomBytes(5);
         public static IEnumerable<FpE> ValuesFpETuple => Values.Select(x => new FpE(x));
         public static IEnumerable<FrE> ValuesFrETuple => Values.Select(x => new FrE(x));
     }
-
 }

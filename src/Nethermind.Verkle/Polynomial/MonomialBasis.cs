@@ -1,4 +1,3 @@
-
 using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Polynomial
@@ -24,6 +23,7 @@ namespace Nethermind.Verkle.Polynomial
                     output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
                 }
             }
+
             return new MonomialBasis(output);
         }
 
@@ -78,15 +78,13 @@ namespace Nethermind.Verkle.Polynomial
                 FrE x = FrE.SetElement(i) * f.Coeffs[i]!;
                 derivative[i - 1] = x;
             }
+
             return new MonomialBasis(derivative.ToArray());
         }
 
         public static MonomialBasis VanishingPoly(IEnumerable<FrE> xs)
         {
-            List<FrE> root = new List<FrE>
-            {
-                FrE.One
-            };
+            List<FrE> root = new List<FrE> { FrE.One };
             foreach (FrE x in xs)
             {
                 root.Insert(0, FrE.Zero);
@@ -113,6 +111,5 @@ namespace Nethermind.Verkle.Polynomial
         {
             return Mul(a, b);
         }
-
     }
 }

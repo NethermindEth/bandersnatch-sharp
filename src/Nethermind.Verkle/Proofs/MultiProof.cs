@@ -1,7 +1,7 @@
-
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
+
 // ReSharper disable InconsistentNaming
 
 namespace Nethermind.Verkle.Proofs
@@ -29,6 +29,7 @@ namespace Nethermind.Verkle.Proofs
                 transcript.AppendScalar(query.ChildIndex, "z");
                 transcript.AppendScalar(query.ChildHash, "y");
             }
+
             FrE r = transcript.ChallengeScalar("r");
 
             FrE[] g = new FrE[domainSize];
@@ -70,6 +71,7 @@ namespace Nethermind.Verkle.Proofs
                 {
                     h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
                 }
+
                 powerOfR *= r;
             }
 
@@ -90,7 +92,6 @@ namespace Nethermind.Verkle.Proofs
             IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
 
             return new VerkleProofStruct(ipaProof, d);
-
         }
 
         public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
@@ -121,7 +122,8 @@ namespace Nethermind.Verkle.Proofs
             g2Den = FrE.MultiInverse(g2Den);
 
             FrE[] helperScalars = powersOfR.Zip(g2Den).Select((elem, i) => elem.First * elem.Second).ToArray();
-            FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second.ChildHash).Aggregate(FrE.Zero, (current, elem) => current + elem);
+            FrE g2T = helperScalars.Zip(queries).Select((elem, i) => elem.First * elem.Second.ChildHash)
+                .Aggregate(FrE.Zero, (current, elem) => current + elem);
             IEnumerable<Banderwagon> commitments = queries.Select(query => query.NodeCommitPoint);
 
             Banderwagon g1Comm = Banderwagon.MultiScalarMul(commitments.ToArray(), helperScalars.ToArray());

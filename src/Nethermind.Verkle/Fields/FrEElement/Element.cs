@@ -72,6 +72,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
             {
                 UInt256.Mod((UInt256)value, _modulus.Value, out res);
             }
+
             u0 = res.u0;
             u1 = res.u1;
             u2 = res.u2;

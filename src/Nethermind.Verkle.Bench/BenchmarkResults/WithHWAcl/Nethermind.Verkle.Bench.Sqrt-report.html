@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Verkle.Bench.Sqrt-20230420-010147</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Verkle.Bench.Sqrt-20230420-010147</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,24 +36,183 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
   [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
   .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
 </code></pre>
 
 <table>
-<thead><tr><th>   Method</th><th>           _a</th><th>           _b</th><th>   Mean</th><th> Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>Sqrt_BigInteger</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>30.45 ns</td><td>0.047 ns</td><td>0.044 ns</td><td>1.00</td><td>0.00</td><td>0.0005</td><td>40 B</td><td>1.00</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>420,268.05 ns</td><td>3,041.324 ns</td><td>2,539.644 ns</td><td>13,797.12</td><td>83.85</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>Sqrt_Element</td><td>(115(...)FpE) [201]</td><td>(115(...)FpE) [201]</td><td>69,482.56 ns</td><td>217.620 ns</td><td>203.562 ns</td><td>2,281.59</td><td>7.27</td><td>1.2207</td><td>108640 B</td><td>2,716.00</td>
-</tr><tr><td>Sqrt_BigInteger</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>30.68 ns</td><td>0.400 ns</td><td>0.374 ns</td><td>1.00</td><td>0.00</td><td>0.0005</td><td>40 B</td><td>1.00</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>430,494.21 ns</td><td>5,508.602 ns</td><td>5,152.750 ns</td><td>14,035.50</td><td>249.26</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>Sqrt_Element</td><td>(115(...)FpE) [201]</td><td>(619(...)FpE) [197]</td><td>70,561.68 ns</td><td>270.851 ns</td><td>240.102 ns</td><td>2,300.59</td><td>33.19</td><td>1.2207</td><td>108640 B</td><td>2,716.00</td>
-</tr><tr><td>Sqrt_BigInteger</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>31.13 ns</td><td>0.250 ns</td><td>0.234 ns</td><td>1.00</td><td>0.00</td><td>0.0005</td><td>40 B</td><td>1.00</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>46,234.89 ns</td><td>389.370 ns</td><td>364.217 ns</td><td>1,485.38</td><td>10.78</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>Sqrt_Element</td><td>(619(...)FpE) [197]</td><td>(115(...)FpE) [201]</td><td>NA</td><td>NA</td><td>NA</td><td>?</td><td>?</td><td>-</td><td>-</td><td>?</td>
-</tr><tr><td>Sqrt_BigInteger</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>31.00 ns</td><td>0.258 ns</td><td>0.241 ns</td><td>1.00</td><td>0.00</td><td>0.0005</td><td>40 B</td><td>1.00</td>
-</tr><tr><td>Sqrt_UInt256</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>45,454.59 ns</td><td>361.477 ns</td><td>338.126 ns</td><td>1,466.40</td><td>14.68</td><td>-</td><td>-</td><td>0.00</td>
-</tr><tr><td>Sqrt_Element</td><td>(619(...)FpE) [197]</td><td>(619(...)FpE) [197]</td><td>NA</td><td>NA</td><td>NA</td><td>?</td><td>?</td><td>-</td><td>-</td><td>?</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th> _a</th>
+        <th> _b</th>
+        <th> Mean</th>
+        <th> Error</th>
+        <th>StdDev</th>
+        <th>Ratio</th>
+        <th>RatioSD</th>
+        <th>Gen0</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>30.45 ns</td>
+        <td>0.047 ns</td>
+        <td>0.044 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>0.0005</td>
+        <td>40 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>420,268.05 ns</td>
+        <td>3,041.324 ns</td>
+        <td>2,539.644 ns</td>
+        <td>13,797.12</td>
+        <td>83.85</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>69,482.56 ns</td>
+        <td>217.620 ns</td>
+        <td>203.562 ns</td>
+        <td>2,281.59</td>
+        <td>7.27</td>
+        <td>1.2207</td>
+        <td>108640 B</td>
+        <td>2,716.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>30.68 ns</td>
+        <td>0.400 ns</td>
+        <td>0.374 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>0.0005</td>
+        <td>40 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>430,494.21 ns</td>
+        <td>5,508.602 ns</td>
+        <td>5,152.750 ns</td>
+        <td>14,035.50</td>
+        <td>249.26</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>70,561.68 ns</td>
+        <td>270.851 ns</td>
+        <td>240.102 ns</td>
+        <td>2,300.59</td>
+        <td>33.19</td>
+        <td>1.2207</td>
+        <td>108640 B</td>
+        <td>2,716.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>31.13 ns</td>
+        <td>0.250 ns</td>
+        <td>0.234 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>0.0005</td>
+        <td>40 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>46,234.89 ns</td>
+        <td>389.370 ns</td>
+        <td>364.217 ns</td>
+        <td>1,485.38</td>
+        <td>10.78</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>(115(...)FpE) [201]</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>?</td>
+        <td>?</td>
+        <td>-</td>
+        <td>-</td>
+        <td>?</td>
+    </tr>
+    <tr>
+        <td>Sqrt_BigInteger</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>31.00 ns</td>
+        <td>0.258 ns</td>
+        <td>0.241 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>0.0005</td>
+        <td>40 B</td>
+        <td>1.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_UInt256</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>45,454.59 ns</td>
+        <td>361.477 ns</td>
+        <td>338.126 ns</td>
+        <td>1,466.40</td>
+        <td>14.68</td>
+        <td>-</td>
+        <td>-</td>
+        <td>0.00</td>
+    </tr>
+    <tr>
+        <td>Sqrt_Element</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>(619(...)FpE) [197]</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>?</td>
+        <td>?</td>
+        <td>-</td>
+        <td>-</td>
+        <td>?</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

@@ -76,6 +76,7 @@ namespace Nethermind.Verkle.Polynomial
             {
                 result[i] = poly.Evaluations[i] * constant;
             }
+
             return new LagrangeBasis(result);
         }
 
@@ -86,6 +87,7 @@ namespace Nethermind.Verkle.Polynomial
             {
                 domain[i] = FrE.SetElement(i);
             }
+
             return domain;
         }
 
@@ -96,12 +98,15 @@ namespace Nethermind.Verkle.Polynomial
             FrE az = a.Evaluate(z);
 
             if (az.IsZero)
-                throw new InvalidOperationException("vanishing polynomial evaluated to zero. z is therefore a point on the domain");
+                throw new InvalidOperationException(
+                    "vanishing polynomial evaluated to zero. z is therefore a point on the domain");
 
 
             FrE[] inverses = FrE.MultiInverse(domain.Select(x => z - x).ToArray());
-            IEnumerable<FrE> helperVector = precomputedWeights.Evaluations.Zip(Evaluations).Select(((elements, _) => elements.First * elements.Second));
-            FrE r = helperVector.Zip(inverses).Select((elem, i) => elem.First * elem.Second).Aggregate(FrE.Zero, (current, elem) => current + elem);
+            IEnumerable<FrE> helperVector = precomputedWeights.Evaluations.Zip(Evaluations)
+                .Select(((elements, _) => elements.First * elements.Second));
+            FrE r = helperVector.Zip(inverses).Select((elem, i) => elem.First * elem.Second)
+                .Aggregate(FrE.Zero, (current, elem) => current + elem);
 
             r *= az;
 

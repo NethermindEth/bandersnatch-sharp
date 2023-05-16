@@ -8,7 +8,7 @@ namespace Nethermind.Verkle.Curve;
 
 public readonly partial struct Banderwagon
 {
-    public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
+    public static Banderwagon MultiScalarMulOld(Span<Banderwagon> points, Span<FrE> scalars)
     {
         Banderwagon res = Identity();
 
@@ -20,86 +20,106 @@ public readonly partial struct Banderwagon
         return res;
     }
 
-    public static Banderwagon MSM(Banderwagon[] points, Span<FrE> scalars)
+    public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
     {
-        FpE[] zs = points.Select((p => p._point.Z)).ToArray();
+        int numOfPoints = points.Length;
+        FpE[] zs = new FpE[numOfPoints];
+        for (int i = 0; i < numOfPoints; i++)
+        {
+            zs[i] = points[i]._point.Z;
+        }
+
         FpE[] inverses = FpE.MultiInverse(zs);
 
-        AffinePoint[] normalizedPoint = new AffinePoint[points.Length];
-        for (int i = 0; i < points.Length; i++)
+        AffinePoint[] normalizedPoint = new AffinePoint[numOfPoints];
+        for (int i = 0; i < numOfPoints; i++)
         {
             normalizedPoint[i] = points[i]._point.ToAffine(inverses[i]);
         }
 
-        return MultiScalarMulFast(normalizedPoint, scalars);
+        return MultiScalarMulFast(normalizedPoint, scalars.ToArray());
     }
 
 
-    private static Banderwagon MultiScalarMulFast(AffinePoint[] points, Span<FrE> scalars)
+    private static Banderwagon MultiScalarMulFast(AffinePoint[] points, FrE[] scalars)
     {
-         const int windowsSize = 5;
+        int numOfPoints = points.Length;
+        int windowsSize = numOfPoints < 32 ? 3 : (int)((Math.Log2(numOfPoints) * 69) / 100) + 2;
+        // const int windowsSize = 3;
 
-         int i = 0;
-         List<int> windowsStart = new List<int>();
+        int i = 0;
+        List<int> windowsStart = new();
 
-         while (i < 256)
-         {
-             windowsStart.Add(i);
-             i += windowsSize;
-         }
+        while (i < 253)
+        {
+            windowsStart.Add(i);
+            i += windowsSize;
+        }
 
-         ExtendedPoint zero = ExtendedPoint.Identity();
+        ExtendedPoint zero = ExtendedPoint.Identity();
 
-         ExtendedPoint[] windowSums = new ExtendedPoint[windowsStart.Count];
-         int w = 0;
-         foreach (int winStart in windowsStart)
-         {
-             ExtendedPoint res = zero;
-             ExtendedPoint[] buckets = new ExtendedPoint[((ulong)1 << windowsSize) - 1];
-             for (int j = 0; j < buckets.Length; j++)
-             {
-                 buckets[j] = zero;
-             }
-             for (int j = 0; j < points.Length; j++)
-             {
-                 if (scalars[j].IsOne && winStart == 0)
-                 {
-                     res = ExtendedPoint.Add(res, points[j]);
-                 }
-                 else
-                 {
-                     ulong sc = (scalars[j] >> winStart).u0;
-                     sc %= ((ulong)1 << windowsSize);
+        ExtendedPoint[] windowSums = new ExtendedPoint[windowsStart.Count];
+        Parallel.For(0, windowsStart.Count, w =>
+        {
+            int winStart = windowsStart[w];
 
-                     if (sc != 0) buckets[sc - 1] += ExtendedPoint.Add(buckets[sc - 1], points[j]);
-                 }
-             }
+            ExtendedPoint res = zero;
+            ExtendedPoint[] buckets = new ExtendedPoint[((ulong)1 << windowsSize) - 1];
 
-             ExtendedPoint runningSum = ExtendedPoint.Identity();
-             for (int j = (buckets.Length - 1); j <= 0; j--)
-             {
-                 runningSum += buckets[j];
-                 res += runningSum;
-             }
+            for (int j = 0; j < buckets.Length; j++)
+            {
+                buckets[j] = zero;
+            }
 
-             windowSums[w] = res;
-             w++;
-         }
+            for (int j = 0; j < points.Length; j++)
+            {
+                if (scalars[j].IsOne)
+                {
+                    if (winStart == 0)
+                    {
+                        res = ExtendedPoint.Add(res, points[j]);
+                    }
+                }
+                else
+                {
+                    FrE scalar = scalars[j];
+                    FrE.FromMontgomery(in scalar, out scalar);
+                    scalar >>= winStart;
 
-         ExtendedPoint lowest = windowSums[0];
+                    ulong sc = scalar.u0;
+                    sc %= ((ulong)1 << windowsSize);
 
-         ExtendedPoint result = ExtendedPoint.Identity();
-         for (int j = (windowSums.Length - 1); j < 0; j++)
-         {
-             result += windowSums[j];
-             for (int k = 0; k < windowsSize; k++)
-             {
-                 result = ExtendedPoint.Double(result);
-             }
-         }
+                    if (sc != 0)
+                    {
+                        buckets[sc - 1] = ExtendedPoint.Add(buckets[sc - 1], points[j]);
+                    }
+                }
+            }
 
-         result += lowest;
+            ExtendedPoint runningSum = ExtendedPoint.Identity();
+            for (int j = (buckets.Length - 1); j >= 0; j--)
+            {
+                runningSum += buckets[j];
+                res += runningSum;
+            }
 
-         return new Banderwagon(result);
+            windowSums[w] = res;
+        });
+
+        ExtendedPoint lowest = windowSums[0];
+
+        ExtendedPoint result = ExtendedPoint.Identity();
+        for (int j = (windowSums.Length - 1); j > 0; j--)
+        {
+            result += windowSums[j];
+            for (int k = 0; k < windowsSize; k++)
+            {
+                result = ExtendedPoint.Double(result);
+            }
+        }
+
+        result += lowest;
+
+        return new Banderwagon(result);
     }
 }

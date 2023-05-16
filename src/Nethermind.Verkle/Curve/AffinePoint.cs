@@ -12,6 +12,7 @@ namespace Nethermind.Verkle.Curve
         /// serialization constants
         /// </summary>
         private const byte MCompressedNegative = 128;
+
         private const byte MCompressedPositive = 0;
 
         public readonly FpE X;
@@ -134,6 +135,7 @@ namespace Nethermind.Verkle.Curve
                     {
                         result = Add(result, point);
                     }
+
                     point = Double(point);
                 }
             }

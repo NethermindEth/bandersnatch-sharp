@@ -90,10 +90,12 @@ namespace Nethermind.Verkle.Curve
         {
             return new Banderwagon(ExtendedPoint.Neg(p._point));
         }
+
         public static Banderwagon Add(Banderwagon p, Banderwagon q)
         {
             return new Banderwagon(p._point + q._point);
         }
+
         public static Banderwagon Sub(Banderwagon p, Banderwagon q)
         {
             return new Banderwagon(p._point - q._point);
@@ -147,6 +149,7 @@ namespace Nethermind.Verkle.Curve
         {
             return new Banderwagon(element._point * scalar);
         }
+
         public static Banderwagon Identity()
         {
             return new Banderwagon(ExtendedPoint.Identity());

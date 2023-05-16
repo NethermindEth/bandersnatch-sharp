@@ -7,14 +7,17 @@ namespace Nethermind.Verkle.Bench
 {
     public class NoIntrinsicsJobAttribute : JobConfigBaseAttribute
     {
-        public NoIntrinsicsJobAttribute(RuntimeMoniker runtimeMoniker, int launchCount = -1, int warmupCount = -1, int iterationCount = -1, int invocationCount = -1, string id = null, bool baseline = false)
-            : base(CreateJob(id, launchCount, warmupCount, iterationCount, invocationCount, null, baseline, runtimeMoniker)
-                  .WithEnvironmentVariable("DOTNET_EnableHWIntrinsic", "0"))
+        public NoIntrinsicsJobAttribute(RuntimeMoniker runtimeMoniker, int launchCount = -1, int warmupCount = -1,
+            int iterationCount = -1, int invocationCount = -1, string id = null, bool baseline = false)
+            : base(CreateJob(id, launchCount, warmupCount, iterationCount, invocationCount, null, baseline,
+                    runtimeMoniker)
+                .WithEnvironmentVariable("DOTNET_EnableHWIntrinsic", "0"))
         {
-
         }
 
-        private static Job CreateJob(string id, int launchCount, int warmupCount, int iterationCount, int invocationCount, RunStrategy? runStrategy, bool baseline, RuntimeMoniker runtimeMoniker = RuntimeMoniker.HostProcess)
+        private static Job CreateJob(string id, int launchCount, int warmupCount, int iterationCount,
+            int invocationCount, RunStrategy? runStrategy, bool baseline,
+            RuntimeMoniker runtimeMoniker = RuntimeMoniker.HostProcess)
         {
             Job job = new Job(id);
             int num = 0;
@@ -73,6 +76,7 @@ namespace Nethermind.Verkle.Bench
             return job.Freeze();
         }
     }
+
     internal static class RuntimeMonikerExtensions
     {
         internal static Runtime GetRuntime(this RuntimeMoniker runtimeMoniker)
@@ -127,7 +131,8 @@ namespace Nethermind.Verkle.Bench
                 // case RuntimeMoniker.Mono70:
                 //     return MonoRuntime.Mono70;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(runtimeMoniker), runtimeMoniker, "Runtime Moniker not supported");
+                    throw new ArgumentOutOfRangeException(nameof(runtimeMoniker), runtimeMoniker,
+                        "Runtime Moniker not supported");
             }
         }
     }

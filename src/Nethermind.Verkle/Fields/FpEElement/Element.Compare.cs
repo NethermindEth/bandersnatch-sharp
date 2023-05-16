@@ -42,7 +42,8 @@ namespace Nethermind.Verkle.Fields.FpEElement
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool LessThan(in ulong a0, in ulong a1, in ulong a2, in ulong a3, in ulong b0, in ulong b1, in ulong b2, in ulong b3)
+        private static bool LessThan(in ulong a0, in ulong a1, in ulong a2, in ulong a3, in ulong b0, in ulong b1,
+            in ulong b2, in ulong b3)
         {
             if (a3 != b3)
                 return a3 < b3;
@@ -69,6 +70,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
         {
             return LessThan(x, qElement);
         }
+
         public bool Equals(int other)
         {
             return other >= 0 && u0 == (uint)other && u1 == 0 && u2 == 0 && u3 == 0;

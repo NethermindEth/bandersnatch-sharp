@@ -10,7 +10,8 @@ namespace Nethermind.Verkle.Tests.Polynomial
         {
             FrE[] xs =
             {
-                FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
+                FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4),
+                FrE.SetElement(5)
             };
 
             MonomialBasis z = MonomialBasis.VanishingPoly(xs);
@@ -24,15 +25,9 @@ namespace Nethermind.Verkle.Tests.Polynomial
         [Test]
         public void TestPolyDivision()
         {
-            FrE[] aL =
-            {
-                FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(1)
-            };
+            FrE[] aL = { FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(1) };
             MonomialBasis a = new MonomialBasis(aL);
-            FrE[] bL =
-            {
-                FrE.SetElement(1), FrE.SetElement(1)
-            };
+            FrE[] bL = { FrE.SetElement(1), FrE.SetElement(1) };
             MonomialBasis b = new MonomialBasis(bL);
 
             MonomialBasis result = a / b;
@@ -51,10 +46,7 @@ namespace Nethermind.Verkle.Tests.Polynomial
                 FrE.SetElement(9), FrE.SetElement(20), FrE.SetElement(10), FrE.SetElement(5), FrE.SetElement(6)
             };
             MonomialBasis a = new MonomialBasis(aL);
-            FrE[] bL =
-            {
-                FrE.SetElement(20), FrE.SetElement(20), FrE.SetElement(15), FrE.SetElement(24)
-            };
+            FrE[] bL = { FrE.SetElement(20), FrE.SetElement(20), FrE.SetElement(15), FrE.SetElement(24) };
             MonomialBasis b = new MonomialBasis(bL);
 
             MonomialBasis gotAPrime = MonomialBasis.FormalDerivative(a);

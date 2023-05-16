@@ -32,7 +32,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             // To make this constant-time-ish, replace the condition with i < invIterationsN
             uint i = 0;
 
-            while ((i&1) == 1 || !a.IsZero)
+            while ((i & 1) == 1 || !a.IsZero)
             {
                 int n = Math.Max(a.BitLen(), b.BitLen());
 
@@ -75,6 +75,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     // -2ʲ⁺¹ < f₁ ≤ 2ʲ⁺¹
                     // So now |f₀| + |f₁| < 2ʲ⁺²
                 }
+
                 FE s = a;
 
                 // from this point on c0 aliases for f0
@@ -136,13 +137,13 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     LinearComb(u, c0, v, g0, out u);
                     // |F₁|, |G₁| < 2⁶³
                     LinearComb(s, f1, v, c1, out v);
-
                 }
                 else
                 {
                     // Save update factors
                     (pf0, pg0, pf1, pg1) = (c0, g0, f1, c1);
                 }
+
                 i++;
             }
 
@@ -150,7 +151,8 @@ namespace Nethermind.Verkle.Fields.FpEElement
             const ulong pSq = (ulong)1 << (2 * (K - 1));
             a = new FE(pSq);
             // If the function is constant-time ish, this loop will not run (no need to take it out explicitly)
-            while(i < invIterationsN) {
+            while (i < invIterationsN)
+            {
                 // could optimize further with mul by word routine or by pre-computing a table since with k=26,
                 // we would multiply by pSq up to 13times;
                 // on x86, the assembly routine outperforms generic code for mul by word
@@ -174,7 +176,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
             // correctness check
             MultiplyMod(u, z, out v);
-            if (!v.IsOne && !u.IsZero ) InverseExp(u, out z);
+            if (!v.IsOne && !u.IsZero) InverseExp(u, out z);
         }
 
 
@@ -322,7 +324,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
             t.u6 += c;
 
-             m = t.u3 * QInvNeg;
+            m = t.u3 * QInvNeg;
 
             c = MAdd0(m, Q0, t.u3);
             c = MAdd2(m, Q1, t.u4, c, out z.u0);

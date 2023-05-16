@@ -48,6 +48,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     {
                         AddOverflow(s, qElement, out s);
                     }
+
                     s.RightShiftByOne(out s);
                 }
 
@@ -58,6 +59,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     {
                         AddOverflow(r, qElement, out r);
                     }
+
                     r.RightShiftByOne(out r);
                 }
 
@@ -78,6 +80,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     z = r;
                     return;
                 }
+
                 if (v.u0 == 1 && (v.u3 | v.u2 | v.u1) == 0)
                 {
                     z = s;
@@ -164,6 +167,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
                     zeros[i] = true;
                     continue;
                 }
+
                 results[i] = accumulator;
                 MultiplyMod(in accumulator, in values[i], out accumulator);
             }

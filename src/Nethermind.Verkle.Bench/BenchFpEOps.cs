@@ -13,7 +13,7 @@ namespace Nethermind.Verkle.Bench
 
         public IEnumerable<(FpE, UInt256)> ValuesTuple => Values.Select(x => ((FpE)x, (UInt256)x));
 
-         public static UInt256? ModSqrt(UInt256 a, UInt256 p)
+        public static UInt256? ModSqrt(UInt256 a, UInt256 p)
         {
             if (LegendreSymbol(a, p) != 1)
                 return null;
@@ -82,6 +82,7 @@ namespace Nethermind.Verkle.Bench
                 r = m;
             }
         }
+
         public static int LegendreSymbol(UInt256 a, UInt256 p)
         {
             UInt256.Divide(p - 1, 2, out UInt256 exp);
@@ -92,11 +93,9 @@ namespace Nethermind.Verkle.Bench
 
     public class TwoParamFpEBenchmarkBase : FpEBenchmarkBase
     {
-        [ParamsSource(nameof(ValuesTuple))]
-        public (FpE, UInt256) A;
+        [ParamsSource(nameof(ValuesTuple))] public (FpE, UInt256) A;
 
-        [ParamsSource(nameof(ValuesTuple))]
-        public (FpE, UInt256) B;
+        [ParamsSource(nameof(ValuesTuple))] public (FpE, UInt256) B;
     }
 
 
@@ -216,5 +215,4 @@ namespace Nethermind.Verkle.Bench
             return ModSqrt(A.Item2, _uMod);
         }
     }
-
 }

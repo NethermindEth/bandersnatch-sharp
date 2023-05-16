@@ -23,8 +23,11 @@ namespace Nethermind.Verkle.Proofs
             for (int i = 0; i < domainSize; i++)
             {
                 if (i == indexI) continue;
-                q[i] = (f.Evaluations[i] - y) * inverses[(i - indexI) < 0 ? (inverses.Length + (i - indexI)): (i - indexI)];
-                q[indexI] += (f.Evaluations[i] - y) * inverses[(indexI - i) < 0 ? (inverses.Length + indexI - i) : (indexI - i)] * aPrimeDomain[indexI] *
+                q[i] = (f.Evaluations[i] - y) *
+                       inverses[(i - indexI) < 0 ? (inverses.Length + (i - indexI)) : (i - indexI)];
+                q[indexI] += (f.Evaluations[i] - y) *
+                             inverses[(indexI - i) < 0 ? (inverses.Length + indexI - i) : (indexI - i)] *
+                             aPrimeDomain[indexI] *
                              aPrimeDomainInv[i];
             }
 

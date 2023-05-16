@@ -45,17 +45,23 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
         public static Lazy<UInt256> _modulus = new Lazy<UInt256>(() =>
         {
-            UInt256.TryParse("52435875175126190479447740508185965837690552500527637822603658699938581184513", out UInt256 output);
+            UInt256.TryParse("52435875175126190479447740508185965837690552500527637822603658699938581184513",
+                out UInt256 output);
             return output;
         });
+
         public static Lazy<UInt256> _bLegendreExponentElement = new Lazy<UInt256>(() =>
         {
-            UInt256 output = new UInt256(Convert.FromHexString("39f6d3a994cebea4199cec0404d0ec02a9ded2017fff2dff7fffffff80000000"), true);
+            UInt256 output =
+                new UInt256(Convert.FromHexString("39f6d3a994cebea4199cec0404d0ec02a9ded2017fff2dff7fffffff80000000"),
+                    true);
             return output;
         });
+
         private static Lazy<UInt256> _bSqrtExponentElement = new Lazy<UInt256>(() =>
         {
-            UInt256 output = new UInt256(Convert.FromHexString("39f6d3a994cebea4199cec0404d0ec02a9ded2017fff2dff7fffffff"), true);
+            UInt256 output =
+                new UInt256(Convert.FromHexString("39f6d3a994cebea4199cec0404d0ec02a9ded2017fff2dff7fffffff"), true);
             return output;
         });
 
@@ -66,7 +72,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
         const long updateFactorsConversionBias = 0x7fffffff7fffffff; // (2³¹ - 1)(2³² + 1)
         const long updateFactorIdentityMatrixRow0 = 1;
-        const long  updateFactorIdentityMatrixRow1 = 4294967296;
+        const long updateFactorIdentityMatrixRow1 = 4294967296;
         private const int invIterationsN = 18;
 
         private const ulong inversionCorrectionFactorWord0 = 10120633560485349752;

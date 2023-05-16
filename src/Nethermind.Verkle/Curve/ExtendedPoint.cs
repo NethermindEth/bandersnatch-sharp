@@ -37,6 +37,7 @@ namespace Nethermind.Verkle.Curve
         private static FpE D => CurveParams.D;
 
         public bool IsZero => X.IsZero && Y.Equals(Z) && !Y.IsZero;
+
         public static ExtendedPoint Identity()
         {
             return new ExtendedPoint(AffinePoint.Identity());
@@ -160,6 +161,7 @@ namespace Nethermind.Verkle.Curve
                     result += point;
                 }
             }
+
             return result;
         }
 

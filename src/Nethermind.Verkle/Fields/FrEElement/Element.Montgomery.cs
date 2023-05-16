@@ -5,7 +5,6 @@ namespace Nethermind.Verkle.Fields.FrEElement
 {
     public readonly partial struct FrE
     {
-
         public static int Legendre(in FE z)
         {
             Exp(z, _bLegendreExponentElement.Value, out FE res);
@@ -48,6 +47,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
                     {
                         AddOverflow(s, qElement, out s);
                     }
+
                     s.RightShiftByOne(out s);
                 }
 
@@ -58,6 +58,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
                     {
                         AddOverflow(r, qElement, out r);
                     }
+
                     r.RightShiftByOne(out r);
                 }
 
@@ -78,6 +79,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
                     z = r;
                     return;
                 }
+
                 if (v.u0 == 1 && (v.u3 | v.u2 | v.u1) == 0)
                 {
                     z = s;
@@ -164,6 +166,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
                     zeros[i] = true;
                     continue;
                 }
+
                 results[i] = accumulator;
                 MultiplyMod(in accumulator, in values[i], out accumulator);
             }
@@ -180,7 +183,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
             return results;
         }
 
-                /// <summary>
+        /// <summary>
         /// Sqrt z = √x (mod q)
         /// if the square root doesn't exist (x is not a square mod q)
         /// Sqrt returns false

@@ -66,6 +66,7 @@ namespace Nethermind.Verkle.Proofs
                 stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
                 stringBuilder.Append('\n');
             }
+
             stringBuilder.Append("\n#[_a]#\n");
             stringBuilder.AppendJoin(", ", A.ToBytes().ToArray());
             stringBuilder.Append("\n#[_r]#\n");
@@ -74,6 +75,7 @@ namespace Nethermind.Verkle.Proofs
                 stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
                 stringBuilder.Append('\n');
             }
+
             return stringBuilder.ToString();
         }
     }
@@ -86,7 +88,8 @@ namespace Nethermind.Verkle.Proofs
         public FrE OutputPoint { get; }
         public IpaProofStruct IpaProof { get; }
 
-        public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint, IpaProofStruct ipaProof)
+        public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint,
+            IpaProofStruct ipaProof)
         {
             Commitment = commitment;
             Point = point;
@@ -135,7 +138,8 @@ namespace Nethermind.Verkle.Proofs
         public FrE ChildIndex { get; }
         public FrE ChildHash { get; }
 
-        public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
+        public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, FrE childIndex,
+            FrE childHash)
         {
             ChildHashPoly = childHashPoly;
             NodeCommitPoint = nodeCommitPoint;
