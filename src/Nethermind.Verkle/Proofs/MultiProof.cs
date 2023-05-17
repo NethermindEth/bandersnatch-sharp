@@ -31,12 +31,16 @@ namespace Nethermind.Verkle.Proofs
 
             FrE r = transcript.ChallengeScalar("r");
             FrE[] g = new FrE[domainSize];
-            FrE powerOfR = FrE.One;
+
             FrE[] powersOfR = new FrE[queries.Count];
+            powersOfR[0] = FrE.One;
+            for (int i = 1; i < queries.Count; i++)
+            {
+                powersOfR[i] = powersOfR[i - 1] * r;
+            }
 
             for (int i = 0; i < queries.Count; i++)
             {
-                powersOfR[i] = powerOfR;
                 VerkleProverQuery query = queries[i];
                 LagrangeBasis f = query.ChildHashPoly;
                 FrE index = query.ChildIndex;
@@ -44,9 +48,8 @@ namespace Nethermind.Verkle.Proofs
 
                 for (int j = 0; j < quotient.Length; j++)
                 {
-                    g[j] += powerOfR * quotient[j];
+                    g[j] += powersOfR[i] * quotient[j];
                 }
-                powerOfR *= r;
             }
 
             Banderwagon d = Crs.Commit(g);
@@ -55,23 +58,23 @@ namespace Nethermind.Verkle.Proofs
             FrE t = transcript.ChallengeScalar("t");
 
             FrE[] h = new FrE[domainSize];
-            for (int i = 0; i < domainSize; i++)
-            {
-                h[i] = FrE.Zero;
-            }
 
+            FrE[] denomInvs = new FrE[queries.Count];
             for (int i = 0; i < queries.Count; i++)
             {
                 VerkleProverQuery query = queries[i];
-
                 FrE.ToRegular(in query.ChildIndex, out FrE indexReg);
                 int index = (int)indexReg.u0;
+                denomInvs[i] = t - PreComp.Domain[index];
+            }
 
-                FrE.Inverse(t - PreComp.Domain[index], out FrE denominatorInv);
-                LagrangeBasis f = query.ChildHashPoly;
+            denomInvs = FrE.MultiInverse(denomInvs);
+            for (int i = 0; i < queries.Count; i++)
+            {
+                LagrangeBasis f = queries[i].ChildHashPoly;
                 for (int j = 0; j < f.Evaluations.Length; j++)
                 {
-                    h[j] += powersOfR[i] * f.Evaluations[j] * denominatorInv;
+                    h[j] += powersOfR[i] * f.Evaluations[j] * denomInvs[i];
                 }
             }
 
@@ -97,24 +100,23 @@ namespace Nethermind.Verkle.Proofs
         public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
         {
             transcript.DomainSep("multiproof");
-            Banderwagon d = proof.D;
-            IpaProofStruct ipaProof = proof.IpaProof;
             foreach (VerkleVerifierQuery query in queries)
             {
                 transcript.AppendPoint(query.NodeCommitPoint, "C");
                 transcript.AppendScalar(query.ChildIndex, "z");
                 transcript.AppendScalar(query.ChildHash, "y");
             }
-
             FrE r = transcript.ChallengeScalar("r");
+
             FrE[] powersOfR = new FrE[queries.Length];
             powersOfR[0] = FrE.One;
-
             for (int i = 1; i < queries.Length; i++)
             {
                 powersOfR[i] = powersOfR[i - 1] * r;
             }
 
+            Banderwagon d = proof.D;
+            IpaProofStruct ipaProof = proof.IpaProof;
             transcript.AppendPoint(d, "D");
             FrE t = transcript.ChallengeScalar("t");
 
