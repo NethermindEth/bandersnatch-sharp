@@ -40,12 +40,12 @@ namespace Nethermind.Verkle.Curve
 
         public static ExtendedPoint Identity()
         {
-            return new ExtendedPoint(AffinePoint.Identity());
+            return new ExtendedPoint(AffinePoint.Identity);
         }
 
         public static ExtendedPoint Generator()
         {
-            return new ExtendedPoint(AffinePoint.Generator());
+            return new ExtendedPoint(AffinePoint.Generator);
         }
 
         public static bool Equals(ExtendedPoint p, ExtendedPoint q)
@@ -167,7 +167,7 @@ namespace Nethermind.Verkle.Curve
 
         public AffinePoint ToAffine()
         {
-            if (IsZero) return AffinePoint.Identity();
+            if (IsZero) return AffinePoint.Identity;
             if (Z.IsZero) throw new Exception();
             if (Z.IsOne) return new AffinePoint(X, Y);
 
@@ -180,7 +180,7 @@ namespace Nethermind.Verkle.Curve
 
         public AffinePoint ToAffine(in FpE zInv)
         {
-            if (IsZero) return AffinePoint.Identity();
+            if (IsZero) return AffinePoint.Identity;
             if (Z.IsZero) throw new Exception();
             if (Z.IsOne) return new AffinePoint(X, Y);
 
