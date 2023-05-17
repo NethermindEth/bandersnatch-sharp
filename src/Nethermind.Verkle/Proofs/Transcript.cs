@@ -37,7 +37,7 @@ namespace Nethermind.Verkle.Proofs
 
         public void AppendScalar(FrE scalar, IEnumerable<byte> label)
         {
-            AppendBytes(scalar.ToBytes().ToArray(), label);
+            AppendBytes(scalar.ToBytes(), label);
         }
 
         public void AppendScalar(FrE scalar, string label)

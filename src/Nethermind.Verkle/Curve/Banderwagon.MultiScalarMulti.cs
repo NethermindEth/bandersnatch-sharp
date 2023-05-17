@@ -10,7 +10,7 @@ public readonly partial struct Banderwagon
 {
     public static Banderwagon MultiScalarMulOld(Span<Banderwagon> points, Span<FrE> scalars)
     {
-        Banderwagon res = Identity();
+        Banderwagon res = Identity;
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -56,7 +56,7 @@ public readonly partial struct Banderwagon
             i += windowsSize;
         }
 
-        ExtendedPoint zero = ExtendedPoint.Identity();
+        ExtendedPoint zero = ExtendedPoint.Identity;
 
         ExtendedPoint[] windowSums = new ExtendedPoint[windowsStart.Count];
         Parallel.For(0, windowsStart.Count, w =>
@@ -96,7 +96,7 @@ public readonly partial struct Banderwagon
                 }
             }
 
-            ExtendedPoint runningSum = ExtendedPoint.Identity();
+            ExtendedPoint runningSum = ExtendedPoint.Identity;
             for (int j = (buckets.Length - 1); j >= 0; j--)
             {
                 runningSum += buckets[j];
@@ -108,7 +108,7 @@ public readonly partial struct Banderwagon
 
         ExtendedPoint lowest = windowSums[0];
 
-        ExtendedPoint result = ExtendedPoint.Identity();
+        ExtendedPoint result = ExtendedPoint.Identity;
         for (int j = (windowSums.Length - 1); j > 0; j--)
         {
             result += windowSums[j];

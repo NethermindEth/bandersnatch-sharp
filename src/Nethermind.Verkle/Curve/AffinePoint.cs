@@ -1,6 +1,9 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
+using System.Buffers.Binary;
+using System.Collections.Specialized;
+using System.Numerics;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -12,11 +15,16 @@ namespace Nethermind.Verkle.Curve
         /// serialization constants
         /// </summary>
         private const byte MCompressedNegative = 128;
-
         private const byte MCompressedPositive = 0;
 
+        /// <summary>
+        /// affine coordinates of the point
+        /// </summary>
         public readonly FpE X;
         public readonly FpE Y;
+
+        public static AffinePoint Identity =  new(FpE.Zero, FpE.One);
+        public static AffinePoint Generator = new(CurveParams.XTe, CurveParams.YTe);
 
         public AffinePoint(FpE x, FpE y)
         {
@@ -24,13 +32,11 @@ namespace Nethermind.Verkle.Curve
             Y = y;
         }
 
-        private static FpE A => CurveParams.A;
-        private static FpE D => CurveParams.D;
-
-        public static AffinePoint Generator()
-        {
-            return new AffinePoint(CurveParams.XTe, CurveParams.YTe);
-        }
+        /// <summary>
+        /// bandersnatch curve parameters
+        /// </summary>
+        private static FpE A = CurveParams.A;
+        private static FpE D = CurveParams.D;
 
         public static AffinePoint Neg(AffinePoint p)
         {
@@ -115,38 +121,30 @@ namespace Nethermind.Verkle.Curve
             if (Y.LexicographicallyLargest())
                 mask = MCompressedNegative;
 
-            byte[] xBytes = X.ToBytes().ToArray();
+            byte[] xBytes = X.ToBytes();
             xBytes[31] |= mask;
             return xBytes;
         }
 
-        public static AffinePoint ScalarMultiplication(AffinePoint point, FrE scalar)
+        // using double and add : https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
+        public static AffinePoint ScalarMultiplication(AffinePoint point, FrE scalarMont)
         {
-            AffinePoint result = Identity();
-            byte[] bytes = scalar.ToBytes().ToArray();
+            AffinePoint result = Identity;
+            FrE.ToRegular(in scalarMont, out FrE scalar);
 
-            // using double and add : https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Double-and-add
-            foreach (byte idx in bytes)
+            for (int i = 0; i < scalar.BitLen(); i++)
             {
-                string? binaryString = Convert.ToString(bytes[idx], 2);
-                for (int i = 0; i < 8; i++)
+                if (scalar.Bit(i))
                 {
-                    if (i < binaryString.Length && binaryString[i] == '1')
-                    {
-                        result = Add(result, point);
-                    }
-
-                    point = Double(point);
+                    result = Add(result, point);
                 }
+
+                point = Double(point);
             }
-
-            return new AffinePoint(result.X, result.Y);
+            return result;
         }
 
-        public static AffinePoint Identity()
-        {
-            return new AffinePoint(FpE.Zero, FpE.One);
-        }
+
 
         public static FpE? GetYCoordinate(FpE x, bool returnPositiveY)
         {
@@ -155,13 +153,9 @@ namespace Nethermind.Verkle.Curve
             FpE den = num * D - one;
             num = num * A - one;
 
-            FpE? y = num / den;
+            FpE.Divide(in num, in den, out FpE y);
 
-            if (y is null)
-                return null;
-
-            if (!FpE.Sqrt(y.Value, out FpE z))
-                return null;
+            if (!FpE.Sqrt(in y, out FpE z)) return null;
 
             bool isLargest = z.LexicographicallyLargest();
 

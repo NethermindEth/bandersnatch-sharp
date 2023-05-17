@@ -35,7 +35,7 @@ namespace Nethermind.Verkle.Polynomial
             }
 
             FrE[] x = a.Coeffs.ToArray();
-            List<FrE> output = new List<FrE>();
+            List<FrE> output = new();
 
             int aPos = a.Length() - 1;
             int bPos = b.Length() - 1;

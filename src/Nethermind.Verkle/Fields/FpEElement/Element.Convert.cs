@@ -44,13 +44,13 @@ namespace Nethermind.Verkle.Fields.FpEElement
             return res;
         }
 
-        public Span<byte> ToBytes()
+        public byte[] ToBytes()
         {
             ToRegular(in this, out FE x);
             return ToLittleEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
-        public Span<byte> ToBytesBigEndian()
+        public byte[] ToBytesBigEndian()
         {
             ToRegular(in this, out FE x);
             return ToBigEndian(x.u0, x.u1, x.u2, x.u3);
@@ -86,7 +86,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             FromMontgomery(in x, out z);
         }
 
-        private static void FromMontgomery(in FE x, out FE res)
+        public static void FromMontgomery(in FE x, out FE res)
         {
             U4 z = new() { u0 = x.u0, u1 = x.u1, u2 = x.u2, u3 = x.u3 };
 

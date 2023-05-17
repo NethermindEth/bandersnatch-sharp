@@ -9,7 +9,7 @@ namespace Nethermind.Verkle.Tests.Proofs
         [Test]
         public void TestProverVerifierConsistency()
         {
-            Banderwagon point = Banderwagon.Generator();
+            Banderwagon point = Banderwagon.Generator;
             Random random = new Random();
             byte[] data = new byte[32];
             random.NextBytes(data);
@@ -88,7 +88,7 @@ namespace Nethermind.Verkle.Tests.Proofs
         {
             Transcript transcript = new Transcript("simple_protocol");
 
-            Banderwagon generator = Banderwagon.Generator();
+            Banderwagon generator = Banderwagon.Generator;
 
             transcript.AppendPoint(generator, "generator");
             FrE challenge = transcript.ChallengeScalar("simple_challenge");

@@ -44,13 +44,13 @@ namespace Nethermind.Verkle.Fields.FrEElement
             return res;
         }
 
-        public Span<byte> ToBytes()
+        public byte[] ToBytes()
         {
             ToRegular(in this, out FE x);
             return ToLittleEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
-        public Span<byte> ToBytesBigEndian()
+        public byte[] ToBytesBigEndian()
         {
             ToRegular(in this, out FE x);
             return ToBigEndian(x.u0, x.u1, x.u2, x.u3);

@@ -57,16 +57,13 @@ namespace Nethermind.Verkle.Polynomial
                 elems[i] = z - Domain[i];
             }
 
-            FrE[] inverses = FrE.MultiInverse(elems);
-
-            FrE[] r = new FrE[inverses.Length];
-
-            for (int i = 0; i < inverses.Length; i++)
+            elems = FrE.MultiInverse(elems);
+            for (int i = 0; i < VerkleNodeWidth; i++)
             {
-                r[i] = az * APrimeDomainInv[i] * inverses[i];
+                elems[i] = az * APrimeDomainInv[i] * elems[i];
             }
 
-            return r;
+            return elems;
         }
     }
 }

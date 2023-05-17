@@ -38,15 +38,9 @@ namespace Nethermind.Verkle.Curve
 
         public bool IsZero => X.IsZero && Y.Equals(Z) && !Y.IsZero;
 
-        public static ExtendedPoint Identity()
-        {
-            return new ExtendedPoint(AffinePoint.Identity());
-        }
+        public static ExtendedPoint Identity = new(AffinePoint.Identity);
 
-        public static ExtendedPoint Generator()
-        {
-            return new ExtendedPoint(AffinePoint.Generator());
-        }
+        public static ExtendedPoint Generator = new(AffinePoint.Generator);
 
         public static bool Equals(ExtendedPoint p, ExtendedPoint q)
         {
@@ -99,10 +93,8 @@ namespace Nethermind.Verkle.Curve
 
             FpE x2 = q.X;
             FpE y2 = q.Y;
-            FpE z2 = FpE.One;
 
-            FpE a = z1 * z2;
-            FpE b = a * a;
+            FpE b = z1 * z1;
 
             FpE c = x1 * x2;
 
@@ -113,8 +105,8 @@ namespace Nethermind.Verkle.Curve
             FpE f = b - e;
             FpE g = b + e;
 
-            FpE x3 = a * f * ((x1 + y1) * (x2 + y2) - c - d);
-            FpE y3 = a * g * (d - A * c);
+            FpE x3 = z1 * f * ((x1 + y1) * (x2 + y2) - c - d);
+            FpE y3 = z1 * g * (d - A * c);
             FpE z3 = f * g;
 
             return new ExtendedPoint(x3, y3, z3);
@@ -148,7 +140,7 @@ namespace Nethermind.Verkle.Curve
 
         public static ExtendedPoint ScalarMultiplication(ExtendedPoint point, FrE scalarMont)
         {
-            ExtendedPoint result = Identity();
+            ExtendedPoint result = Identity;
 
             FrE.ToRegular(in scalarMont, out FrE scalar);
 
@@ -167,7 +159,7 @@ namespace Nethermind.Verkle.Curve
 
         public AffinePoint ToAffine()
         {
-            if (IsZero) return AffinePoint.Identity();
+            if (IsZero) return AffinePoint.Identity;
             if (Z.IsZero) throw new Exception();
             if (Z.IsOne) return new AffinePoint(X, Y);
 
@@ -180,7 +172,7 @@ namespace Nethermind.Verkle.Curve
 
         public AffinePoint ToAffine(in FpE zInv)
         {
-            if (IsZero) return AffinePoint.Identity();
+            if (IsZero) return AffinePoint.Identity;
             if (Z.IsZero) throw new Exception();
             if (Z.IsOne) return new AffinePoint(X, Y);
 

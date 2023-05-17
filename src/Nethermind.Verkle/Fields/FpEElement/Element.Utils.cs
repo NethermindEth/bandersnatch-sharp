@@ -206,26 +206,28 @@ namespace Nethermind.Verkle.Fields.FpEElement
             }
         }
 
-        private static Span<byte> ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
+        private static byte[] ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
             scoped in ulong u3)
         {
-            Span<byte> target = new byte[32];
+            byte[] returnEncoding = new byte[32];
+            Span<byte> target = returnEncoding;
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(0, 8), u3);
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(8, 8), u2);
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(16, 8), u1);
             BinaryPrimitives.WriteUInt64BigEndian(target.Slice(24, 8), u0);
-            return target;
+            return returnEncoding;
         }
 
-        private static Span<byte> ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
+        private static byte[] ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
             scoped in ulong u3)
         {
-            Span<byte> target = new byte[32];
+            byte[] returnEncoding = new byte[32];
+            Span<byte> target = returnEncoding;
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(8, 8), u1);
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(16, 8), u2);
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(24, 8), u3);
-            return target;
+            return returnEncoding;
         }
 
         private static ReadOnlySpan<byte> SBroadcastLookup => new byte[]

@@ -2,6 +2,7 @@
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
 using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using Nethermind.Verkle.Fields.FpEElement;
@@ -20,7 +21,7 @@ namespace Nethermind.Verkle.Curve
         private CRS(Banderwagon[] basisG)
         {
             BasisG = basisG;
-            BasisQ = Banderwagon.Generator();
+            BasisQ = Banderwagon.Generator;
         }
 
         public static CRS Generate(long numPoints)
@@ -46,7 +47,7 @@ namespace Nethermind.Verkle.Curve
                 FpE x = new FpE(hash, true);
                 increment++;
 
-                byte[] xAsBytes = x.ToBytesBigEndian().ToArray();
+                byte[] xAsBytes = x.ToBytesBigEndian();
                 (FpE X, FpE Y)? pointFound = Banderwagon.FromBytes(xAsBytes);
                 if (pointFound is null) continue;
                 points[generatedPoints] =
@@ -59,24 +60,24 @@ namespace Nethermind.Verkle.Curve
 
         public Banderwagon CommitSparse(Dictionary<int, FrE> values)
         {
-            if (values.Count == 0)
-                return Banderwagon.Identity();
+            if (values.Count == 0) return Banderwagon.Identity;
 
-            List<Banderwagon> points = new List<Banderwagon>();
-            List<FrE> scalars = new List<FrE>();
+            List<Banderwagon> points = new(values.Count);
+            List<FrE> scalars = new(values.Count);
             foreach (KeyValuePair<int, FrE> keyVal in values)
             {
                 points.Add(BasisG[keyVal.Key]);
                 scalars.Add(keyVal.Value);
             }
 
-            Banderwagon commitment = Banderwagon.MultiScalarMul(points.ToArray(), scalars.ToArray());
+            Banderwagon commitment = Banderwagon.MultiScalarMul(CollectionsMarshal.AsSpan(points), CollectionsMarshal.AsSpan(scalars));
             return commitment;
         }
 
         public Banderwagon Commit(FrE[] values)
         {
-            Banderwagon[] elements = BasisG[..values.Length];
+            Span<Banderwagon> elements = BasisG;
+            elements = elements[..values.Length];
             return Banderwagon.MultiScalarMul(elements, values);
         }
     }

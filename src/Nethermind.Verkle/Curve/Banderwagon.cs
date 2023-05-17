@@ -1,6 +1,8 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
+using System.Runtime.CompilerServices;
+using Nethermind.Int256;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -8,8 +10,11 @@ namespace Nethermind.Verkle.Curve
 {
     public readonly partial struct Banderwagon
     {
-        private static FpE A => CurveParams.A;
+        private static FpE A = CurveParams.A;
         private readonly ExtendedPoint _point;
+
+        public static Banderwagon Identity = new(ExtendedPoint.Identity);
+        public static Banderwagon Generator = new(ExtendedPoint.Generator);
 
         public Banderwagon(byte[]? serialisedBytesBigEndian, ExtendedPoint? unsafeBandersnatchPoint = null)
         {
@@ -41,17 +46,14 @@ namespace Nethermind.Verkle.Curve
             _point = exPoint;
         }
 
-        public static (FpE X, FpE Y)? FromBytes(IEnumerable<byte> serialisedBytesBigEndian)
+        public static (FpE X, FpE Y)? FromBytes(byte[] serialisedBytesBigEndian)
         {
-            IEnumerable<byte> bytes = serialisedBytesBigEndian.Reverse();
+            FpE x = FpE.FromBytes(serialisedBytesBigEndian, true);
 
-            FpE? x = FpE.FromBytes(bytes.ToArray());
-            if (x is null) return null;
-
-            FpE? y = AffinePoint.GetYCoordinate(x.Value, true);
+            FpE? y = AffinePoint.GetYCoordinate(x, true);
             if (y is null) return null;
 
-            return SubgroupCheck(x.Value) != 1 ? null : (x.Value, y.Value);
+            return SubgroupCheck(x) != 1 ? null : (x, y.Value);
         }
 
         public static int SubgroupCheck(FpE x)
@@ -81,11 +83,6 @@ namespace Nethermind.Verkle.Curve
             return lhs.Equals(rhs);
         }
 
-        public static Banderwagon Generator()
-        {
-            return new Banderwagon(ExtendedPoint.Generator());
-        }
-
         public static Banderwagon Neg(Banderwagon p)
         {
             return new Banderwagon(ExtendedPoint.Neg(p._point));
@@ -101,14 +98,34 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(p._point - q._point);
         }
 
-        private FpE? _mapToField()
+        public FrE MapToScalarField()
         {
-            return _point.X / _point.Y;
+            FpE.Inverse(in _point.Y, out FpE map);
+            FpE.MultiplyMod(in _point.X, in map, out map);
+            FpE.FromMontgomery(in map, out map);
+            Unsafe.As<FpE, UInt256>(ref Unsafe.AsRef(in map)).Mod(FrE._modulus.Value, out UInt256 inter);
+            return FrE.SetElement(inter.u0, inter.u1, inter.u2, inter.u3);
         }
 
-        public byte[] MapToField()
+        public FrE MapToScalarField(in FpE inv)
         {
-            return _mapToField()?.ToBytes().ToArray() ?? throw new Exception();
+            FpE.MultiplyMod(in _point.X, in inv, out FpE map);
+            FpE.FromMontgomery(in map, out map);
+            Unsafe.As<FpE, UInt256>(ref Unsafe.AsRef(in map)).Mod(FrE._modulus.Value, out UInt256 inter);
+            return FrE.SetElement(inter.u0, inter.u1, inter.u2, inter.u3);
+        }
+
+        public static FrE[] BatchMapToScalarField(Banderwagon[] points)
+        {
+            FpE[] inverses = points.Select(x => x._point.Y).ToArray();
+            inverses = FpE.MultiInverse(inverses);
+
+            FrE[] fields = new FrE[points.Length];
+            Parallel.For(0, points.Length, i =>
+            {
+                fields[i] = points[i].MapToScalarField(in inverses[i]);
+            });
+            return fields;
         }
 
         public byte[] ToBytes()
@@ -120,7 +137,7 @@ namespace Nethermind.Verkle.Curve
                 x = affine.X.Negative();
             }
 
-            return x.ToBytesBigEndian().ToArray();
+            return x.ToBytesBigEndian();
         }
 
         public byte[] ToBytesLittleEndian()
@@ -132,7 +149,7 @@ namespace Nethermind.Verkle.Curve
                 x = affine.X.Negative();
             }
 
-            return x.ToBytes().ToArray();
+            return x.ToBytes();
         }
 
         public static Banderwagon Double(Banderwagon p)
@@ -145,15 +162,11 @@ namespace Nethermind.Verkle.Curve
             return _point.ToAffine().IsOnCurve();
         }
 
-        public static Banderwagon ScalarMul(Banderwagon element, FrE scalar)
+        public static Banderwagon ScalarMul(in Banderwagon element, in FrE scalar)
         {
             return new Banderwagon(element._point * scalar);
         }
 
-        public static Banderwagon Identity()
-        {
-            return new Banderwagon(ExtendedPoint.Identity());
-        }
 
 
         public static Banderwagon TwoTorsionPoint()
