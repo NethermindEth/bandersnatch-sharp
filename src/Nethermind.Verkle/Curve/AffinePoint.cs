@@ -121,7 +121,7 @@ namespace Nethermind.Verkle.Curve
             if (Y.LexicographicallyLargest())
                 mask = MCompressedNegative;
 
-            byte[] xBytes = X.ToBytes().ToArray();
+            byte[] xBytes = X.ToBytes();
             xBytes[31] |= mask;
             return xBytes;
         }

@@ -13,8 +13,8 @@ namespace Nethermind.Verkle.Curve
         private static FpE A = CurveParams.A;
         private readonly ExtendedPoint _point;
 
-        public static Banderwagon Identity = new Banderwagon(ExtendedPoint.Identity);
-        public static Banderwagon Generator = new Banderwagon(ExtendedPoint.Generator);
+        public static Banderwagon Identity = new(ExtendedPoint.Identity);
+        public static Banderwagon Generator = new(ExtendedPoint.Generator);
 
         public Banderwagon(byte[]? serialisedBytesBigEndian, ExtendedPoint? unsafeBandersnatchPoint = null)
         {
@@ -137,7 +137,7 @@ namespace Nethermind.Verkle.Curve
                 x = affine.X.Negative();
             }
 
-            return x.ToBytesBigEndian().ToArray();
+            return x.ToBytesBigEndian();
         }
 
         public byte[] ToBytesLittleEndian()
@@ -149,7 +149,7 @@ namespace Nethermind.Verkle.Curve
                 x = affine.X.Negative();
             }
 
-            return x.ToBytes().ToArray();
+            return x.ToBytes();
         }
 
         public static Banderwagon Double(Banderwagon p)

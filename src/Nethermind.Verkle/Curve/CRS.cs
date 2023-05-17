@@ -47,7 +47,7 @@ namespace Nethermind.Verkle.Curve
                 FpE x = new FpE(hash, true);
                 increment++;
 
-                byte[] xAsBytes = x.ToBytesBigEndian().ToArray();
+                byte[] xAsBytes = x.ToBytesBigEndian();
                 (FpE X, FpE Y)? pointFound = Banderwagon.FromBytes(xAsBytes);
                 if (pointFound is null) continue;
                 points[generatedPoints] =

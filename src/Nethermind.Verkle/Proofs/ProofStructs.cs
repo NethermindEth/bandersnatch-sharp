@@ -26,15 +26,15 @@ public class IpaProofStruct
 
         foreach (Banderwagon l in L)
         {
-            encoded.AddRange(l.ToBytesLittleEndian().Reverse().ToArray());
+            encoded.AddRange(l.ToBytes());
         }
 
         foreach (Banderwagon r in R)
         {
-            encoded.AddRange(r.ToBytesLittleEndian().Reverse().ToArray());
+            encoded.AddRange(r.ToBytes());
         }
 
-        encoded.AddRange(A.ToBytes().ToArray());
+        encoded.AddRange(A.ToBytes());
 
         return encoded.ToArray();
     }
@@ -45,16 +45,16 @@ public class IpaProofStruct
         stringBuilder.Append("\n#[_l]#\n");
         foreach (Banderwagon l in L)
         {
-            stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
+            stringBuilder.AppendJoin(", ", l.ToBytes());
             stringBuilder.Append('\n');
         }
 
         stringBuilder.Append("\n#[_a]#\n");
-        stringBuilder.AppendJoin(", ", A.ToBytes().ToArray());
+        stringBuilder.AppendJoin(", ", A.ToBytes());
         stringBuilder.Append("\n#[_r]#\n");
         foreach (Banderwagon l in R)
         {
-            stringBuilder.AppendJoin(", ", l.ToBytesLittleEndian().Reverse().ToArray());
+            stringBuilder.AppendJoin(", ", l.ToBytes());
             stringBuilder.Append('\n');
         }
 
@@ -79,7 +79,7 @@ public class VerkleProofStruct
         stringBuilder.Append("\n##[IPA Proof]##\n");
         stringBuilder.Append(IpaProof.ToString());
         stringBuilder.Append("\n##[_d]##\n");
-        stringBuilder.AppendJoin(", ", D.ToBytesLittleEndian().Reverse().ToArray());
+        stringBuilder.AppendJoin(", ", D.ToBytes());
         return stringBuilder.ToString();
     }
 
@@ -87,7 +87,7 @@ public class VerkleProofStruct
     {
         List<byte> encoded = new List<byte>();
 
-        encoded.AddRange(D.ToBytesLittleEndian().Reverse().ToArray());
+        encoded.AddRange(D.ToBytes());
         encoded.AddRange(IpaProof.Encode());
 
         return encoded.ToArray();
