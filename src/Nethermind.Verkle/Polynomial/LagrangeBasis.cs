@@ -17,22 +17,6 @@ namespace Nethermind.Verkle.Polynomial
             _domain = evaluations.Length;
         }
 
-        public static bool Equals(LagrangeBasis? x, LagrangeBasis? y)
-        {
-            if (x is null) return y is null;
-            return y is not null && x.Evaluations.SequenceEqual(y.Evaluations);
-        }
-
-        public static int GetHashCode(LagrangeBasis obj)
-        {
-            return HashCode.Combine(obj.Evaluations, obj._domain);
-        }
-
-        private static LagrangeBasis Empty()
-        {
-            return new LagrangeBasis();
-        }
-
         private static LagrangeBasis ArithmeticOp(LagrangeBasis lhs, LagrangeBasis rhs, ArithmeticOps op)
         {
             if (lhs._domain != rhs._domain) throw new ArgumentException("Domain should be same");

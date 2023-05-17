@@ -10,10 +10,10 @@ namespace Nethermind.Verkle.Proofs
 {
     public class IpaProverQuery
     {
-        public FrE[] Polynomial { get; }
-        public Banderwagon Commitment { get; }
-        public FrE Point { get; }
-        public FrE[] PointEvaluations { get; }
+        public readonly FrE[] Polynomial;
+        public readonly Banderwagon Commitment;
+        public readonly FrE Point;
+        public readonly FrE[] PointEvaluations;
 
         public IpaProverQuery(FrE[] polynomial, Banderwagon commitment, FrE point,
             FrE[] pointEvaluations)
@@ -27,9 +27,9 @@ namespace Nethermind.Verkle.Proofs
 
     public class IpaProofStruct
     {
-        public Banderwagon[] L { get; }
-        public FrE A { get; }
-        public Banderwagon[] R { get; }
+        public readonly Banderwagon[] L;
+        public readonly FrE A;
+        public readonly Banderwagon[] R;
 
         public IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
         {
@@ -82,11 +82,11 @@ namespace Nethermind.Verkle.Proofs
 
     public class IpaVerifierQuery
     {
-        public Banderwagon Commitment { get; }
-        public FrE Point { get; }
-        public FrE[] PointEvaluations { get; }
-        public FrE OutputPoint { get; }
-        public IpaProofStruct IpaProof { get; }
+        public readonly Banderwagon Commitment;
+        public readonly FrE Point;
+        public readonly FrE[] PointEvaluations;
+        public readonly FrE OutputPoint;
+        public readonly IpaProofStruct IpaProof;
 
         public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint,
             IpaProofStruct ipaProof)
@@ -101,8 +101,8 @@ namespace Nethermind.Verkle.Proofs
 
     public class VerkleProofStruct
     {
-        public IpaProofStruct IpaProof { get; }
-        public Banderwagon D { get; }
+        public readonly IpaProofStruct IpaProof;
+        public readonly Banderwagon D;
 
         public VerkleProofStruct(IpaProofStruct ipaProof, Banderwagon d)
         {
@@ -133,10 +133,10 @@ namespace Nethermind.Verkle.Proofs
 
     public struct VerkleProverQuery
     {
-        public LagrangeBasis ChildHashPoly { get; }
-        public Banderwagon NodeCommitPoint { get; }
-        public FrE ChildIndex { get; }
-        public FrE ChildHash { get; }
+        public readonly LagrangeBasis ChildHashPoly;
+        public readonly Banderwagon NodeCommitPoint;
+        public readonly FrE ChildIndex;
+        public readonly FrE ChildHash;
 
         public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, FrE childIndex,
             FrE childHash)
@@ -150,9 +150,9 @@ namespace Nethermind.Verkle.Proofs
 
     public struct VerkleVerifierQuery
     {
-        public Banderwagon NodeCommitPoint { get; }
-        public FrE ChildIndex { get; }
-        public FrE ChildHash { get; }
+        public readonly Banderwagon NodeCommitPoint;
+        public readonly FrE ChildIndex;
+        public readonly FrE ChildHash;
 
         public VerkleVerifierQuery(Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
         {

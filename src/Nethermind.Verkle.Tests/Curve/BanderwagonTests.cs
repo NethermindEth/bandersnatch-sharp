@@ -28,7 +28,7 @@ namespace Nethermind.Verkle.Tests.Curve
             };
 
             List<Banderwagon> points = new List<Banderwagon>();
-            Banderwagon point = Banderwagon.Generator();
+            Banderwagon point = Banderwagon.Generator;
 
             foreach (string? bitString in expectedBitStrings)
             {
@@ -52,7 +52,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestTwoTorsion()
         {
-            Banderwagon gen = Banderwagon.Generator();
+            Banderwagon gen = Banderwagon.Generator;
             Banderwagon twoTorsion = Banderwagon.TwoTorsionPoint();
             Banderwagon result = Banderwagon.Add(gen, twoTorsion);
 

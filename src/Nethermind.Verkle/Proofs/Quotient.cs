@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using Nethermind.Verkle.Polynomial;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -14,21 +15,21 @@ namespace Nethermind.Verkle.Proofs
             FrE[] aPrimeDomain = preComp.APrimeDomain;
             FrE[] aPrimeDomainInv = preComp.APrimeDomainInv;
 
-            int indexI = index.ToBytes()[0];
+            FrE.ToRegular(in index, out FrE indexReg);
+            int indexI = (int)indexReg.u0;
 
             FrE[] q = new FrE[domainSize];
             FrE y = f.Evaluations[indexI];
 
-
             for (int i = 0; i < domainSize; i++)
             {
                 if (i == indexI) continue;
-                q[i] = (f.Evaluations[i] - y) *
-                       inverses[(i - indexI) < 0 ? (inverses.Length + (i - indexI)) : (i - indexI)];
-                q[indexI] += (f.Evaluations[i] - y) *
-                             inverses[(indexI - i) < 0 ? (inverses.Length + indexI - i) : (indexI - i)] *
-                             aPrimeDomain[indexI] *
-                             aPrimeDomainInv[i];
+
+                int firstIndex = (i - indexI) < 0 ? (inverses.Length + (i - indexI)) : (i - indexI);
+                int secondIndex = (indexI - i) < 0 ? (inverses.Length + indexI - i) : (indexI - i);
+
+                q[i] = (f.Evaluations[i] - y) * inverses[firstIndex];
+                q[indexI] += (f.Evaluations[i] - y) * inverses[secondIndex] * aPrimeDomain[indexI] * aPrimeDomainInv[i];
             }
 
             return q;

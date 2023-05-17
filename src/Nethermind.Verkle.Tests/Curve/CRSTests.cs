@@ -35,7 +35,7 @@ namespace Nethermind.Verkle.Tests.Curve
         public void TestCrsNotGenerator()
         {
             Banderwagon[]? crs = CrsStruct.Generate();
-            Banderwagon? generator = Banderwagon.Generator();
+            Banderwagon? generator = Banderwagon.Generator;
 
             foreach (Banderwagon? point in crs)
             {
@@ -47,7 +47,7 @@ namespace Nethermind.Verkle.Tests.Curve
         public void TestCrsGenerator()
         {
             CRS x = CRS.Generate(256);
-            Banderwagon generator = Banderwagon.Generator();
+            Banderwagon generator = Banderwagon.Generator;
 
             foreach (Banderwagon? point in x.BasisG)
             {

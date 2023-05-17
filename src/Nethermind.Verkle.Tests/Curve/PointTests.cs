@@ -8,7 +8,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestAddition()
         {
-            ExtendedPoint gen = ExtendedPoint.Generator();
+            ExtendedPoint gen = ExtendedPoint.Generator;
             ExtendedPoint resultAdd = gen + gen;
 
             ExtendedPoint resultDouble = ExtendedPoint.Double(gen);
@@ -19,8 +19,8 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestEq()
         {
-            ExtendedPoint gen = ExtendedPoint.Generator();
-            ExtendedPoint gen2 = ExtendedPoint.Generator();
+            ExtendedPoint gen = ExtendedPoint.Generator;
+            ExtendedPoint gen2 = ExtendedPoint.Generator;
 
             ExtendedPoint negGen = ExtendedPoint.Neg(gen);
 
@@ -31,8 +31,8 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestNeg()
         {
-            ExtendedPoint gen = ExtendedPoint.Generator();
-            ExtendedPoint expected = ExtendedPoint.Identity();
+            ExtendedPoint gen = ExtendedPoint.Generator;
+            ExtendedPoint expected = ExtendedPoint.Identity;
             ExtendedPoint result = gen + ExtendedPoint.Neg(gen);
 
             Assert.IsTrue(expected == result);
@@ -41,7 +41,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestSerialiseGen()
         {
-            ExtendedPoint gen = ExtendedPoint.Generator();
+            ExtendedPoint gen = ExtendedPoint.Generator;
 
             byte[]? serialized = gen.ToBytes();
             const string expected = "18ae52a26618e7e1658499ad22c0792bf342be7b77113774c5340b2ccc32c129";
@@ -51,7 +51,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestScalarMulSmoke()
         {
-            ExtendedPoint gen = ExtendedPoint.Generator();
+            ExtendedPoint gen = ExtendedPoint.Generator;
             FrE scalar = FrE.SetElement(2);
             ExtendedPoint result = gen * scalar;
             ExtendedPoint twoGen = ExtendedPoint.Double(gen);
@@ -61,7 +61,7 @@ namespace Nethermind.Verkle.Tests.Curve
         [Test]
         public void TestScalarMulMinusOne()
         {
-            ExtendedPoint gen = ExtendedPoint.Generator();
+            ExtendedPoint gen = ExtendedPoint.Generator;
 
             const int x = -1;
             FrE scalar = FrE.SetElement(x);

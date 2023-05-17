@@ -23,6 +23,9 @@ namespace Nethermind.Verkle.Curve
         public readonly FpE X;
         public readonly FpE Y;
 
+        public static AffinePoint Identity =  new(FpE.Zero, FpE.One);
+        public static AffinePoint Generator = new(CurveParams.XTe, CurveParams.YTe);
+
         public AffinePoint(FpE x, FpE y)
         {
             X = x;
@@ -34,8 +37,6 @@ namespace Nethermind.Verkle.Curve
         /// </summary>
         private static FpE A = CurveParams.A;
         private static FpE D = CurveParams.D;
-
-        public static AffinePoint Generator = new(CurveParams.XTe, CurveParams.YTe);
 
         public static AffinePoint Neg(AffinePoint p)
         {
@@ -143,7 +144,7 @@ namespace Nethermind.Verkle.Curve
             return result;
         }
 
-        public static AffinePoint Identity =  new AffinePoint(FpE.Zero, FpE.One);
+
 
         public static FpE? GetYCoordinate(FpE x, bool returnPositiveY)
         {

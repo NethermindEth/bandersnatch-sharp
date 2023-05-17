@@ -10,8 +10,11 @@ namespace Nethermind.Verkle.Curve
 {
     public readonly partial struct Banderwagon
     {
-        private static FpE A => CurveParams.A;
+        private static FpE A = CurveParams.A;
         private readonly ExtendedPoint _point;
+
+        public static Banderwagon Identity = new Banderwagon(ExtendedPoint.Identity);
+        public static Banderwagon Generator = new Banderwagon(ExtendedPoint.Generator);
 
         public Banderwagon(byte[]? serialisedBytesBigEndian, ExtendedPoint? unsafeBandersnatchPoint = null)
         {
@@ -43,17 +46,14 @@ namespace Nethermind.Verkle.Curve
             _point = exPoint;
         }
 
-        public static (FpE X, FpE Y)? FromBytes(IEnumerable<byte> serialisedBytesBigEndian)
+        public static (FpE X, FpE Y)? FromBytes(byte[] serialisedBytesBigEndian)
         {
-            IEnumerable<byte> bytes = serialisedBytesBigEndian.Reverse();
+            FpE x = FpE.FromBytes(serialisedBytesBigEndian, true);
 
-            FpE? x = FpE.FromBytes(bytes.ToArray());
-            if (x is null) return null;
-
-            FpE? y = AffinePoint.GetYCoordinate(x.Value, true);
+            FpE? y = AffinePoint.GetYCoordinate(x, true);
             if (y is null) return null;
 
-            return SubgroupCheck(x.Value) != 1 ? null : (x.Value, y.Value);
+            return SubgroupCheck(x) != 1 ? null : (x, y.Value);
         }
 
         public static int SubgroupCheck(FpE x)
@@ -81,11 +81,6 @@ namespace Nethermind.Verkle.Curve
             FpE rhs = x2 * y1;
 
             return lhs.Equals(rhs);
-        }
-
-        public static Banderwagon Generator()
-        {
-            return new Banderwagon(ExtendedPoint.Generator());
         }
 
         public static Banderwagon Neg(Banderwagon p)
@@ -167,15 +162,11 @@ namespace Nethermind.Verkle.Curve
             return _point.ToAffine().IsOnCurve();
         }
 
-        public static Banderwagon ScalarMul(Banderwagon element, FrE scalar)
+        public static Banderwagon ScalarMul(in Banderwagon element, in FrE scalar)
         {
             return new Banderwagon(element._point * scalar);
         }
 
-        public static Banderwagon Identity()
-        {
-            return new Banderwagon(ExtendedPoint.Identity());
-        }
 
 
         public static Banderwagon TwoTorsionPoint()

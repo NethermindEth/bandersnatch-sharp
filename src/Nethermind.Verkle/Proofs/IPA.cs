@@ -94,16 +94,14 @@ namespace Nethermind.Verkle.Proofs
         {
             transcript.DomainSep("ipa"u8.ToArray());
 
-            int n = query.PointEvaluations.Length;
-            int m = n / 2;
-
             int numRounds = query.IpaProof.L.Length;
-
 
             Banderwagon c = query.Commitment;
             FrE z = query.Point;
             Span<FrE> b = query.PointEvaluations;
             IpaProofStruct ipaProof = query.IpaProof;
+            Span<Banderwagon> commitL = ipaProof.L;
+            Span<Banderwagon> commitR = ipaProof.R;
             FrE y = query.OutputPoint;
 
             transcript.AppendPoint(c, "C"u8.ToArray());
@@ -113,35 +111,26 @@ namespace Nethermind.Verkle.Proofs
 
             Banderwagon q = crs.BasisQ * w;
 
-            Banderwagon currentCommitment = c + q * y;
-
             FrE[] xs = new FrE[numRounds];
-            FrE[] xInvList = new FrE[numRounds];
-
-
             for (int i = 0; i < numRounds; i++)
             {
-                Banderwagon cL = ipaProof.L[i];
-                Banderwagon cR = ipaProof.R[i];
-
+                Banderwagon cL = commitL[i];
+                Banderwagon cR = commitR[i];
                 transcript.AppendPoint(cL, "L"u8.ToArray());
                 transcript.AppendPoint(cR, "R"u8.ToArray());
-                FrE x = transcript.ChallengeScalar("x"u8.ToArray());
-
-                FrE.Inverse(in x, out FrE xInv);
-
-                xs[i] = x;
-                xInvList[i] = xInv;
-
-                currentCommitment = currentCommitment + cL * x + cR * xInv;
-                n = m;
-                m = n / 2;
+                xs[i] = transcript.ChallengeScalar("x"u8.ToArray());
             }
 
-            Span<Banderwagon> currentBasis = crs.BasisG;
-            n = crs.BasisG.Length;
-            m = n / 2;
+            FrE[] xInvList = FrE.MultiInverse(xs);
 
+            Banderwagon cLScaled = Banderwagon.MultiScalarMul(commitL, xs);
+            Banderwagon cRScaled = Banderwagon.MultiScalarMul(commitR, xInvList);
+            Banderwagon currentCommitment = c + q * y + cLScaled + cRScaled;
+
+            Span<Banderwagon> currentBasis = crs.BasisG;
+
+            int n = crs.BasisG.Length;
+            int m = n / 2;
             for (int j = 0; j < numRounds; j++)
             {
                 Span<Banderwagon> gL = currentBasis[..m];
