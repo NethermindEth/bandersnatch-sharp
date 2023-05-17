@@ -46,7 +46,6 @@ namespace Nethermind.Verkle.Proofs
                 {
                     g[j] += powerOfR * quotient[j];
                 }
-
                 powerOfR *= r;
             }
 
@@ -61,19 +60,19 @@ namespace Nethermind.Verkle.Proofs
                 h[i] = FrE.Zero;
             }
 
-            powerOfR = FrE.One;
-
-            foreach (VerkleProverQuery query in queries)
+            for (int i = 0; i < queries.Count; i++)
             {
-                int index = query.ChildIndex.ToBytes()[0];
+                VerkleProverQuery query = queries[i];
+
+                FrE.ToRegular(in query.ChildIndex, out FrE indexReg);
+                int index = (int)indexReg.u0;
+
                 FrE.Inverse(t - PreComp.Domain[index], out FrE denominatorInv);
                 LagrangeBasis f = query.ChildHashPoly;
-                for (int i = 0; i < f.Evaluations.Length; i++)
+                for (int j = 0; j < f.Evaluations.Length; j++)
                 {
-                    h[i] += powerOfR * f.Evaluations[i] * denominatorInv;
+                    h[j] += powersOfR[i] * f.Evaluations[j] * denominatorInv;
                 }
-
-                powerOfR *= r;
             }
 
             FrE[] hMinusG = new FrE[domainSize];
