@@ -17,10 +17,10 @@ namespace Nethermind.Verkle.Fields.FpEElement
     public readonly partial struct FpE
     {
         /* in little endian order so u3 is the most significant ulong */
-        [FieldOffset(0)] private readonly ulong u0;
-        [FieldOffset(8)] private readonly ulong u1;
-        [FieldOffset(16)] private readonly ulong u2;
-        [FieldOffset(24)] private readonly ulong u3;
+        [FieldOffset(0)] public readonly ulong u0;
+        [FieldOffset(8)] public readonly ulong u1;
+        [FieldOffset(16)] public readonly ulong u2;
+        [FieldOffset(24)] public readonly ulong u3;
 
         private ulong this[int index] => index switch
         {

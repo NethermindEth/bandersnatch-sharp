@@ -43,7 +43,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
         private const ulong QM3 = 436996551065533341;
         private static readonly FE qMinOne = new FE(QM0, QM1, QM2, QM3);
 
-        private static Lazy<UInt256> _modulus = new Lazy<UInt256>(() =>
+        public static Lazy<UInt256> _modulus = new Lazy<UInt256>(() =>
         {
             UInt256.TryParse("13108968793781547619861935127046491459309155893440570251786403306729687672801",
                 out UInt256 output);

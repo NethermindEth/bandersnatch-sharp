@@ -1,6 +1,8 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
+using System.Runtime.CompilerServices;
+using Nethermind.Int256;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -101,14 +103,34 @@ namespace Nethermind.Verkle.Curve
             return new Banderwagon(p._point - q._point);
         }
 
-        private FpE? _mapToField()
+        public FrE MapToScalarField()
         {
-            return _point.X / _point.Y;
+            FpE.Inverse(in _point.Y, out FpE map);
+            FpE.MultiplyMod(in _point.X, in map, out map);
+            FpE.FromMontgomery(in map, out map);
+            Unsafe.As<FpE, UInt256>(ref Unsafe.AsRef(in map)).Mod(FrE._modulus.Value, out UInt256 inter);
+            return FrE.SetElement(inter.u0, inter.u1, inter.u2, inter.u3);
         }
 
-        public byte[] MapToField()
+        public FrE MapToScalarField(in FpE inv)
         {
-            return _mapToField()?.ToBytes().ToArray() ?? throw new Exception();
+            FpE.MultiplyMod(in _point.X, in inv, out FpE map);
+            FpE.FromMontgomery(in map, out map);
+            Unsafe.As<FpE, UInt256>(ref Unsafe.AsRef(in map)).Mod(FrE._modulus.Value, out UInt256 inter);
+            return FrE.SetElement(inter.u0, inter.u1, inter.u2, inter.u3);
+        }
+
+        public static FrE[] BatchMapToScalarField(Banderwagon[] points)
+        {
+            FpE[] inverses = points.Select(x => x._point.Y).ToArray();
+            inverses = FpE.MultiInverse(inverses);
+
+            FrE[] fields = new FrE[points.Length];
+            Parallel.For(0, points.Length, i =>
+            {
+                fields[i] = points[i].MapToScalarField(in inverses[i]);
+            });
+            return fields;
         }
 
         public byte[] ToBytes()
