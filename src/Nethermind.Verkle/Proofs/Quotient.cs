@@ -6,8 +6,7 @@ namespace Nethermind.Verkle.Proofs
 {
     public static class Quotient
     {
-        public static FrE[] ComputeQuotientInsideDomain(PreComputedWeights preComp, LagrangeBasis f,
-            FrE index)
+        public static FrE[] ComputeQuotientInsideDomain(PreComputedWeights preComp, LagrangeBasis f, FrE index)
         {
             int domainSize = f.Evaluations.Length;
 
@@ -35,8 +34,7 @@ namespace Nethermind.Verkle.Proofs
             return q;
         }
 
-        public static FrE[] ComputeQuotientOutsideDomain(PreComputedWeights preComp, LagrangeBasis f, FrE z,
-            FrE y)
+        public static FrE[] ComputeQuotientOutsideDomain(PreComputedWeights preComp, LagrangeBasis f, FrE z, FrE y)
         {
             FrE[] domain = preComp.Domain;
             int domainSize = domain.Length;

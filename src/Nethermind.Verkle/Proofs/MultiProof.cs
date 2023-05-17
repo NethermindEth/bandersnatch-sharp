@@ -30,8 +30,6 @@ namespace Nethermind.Verkle.Proofs
             }
 
             FrE r = transcript.ChallengeScalar("r");
-            FrE[] g = new FrE[domainSize];
-
             FrE[] powersOfR = new FrE[queries.Count];
             powersOfR[0] = FrE.One;
             for (int i = 1; i < queries.Count; i++)
@@ -39,6 +37,7 @@ namespace Nethermind.Verkle.Proofs
                 powersOfR[i] = powersOfR[i - 1] * r;
             }
 
+            FrE[] g = new FrE[domainSize];
             for (int i = 0; i < queries.Count; i++)
             {
                 VerkleProverQuery query = queries[i];
@@ -55,10 +54,8 @@ namespace Nethermind.Verkle.Proofs
             Banderwagon d = Crs.Commit(g);
 
             transcript.AppendPoint(d, "D");
+
             FrE t = transcript.ChallengeScalar("t");
-
-            FrE[] h = new FrE[domainSize];
-
             FrE[] denomInvs = new FrE[queries.Count];
             for (int i = 0; i < queries.Count; i++)
             {
@@ -67,8 +64,9 @@ namespace Nethermind.Verkle.Proofs
                 int index = (int)indexReg.u0;
                 denomInvs[i] = t - PreComp.Domain[index];
             }
-
             denomInvs = FrE.MultiInverse(denomInvs);
+
+            FrE[] h = new FrE[domainSize];
             for (int i = 0; i < queries.Count; i++)
             {
                 LagrangeBasis f = queries[i].ChildHashPoly;
@@ -89,8 +87,7 @@ namespace Nethermind.Verkle.Proofs
 
             Banderwagon ipaCommitment = e - d;
             FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
-            IpaProverQuery pQuery = new(hMinusG, ipaCommitment,
-                t, inputPointVector);
+            IpaProverQuery pQuery = new(hMinusG, ipaCommitment, t, inputPointVector);
 
             IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
 
