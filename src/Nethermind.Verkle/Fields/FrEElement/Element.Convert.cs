@@ -1,3 +1,4 @@
+using System.Data;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Nethermind.Int256;
@@ -7,6 +8,18 @@ namespace Nethermind.Verkle.Fields.FrEElement
 {
     public readonly partial struct FrE
     {
+        public static void Mod(in FE elem, out FE modElem)
+        {
+            modElem = elem;
+            if (LessThan(in qElement, in elem))
+            {
+                if (SubtractUnderflow(elem, qElement, out modElem))
+                {
+                    throw new InvalidConstraintException("this should now be possible");
+                }
+            }
+        }
+
         public new string ToString()
         {
             return $"[{u0} {u1} {u2} {u3}]";
@@ -58,10 +71,12 @@ namespace Nethermind.Verkle.Fields.FrEElement
 
         public static FE FromBytes(byte[] byteEncoded, bool isBigEndian = false)
         {
-            UInt256 val = new UInt256(byteEncoded, isBigEndian);
+            UInt256 val = new(byteEncoded, isBigEndian);
+#if DEBUG
             if (val > _modulus.Value)
                 throw new ArgumentException(
                     "FromBytes: byteEncoded should be less than modulus - use FromBytesReduced instead.");
+#endif
             FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
             ToMontgomery(inp, out FE resF);
             return resF;
@@ -69,9 +84,9 @@ namespace Nethermind.Verkle.Fields.FrEElement
 
         public static FE FromBytesReduced(byte[] byteEncoded, bool isBigEndian = false)
         {
-            UInt256 val = new UInt256(byteEncoded, isBigEndian);
-            val.Mod(_modulus.Value, out UInt256 res);
-            FE inp = new FE(res.u0, res.u1, res.u2, res.u3);
+            UInt256 val = new(byteEncoded, isBigEndian);
+            FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
+            Mod(in inp, out inp);
             ToMontgomery(inp, out FE resF);
             return resF;
         }

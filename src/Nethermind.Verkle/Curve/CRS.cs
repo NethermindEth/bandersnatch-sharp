@@ -44,7 +44,7 @@ namespace Nethermind.Verkle.Curve
 
                 byte[] hash = SHA256.HashData(toHash);
 
-                FpE x = new FpE(hash, true);
+                FpE x = FpE.FromBytesReduced(hash, true);
                 increment++;
 
                 byte[] xAsBytes = x.ToBytesBigEndian();

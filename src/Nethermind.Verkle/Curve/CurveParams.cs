@@ -22,8 +22,8 @@ namespace Nethermind.Verkle.Curve
 
         public static FpE A = FpE.SetElement(5).Negative();
 
-        public static FpE YTe = new FpE(NumY);
-        public static FpE XTe = new FpE(NumX);
+        public static FpE YTe = FpE.FromBytesReduced(NumY);
+        public static FpE XTe = FpE.FromBytesReduced(NumX);
 
         public static readonly Lazy<FpE> d = new Lazy<FpE>(() =>
         {

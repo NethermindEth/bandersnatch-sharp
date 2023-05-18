@@ -13,7 +13,7 @@ namespace Nethermind.Verkle.Tests.Proofs
             Random random = new Random();
             byte[] data = new byte[32];
             random.NextBytes(data);
-            FrE scalar = new FrE(data);
+            FrE scalar = FrE.FromBytesReduced(data);
 
             Transcript proverTranscript = new Transcript("protocol_name");
 

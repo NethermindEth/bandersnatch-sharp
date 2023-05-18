@@ -244,12 +244,12 @@ namespace Nethermind.Verkle.Bench
             MultiProof multiproof = new MultiProof(CRS.Instance, PreComputedWeights.Instance);
             List<VerkleVerifierQuery> queries = (from queryString in _basicTestVerifierQueries
                 let point = new Banderwagon(queryString[0])
-                let childIndex = new FrE(Convert.FromHexString(queryString[1]))
-                let childHash = new FrE(Convert.FromHexString(queryString[2]))
+                let childIndex = FrE.FromBytesReduced(Convert.FromHexString(queryString[1]))
+                let childHash = FrE.FromBytesReduced(Convert.FromHexString(queryString[2]))
                 select new VerkleVerifierQuery(point, childIndex, childHash)).ToList();
 
             Banderwagon d = new Banderwagon(_basicProofStruct[0]);
-            FrE a = new FrE(Convert.FromHexString(_basicProofStruct[1]));
+            FrE a = FrE.FromBytesReduced(Convert.FromHexString(_basicProofStruct[1]));
             Banderwagon[] l = new Banderwagon[8];
             Banderwagon[] r = new Banderwagon[8];
 

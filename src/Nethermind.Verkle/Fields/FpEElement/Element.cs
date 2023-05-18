@@ -53,7 +53,7 @@ namespace Nethermind.Verkle.Fields.FpEElement
             }
         }
 
-        public FpE(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
+        private FpE(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
         {
             UInt256 val = new(bytes, isBigEndian);
             val.Mod(_modulus.Value, out UInt256 res);
