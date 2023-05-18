@@ -41,10 +41,6 @@ public class MultiProof
             FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
         }
 
-        // watch.Stop();
-        // Console.WriteLine($"    Generate Challenge r and powers of r: {watch.ElapsedMilliseconds}ms");
-        // watch = Stopwatch.StartNew();
-
         FrE[] g = new FrE[domainSize];
         for (int i = 0; i < queries.Count; i++)
         {
@@ -62,10 +58,6 @@ public class MultiProof
 
         Banderwagon d = Crs.Commit(g);
         transcript.AppendPoint(d, "D");
-
-        // watch.Stop();
-        // Console.WriteLine($"    Calculate t, g(x) and D: {watch.ElapsedMilliseconds}ms");
-        // watch = Stopwatch.StartNew();
 
         FrE t = transcript.ChallengeScalar("t");
         FrE[] denomInvs = new FrE[queries.Count];
@@ -88,10 +80,6 @@ public class MultiProof
         Banderwagon e = Crs.Commit(h);
         transcript.AppendPoint(e, "E");
 
-        // watch.Stop();
-        // Console.WriteLine($"    Calculate h(x) and E: {watch.ElapsedMilliseconds}ms");
-        // watch = Stopwatch.StartNew();
-
         FrE[] hMinusG = new FrE[domainSize];
         for (int i = 0; i < domainSize; i++)
         {
@@ -100,16 +88,9 @@ public class MultiProof
 
         Banderwagon ipaCommitment = e - d;
 
-        // watch.Stop();
-        // Console.WriteLine($"    Calculate (h-g)(x) and E-D: {watch.ElapsedMilliseconds}ms");
-        // watch = Stopwatch.StartNew();
-
         FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
         IpaProverQuery pQuery = new(hMinusG, ipaCommitment, t, inputPointVector);
         IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
-
-        // watch.Stop();
-        // Console.WriteLine($"    IPA for (h-g)(x) and E-D on t: {watch.ElapsedMilliseconds}ms");
 
         return new VerkleProofStruct(ipaProof, d);
     }
