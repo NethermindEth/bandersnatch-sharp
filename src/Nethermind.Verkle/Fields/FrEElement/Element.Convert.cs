@@ -22,7 +22,7 @@ public readonly partial struct FrE
 
     public new string ToString()
     {
-        return $"[{u0} {u1} {u2} {u3}]";
+        return $"{nameof(FE)} [{u0} {u1} {u2} {u3}]";
     }
 
     public bool Bit(int n)
@@ -78,8 +78,7 @@ public readonly partial struct FrE
 
     public static FE FromBytesReduced(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
     {
-        UInt256 val = new(byteEncoded, isBigEndian);
-        FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
+        FE inp = new(byteEncoded, isBigEndian);
         Mod(in inp, out inp);
         ToMontgomery(inp, out FE resF);
         return resF;
