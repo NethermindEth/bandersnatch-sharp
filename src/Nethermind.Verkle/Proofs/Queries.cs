@@ -49,10 +49,10 @@ public struct VerkleProverQuery
 {
     public readonly LagrangeBasis ChildHashPoly;
     public readonly Banderwagon NodeCommitPoint;
-    public readonly FrE ChildIndex;
+    public readonly byte ChildIndex;
     public readonly FrE ChildHash;
 
-    public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, FrE childIndex,
+    public VerkleProverQuery(LagrangeBasis childHashPoly, Banderwagon nodeCommitPoint, byte childIndex,
         FrE childHash)
     {
         ChildHashPoly = childHashPoly;
@@ -65,10 +65,10 @@ public struct VerkleProverQuery
 public struct VerkleVerifierQuery
 {
     public readonly Banderwagon NodeCommitPoint;
-    public readonly FrE ChildIndex;
+    public readonly byte ChildIndex;
     public readonly FrE ChildHash;
 
-    public VerkleVerifierQuery(Banderwagon nodeCommitPoint, FrE childIndex, FrE childHash)
+    public VerkleVerifierQuery(Banderwagon nodeCommitPoint, byte childIndex, FrE childHash)
     {
         NodeCommitPoint = nodeCommitPoint;
         ChildIndex = childIndex;
