@@ -55,7 +55,8 @@ public class MultiProof
 
             for (int j = 0; j < quotient.Length; j++)
             {
-                g[j] += powersOfR[i] * quotient[j];
+                FrE.MultiplyMod(in powersOfR[i], in quotient[j], out FrE mul);
+                g[j] += mul;
             }
         }
 

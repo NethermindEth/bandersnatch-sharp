@@ -63,8 +63,9 @@ public class MonomialBasis
         FrE powerOfX = FrE.One;
         foreach (FrE pCoeff in Coeffs)
         {
-            y += powerOfX * pCoeff!;
-            powerOfX *= x;
+            FrE.MultiplyMod(in powerOfX, in pCoeff, out FrE eval);
+            FrE.AddMod(in y, in eval, out y);
+            FrE.MultiplyMod(in powerOfX, in x, out powerOfX);
         }
 
         return y;
