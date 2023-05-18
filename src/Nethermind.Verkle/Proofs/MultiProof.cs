@@ -76,19 +76,19 @@ namespace Nethermind.Verkle.Proofs
                 }
             }
 
+            Banderwagon e = Crs.Commit(h);
+            transcript.AppendPoint(e, "E");
+
             FrE[] hMinusG = new FrE[domainSize];
             for (int i = 0; i < domainSize; i++)
             {
                 hMinusG[i] = h[i] - g[i];
             }
 
-            Banderwagon e = Crs.Commit(h);
-            transcript.AppendPoint(e, "E");
-
             Banderwagon ipaCommitment = e - d;
+
             FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
             IpaProverQuery pQuery = new(hMinusG, ipaCommitment, t, inputPointVector);
-
             IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
 
             return new VerkleProofStruct(ipaProof, d);
