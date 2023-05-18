@@ -316,7 +316,7 @@ namespace Nethermind.Verkle.Fields.FrEElement
         public static explicit operator FE(in BigInteger value)
         {
             byte[] bytes32 = value.ToBytes32(true);
-            return new FE(bytes32, true);
+            return FromBytesReducedMultiple(bytes32, true);
         }
     }
 }

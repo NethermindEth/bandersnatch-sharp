@@ -68,26 +68,27 @@ namespace Nethermind.Verkle.Fields.FpEElement
             return ToBigEndian(x.u0, x.u1, x.u2, x.u3);
         }
 
-        public static FE FromBytes(byte[] byteEncoded, bool isBigEndian = false)
+        public static FE FromBytes(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
         {
-            UInt256 val = new(byteEncoded, isBigEndian);
-#if DEBUG
-            if (val > _modulus.Value)
-                throw new ArgumentException(
-                    "FromBytes: byteEncoded should be less than modulus - use FromBytesReduced instead.");
-#endif
-            FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
-            ToMontgomery(inp, out FE resF);
-            return resF;
+            return new(byteEncoded, isBigEndian);
         }
 
-        public static FE FromBytesReduced(byte[] byteEncoded, bool isBigEndian = false)
+        public static FE FromBytesReduced(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
         {
             UInt256 val = new(byteEncoded, isBigEndian);
             FE inp = new FE(val.u0, val.u1, val.u2, val.u3);
             Mod(in inp, out inp);
             ToMontgomery(inp, out FE resF);
             return resF;
+        }
+
+        public static FE FromBytesReducedMultiple(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
+        {
+            UInt256 val = new(bytes, isBigEndian);
+            val.Mod(_modulus.Value, out UInt256 res);
+            FE inp = new(res.u0, res.u1, res.u2, res.u3);
+            ToMontgomery(inp, out FE elem);
+            return elem;
         }
 
         public static void ToMontgomery(in FE x, out FE z)

@@ -1,6 +1,7 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0. For full terms, see LICENSE in the project root.
 
+using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -17,8 +18,8 @@ namespace Nethermind.Verkle.Fields.FpEElement
     public readonly partial struct FpE
     {
         /* in little endian order so u3 is the most significant ulong */
-        [FieldOffset(0)] public readonly ulong u0;
-        [FieldOffset(8)] public readonly ulong u1;
+        [FieldOffset(00)] public readonly ulong u0;
+        [FieldOffset(08)] public readonly ulong u1;
         [FieldOffset(16)] public readonly ulong u2;
         [FieldOffset(24)] public readonly ulong u3;
 
@@ -55,10 +56,40 @@ namespace Nethermind.Verkle.Fields.FpEElement
 
         private FpE(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
         {
-            UInt256 val = new(bytes, isBigEndian);
-            val.Mod(_modulus.Value, out UInt256 res);
-            FE inp = new FE(res.u0, res.u1, res.u2, res.u3);
-            ToMontgomery(inp, out this);
+            if (bytes.Length == 32)
+            {
+                if (isBigEndian)
+                {
+                    u3 = BinaryPrimitives.ReadUInt64BigEndian(bytes.Slice(0, 8));
+                    u2 = BinaryPrimitives.ReadUInt64BigEndian(bytes.Slice(8, 8));
+                    u1 = BinaryPrimitives.ReadUInt64BigEndian(bytes.Slice(16, 8));
+                    u0 = BinaryPrimitives.ReadUInt64BigEndian(bytes.Slice(24, 8));
+                }
+                else
+                {
+                    if (Avx2.IsSupported)
+                    {
+                        Unsafe.SkipInit(out u0);
+                        Unsafe.SkipInit(out u1);
+                        Unsafe.SkipInit(out u2);
+                        Unsafe.SkipInit(out u3);
+                        Unsafe.As<ulong, Vector256<byte>>(ref u0) = Vector256.Create(bytes);
+                    }
+                    else
+                    {
+                        u0 = BinaryPrimitives.ReadUInt64LittleEndian(bytes.Slice(0, 8));
+                        u1 = BinaryPrimitives.ReadUInt64LittleEndian(bytes.Slice(8, 8));
+                        u2 = BinaryPrimitives.ReadUInt64LittleEndian(bytes.Slice(16, 8));
+                        u3 = BinaryPrimitives.ReadUInt64LittleEndian(bytes.Slice(24, 8));
+                    }
+                }
+            }
+            else
+            {
+                FieldUtils.Create(bytes, out u0, out u1, out u2, out u3);
+            }
+
+            ToMontgomery(in this, out this);
         }
 
         private FpE(BigInteger value)
