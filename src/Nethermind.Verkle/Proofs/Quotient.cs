@@ -6,7 +6,7 @@ namespace Nethermind.Verkle.Proofs;
 
 public static class Quotient
 {
-    public static FrE[] ComputeQuotientInsideDomain(PreComputedWeights preComp, LagrangeBasis f, FrE index)
+    public static FrE[] ComputeQuotientInsideDomain(PreComputedWeights preComp, LagrangeBasis f, byte index)
     {
         int domainSize = f.Evaluations.Length;
 
@@ -14,21 +14,18 @@ public static class Quotient
         FrE[] aPrimeDomain = preComp.APrimeDomain;
         FrE[] aPrimeDomainInv = preComp.APrimeDomainInv;
 
-        FrE.ToRegular(in index, out FrE indexReg);
-        int indexI = (int)indexReg.u0;
-
         FrE[] q = new FrE[domainSize];
-        FrE y = f.Evaluations[indexI];
+        FrE y = f.Evaluations[index];
 
         for (int i = 0; i < domainSize; i++)
         {
-            if (i == indexI) continue;
+            if (i == index) continue;
 
-            int firstIndex = (i - indexI) < 0 ? (inverses.Length + (i - indexI)) : (i - indexI);
-            int secondIndex = (indexI - i) < 0 ? (inverses.Length + indexI - i) : (indexI - i);
+            int firstIndex = (i - index) < 0 ? (inverses.Length + (i - index)) : (i - index);
+            int secondIndex = (index - i) < 0 ? (inverses.Length + index - i) : (index - i);
 
             q[i] = (f.Evaluations[i] - y) * inverses[firstIndex];
-            q[indexI] += (f.Evaluations[i] - y) * inverses[secondIndex] * aPrimeDomain[indexI] * aPrimeDomainInv[i];
+            q[index] += (f.Evaluations[i] - y) * inverses[secondIndex] * aPrimeDomain[index] * aPrimeDomainInv[i];
         }
 
         return q;

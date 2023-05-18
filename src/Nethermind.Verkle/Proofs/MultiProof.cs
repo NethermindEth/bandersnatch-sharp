@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Polynomial;
@@ -21,6 +22,9 @@ public class MultiProof
     {
         int domainSize = PreComp.Domain.Length;
 
+        // Stopwatch watch = new();
+        // watch.Start();
+
         transcript.DomainSep("multiproof");
         for (int i = 0; i < queries.Count; i++)
         {
@@ -34,15 +38,19 @@ public class MultiProof
         powersOfR[0] = FrE.One;
         for (int i = 1; i < queries.Count; i++)
         {
-            powersOfR[i] = powersOfR[i - 1] * r;
+            FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
         }
+
+        // watch.Stop();
+        // Console.WriteLine($"    Generate Challenge r and powers of r: {watch.ElapsedMilliseconds}ms");
+        // watch = Stopwatch.StartNew();
 
         FrE[] g = new FrE[domainSize];
         for (int i = 0; i < queries.Count; i++)
         {
             VerkleProverQuery query = queries[i];
             LagrangeBasis f = query.ChildHashPoly;
-            FrE index = query.ChildIndex;
+            byte index = query.ChildIndex;
             FrE[] quotient = Quotient.ComputeQuotientInsideDomain(PreComp, f, index);
 
             for (int j = 0; j < quotient.Length; j++)
@@ -52,17 +60,17 @@ public class MultiProof
         }
 
         Banderwagon d = Crs.Commit(g);
-
         transcript.AppendPoint(d, "D");
+
+        // watch.Stop();
+        // Console.WriteLine($"    Calculate t, g(x) and D: {watch.ElapsedMilliseconds}ms");
+        // watch = Stopwatch.StartNew();
 
         FrE t = transcript.ChallengeScalar("t");
         FrE[] denomInvs = new FrE[queries.Count];
         for (int i = 0; i < queries.Count; i++)
         {
-            VerkleProverQuery query = queries[i];
-            FrE.ToRegular(in query.ChildIndex, out FrE indexReg);
-            int index = (int)indexReg.u0;
-            denomInvs[i] = t - PreComp.Domain[index];
+            denomInvs[i] = t - PreComp.Domain[queries[i].ChildIndex];
         }
         denomInvs = FrE.MultiInverse(denomInvs);
 
@@ -79,6 +87,10 @@ public class MultiProof
         Banderwagon e = Crs.Commit(h);
         transcript.AppendPoint(e, "E");
 
+        // watch.Stop();
+        // Console.WriteLine($"    Calculate h(x) and E: {watch.ElapsedMilliseconds}ms");
+        // watch = Stopwatch.StartNew();
+
         FrE[] hMinusG = new FrE[domainSize];
         for (int i = 0; i < domainSize; i++)
         {
@@ -87,9 +99,16 @@ public class MultiProof
 
         Banderwagon ipaCommitment = e - d;
 
+        // watch.Stop();
+        // Console.WriteLine($"    Calculate (h-g)(x) and E-D: {watch.ElapsedMilliseconds}ms");
+        // watch = Stopwatch.StartNew();
+
         FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
         IpaProverQuery pQuery = new(hMinusG, ipaCommitment, t, inputPointVector);
         IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
+
+        // watch.Stop();
+        // Console.WriteLine($"    IPA for (h-g)(x) and E-D on t: {watch.ElapsedMilliseconds}ms");
 
         return new VerkleProofStruct(ipaProof, d);
     }
@@ -120,7 +139,7 @@ public class MultiProof
         FrE[] g2Den = new FrE[queries.Length];
         for (int i = 0; i < queries.Length; i++)
         {
-            g2Den[i] = t - queries[i].ChildIndex;
+            g2Den[i] = t - FrE.SetElement(u0: queries[i].ChildIndex);
         }
         g2Den = FrE.MultiInverse(g2Den);
 

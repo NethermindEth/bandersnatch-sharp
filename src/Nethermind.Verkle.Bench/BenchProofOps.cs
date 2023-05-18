@@ -211,7 +211,7 @@ public class BenchProofOps
         Banderwagon cA = crs.Commit(polyEvalA.ToArray());
         Banderwagon cB = crs.Commit(polyEvalB.ToArray());
 
-        FrE[] zs = { FrE.Zero, FrE.Zero };
+        byte[] zs = { 0, 0 };
         FrE[] ys = { FrE.SetElement(1), FrE.SetElement(32) };
         FrE[][] fs = { polyEvalA.ToArray(), polyEvalB.ToArray() };
 
@@ -244,7 +244,7 @@ public class BenchProofOps
         MultiProof multiproof = new MultiProof(CRS.Instance, PreComputedWeights.Instance);
         List<VerkleVerifierQuery> queries = (from queryString in _basicTestVerifierQueries
             let point = new Banderwagon(queryString[0])
-            let childIndex = FrE.FromBytesReduced(Convert.FromHexString(queryString[1]))
+            let childIndex = Convert.FromHexString(queryString[1])[0]
             let childHash = FrE.FromBytesReduced(Convert.FromHexString(queryString[2]))
             select new VerkleVerifierQuery(point, childIndex, childHash)).ToList();
 

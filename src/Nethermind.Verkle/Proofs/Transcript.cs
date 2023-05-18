@@ -8,7 +8,7 @@ namespace Nethermind.Verkle.Proofs;
 
 public class Transcript
 {
-    private List<byte> _currentHash = new List<byte>();
+    private List<byte> _currentHash = new();
 
     public Transcript(IEnumerable<byte> label)
     {
@@ -41,7 +41,19 @@ public class Transcript
         AppendBytes(scalar.ToBytes(), label);
     }
 
+    public void AppendScalar(byte scalar, IEnumerable<byte> label)
+    {
+        byte[] bytes = new byte[32];
+        bytes[0] = scalar;
+        AppendBytes(bytes, label);
+    }
+
     public void AppendScalar(FrE scalar, string label)
+    {
+        AppendScalar(scalar, Encoding.ASCII.GetBytes(label));
+    }
+
+    public void AppendScalar(byte scalar, string label)
     {
         AppendScalar(scalar, Encoding.ASCII.GetBytes(label));
     }
@@ -60,7 +72,7 @@ public class Transcript
     {
         DomainSep(label);
         byte[] hash = SHA256.HashData(CollectionsMarshal.AsSpan(_currentHash));
-        FrE challenge = ByteToField(hash);
+        FrE challenge = FrE.FromBytesReduced(hash);
         _currentHash = new List<byte>();
 
         AppendScalar(challenge, label);
