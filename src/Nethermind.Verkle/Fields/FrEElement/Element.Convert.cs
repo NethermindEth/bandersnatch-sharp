@@ -71,7 +71,9 @@ public readonly partial struct FrE
 
     public static FE FromBytes(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
     {
-        return new(byteEncoded, isBigEndian);
+        FE elem = new(byteEncoded, isBigEndian);
+        ToMontgomery(in elem, out elem);
+        return elem;
     }
 
     public static FE FromBytesReduced(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)

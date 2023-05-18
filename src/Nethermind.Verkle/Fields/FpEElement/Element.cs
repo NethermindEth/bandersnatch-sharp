@@ -54,7 +54,7 @@ public readonly partial struct FpE
         }
     }
 
-    private FpE(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
+    public FpE(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
     {
         if (bytes.Length == 32)
         {
@@ -88,8 +88,6 @@ public readonly partial struct FpE
         {
             FieldUtils.Create(bytes, out u0, out u1, out u2, out u3);
         }
-
-        ToMontgomery(in this, out this);
     }
 
     private FpE(BigInteger value)
