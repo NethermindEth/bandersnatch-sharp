@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using Nethermind.Verkle.Fields.FrEElement;
@@ -58,7 +59,7 @@ namespace Nethermind.Verkle.Proofs
         public FrE ChallengeScalar(byte[] label)
         {
             DomainSep(label);
-            byte[] hash = SHA256.HashData(_currentHash.ToArray());
+            byte[] hash = SHA256.HashData(CollectionsMarshal.AsSpan(_currentHash));
             FrE challenge = ByteToField(hash);
             _currentHash = new List<byte>();
 
