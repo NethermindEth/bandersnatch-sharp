@@ -1,215 +1,214 @@
 using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
-namespace Nethermind.Verkle.Tests.Fields
+namespace Nethermind.Verkle.Tests.Fields;
+
+public class FpETests
 {
-    public class FpETests
+    [Test]
+    public void TestNegativeValues()
     {
-        [Test]
-        public void TestNegativeValues()
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
         {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            FE x = set.Current;
+            FE y = 0 - x;
+            FE z = y + x;
+            Assert.IsTrue(z.IsZero);
+            set.MoveNext();
+        }
+    }
+
+    [Test]
+    public void TestAddition()
+    {
+        FE X = FE.qElement - 1;
+        FE Y = X + X;
+        FE Z = Y - X;
+        Assert.IsTrue(Z.Equals(X));
+
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE x = set.Current;
+            FE y = x + x + x + x;
+            FE z = y - x - x - x - x;
+            Assert.IsTrue(z.IsZero);
+            set.MoveNext();
+        }
+    }
+
+    [Test]
+    public void TestHotPath()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE current = set.Current;
+            FE x = set.Current * set.Current;
+            FE.Inverse(in current, out FE y);
+
+            Assert.IsTrue(current.Equals(x * y));
+        }
+    }
+
+    [Test]
+    public void TestInverse()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE x = set.Current;
+            if (x.IsZero)
             {
-                FE x = set.Current;
-                FE y = 0 - x;
-                FE z = y + x;
-                Assert.IsTrue(z.IsZero);
                 set.MoveNext();
+                continue;
             }
+
+            FE.InverseOld(x, out FE y);
+            FE.InverseOld(y, out FE z);
+            Assert.IsTrue(z.Equals(x));
+            set.MoveNext();
         }
+    }
 
-        [Test]
-        public void TestAddition()
+    [Test]
+    public void TestInverseNew()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
         {
-            FE X = FE.qElement - 1;
-            FE Y = X + X;
-            FE Z = Y - X;
-            Assert.IsTrue(Z.Equals(X));
-
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            FE x = set.Current;
+            if (x.IsZero)
             {
-                FE x = set.Current;
-                FE y = x + x + x + x;
-                FE z = y - x - x - x - x;
-                Assert.IsTrue(z.IsZero);
                 set.MoveNext();
+                continue;
             }
+
+            FE.Inverse(x, out FE y);
+            FE.Inverse(y, out FE z);
+            Assert.IsTrue(z.Equals(x));
+            set.MoveNext();
         }
+    }
 
-        [Test]
-        public void TestHotPath()
+    [Test]
+    public void TestInversesNew()
+    {
+        FE x = new FE(11055281967085613784, 9995184009937160182, 11266707295813342183, 6309950090107223578);
+        FE.Inverse(x, out FE res);
+        Console.WriteLine(res);
+    }
+
+    [Test]
+    public void ProfileInverseMultiplication()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
         {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            FE x = set.Current;
+            if (x.IsZero)
             {
-                FE current = set.Current;
-                FE x = set.Current * set.Current;
-                FE.Inverse(in current, out FE y);
-
-                Assert.IsTrue(current.Equals(x * y));
-            }
-        }
-
-        [Test]
-        public void TestInverse()
-        {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
-            {
-                FE x = set.Current;
-                if (x.IsZero)
-                {
-                    set.MoveNext();
-                    continue;
-                }
-
-                FE.InverseOld(x, out FE y);
-                FE.InverseOld(y, out FE z);
-                Assert.IsTrue(z.Equals(x));
                 set.MoveNext();
+                continue;
             }
+
+            FE.Inverse(x, out FE y);
+            FE.MultiplyMod(x, y, out FE z);
+            Assert.IsTrue(z.IsOne);
+            set.MoveNext();
         }
+    }
 
-        [Test]
-        public void TestInverseNew()
+    [Test]
+    public void ProfileMultiplication()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 100000; i++)
         {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            FE x = set.Current;
+            if (x.IsZero)
             {
-                FE x = set.Current;
-                if (x.IsZero)
-                {
-                    set.MoveNext();
-                    continue;
-                }
-
-                FE.Inverse(x, out FE y);
-                FE.Inverse(y, out FE z);
-                Assert.IsTrue(z.Equals(x));
                 set.MoveNext();
+                continue;
             }
-        }
 
-        [Test]
-        public void TestInversesNew()
-        {
-            FE x = new FE(11055281967085613784, 9995184009937160182, 11266707295813342183, 6309950090107223578);
-            FE.Inverse(x, out FE res);
-            Console.WriteLine(res);
+            FE.MultiplyMod(x, x, out FE z);
+            set.MoveNext();
         }
+    }
 
-        [Test]
-        public void ProfileInverseMultiplication()
+    [Test]
+    public void TestSerialize()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
         {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
+            FE x = set.Current;
+            Span<byte> bytes = x.ToBytes();
+            FE elem = FE.FromBytes(bytes.ToArray());
+            Assert.IsTrue(x.Equals(elem));
+            set.MoveNext();
+        }
+    }
+
+    [Test]
+    public void TestSerializeBigEndian()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE x = set.Current;
+            Span<byte> bytes = x.ToBytesBigEndian();
+            FE elem = FE.FromBytes(bytes.ToArray(), true);
+            Assert.IsTrue(x.Equals(elem));
+            set.MoveNext();
+        }
+    }
+
+    [Test]
+    public void TestSqrt()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE x = set.Current;
+            if (FE.Legendre(x) != 1)
             {
-                FE x = set.Current;
-                if (x.IsZero)
-                {
-                    set.MoveNext();
-                    continue;
-                }
-
-                FE.Inverse(x, out FE y);
-                FE.MultiplyMod(x, y, out FE z);
-                Assert.IsTrue(z.IsOne);
                 set.MoveNext();
+                continue;
             }
-        }
 
-        [Test]
-        public void ProfileMultiplication()
+            FE.Sqrt(x, out FE sqrtElem);
+            FE.Exp(sqrtElem, 2, out FE res);
+            Assert.IsTrue(x.Equals(res));
+            set.MoveNext();
+        }
+    }
+
+    [Test]
+    public void TestMultiInv()
+    {
+        FE[] values = { FE.SetElement(1), FE.SetElement(2), FE.SetElement(3) };
+
+        FE[] gotInverse = FE.MultiInverse(values);
+        FE?[] expectedInverse = NaiveMultiInverse(values);
+
+        Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
+        for (int i = 0; i < gotInverse.Length; i++)
         {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 100000; i++)
-            {
-                FE x = set.Current;
-                if (x.IsZero)
-                {
-                    set.MoveNext();
-                    continue;
-                }
-
-                FE.MultiplyMod(x, x, out FE z);
-                set.MoveNext();
-            }
+            Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i]!.Value));
         }
+    }
 
-        [Test]
-        public void TestSerialize()
+    private static FE?[] NaiveMultiInverse(IReadOnlyList<FE> values)
+    {
+        FE?[] res = new FE?[values.Count];
+        for (int i = 0; i < values.Count; i++)
         {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
-            {
-                FE x = set.Current;
-                Span<byte> bytes = x.ToBytes();
-                FE elem = FE.FromBytes(bytes.ToArray());
-                Assert.IsTrue(x.Equals(elem));
-                set.MoveNext();
-            }
+            FE.Inverse(values[i], out FE x);
+            res[i] = x;
         }
 
-        [Test]
-        public void TestSerializeBigEndian()
-        {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
-            {
-                FE x = set.Current;
-                Span<byte> bytes = x.ToBytesBigEndian();
-                FE elem = FE.FromBytes(bytes.ToArray(), true);
-                Assert.IsTrue(x.Equals(elem));
-                set.MoveNext();
-            }
-        }
-
-        [Test]
-        public void TestSqrt()
-        {
-            using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
-            for (int i = 0; i < 1000; i++)
-            {
-                FE x = set.Current;
-                if (FE.Legendre(x) != 1)
-                {
-                    set.MoveNext();
-                    continue;
-                }
-
-                FE.Sqrt(x, out FE sqrtElem);
-                FE.Exp(sqrtElem, 2, out FE res);
-                Assert.IsTrue(x.Equals(res));
-                set.MoveNext();
-            }
-        }
-
-        [Test]
-        public void TestMultiInv()
-        {
-            FE[] values = { FE.SetElement(1), FE.SetElement(2), FE.SetElement(3) };
-
-            FE[] gotInverse = FE.MultiInverse(values);
-            FE?[] expectedInverse = NaiveMultiInverse(values);
-
-            Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
-            for (int i = 0; i < gotInverse.Length; i++)
-            {
-                Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i]!.Value));
-            }
-        }
-
-        private static FE?[] NaiveMultiInverse(IReadOnlyList<FE> values)
-        {
-            FE?[] res = new FE?[values.Count];
-            for (int i = 0; i < values.Count; i++)
-            {
-                FE.Inverse(values[i], out FE x);
-                res[i] = x;
-            }
-
-            return res;
-        }
+        return res;
     }
 }

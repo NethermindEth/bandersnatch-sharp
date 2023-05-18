@@ -1,115 +1,114 @@
 using Nethermind.Verkle.Fields.FrEElement;
 
-namespace Nethermind.Verkle.Polynomial
+namespace Nethermind.Verkle.Polynomial;
+
+public class MonomialBasis
 {
-    public class MonomialBasis
+    public readonly FrE[] Coeffs;
+
+    public MonomialBasis(FrE[] coeffs)
     {
-        public readonly FrE[] Coeffs;
+        Coeffs = coeffs;
+    }
 
-        public MonomialBasis(FrE[] coeffs)
+    public static MonomialBasis Empty() => new MonomialBasis(Array.Empty<FrE>());
+
+    private static MonomialBasis Mul(MonomialBasis a, MonomialBasis b)
+    {
+        FrE[] output = new FrE[a.Length() + b.Length() - 1];
+        for (int i = 0; i < a.Length(); i++)
         {
-            Coeffs = coeffs;
+            for (int j = 0; j < b.Length(); j++)
+            {
+                output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
+            }
         }
 
-        public static MonomialBasis Empty() => new MonomialBasis(Array.Empty<FrE>());
+        return new MonomialBasis(output);
+    }
 
-        private static MonomialBasis Mul(MonomialBasis a, MonomialBasis b)
+    public static MonomialBasis Div(MonomialBasis a, MonomialBasis b)
+    {
+        if (a.Length() < b.Length())
         {
-            FrE[] output = new FrE[a.Length() + b.Length() - 1];
-            for (int i = 0; i < a.Length(); i++)
+            throw new Exception();
+        }
+
+        FrE[] x = a.Coeffs.ToArray();
+        List<FrE> output = new();
+
+        int aPos = a.Length() - 1;
+        int bPos = b.Length() - 1;
+
+        int diff = aPos - bPos;
+        while (diff >= 0)
+        {
+            FrE quot = x[aPos]! / b.Coeffs[bPos]!;
+            output.Insert(0, quot!);
+            for (int i = bPos; i > -1; i--)
             {
-                for (int j = 0; j < b.Length(); j++)
-                {
-                    output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
-                }
+                x[diff + i] -= b.Coeffs[i] * quot;
             }
 
-            return new MonomialBasis(output);
+            aPos -= 1;
+            diff -= 1;
         }
 
-        public static MonomialBasis Div(MonomialBasis a, MonomialBasis b)
+        return new MonomialBasis(output.ToArray());
+    }
+
+    public FrE Evaluate(FrE x)
+    {
+        FrE y = FrE.Zero;
+        FrE powerOfX = FrE.One;
+        foreach (FrE pCoeff in Coeffs)
         {
-            if (a.Length() < b.Length())
+            y += powerOfX * pCoeff!;
+            powerOfX *= x;
+        }
+
+        return y;
+    }
+
+    public static MonomialBasis FormalDerivative(MonomialBasis f)
+    {
+        FrE[] derivative = new FrE[f.Length() - 1];
+        for (int i = 1; i < f.Length(); i++)
+        {
+            FrE x = FrE.SetElement(i) * f.Coeffs[i]!;
+            derivative[i - 1] = x;
+        }
+
+        return new MonomialBasis(derivative.ToArray());
+    }
+
+    public static MonomialBasis VanishingPoly(IEnumerable<FrE> xs)
+    {
+        List<FrE> root = new List<FrE> { FrE.One };
+        foreach (FrE x in xs)
+        {
+            root.Insert(0, FrE.Zero);
+            for (int i = 0; i < root.Count - 1; i++)
             {
-                throw new Exception();
+                root[i] -= root[i + 1] * x;
             }
-
-            FrE[] x = a.Coeffs.ToArray();
-            List<FrE> output = new();
-
-            int aPos = a.Length() - 1;
-            int bPos = b.Length() - 1;
-
-            int diff = aPos - bPos;
-            while (diff >= 0)
-            {
-                FrE quot = x[aPos]! / b.Coeffs[bPos]!;
-                output.Insert(0, quot!);
-                for (int i = bPos; i > -1; i--)
-                {
-                    x[diff + i] -= b.Coeffs[i] * quot;
-                }
-
-                aPos -= 1;
-                diff -= 1;
-            }
-
-            return new MonomialBasis(output.ToArray());
         }
 
-        public FrE Evaluate(FrE x)
-        {
-            FrE y = FrE.Zero;
-            FrE powerOfX = FrE.One;
-            foreach (FrE pCoeff in Coeffs)
-            {
-                y += powerOfX * pCoeff!;
-                powerOfX *= x;
-            }
+        return new MonomialBasis(root.ToArray());
+    }
 
-            return y;
-        }
+    public int Length()
+    {
+        return Coeffs.Length;
+    }
 
-        public static MonomialBasis FormalDerivative(MonomialBasis f)
-        {
-            FrE[] derivative = new FrE[f.Length() - 1];
-            for (int i = 1; i < f.Length(); i++)
-            {
-                FrE x = FrE.SetElement(i) * f.Coeffs[i]!;
-                derivative[i - 1] = x;
-            }
+    public static MonomialBasis operator /(in MonomialBasis a, in MonomialBasis b)
+    {
+        return Div(a, b);
+    }
 
-            return new MonomialBasis(derivative.ToArray());
-        }
-
-        public static MonomialBasis VanishingPoly(IEnumerable<FrE> xs)
-        {
-            List<FrE> root = new List<FrE> { FrE.One };
-            foreach (FrE x in xs)
-            {
-                root.Insert(0, FrE.Zero);
-                for (int i = 0; i < root.Count - 1; i++)
-                {
-                    root[i] -= root[i + 1] * x;
-                }
-            }
-
-            return new MonomialBasis(root.ToArray());
-        }
-
-        public int Length()
-        {
-            return Coeffs.Length;
-        }
-
-        public static MonomialBasis operator /(in MonomialBasis a, in MonomialBasis b)
-        {
-            return Div(a, b);
-        }
-
-        public static MonomialBasis operator *(in MonomialBasis a, in MonomialBasis b)
-        {
-            return Mul(a, b);
-        }
+    public static MonomialBasis operator *(in MonomialBasis a, in MonomialBasis b)
+    {
+        return Mul(a, b);
     }
 }
