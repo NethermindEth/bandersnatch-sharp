@@ -5,6 +5,11 @@ namespace Nethermind.Verkle.Fields.FrEElement;
 
 public readonly partial struct FrE
 {
+    /// <summary>
+    /// Compute the Legendre symbol z|p using Euler's criterion. p is a prime, z is relatively prime to p (if p divides z, then z|p = 0).
+    /// </summary>
+    /// <param name="z"></param>
+    /// <returns>1 if a has a square root modulo p, -1 otherwise</returns>
     public static int Legendre(in FE z)
     {
         Exp(z, _bLegendreExponentElement.Value, out FE res);

@@ -1,4 +1,6 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
 namespace Nethermind.Verkle.Fields.FpEElement;
@@ -81,14 +83,19 @@ public readonly partial struct FpE
         return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
     }
 
-    public bool Equals(long other)
-    {
-        return other >= 0 && u0 == (ulong)other && u1 == 0 && u2 == 0 && u3 == 0;
-    }
+    public bool Equals(long other) => other >= 0 && Equals((ulong)other);
 
     public bool Equals(ulong other)
     {
-        return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
+        if (Avx.IsSupported)
+        {
+            Vector256<ulong> v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+            return v == Vector256.CreateScalar(other);
+        }
+        else
+        {
+            return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
+        }
     }
 
     public override bool Equals(object? obj)
@@ -96,18 +103,12 @@ public readonly partial struct FpE
         return obj is FE other && Equals(other);
     }
 
-    public bool Equals(FE other)
-    {
-        return u0 == other.u0 && u1 == other.u1 && u2 == other.u2 && u3 == other.u3;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool Equals(in FE other)
+    public bool Equals(in FE other)
     {
-        return u0 == other.u0 &&
-               u1 == other.u1 &&
-               u2 == other.u2 &&
-               u3 == other.u3;
+        Vector256<ulong> v1 = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+        Vector256<ulong> v2 = Unsafe.As<FE, Vector256<ulong>>(ref Unsafe.AsRef(in other));
+        return v1 == v2;
     }
 
     public int CompareTo(FE b)

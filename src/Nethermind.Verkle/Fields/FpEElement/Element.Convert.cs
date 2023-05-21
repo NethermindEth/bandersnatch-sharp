@@ -83,7 +83,7 @@ public readonly partial struct FpE
         return resF;
     }
 
-    public static FE FromBytesReducedMultiple(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
+    private static FE FromBytesReducedMultiple(in ReadOnlySpan<byte> bytes, bool isBigEndian = false)
     {
         UInt256 val = new(bytes, isBigEndian);
         val.Mod(_modulus.Value, out UInt256 res);

@@ -5,6 +5,8 @@ using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
 using FE = Nethermind.Verkle.Fields.FrEElement.FrE;
 
@@ -14,7 +16,7 @@ public readonly partial struct FrE
 {
     public static IEnumerable<FE> GetRandom()
     {
-        Random rand = new Random(0);
+        Random rand = new(0);
         byte[] data = new byte[32];
 
         while (true)
@@ -131,10 +133,17 @@ public readonly partial struct FrE
     {
         byte[] returnEncoding = new byte[32];
         Span<byte> target = returnEncoding;
-        BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
-        BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(8, 8), u1);
-        BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(16, 8), u2);
-        BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(24, 8), u3);
+        if (Avx.IsSupported)
+        {
+            Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(target)) = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+        }
+        else
+        {
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(8, 8), u1);
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(16, 8), u2);
+            BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(24, 8), u3);
+        }
         return returnEncoding;
     }
 
