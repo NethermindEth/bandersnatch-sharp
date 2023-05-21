@@ -9,6 +9,9 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve;
 
+/// <summary>
+/// Bandersnatch using affine co-ordinates
+/// </summary>
 public readonly struct AffinePoint
 {
     /// <summary>
@@ -143,8 +146,6 @@ public readonly struct AffinePoint
         }
         return result;
     }
-
-
 
     public static FpE? GetYCoordinate(FpE x, bool returnPositiveY)
     {

@@ -14,6 +14,9 @@ using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
 namespace Nethermind.Verkle.Fields.FpEElement;
 
+/// <summary>
+/// This is the base field associated with the bandersnatch curve
+/// </summary>
 [StructLayout(LayoutKind.Explicit)]
 public readonly partial struct FpE
 {

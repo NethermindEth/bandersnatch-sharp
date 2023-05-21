@@ -1,9 +1,76 @@
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Tests.Curve;
 
 public class BanderwagonTests
 {
+    [Test]
+    public void TestAddition()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+        Banderwagon resultAdd = gen + gen;
+
+        Banderwagon resultDouble = Banderwagon.Double(gen);
+
+        Assert.IsTrue(resultAdd == resultDouble);
+    }
+
+    [Test]
+    public void TestEq()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+        Banderwagon gen2 = Banderwagon.Generator;
+
+        Banderwagon negGen = Banderwagon.Neg(gen);
+
+        Assert.IsTrue(gen == gen2);
+        Assert.IsTrue(gen != negGen);
+    }
+
+    [Test]
+    public void TestNeg()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+        Banderwagon expected = Banderwagon.Identity;
+        Banderwagon result = gen + Banderwagon.Neg(gen);
+
+        Assert.IsTrue(expected == result);
+    }
+
+    [Test]
+    public void TestSerialiseGen()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+
+        byte[]? serialized = gen.ToBytes();
+        const string expected = "4A2C7486FD924882BF02C6908DE395122843E3E05264D7991E18E7985DAD51E9";
+        Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
+    }
+
+    [Test]
+    public void TestScalarMulSmoke()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+        FrE scalar = FrE.SetElement(2);
+        Banderwagon result = gen * scalar;
+        Banderwagon twoGen = Banderwagon.Double(gen);
+        Assert.IsTrue(twoGen == result);
+    }
+
+    [Test]
+    public void TestScalarMulMinusOne()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+
+        const int x = -1;
+        FrE scalar = FrE.SetElement(x);
+        Banderwagon result = gen * scalar;
+        byte[] serialized = result.ToBytes();
+        const string expected = "29C132CC2C0B34C5743711777BBE42F32B79C022AD998465E1E71866A252AE18";
+        Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
+    }
+
     [Test]
     public void TestSerialiseSmoke()
     {
@@ -43,7 +110,7 @@ public class BanderwagonTests
         {
             string bitString = expectedBitStrings[i];
             Banderwagon expectedPoint = points[i];
-            Banderwagon decodedPoint = new Banderwagon(Convert.FromHexString(bitString));
+            Banderwagon decodedPoint = new Banderwagon(bitString);
             Assert.NotNull(point);
             Assert.IsTrue(decodedPoint == expectedPoint);
         }

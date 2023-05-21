@@ -8,25 +8,13 @@ namespace Nethermind.Verkle.Curve;
 
 public readonly partial struct Banderwagon
 {
-    public static Banderwagon MultiScalarMulOld(Span<Banderwagon> points, Span<FrE> scalars)
-    {
-        Banderwagon res = Identity;
-
-        for (int i = 0; i < points.Length; i++)
-        {
-            res += ScalarMul(points[i], scalars[i]);
-        }
-
-        return res;
-    }
-
     public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
     {
         int numOfPoints = points.Length;
         FpE[] zs = new FpE[numOfPoints];
         for (int i = 0; i < numOfPoints; i++)
         {
-            zs[i] = points[i]._point.Z;
+            zs[i] = points[i].Z;
         }
 
         FpE[] inverses = FpE.MultiInverse(zs);
@@ -34,10 +22,20 @@ public readonly partial struct Banderwagon
         AffinePoint[] normalizedPoint = new AffinePoint[numOfPoints];
         for (int i = 0; i < numOfPoints; i++)
         {
-            normalizedPoint[i] = points[i]._point.ToAffine(inverses[i]);
+            normalizedPoint[i] = points[i].ToAffine(inverses[i]);
         }
 
         return MultiScalarMulFast(normalizedPoint, scalars.ToArray());
+    }
+
+    private static FrE[] BatchConvertFromMontgomery(FrE[] scalarsMont)
+    {
+        FrE[] scalars = new FrE[scalarsMont.Length];
+        Parallel.For(0, scalarsMont.Length, i =>
+        {
+            FrE.FromMontgomery(in scalarsMont[i], out scalars[i]);
+        });
+        return scalars;
     }
 
 
@@ -56,34 +54,33 @@ public readonly partial struct Banderwagon
             i += windowsSize;
         }
 
-        ExtendedPoint zero = ExtendedPoint.Identity;
+        ulong bucketSize = ((ulong)1 << windowsSize) - 1;
 
-        ExtendedPoint[] windowSums = new ExtendedPoint[windowsStart.Count];
+        FrE[] scalarsReg = BatchConvertFromMontgomery(scalars);
+
+        Banderwagon[] windowSums = new Banderwagon[windowsStart.Count];
+
         Parallel.For(0, windowsStart.Count, w =>
         {
             int winStart = windowsStart[w];
 
-            ExtendedPoint res = zero;
-            ExtendedPoint[] buckets = new ExtendedPoint[((ulong)1 << windowsSize) - 1];
+            Banderwagon res = Identity;
+            Banderwagon[] buckets = new Banderwagon[bucketSize];
 
             for (int j = 0; j < buckets.Length; j++)
             {
-                buckets[j] = zero;
+                buckets[j] = Identity;
             }
 
             for (int j = 0; j < points.Length; j++)
             {
-                if (scalars[j].IsOne)
+                if (scalarsReg[j].IsRegularOne)
                 {
-                    if (winStart == 0)
-                    {
-                        res = ExtendedPoint.Add(res, points[j]);
-                    }
+                    if (winStart == 0) res = Add(res, points[j]);
                 }
                 else
                 {
-                    FrE scalar = scalars[j];
-                    FrE.FromMontgomery(in scalar, out scalar);
+                    FrE scalar = scalarsReg[j];
                     scalar >>= winStart;
 
                     ulong sc = scalar.u0;
@@ -91,12 +88,12 @@ public readonly partial struct Banderwagon
 
                     if (sc != 0)
                     {
-                        buckets[sc - 1] = ExtendedPoint.Add(buckets[sc - 1], points[j]);
+                        buckets[sc - 1] = Add(buckets[sc - 1], points[j]);
                     }
                 }
             }
 
-            ExtendedPoint runningSum = ExtendedPoint.Identity;
+            Banderwagon runningSum = Identity;
             for (int j = (buckets.Length - 1); j >= 0; j--)
             {
                 runningSum += buckets[j];
@@ -106,20 +103,19 @@ public readonly partial struct Banderwagon
             windowSums[w] = res;
         });
 
-        ExtendedPoint lowest = windowSums[0];
+        Banderwagon lowest = windowSums[0];
 
-        ExtendedPoint result = ExtendedPoint.Identity;
+        Banderwagon result = Identity;
         for (int j = (windowSums.Length - 1); j > 0; j--)
         {
             result += windowSums[j];
             for (int k = 0; k < windowsSize; k++)
             {
-                result = ExtendedPoint.Double(result);
+                result = Double(result);
             }
         }
 
         result += lowest;
-
-        return new Banderwagon(result);
+        return result;
     }
 }
