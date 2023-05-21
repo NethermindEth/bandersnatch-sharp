@@ -8,18 +8,6 @@ namespace Nethermind.Verkle.Curve;
 
 public readonly partial struct Banderwagon
 {
-    public static Banderwagon MultiScalarMulOld(Span<Banderwagon> points, Span<FrE> scalars)
-    {
-        Banderwagon res = Identity;
-
-        for (int i = 0; i < points.Length; i++)
-        {
-            res += ScalarMul(points[i], scalars[i]);
-        }
-
-        return res;
-    }
-
     public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
     {
         int numOfPoints = points.Length;
@@ -40,6 +28,16 @@ public readonly partial struct Banderwagon
         return MultiScalarMulFast(normalizedPoint, scalars.ToArray());
     }
 
+    private static FrE[] BatchConvertFromMontgomery(FrE[] scalarsMont)
+    {
+        FrE[] scalars = new FrE[scalarsMont.Length];
+        Parallel.For(0, scalarsMont.Length, i =>
+        {
+            FrE.FromMontgomery(in scalarsMont[i], out scalars[i]);
+        });
+        return scalars;
+    }
+
 
     private static Banderwagon MultiScalarMulFast(AffinePoint[] points, FrE[] scalars)
     {
@@ -56,34 +54,33 @@ public readonly partial struct Banderwagon
             i += windowsSize;
         }
 
-        Banderwagon zero = Banderwagon.Identity;
+        ulong bucketSize = ((ulong)1 << windowsSize) - 1;
+
+        FrE[] scalarsReg = BatchConvertFromMontgomery(scalars);
 
         Banderwagon[] windowSums = new Banderwagon[windowsStart.Count];
+
         Parallel.For(0, windowsStart.Count, w =>
         {
             int winStart = windowsStart[w];
 
-            Banderwagon res = zero;
-            Banderwagon[] buckets = new Banderwagon[((ulong)1 << windowsSize) - 1];
+            Banderwagon res = Identity;
+            Banderwagon[] buckets = new Banderwagon[bucketSize];
 
             for (int j = 0; j < buckets.Length; j++)
             {
-                buckets[j] = zero;
+                buckets[j] = Identity;
             }
 
             for (int j = 0; j < points.Length; j++)
             {
-                if (scalars[j].IsOne)
+                if (scalarsReg[j].IsRegularOne)
                 {
-                    if (winStart == 0)
-                    {
-                        res = Banderwagon.Add(res, points[j]);
-                    }
+                    if (winStart == 0) res = Add(res, points[j]);
                 }
                 else
                 {
-                    FrE scalar = scalars[j];
-                    FrE.FromMontgomery(in scalar, out scalar);
+                    FrE scalar = scalarsReg[j];
                     scalar >>= winStart;
 
                     ulong sc = scalar.u0;
@@ -91,12 +88,12 @@ public readonly partial struct Banderwagon
 
                     if (sc != 0)
                     {
-                        buckets[sc - 1] = Banderwagon.Add(buckets[sc - 1], points[j]);
+                        buckets[sc - 1] = Add(buckets[sc - 1], points[j]);
                     }
                 }
             }
 
-            Banderwagon runningSum = Banderwagon.Identity;
+            Banderwagon runningSum = Identity;
             for (int j = (buckets.Length - 1); j >= 0; j--)
             {
                 runningSum += buckets[j];
@@ -108,18 +105,17 @@ public readonly partial struct Banderwagon
 
         Banderwagon lowest = windowSums[0];
 
-        Banderwagon result = Banderwagon.Identity;
+        Banderwagon result = Identity;
         for (int j = (windowSums.Length - 1); j > 0; j--)
         {
             result += windowSums[j];
             for (int k = 0; k < windowsSize; k++)
             {
-                result = Banderwagon.Double(result);
+                result = Double(result);
             }
         }
 
         result += lowest;
-
         return result;
     }
 }

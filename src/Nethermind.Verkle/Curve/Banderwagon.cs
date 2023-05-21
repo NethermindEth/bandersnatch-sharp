@@ -17,6 +17,13 @@ public readonly partial struct Banderwagon
     public readonly FpE Y;
     public readonly FpE Z;
 
+    public Banderwagon()
+    {
+        X = FpE.Zero;
+        Y = FpE.One;
+        Z = FpE.One;
+    }
+
     public Banderwagon(FpE x, FpE y)
     {
         X = x;

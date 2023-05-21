@@ -14,6 +14,9 @@ using FE = Nethermind.Verkle.Fields.FrEElement.FrE;
 
 namespace Nethermind.Verkle.Fields.FrEElement;
 
+/// <summary>
+/// This is the scalar field associated with the bandersnatch curve
+/// </summary>
 [StructLayout(LayoutKind.Explicit)]
 public readonly partial struct FrE
 {
@@ -32,8 +35,37 @@ public readonly partial struct FrE
         _ => throw new IndexOutOfRangeException()
     };
 
-    public bool IsZero => (u0 | u1 | u2 | u3) == 0;
+    public bool IsZero
+    {
+        get
+        {
+            if (Avx.IsSupported)
+            {
+                Vector256<ulong> v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+                return Avx.TestZ(v, v);
+            }
+            else
+            {
+                return (u0 | u1 | u2 | u3) == 0;
+            }
+        }
+    }
     public bool IsOne => Equals(One);
+    public bool IsRegularOne
+    {
+        get
+        {
+            if (Avx.IsSupported)
+            {
+                var v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+                return v == Vector256.CreateScalar(1UL);
+            }
+            else
+            {
+                return ((u0 ^ 1UL) | u1 | u2 | u3) == 0;
+            }
+        }
+    }
 
     public FrE(ulong u0 = 0, ulong u1 = 0, ulong u2 = 0, ulong u3 = 0)
     {
