@@ -6,54 +6,59 @@ using Nethermind.Int256;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
+[assembly: InternalsVisibleTo("Nethermind.Verkle.Tests")]
+[assembly: InternalsVisibleTo("Nethermind.Verkle.Bench")]
+
 namespace Nethermind.Verkle.Curve;
 
 public readonly partial struct Banderwagon
 {
-    private static FpE A = CurveParams.A;
-    private readonly ExtendedPoint _point;
+    public readonly FpE X;
+    public readonly FpE Y;
+    public readonly FpE Z;
 
-    public static Banderwagon Identity = new(ExtendedPoint.Identity);
-    public static Banderwagon Generator = new(ExtendedPoint.Generator);
-
-    public Banderwagon(byte[]? serialisedBytesBigEndian, ExtendedPoint? unsafeBandersnatchPoint = null)
+    public Banderwagon(FpE x, FpE y)
     {
-        if (unsafeBandersnatchPoint is not null)
-        {
-            _point = unsafeBandersnatchPoint.Value;
-        }
-        else
-        {
-            if (serialisedBytesBigEndian is null)
-            {
-                throw new Exception();
-            }
-
-            (FpE X, FpE Y) point = FromBytes(serialisedBytesBigEndian) ?? throw new Exception();
-
-            _point = new ExtendedPoint(point.X, point.Y);
-        }
+        X = x;
+        Y = y;
+        Z = FpE.One;
     }
 
-    public Banderwagon(string serialisedBytesBigEndian)
+    private Banderwagon(FpE x, FpE y, FpE z)
     {
-        (FpE X, FpE Y) point = FromBytes(Convert.FromHexString(serialisedBytesBigEndian)) ?? throw new Exception();
-        _point = new ExtendedPoint(point.X, point.Y);
+        X = x;
+        Y = y;
+        Z = z;
     }
 
-    private Banderwagon(ExtendedPoint exPoint)
+    private Banderwagon(AffinePoint p)
     {
-        _point = exPoint;
+        X = p.X;
+        Y = p.Y;
+        Z = FpE.One;
     }
 
-    public static (FpE X, FpE Y)? FromBytes(byte[] serialisedBytesBigEndian)
+    internal Banderwagon(string serializedHexBigEndian)
     {
-        FpE x = FpE.FromBytes(serialisedBytesBigEndian, true);
+        this = FromBytes(Convert.FromHexString(serializedHexBigEndian), true, false)!.Value;
+    }
+
+    private static FpE A => CurveParams.A;
+    private static FpE D => CurveParams.D;
+
+    public static Banderwagon Identity = new(AffinePoint.Identity);
+
+    public static Banderwagon Generator = new(AffinePoint.Generator);
+
+    public static Banderwagon? FromBytes(byte[] bytes, bool isBigEndian = true, bool subgroupCheck = true)
+    {
+        FpE x = FpE.FromBytes(bytes, isBigEndian);
 
         FpE? y = AffinePoint.GetYCoordinate(x, true);
         if (y is null) return null;
 
-        return SubgroupCheck(x) != 1 ? null : (x, y.Value);
+        if (!subgroupCheck) return new Banderwagon(x, y.Value);
+        return SubgroupCheck(x) != 1 ? null : new Banderwagon(x, y.Value);
     }
 
     public static int SubgroupCheck(FpE x)
@@ -66,42 +71,77 @@ public readonly partial struct Banderwagon
         return FpE.Legendre(in res);
     }
 
-    public static bool Equals(Banderwagon x, Banderwagon y)
-    {
-        FpE x1 = x._point.X;
-        FpE y1 = x._point.Y;
-        FpE x2 = y._point.X;
-        FpE y2 = y._point.Y;
-
-        if (x1.IsZero && y1.IsZero) return false;
-
-        if (x2.IsZero && y2.IsZero) return false;
-
-        FpE lhs = x1 * y2;
-        FpE rhs = x2 * y1;
-
-        return lhs.Equals(rhs);
-    }
-
     public static Banderwagon Neg(Banderwagon p)
     {
-        return new Banderwagon(ExtendedPoint.Neg(p._point));
+        return new Banderwagon(p.X.Negative(), p.Y, p.Z);
     }
 
+    // https://hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
     public static Banderwagon Add(Banderwagon p, Banderwagon q)
     {
-        return new Banderwagon(p._point + q._point);
+        FpE x1 = p.X;
+        FpE y1 = p.Y;
+        FpE z1 = p.Z;
+
+        FpE x2 = q.X;
+        FpE y2 = q.Y;
+        FpE z2 = q.Z;
+
+        FpE a = z1 * z2;
+        FpE b = a * a;
+
+        FpE c = x1 * x2;
+
+        FpE d = y1 * y2;
+
+        FpE e = D * c * d;
+
+        FpE f = b - e;
+        FpE g = b + e;
+
+        FpE x3 = a * f * ((x1 + y1) * (x2 + y2) - c - d);
+        FpE y3 = a * g * (d - A * c);
+        FpE z3 = f * g;
+
+        return new Banderwagon(x3, y3, z3);
+    }
+
+    public static Banderwagon Add(Banderwagon p, AffinePoint q)
+    {
+        FpE x1 = p.X;
+        FpE y1 = p.Y;
+        FpE z1 = p.Z;
+
+        FpE x2 = q.X;
+        FpE y2 = q.Y;
+
+        FpE b = z1 * z1;
+
+        FpE c = x1 * x2;
+
+        FpE d = y1 * y2;
+
+        FpE e = D * c * d;
+
+        FpE f = b - e;
+        FpE g = b + e;
+
+        FpE x3 = z1 * f * ((x1 + y1) * (x2 + y2) - c - d);
+        FpE y3 = z1 * g * (d - A * c);
+        FpE z3 = f * g;
+
+        return new Banderwagon(x3, y3, z3);
     }
 
     public static Banderwagon Sub(Banderwagon p, Banderwagon q)
     {
-        return new Banderwagon(p._point - q._point);
+        return Add(p, Neg(q));
     }
 
     public FrE MapToScalarField()
     {
-        FpE.Inverse(in _point.Y, out FpE map);
-        FpE.MultiplyMod(in _point.X, in map, out map);
+        FpE.Inverse(in Y, out FpE map);
+        FpE.MultiplyMod(in X, in map, out map);
         FpE.FromMontgomery(in map, out map);
         Unsafe.As<FpE, UInt256>(ref Unsafe.AsRef(in map)).Mod(FrE._modulus.Value, out UInt256 inter);
         return FrE.SetElement(inter.u0, inter.u1, inter.u2, inter.u3);
@@ -109,7 +149,7 @@ public readonly partial struct Banderwagon
 
     public FrE MapToScalarField(in FpE inv)
     {
-        FpE.MultiplyMod(in _point.X, in inv, out FpE map);
+        FpE.MultiplyMod(in X, in inv, out FpE map);
         FpE.FromMontgomery(in map, out map);
         Unsafe.As<FpE, UInt256>(ref Unsafe.AsRef(in map)).Mod(FrE._modulus.Value, out UInt256 inter);
         return FrE.SetElement(inter.u0, inter.u1, inter.u2, inter.u3);
@@ -117,7 +157,7 @@ public readonly partial struct Banderwagon
 
     public static FrE[] BatchMapToScalarField(Banderwagon[] points)
     {
-        FpE[] inverses = points.Select(x => x._point.Y).ToArray();
+        FpE[] inverses = points.Select(x => x.Y).ToArray();
         inverses = FpE.MultiInverse(inverses);
 
         FrE[] fields = new FrE[points.Length];
@@ -128,9 +168,36 @@ public readonly partial struct Banderwagon
         return fields;
     }
 
+    public bool IsZero => X.IsZero && Y.Equals(Z) && !Y.IsZero;
+
+    public AffinePoint ToAffine()
+    {
+        if (IsZero) return AffinePoint.Identity;
+        if (Z.IsZero) throw new Exception();
+        if (Z.IsOne) return new AffinePoint(X, Y);
+
+        FpE.Inverse(Z, out FpE zInv);
+        FpE xAff = X * zInv;
+        FpE yAff = Y * zInv;
+
+        return new AffinePoint(xAff, yAff);
+    }
+
+    public AffinePoint ToAffine(in FpE zInv)
+    {
+        if (IsZero) return AffinePoint.Identity;
+        if (Z.IsZero) throw new Exception();
+        if (Z.IsOne) return new AffinePoint(X, Y);
+
+        FpE xAff = X * zInv;
+        FpE yAff = Y * zInv;
+
+        return new AffinePoint(xAff, yAff);
+    }
+
     public byte[] ToBytes()
     {
-        AffinePoint affine = _point.ToAffine();
+        AffinePoint affine = ToAffine();
         FpE x = affine.X;
         if (affine.Y.LexicographicallyLargest() == false)
         {
@@ -142,7 +209,7 @@ public readonly partial struct Banderwagon
 
     public byte[] ToBytesLittleEndian()
     {
-        AffinePoint affine = _point.ToAffine();
+        AffinePoint affine = ToAffine();
         FpE x = affine.X;
         if (affine.Y.LexicographicallyLargest() == false)
         {
@@ -154,17 +221,47 @@ public readonly partial struct Banderwagon
 
     public static Banderwagon Double(Banderwagon p)
     {
-        return new Banderwagon(ExtendedPoint.Double(p._point));
+        FpE x1 = p.X;
+        FpE y1 = p.Y;
+        FpE z1 = p.Z;
+
+        FpE b = (x1 + y1) * (x1 + y1);
+        FpE c = x1 * x1;
+        FpE d = y1 * y1;
+
+        FpE e = A * c;
+        FpE f = e + d;
+        FpE h = z1 * z1;
+        FpE j = f - (h + h);
+
+        FpE x3 = (b - c - d) * j;
+        FpE y3 = f * (e - d);
+        FpE z3 = f * j;
+        return new Banderwagon(x3, y3, z3);
     }
 
     public bool IsOnCurve()
     {
-        return _point.ToAffine().IsOnCurve();
+        return ToAffine().IsOnCurve();
     }
 
-    public static Banderwagon ScalarMul(in Banderwagon element, in FrE scalar)
+    public static Banderwagon ScalarMul(in Banderwagon point, in FrE scalarMont)
     {
-        return new Banderwagon(element._point * scalar);
+        Banderwagon result = Identity;
+
+        FrE.ToRegular(in scalarMont, out FrE scalar);
+
+        int len = scalar.BitLen();
+        for (int i = len; i >= 0; i--)
+        {
+            result = Double(result);
+            if (scalar.Bit(i))
+            {
+                result += point;
+            }
+        }
+
+        return result;
     }
 
 
@@ -172,7 +269,7 @@ public readonly partial struct Banderwagon
     public static Banderwagon TwoTorsionPoint()
     {
         AffinePoint affinePoint = new(FpE.Zero, FpE.One.Negative());
-        return new Banderwagon(new ExtendedPoint(affinePoint.X, affinePoint.Y));
+        return new Banderwagon(affinePoint.X, affinePoint.Y);
     }
 
     public static Banderwagon operator +(in Banderwagon a, in Banderwagon b)
@@ -205,9 +302,26 @@ public readonly partial struct Banderwagon
         return !(a == b);
     }
 
+    public static bool Equals(Banderwagon x, Banderwagon y)
+    {
+        FpE x1 = x.X;
+        FpE y1 = x.Y;
+        FpE x2 = y.X;
+        FpE y2 = y.Y;
+
+        if (x1.IsZero && y1.IsZero) return false;
+
+        if (x2.IsZero && y2.IsZero) return false;
+
+        FpE lhs = x1 * y2;
+        FpE rhs = x2 * y1;
+
+        return lhs.Equals(rhs);
+    }
+
     private bool Equals(Banderwagon other)
     {
-        return _point.Equals(other._point);
+        return Equals(this, other);
     }
 
     public override bool Equals(object? obj)
@@ -218,6 +332,6 @@ public readonly partial struct Banderwagon
 
     public override int GetHashCode()
     {
-        return _point.GetHashCode();
+        return HashCode.Combine(X, Y, Z);
     }
 }

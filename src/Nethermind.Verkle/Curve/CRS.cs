@@ -48,11 +48,10 @@ public class CRS
             increment++;
 
             byte[] xAsBytes = x.ToBytesBigEndian();
-            (FpE X, FpE Y)? pointFound = Banderwagon.FromBytes(xAsBytes);
+            Banderwagon? pointFound = Banderwagon.FromBytes(xAsBytes);
             if (pointFound is null) continue;
-            points[generatedPoints] =
-                new Banderwagon(null, new ExtendedPoint(pointFound.Value.X, pointFound.Value.Y));
-            generatedPoints += 1;
+            points[generatedPoints] = pointFound.Value;
+                generatedPoints += 1;
         }
 
         return new CRS(points);

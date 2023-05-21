@@ -6,7 +6,7 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve;
 
-public readonly struct ExtendedPoint
+internal readonly struct ExtendedPoint
 {
     public readonly FpE X;
     public readonly FpE Y;
