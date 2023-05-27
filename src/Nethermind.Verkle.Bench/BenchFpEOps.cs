@@ -9,11 +9,11 @@ namespace Nethermind.Verkle.Bench;
 public class FpEBenchmarkBase
 {
     protected static UInt256 _uMod = FpE._modulus.Value;
-    public IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
+    private IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
 
     public IEnumerable<(FpE, UInt256)> ValuesTuple => Values.Select(x => ((FpE)x, (UInt256)x));
 
-    public static UInt256? ModSqrt(UInt256 a, UInt256 p)
+    protected static UInt256? ModSqrt(UInt256 a, UInt256 p)
     {
         if (LegendreSymbol(a, p) != 1)
             return null;
@@ -83,7 +83,7 @@ public class FpEBenchmarkBase
         }
     }
 
-    public static int LegendreSymbol(UInt256 a, UInt256 p)
+    private static int LegendreSymbol(UInt256 a, UInt256 p)
     {
         UInt256.Divide(p - 1, 2, out UInt256 exp);
         UInt256.ExpMod(a, exp, p, out UInt256 ls);

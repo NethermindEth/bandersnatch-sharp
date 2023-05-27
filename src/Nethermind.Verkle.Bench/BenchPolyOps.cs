@@ -2,11 +2,15 @@
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Bench;
 
+[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[MemoryDiagnoser]
 public class BenchPolyOps
 {
     private FrE[] a;
@@ -26,5 +30,5 @@ public class BenchPolyOps
     }
 
     [Benchmark]
-    public void TestInnerProduct() => Ipa.InnerProduct(a, b);
+    public void BenchmarkInnerProduct() => Ipa.InnerProduct(a, b);
 }

@@ -10,10 +10,12 @@ using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Bench;
 
-[SimpleJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net70)]
 [MemoryDiagnoser]
-public class BenchProofOps
+public class BenchmarkMultiProof
 {
+
     private readonly string[][] _basicTestVerifierQueries =
     {
         new[]
@@ -195,8 +197,12 @@ public class BenchProofOps
         FrE.SetElement(31), FrE.SetElement(32)
     };
 
-    [Benchmark]
-    public void BasicMultiProof()
+    private VerkleProverQuery[] ProverQueries;
+    private MultiProof Multiproof;
+    private VerkleProofStruct Proof;
+    private List<VerkleVerifierQuery> VerifierQueries;
+
+    public BenchmarkMultiProof()
     {
         List<FrE> polyEvalA = new List<FrE>();
         List<FrE> polyEvalB = new List<FrE>();
@@ -217,67 +223,35 @@ public class BenchProofOps
 
         Banderwagon[] cs = { cA, cB };
 
-
         VerkleProverQuery queryA = new VerkleProverQuery(new LagrangeBasis(fs[0]), cs[0], zs[0], ys[0]);
         VerkleProverQuery queryB = new VerkleProverQuery(new LagrangeBasis(fs[1]), cs[1], zs[1], ys[1]);
 
-        MultiProof multiproof = new MultiProof(crs, PreComputedWeights.Instance);
+        Multiproof = new MultiProof(crs, PreComputedWeights.Instance);
+
+        ProverQueries = new VerkleProverQuery[]{ queryA, queryB };
 
         Transcript proverTranscript = new Transcript("test");
-        VerkleProverQuery[] queries = { queryA, queryB };
-        VerkleProofStruct proof = multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(queries));
-        FrE pChallenge = proverTranscript.ChallengeScalar("state");
+        Proof = Multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(ProverQueries));
 
-        Transcript verifierTranscript = new Transcript("test");
-        VerkleVerifierQuery queryAx = new VerkleVerifierQuery(cs[0], zs[0], ys[0]);
-        VerkleVerifierQuery queryBx = new VerkleVerifierQuery(cs[1], zs[1], ys[1]);
-
-        VerkleVerifierQuery[] queriesX = { queryAx, queryBx };
-        multiproof.CheckMultiProof(verifierTranscript, queriesX, proof);
-    }
-
-
-    [Benchmark]
-    public void BasicProofVerification()
-    {
-        Transcript proverTranscript = new Transcript("vt");
-        MultiProof multiproof = new MultiProof(CRS.Instance, PreComputedWeights.Instance);
-        List<VerkleVerifierQuery> queries = (from queryString in _basicTestVerifierQueries
+        VerifierQueries = (from queryString in _basicTestVerifierQueries
             let point = new Banderwagon(queryString[0])
             let childIndex = Convert.FromHexString(queryString[1])[0]
             let childHash = FrE.FromBytesReduced(Convert.FromHexString(queryString[2]))
             select new VerkleVerifierQuery(point, childIndex, childHash)).ToList();
 
-        Banderwagon d = new Banderwagon(_basicProofStruct[0]);
-        FrE a = FrE.FromBytesReduced(Convert.FromHexString(_basicProofStruct[1]));
-        Banderwagon[] l = new Banderwagon[8];
-        Banderwagon[] r = new Banderwagon[8];
-
-        for (int i = 2; i < 10; i++)
-        {
-            l[i - 2] = new Banderwagon(_basicProofStruct[i]);
-        }
-
-        for (int i = 10; i < 18; i++)
-        {
-            r[i - 10] = new Banderwagon(_basicProofStruct[i]);
-        }
-
-        IpaProofStruct ipaProof = new IpaProofStruct(l, a, r);
-        VerkleProofStruct proof = new VerkleProofStruct(ipaProof, d);
-
-        multiproof.CheckMultiProof(proverTranscript, queries.ToArray(), proof);
     }
 
     [Benchmark]
-    public void InnerProduct()
+    public void BenchmarkBasicMultiProof()
     {
-        FrE[] a = { FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5) };
+        Transcript proverTranscript = new Transcript("test");
+        VerkleProofStruct proof = Multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(ProverQueries));
+    }
 
-        FrE[] b =
-        {
-            FrE.SetElement(10), FrE.SetElement(12), FrE.SetElement(13), FrE.SetElement(14), FrE.SetElement(15)
-        };
-        Ipa.InnerProduct(a, b);
+    [Benchmark]
+    public void BenchmarkBasicMultiProofVerification()
+    {
+        Transcript proverTranscript = new Transcript("vt");
+        Multiproof.CheckMultiProof(proverTranscript, VerifierQueries.ToArray(), Proof);
     }
 }
