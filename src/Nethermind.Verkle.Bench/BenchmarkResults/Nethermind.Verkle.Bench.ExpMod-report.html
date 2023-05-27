@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.ExpMod-20230527-154521</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.302
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>  Method</th><th>EnvironmentVariables</th><th>            A</th><th>            B</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>ExpMod_FpE</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>38.56 &mu;s</td><td>0.170 &mu;s</td><td>0.142 &mu;s</td><td>38.58 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>61.07 &mu;s</td><td>0.314 &mu;s</td><td>0.293 &mu;s</td><td>61.06 &mu;s</td><td>1.59</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>60.44 &mu;s</td><td>0.351 &mu;s</td><td>0.328 &mu;s</td><td>60.28 &mu;s</td><td>1.57</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>99.39 &mu;s</td><td>0.537 &mu;s</td><td>0.419 &mu;s</td><td>99.27 &mu;s</td><td>2.58</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>28.49 &mu;s</td><td>0.100 &mu;s</td><td>0.094 &mu;s</td><td>28.47 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>45.95 &mu;s</td><td>0.095 &mu;s</td><td>0.084 &mu;s</td><td>45.96 &mu;s</td><td>1.61</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>43.91 &mu;s</td><td>0.181 &mu;s</td><td>0.161 &mu;s</td><td>43.90 &mu;s</td><td>1.54</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>75.01 &mu;s</td><td>0.119 &mu;s</td><td>0.111 &mu;s</td><td>75.00 &mu;s</td><td>2.63</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>38.73 &mu;s</td><td>0.215 &mu;s</td><td>0.201 &mu;s</td><td>38.63 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>61.70 &mu;s</td><td>1.232 &mu;s</td><td>1.806 &mu;s</td><td>63.29 &mu;s</td><td>1.59</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>62.43 &mu;s</td><td>0.158 &mu;s</td><td>0.148 &mu;s</td><td>62.40 &mu;s</td><td>1.61</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>100.86 &mu;s</td><td>1.965 &mu;s</td><td>2.184 &mu;s</td><td>99.86 &mu;s</td><td>2.62</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>28.92 &mu;s</td><td>0.067 &mu;s</td><td>0.063 &mu;s</td><td>28.91 &mu;s</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>46.27 &mu;s</td><td>0.249 &mu;s</td><td>0.195 &mu;s</td><td>46.31 &mu;s</td><td>1.60</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>45.07 &mu;s</td><td>0.256 &mu;s</td><td>0.239 &mu;s</td><td>45.06 &mu;s</td><td>1.56</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>ExpMod_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>73.75 &mu;s</td><td>1.141 &mu;s</td><td>1.067 &mu;s</td><td>72.87 &mu;s</td><td>2.55</td><td>0.04</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>
