@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.Subtract-20230527-160520</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.302
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>    Method</th><th>EnvironmentVariables</th><th>            A</th><th>            B</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Subtract_FpE</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>2.189 ns</td><td>0.0228 ns</td><td>0.0214 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>4.229 ns</td><td>0.0326 ns</td><td>0.0305 ns</td><td>1.93</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>6.331 ns</td><td>0.0242 ns</td><td>0.0226 ns</td><td>2.89</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>5.292 ns</td><td>0.0125 ns</td><td>0.0105 ns</td><td>2.41</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>4.534 ns</td><td>0.0116 ns</td><td>0.0103 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>48.007 ns</td><td>0.1585 ns</td><td>0.1483 ns</td><td>10.59</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>7.957 ns</td><td>0.0238 ns</td><td>0.0199 ns</td><td>1.75</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>56.306 ns</td><td>0.1749 ns</td><td>0.1636 ns</td><td>12.42</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>2.212 ns</td><td>0.0037 ns</td><td>0.0034 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>56.897 ns</td><td>0.7511 ns</td><td>0.7026 ns</td><td>25.72</td><td>0.31</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>6.365 ns</td><td>0.0061 ns</td><td>0.0057 ns</td><td>2.88</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>62.624 ns</td><td>0.1901 ns</td><td>0.1779 ns</td><td>28.31</td><td>0.09</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>2.199 ns</td><td>0.0037 ns</td><td>0.0035 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>4.272 ns</td><td>0.0354 ns</td><td>0.0331 ns</td><td>1.94</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>6.314 ns</td><td>0.0242 ns</td><td>0.0227 ns</td><td>2.87</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>Subtract_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>5.304 ns</td><td>0.0514 ns</td><td>0.0455 ns</td><td>2.41</td><td>0.02</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>
