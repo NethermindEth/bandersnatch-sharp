@@ -204,8 +204,8 @@ public class BenchmarkMultiProof
 
     public BenchmarkMultiProof()
     {
-        List<FrE> polyEvalA = new List<FrE>();
-        List<FrE> polyEvalB = new List<FrE>();
+        List<FrE> polyEvalA = new();
+        List<FrE> polyEvalB = new();
 
         for (int i = 0; i < 8; i++)
         {
@@ -223,14 +223,14 @@ public class BenchmarkMultiProof
 
         Banderwagon[] cs = { cA, cB };
 
-        VerkleProverQuery queryA = new VerkleProverQuery(new LagrangeBasis(fs[0]), cs[0], zs[0], ys[0]);
-        VerkleProverQuery queryB = new VerkleProverQuery(new LagrangeBasis(fs[1]), cs[1], zs[1], ys[1]);
+        VerkleProverQuery queryA = new(new LagrangeBasis(fs[0]), cs[0], zs[0], ys[0]);
+        VerkleProverQuery queryB = new(new LagrangeBasis(fs[1]), cs[1], zs[1], ys[1]);
 
         Multiproof = new MultiProof(crs, PreComputedWeights.Instance);
 
-        ProverQueries = new VerkleProverQuery[]{ queryA, queryB };
+        ProverQueries = new[]{ queryA, queryB };
 
-        Transcript proverTranscript = new Transcript("test");
+        Transcript proverTranscript = new("test");
         Proof = Multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(ProverQueries));
 
         VerifierQueries = (from queryString in _basicTestVerifierQueries
@@ -244,7 +244,7 @@ public class BenchmarkMultiProof
     [Benchmark]
     public void BenchmarkBasicMultiProof()
     {
-        Transcript proverTranscript = new Transcript("test");
+        Transcript proverTranscript = new("test");
         VerkleProofStruct proof = Multiproof.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(ProverQueries));
     }
 

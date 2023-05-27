@@ -13,24 +13,24 @@ namespace Nethermind.Verkle.Bench;
 [MemoryDiagnoser]
 public class BenchCurveOps
 {
-    private FrE[] a;
-    private CRS crs;
+    private readonly FrE[] _a;
+    private readonly CRS _crs;
 
     public BenchCurveOps()
     {
         using IEnumerator<FrE> rand = FrE.GetRandom().GetEnumerator();
         for (int i = 0; i < 10; i++) rand.MoveNext();
 
-        a = new FrE[256];
+        _a = new FrE[256];
         for (int i = 0; i < 256; i++)
         {
-            a[i] = rand.Current;
+            _a[i] = rand.Current;
             rand.MoveNext();
         }
 
-        crs = CRS.Instance;
+        _crs = CRS.Instance;
     }
 
     [Benchmark]
-    public void BenchmarkMultiScalarMul() => Banderwagon.MultiScalarMul(crs.BasisG, a);
+    public void BenchmarkMultiScalarMul() => Banderwagon.MultiScalarMul(_crs.BasisG, _a);
 }

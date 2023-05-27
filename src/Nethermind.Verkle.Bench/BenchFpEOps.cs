@@ -9,9 +9,9 @@ namespace Nethermind.Verkle.Bench;
 public class FpEBenchmarkBase
 {
     protected static UInt256 _uMod = FpE._modulus.Value;
-    private IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
+    private static IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
 
-    public IEnumerable<(FpE, UInt256)> ValuesTuple => Values.Select(x => ((FpE)x, (UInt256)x));
+    public static IEnumerable<(FpE, UInt256)> ValuesTuple => Values.Select(x => ((FpE)x, (UInt256)x));
 
     protected static UInt256? ModSqrt(UInt256 a, UInt256 p)
     {
@@ -72,8 +72,8 @@ public class FpEBenchmarkBase
             if (m.IsZero)
                 return x;
 
-            UInt256.Exp(2, r - m - 1, out UInt256 expGS);
-            UInt256.ExpMod(g, expGS, p, out UInt256 gs);
+            UInt256.Exp(2, r - m - 1, out UInt256 expGs);
+            UInt256.ExpMod(g, expGs, p, out UInt256 gs);
 
             UInt256.MultiplyMod(gs, gs, p, out g);
             UInt256.MultiplyMod(x, gs, p, out x);
@@ -206,7 +206,7 @@ public class Sqrt : TwoParamFpEBenchmarkBase
     [Benchmark]
     public FpE? Sqrt_FpE()
     {
-        return FpE.Sqrt(A.Item1, out FpE res) ? res : null;
+        return FpE.Sqrt(A.Item1, out FpE res) ? res : null!;
     }
 
     [Benchmark]

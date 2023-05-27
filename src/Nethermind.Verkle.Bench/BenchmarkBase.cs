@@ -9,7 +9,7 @@ namespace Nethermind.Verkle.Bench;
 
 public class BenchmarkBase
 {
-    public IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
+    private IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
 
     public IEnumerable<(UInt256, FpE)> ValuesTuple => Values.Select(x => ((UInt256)x, (FpE)x));
 }
