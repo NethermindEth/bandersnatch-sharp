@@ -63,23 +63,14 @@ public static class Ipa
 
             FrE.Inverse(x, out FrE xInv);
 
-            a = new FrE[m];
+            a = aL.ToArray();
+            b = bL.ToArray();
+            currentBasis = gL.ToArray();
             for (int i = 0; i < m; i++)
             {
-                a[i] = aL[i] + x * aR[i];
-            }
-
-            b = new FrE[m];
-            for (int i = 0; i < m; i++)
-            {
-                b[i] = bL[i] + xInv * bR[i];
-            }
-
-
-            currentBasis = new Banderwagon[m];
-            for (int i = 0; i < m; i++)
-            {
-                currentBasis[i] = gL[i] + gR[i] * xInv;
+                a[i] += x * aR[i];
+                b[i] += xInv * bR[i];
+                currentBasis[i] += gR[i] * xInv;
             }
 
             n = m;
@@ -89,8 +80,7 @@ public static class Ipa
         return new IpaProofStruct(l, a[0], r);
     }
 
-    public static bool CheckIpaProof(CRS crs, Transcript transcript,
-        IpaVerifierQuery query)
+    public static bool CheckIpaProof(CRS crs, Transcript transcript, IpaVerifierQuery query)
     {
         transcript.DomainSep("ipa"u8.ToArray());
 
@@ -111,7 +101,7 @@ public static class Ipa
 
         Banderwagon q = crs.BasisQ * w;
 
-        FrE[] xs = new FrE[numRounds];
+        Span<FrE> xs = stackalloc FrE[numRounds];
         for (int i = 0; i < numRounds; i++)
         {
             Banderwagon cL = commitL[i];

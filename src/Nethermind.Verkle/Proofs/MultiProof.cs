@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Diagnostics;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
@@ -34,14 +35,14 @@ public class MultiProof
         }
 
         FrE r = transcript.ChallengeScalar("r");
-        FrE[] powersOfR = new FrE[queries.Count];
+        Span<FrE> powersOfR = stackalloc FrE[queries.Count];
         powersOfR[0] = FrE.One;
         for (int i = 1; i < queries.Count; i++)
         {
             FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
         }
 
-        FrE[] g = new FrE[domainSize];
+        Span<FrE> g = stackalloc FrE[domainSize];
         for (int i = 0; i < queries.Count; i++)
         {
             VerkleProverQuery query = queries[i];
@@ -60,14 +61,14 @@ public class MultiProof
         transcript.AppendPoint(d, "D");
 
         FrE t = transcript.ChallengeScalar("t");
-        FrE[] denomInvs = new FrE[queries.Count];
+        Span<FrE> denomInvs = stackalloc FrE[queries.Count];
         for (int i = 0; i < queries.Count; i++)
         {
             denomInvs[i] = t - PreComp.Domain[queries[i].ChildIndex];
         }
         denomInvs = FrE.MultiInverse(denomInvs);
 
-        FrE[] h = new FrE[domainSize];
+        Span<FrE> h = stackalloc FrE[domainSize];
         for (int i = 0; i < queries.Count; i++)
         {
             LagrangeBasis f = queries[i].ChildHashPoly;
@@ -106,7 +107,7 @@ public class MultiProof
         }
         FrE r = transcript.ChallengeScalar("r");
 
-        FrE[] powersOfR = new FrE[queries.Length];
+        Span<FrE> powersOfR = stackalloc FrE[queries.Length];
         powersOfR[0] = FrE.One;
         for (int i = 1; i < queries.Length; i++)
         {
@@ -118,7 +119,7 @@ public class MultiProof
         transcript.AppendPoint(d, "D");
         FrE t = transcript.ChallengeScalar("t");
 
-        FrE[] g2Den = new FrE[queries.Length];
+        Span<FrE> g2Den = stackalloc FrE[queries.Length];
         for (int i = 0; i < queries.Length; i++)
         {
             g2Den[i] = t - FrE.SetElement(u0: queries[i].ChildIndex);
@@ -126,8 +127,8 @@ public class MultiProof
         g2Den = FrE.MultiInverse(g2Den);
 
         FrE g2T = FrE.Zero;
-        FrE[] helperScalars = new FrE[queries.Length];
-        Banderwagon[] commitments = new Banderwagon[queries.Length];
+        Span<FrE> helperScalars = stackalloc FrE[queries.Length];
+        Span<Banderwagon> commitments = stackalloc Banderwagon[queries.Length];
         for (int i = 0; i < queries.Length; i++)
         {
             helperScalars[i] = g2Den[i] * powersOfR[i];

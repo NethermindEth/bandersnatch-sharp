@@ -73,7 +73,7 @@ public class CRS
         return commitment;
     }
 
-    public Banderwagon Commit(FrE[] values)
+    public Banderwagon Commit(Span<FrE> values)
     {
         Span<Banderwagon> elements = BasisG;
         elements = elements[..values.Length];

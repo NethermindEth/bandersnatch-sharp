@@ -11,7 +11,7 @@ public readonly partial struct Banderwagon
     public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
     {
         int numOfPoints = points.Length;
-        FpE[] zs = new FpE[numOfPoints];
+        Span<FpE> zs = stackalloc FpE[numOfPoints];
         for (int i = 0; i < numOfPoints; i++)
         {
             zs[i] = points[i].Z;

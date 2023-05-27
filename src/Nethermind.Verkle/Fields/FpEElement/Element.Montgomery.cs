@@ -156,7 +156,7 @@ public readonly partial struct FpE
         }
     }
 
-    public static FE[] MultiInverse(FE[] values)
+    public static FE[] MultiInverse(Span<FE> values)
     {
         if (values.Length == 0) return Array.Empty<FE>();
 
