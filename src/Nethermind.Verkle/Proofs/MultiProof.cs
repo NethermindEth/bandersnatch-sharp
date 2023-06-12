@@ -41,39 +41,70 @@ public class MultiProof
             FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
         }
 
-        FrE[] g = new FrE[domainSize];
+        // We aggregate all the polynomials in evaluation form per domain point
+        // to avoid work downstream.
+        LagrangeBasis[] aggregatedPolys = new LagrangeBasis[domainSize];
         for (int i = 0; i < queries.Count; i++)
         {
-            VerkleProverQuery query = queries[i];
-            LagrangeBasis f = query.ChildHashPoly;
-            byte index = query.ChildIndex;
-            FrE[] quotient = Quotient.ComputeQuotientInsideDomain(PreComp, f, index);
-
-            for (int j = 0; j < quotient.Length; j++)
+            LagrangeBasis f = queries[i].ChildHashPoly;
+            // TODO: GetEvaluationPoint() should return _domain. 
+            FrE evaluationpoint = f.GetEvaluationPoint();
+            if (aggregatedPolys[evaluationPoint] == null)
             {
-                FrE.MultiplyMod(in powersOfR[i], in quotient[j], out FrE mul);
-                g[j] += mul;
+                aggregatedPolys[i] = new LagrangeBasis(f); // TODO: ~copy constructor?
+                continue;
             }
+            FrE queryR = powersOfR[i];
+            LagrangeBasis scaledF = f * queryR;
+
+            aggregatedPolys[evaluationPoint] += scaledF;
+        }
+
+
+        // REMOVABLE COMMENT: now we work on aggregatedPolys. Remember that we already multiplied by `r` so it was removed here.
+        FrE[] g = new FrE[domainSize];
+        for (int i = 0; i < domainSize; i++)
+        {
+            if (aggregatedPolys[i] == null)
+            {
+                continue;
+            }
+
+            FrE[] quotient = Quotient.ComputeQuotientInsideDomain(PreComp, aggregatedPolys[i], i);
+            g += quotient;
         }
 
         Banderwagon d = Crs.Commit(g);
         transcript.AppendPoint(d, "D");
 
         FrE t = transcript.ChallengeScalar("t");
-        FrE[] denomInvs = new FrE[queries.Count];
-        for (int i = 0; i < queries.Count; i++)
+        // We only will calculate inverses for domain points that are actually queried.
+        FrE[] denomInvs = new FrE[domainSize];
+        for (int i = 0; i < domainSize; i++)
         {
-            denomInvs[i] = t - PreComp.Domain[queries[i].ChildIndex];
+            if (aggregatedPolys[i] == null)
+            {
+                // REMOVABLE COMMENT: note how domainInvs[i] will be zero. We'll skip it in the next loop.
+                continue;
+            }
+            denomInvs[i] = t - PreComp.Domain[i];
         }
         denomInvs = FrE.MultiInverse(denomInvs);
 
         FrE[] h = new FrE[domainSize];
-        for (int i = 0; i < queries.Count; i++)
+        for (int i = 0; i < domainSize; i++)
         {
-            LagrangeBasis f = queries[i].ChildHashPoly;
+            if (aggregatedPolys[i] == null)
+            {
+                // REMOVABLE COMMENT: Note how we'll skip accessing denomInvs[i] here, since it's zero.
+                continue;
+            }
+            LagrangeBasis f = aggregatedPolys[i];
             for (int j = 0; j < f.Evaluations.Length; j++)
             {
-                h[j] += powersOfR[i] * f.Evaluations[j] * denomInvs[i];
+                // REMOVABLE COMMENT: note that 'r' multiplication is removed, since we already did
+                // that multiplication when we created aggregatedPolys[i]
+                h[j] += f.Evaluations[j] * denomInvs[i];
             }
         }
 
