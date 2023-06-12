@@ -118,20 +118,38 @@ public class MultiProof
         transcript.AppendPoint(d, "D");
         FrE t = transcript.ChallengeScalar("t");
 
-        FrE[] g2Den = new FrE[queries.Length];
+        FrE[] groupedEvals = new FrE[domainSize];
+        // Calculate groupedEvals = r * y_i.
         for (int i = 0; i < queries.Length; i++)
         {
-            g2Den[i] = t - FrE.SetElement(u0: queries[i].ChildIndex);
+            groupedEvals[queries[i].ChildIndex] += powersOfR[i] * queries[i].ChildHash;
         }
-        g2Den = FrE.MultiInverse(g2Den);
+
+
+        // REMOVABLE COMMENT: The idea here is to avoid doing a lot of repeated inverses. If we have thousands of 
+        // queries to check, there can only be up to 256 evaluations points.
+        FrE[] helperScalarDens = new FrE[domainSize];
+        // Compute helperScalarsDen = 1 / (t - z_i).
+        for (int i = 0; i < domainSize; i++)
+        {
+            helperScalarDens[i] = t - FrE.SetElement(u0: queries[i].ChildIndex);
+        }
+        helperScalarDens = FrE.MultiInverse(helperScalarDens);
 
         FrE g2T = FrE.Zero;
+        for (int i = 0; i < domainSize; i++)
+        {
+            // NIT: could the == operation be defined for FrEs? :)
+            if (groupedEvals[i].Equals(FrE.Zero)) continue;
+            // g2T = SUM [r^i * y_i] * [1 / (t - z_i)]
+            g2T += groupedEvals[i] * helperScalarDens[i];
+        }
+
         FrE[] helperScalars = new FrE[queries.Length];
         Banderwagon[] commitments = new Banderwagon[queries.Length];
         for (int i = 0; i < queries.Length; i++)
         {
-            helperScalars[i] = g2Den[i] * powersOfR[i];
-            g2T += helperScalars[i] * queries[i].ChildHash;
+            helperScalars[i] = helperScalarDens[queries[i].ChildIndex] * powersOfR[i];
             commitments[i] = queries[i].NodeCommitPoint;
         }
 
