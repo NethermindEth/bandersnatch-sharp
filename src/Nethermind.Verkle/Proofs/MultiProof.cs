@@ -25,10 +25,22 @@ public class MultiProof
         // Stopwatch watch = new();
         // watch.Start();
 
+        // TODO: Create a BatchNormalize() method that transforms a list of 
+        //       extended points, calls the existing MultiInverse(...) method for their Zs
+        //       and then transforms them back to affine points.
+        //       See https://github.com/crate-crypto/go-ipa/pull/46/files#diff-95451cbcc8734ea567a6a41e76475d47f11b3492f538625984b202f213bb4330R45
+        //       for a reference implementation of that method. 
+        Banderwagon[] commitPoints = new Banderwagon[queries.Count];
+        for (int i = 0; i < queries.Count; i++)
+        {
+            commitPoints[i] = queries[i].NodeCommitPoint;
+        }
+        ExtendedPoint[] normalizedCommitments = Banderwagon.BatchNormalize(commitPoints);
+
         transcript.DomainSep("multiproof");
         for (int i = 0; i < queries.Count; i++)
         {
-            transcript.AppendPoint(queries[i].NodeCommitPoint, "C");
+            transcript.AppendPoint(normalizedCommitments[i], "C");
             transcript.AppendScalar(queries[i].ChildIndex, "z");
             transcript.AppendScalar(queries[i].ChildHash, "y");
         }
