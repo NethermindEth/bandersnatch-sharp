@@ -129,57 +129,29 @@ public static class Ipa
 
         Span<Banderwagon> currentBasis = crs.BasisG;
 
-        int n = crs.BasisG.Length;
-        int m = n / 2;
-        for (int j = 0; j < numRounds; j++)
+        // We apply a known optimization for the verifier unrolling the loop to 
+        // generate the final g0 and b0.
+        FrE[] foldingScalars = new FrE[currentBasis.Length];
+        for (int i = 0; i < foldingScalars.Length; i++)
         {
-            Span<Banderwagon> gL = currentBasis[..m];
-            Span<Banderwagon> gR = currentBasis[m..];
+            FrE scalar = FrE.One;
 
-            Span<FrE> bL = b[..m];
-            Span<FrE> bR = b[m..];
-
-            FrE xInv = xInvList[j];
-
-            b = FoldScalars(bL, bR, xInv);
-            currentBasis = FoldPoints(gL, gR, xInv);
-            n = m;
-            m = n / 2;
+            // We iterate on the bits of the challenge index from the MSB to LSB
+            // and accumulate in scalar for the corresponding challenge.
+            for (int challengeIdx = 0; challengeIdx < numRounds; challengeIdx++)
+            {
+                if ((i & (1 << (numRounds - 1 - challengeIdx))) > 0)
+                {
+                    scalar *= xInvList[challengeIdx];
+                }
+            }
+            foldingScalars[i] = scalar;
         }
 
-        if (b.Length != currentBasis.Length) throw new Exception();
-        if (b.Length != 1) throw new Exception();
-
-        FrE b0 = b[0];
-        Banderwagon g0 = currentBasis[0];
+        FrE b0 = InnerProduct(b, foldingScalars);
+        Banderwagon g0 = Banderwagon.MultiScalarMul(currentBasis, foldingScalars);
         Banderwagon gotCommitment = g0 * ipaProof.A + q * (ipaProof.A * b0);
 
         return currentCommitment == gotCommitment;
-    }
-
-    private static FrE[] FoldScalars(Span<FrE> a, Span<FrE> b, in FrE foldingChallenge)
-    {
-        if (a.Length != b.Length) throw new Exception();
-
-        FrE[] result = new FrE[a.Length];
-        for (int i = 0; i < a.Length; i++)
-        {
-            result[i] = a[i] + b[i] * foldingChallenge;
-        }
-
-        return result;
-    }
-
-    private static Banderwagon[] FoldPoints(Span<Banderwagon> a, Span<Banderwagon> b, in FrE foldingChallenge)
-    {
-        if (a.Length != b.Length) throw new Exception();
-
-        Banderwagon[] result = new Banderwagon[a.Length];
-        for (int i = 0; i < a.Length; i++)
-        {
-            result[i] = a[i] + b[i] * foldingChallenge;
-        }
-
-        return result;
     }
 }
