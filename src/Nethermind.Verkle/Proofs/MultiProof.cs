@@ -53,35 +53,32 @@ public class MultiProof
 
         // We aggregate all the polynomials in evaluation form per domain point
         // to avoid work downstream.
-        LagrangeBasis[] aggregatedPolys = new LagrangeBasis[domainSize];
+        Dictionary<byte, LagrangeBasis> aggregatedPolyMap = new();
         for (int i = 0; i < queries.Count; i++)
         {
             LagrangeBasis f = queries[i].ChildHashPoly;
-            // TODO: GetEvaluationPoint() should return _domain. 
-            FrE evaluationpoint = f.GetEvaluationPoint();
-            if (aggregatedPolys[evaluationPoint] == null)
+            byte evaluationPoint = queries[i].ChildIndex;
+
+            LagrangeBasis scaledF = f * powersOfR[i];
+
+            if (!aggregatedPolyMap.TryGetValue(evaluationPoint, out LagrangeBasis? poly))
             {
-                aggregatedPolys[i] = new LagrangeBasis(f); // TODO: ~copy constructor?
+                aggregatedPolyMap[evaluationPoint] = scaledF;
                 continue;
             }
-            FrE queryR = powersOfR[i];
-            LagrangeBasis scaledF = f * queryR;
-
-            aggregatedPolys[evaluationPoint] += scaledF;
+            aggregatedPolyMap[evaluationPoint] = poly + scaledF;
         }
 
 
-        // REMOVABLE COMMENT: now we work on aggregatedPolys. Remember that we already multiplied by `r` so it was removed here.
         FrE[] g = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
+        Span<FrE> quotient = new FrE[domainSize];
+        foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
         {
-            if (aggregatedPolys[i] == null)
+            Quotient.ComputeQuotientInsideDomain(PreComp, pointAndPoly.Value, pointAndPoly.Key, quotient);
+            for (int j = 0; j < g.Length; j++)
             {
-                continue;
+                g[j] += quotient[j];
             }
-
-            FrE[] quotient = Quotient.ComputeQuotientInsideDomain(PreComp, aggregatedPolys[i], i);
-            g += quotient;
         }
 
         Banderwagon d = Crs.Commit(g);
@@ -90,31 +87,19 @@ public class MultiProof
         FrE t = transcript.ChallengeScalar("t");
         // We only will calculate inverses for domain points that are actually queried.
         FrE[] denomInvs = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
+        foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
         {
-            if (aggregatedPolys[i] == null)
-            {
-                // REMOVABLE COMMENT: note how domainInvs[i] will be zero. We'll skip it in the next loop.
-                continue;
-            }
-            denomInvs[i] = t - PreComp.Domain[i];
+            denomInvs[pointAndPoly.Key] = t - PreComp.Domain[pointAndPoly.Key];
         }
         denomInvs = FrE.MultiInverse(denomInvs);
 
         FrE[] h = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
+        foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
         {
-            if (aggregatedPolys[i] == null)
-            {
-                // REMOVABLE COMMENT: Note how we'll skip accessing denomInvs[i] here, since it's zero.
-                continue;
-            }
-            LagrangeBasis f = aggregatedPolys[i];
+            LagrangeBasis f = pointAndPoly.Value;
             for (int j = 0; j < f.Evaluations.Length; j++)
             {
-                // REMOVABLE COMMENT: note that 'r' multiplication is removed, since we already did
-                // that multiplication when we created aggregatedPolys[i]
-                h[j] += f.Evaluations[j] * denomInvs[i];
+                h[j] += f.Evaluations[j] * denomInvs[pointAndPoly.Key];
             }
         }
 
