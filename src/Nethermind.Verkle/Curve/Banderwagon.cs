@@ -202,6 +202,17 @@ public readonly partial struct Banderwagon
         return new AffinePoint(xAff, yAff);
     }
 
+    public static byte[] ToBytes(in AffinePoint normalizedPoint)
+    {
+        FpE x = normalizedPoint.X;
+        if (normalizedPoint.Y.LexicographicallyLargest() == false)
+        {
+            x = x.Negative();
+        }
+
+        return x.ToBytesBigEndian();
+    }
+
     public byte[] ToBytes()
     {
         AffinePoint affine = ToAffine();
