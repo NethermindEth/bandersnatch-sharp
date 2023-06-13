@@ -29,7 +29,7 @@ public readonly partial struct Banderwagon
 
         return normalizedPoints;
     }
-    public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
+    public static Banderwagon MultiScalarMul(in ReadOnlySpan<Banderwagon> points, Span<FrE> scalars)
     {
         AffinePoint[] normalizedPoint = BatchNormalize(points);
         return MultiScalarMulFast(normalizedPoint, scalars.ToArray());
@@ -46,9 +46,9 @@ public readonly partial struct Banderwagon
     }
 
 
-    private static Banderwagon MultiScalarMulFast(AffinePoint[] points, FrE[] scalars)
+    private static Banderwagon MultiScalarMulFast(IReadOnlyList<AffinePoint> points, FrE[] scalars)
     {
-        int numOfPoints = points.Length;
+        int numOfPoints = points.Count;
         int windowsSize = numOfPoints < 32 ? 3 : (int)((Math.Log2(numOfPoints) * 69) / 100) + 2;
         // const int windowsSize = 3;
 
@@ -79,7 +79,7 @@ public readonly partial struct Banderwagon
                 buckets[j] = Identity;
             }
 
-            for (int j = 0; j < points.Length; j++)
+            for (int j = 0; j < points.Count; j++)
             {
                 if (scalarsReg[j].IsRegularOne)
                 {
