@@ -11,11 +11,13 @@ public class MultiProof
 {
     private readonly CRS Crs;
     private readonly PreComputedWeights PreComp;
+    private readonly int DomainSize;
 
     public MultiProof(CRS cRs, PreComputedWeights preComp)
     {
         PreComp = preComp;
         Crs = cRs;
+        DomainSize = preComp.Domain.Length;
     }
 
     public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
@@ -118,30 +120,26 @@ public class MultiProof
         transcript.AppendPoint(d, "D");
         FrE t = transcript.ChallengeScalar("t");
 
-        FrE[] groupedEvals = new FrE[domainSize];
         // Calculate groupedEvals = r * y_i.
+        FrE[] groupedEvals = new FrE[DomainSize];
         for (int i = 0; i < queries.Length; i++)
         {
             groupedEvals[queries[i].ChildIndex] += powersOfR[i] * queries[i].ChildHash;
         }
 
-
-        // REMOVABLE COMMENT: The idea here is to avoid doing a lot of repeated inverses. If we have thousands of 
-        // queries to check, there can only be up to 256 evaluations points.
-        FrE[] helperScalarDens = new FrE[domainSize];
         // Compute helperScalarsDen = 1 / (t - z_i).
-        for (int i = 0; i < domainSize; i++)
+        FrE[] helperScalarDens = new FrE[DomainSize];
+        foreach (byte childIndex in queries.Select(x => x.ChildIndex).Distinct())
         {
-            helperScalarDens[i] = t - FrE.SetElement(u0: queries[i].ChildIndex);
+            helperScalarDens[childIndex] = t - FrE.SetElement(u0: childIndex);
         }
         helperScalarDens = FrE.MultiInverse(helperScalarDens);
 
+        // g2T = SUM [r^i * y_i] * [1 / (t - z_i)]
         FrE g2T = FrE.Zero;
-        for (int i = 0; i < domainSize; i++)
+        for (int i = 0; i < DomainSize; i++)
         {
-            // NIT: could the == operation be defined for FrEs? :)
-            if (groupedEvals[i].Equals(FrE.Zero)) continue;
-            // g2T = SUM [r^i * y_i] * [1 / (t - z_i)]
+            if (groupedEvals[i].IsZero) continue;
             g2T += groupedEvals[i] * helperScalarDens[i];
         }
 
