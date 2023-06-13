@@ -63,9 +63,19 @@ public class Transcript
         AppendBytes(point.ToBytes(), label);
     }
 
+    public void AppendPoint(AffinePoint normalizedPoint, byte[] label)
+    {
+        AppendBytes(Banderwagon.ToBytes(in normalizedPoint), label);
+    }
+
     public void AppendPoint(Banderwagon point, string label)
     {
         AppendPoint(point, Encoding.ASCII.GetBytes(label));
+    }
+
+    public void AppendPoint(AffinePoint normalizedPoint, string label)
+    {
+        AppendBytes(Banderwagon.ToBytes(in normalizedPoint), Encoding.ASCII.GetBytes(label));
     }
 
     public FrE ChallengeScalar(byte[] label)

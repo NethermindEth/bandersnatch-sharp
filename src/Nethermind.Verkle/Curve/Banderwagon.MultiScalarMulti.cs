@@ -8,8 +8,9 @@ namespace Nethermind.Verkle.Curve;
 
 public readonly partial struct Banderwagon
 {
-    public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
+    public static AffinePoint[] BatchNormalize(in ReadOnlySpan<Banderwagon> points)
     {
+        // is it possible to remove this allocation here? by directly passing the banderwagon array?
         int numOfPoints = points.Length;
         FpE[] zs = new FpE[numOfPoints];
         for (int i = 0; i < numOfPoints; i++)
@@ -19,12 +20,18 @@ public readonly partial struct Banderwagon
 
         FpE[] inverses = FpE.MultiInverse(zs);
 
-        AffinePoint[] normalizedPoint = new AffinePoint[numOfPoints];
+        AffinePoint[] normalizedPoints = new AffinePoint[numOfPoints];
+
         for (int i = 0; i < numOfPoints; i++)
         {
-            normalizedPoint[i] = points[i].ToAffine(inverses[i]);
+            normalizedPoints[i] = points[i].ToAffine(inverses[i]);
         }
 
+        return normalizedPoints;
+    }
+    public static Banderwagon MultiScalarMul(Span<Banderwagon> points, Span<FrE> scalars)
+    {
+        AffinePoint[] normalizedPoint = BatchNormalize(points);
         return MultiScalarMulFast(normalizedPoint, scalars.ToArray());
     }
 
