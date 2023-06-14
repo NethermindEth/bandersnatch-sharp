@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Nethermind.Verkle.Bench.BenchmarkMultiProof1-20230614-142943</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=pop 22.04
+AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK=7.0.302
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+</code></pre>
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+</code></pre>
+
+<table>
+<thead><tr><th>             Method</th><th>EnvironmentVariables</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>BenchmarkBasicMultiProof1</td><td>Empty</td><td>184.576 ms</td><td>1.3973 ms</td><td>1.3071 ms</td><td>3393.7 KB</td>
+</tr><tr><td>BenchmarkVerification1</td><td>Empty</td><td>9.627 ms</td><td>0.1909 ms</td><td>0.5509 ms</td><td>792.45 KB</td>
+</tr><tr><td>BenchmarkBasicMultiProof1</td><td>DOTNET_EnableHWIntrinsic=0</td><td>233.458 ms</td><td>1.9130 ms</td><td>1.7894 ms</td><td>3396.52 KB</td>
+</tr><tr><td>BenchmarkVerification1</td><td>DOTNET_EnableHWIntrinsic=0</td><td>12.260 ms</td><td>0.2875 ms</td><td>0.8477 ms</td><td>792.69 KB</td>
+</tr></tbody></table>
+</body>
+</html>
