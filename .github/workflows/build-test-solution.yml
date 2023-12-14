@@ -1,43 +1,43 @@
 name: Tests
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
 
 defaults:
-  run:
-    working-directory: src
+    run:
+        working-directory: src
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build-config: [ debug, release ]
-        hardware-intrinsics: [ 0, 1 ]
-    env:
-      DOTNET_EnableHWIntrinsic: ${{ matrix.hardware-intrinsics }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: recursive
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                build-config: [ debug, release ]
+                hardware-intrinsics: [ 0, 1 ]
+        env:
+            DOTNET_EnableHWIntrinsic: ${{ matrix.hardware-intrinsics }}
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+                  submodules: recursive
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v3
+              with:
+                  dotnet-version: 8
 
-      - name: Install dependencies
-        run: |
-          dotnet restore Verkle.sln
+            - name: Install dependencies
+              run: |
+                  dotnet restore Verkle.sln
 
-      - name: Build
-        run: |
-          dotnet build Verkle.sln -c ${{ matrix.build-config }} --no-restore
+            - name: Build
+              run: |
+                  dotnet build Verkle.sln -c ${{ matrix.build-config }} --no-restore
 
-      - name: Test
-        run: |
-          dotnet test -c ${{ matrix.build-config }}
+            - name: Test
+              run: |
+                  dotnet test -c ${{ matrix.build-config }}
