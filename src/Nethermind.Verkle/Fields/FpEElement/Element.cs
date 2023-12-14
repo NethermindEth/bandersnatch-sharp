@@ -8,14 +8,13 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
-using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
 [assembly: InternalsVisibleTo("Nethermind.Field.Montgomery.Test")]
 
 namespace Nethermind.Verkle.Fields.FpEElement;
 
 /// <summary>
-/// This is the base field associated with the bandersnatch curve
+///     This is the base field associated with the bandersnatch curve
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
 public readonly partial struct FpE
@@ -88,22 +87,16 @@ public readonly partial struct FpE
             }
         }
         else
-        {
             FieldUtils.Create(bytes, out u0, out u1, out u2, out u3);
-        }
     }
 
     private FpE(BigInteger value)
     {
         UInt256 res;
         if (value.Sign < 0)
-        {
             SubtractMod(UInt256.Zero, (UInt256)(-value), _modulus.Value, out res);
-        }
         else
-        {
             UInt256.Mod((UInt256)value, _modulus.Value, out res);
-        }
 
         u0 = res.u0;
         u1 = res.u1;

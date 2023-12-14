@@ -8,8 +8,8 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Bench;
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class BenchCurveOps
 {
@@ -32,5 +32,8 @@ public class BenchCurveOps
     }
 
     [Benchmark]
-    public void BenchmarkMultiScalarMul() => Banderwagon.MultiScalarMul(_crs.BasisG, _a);
+    public void BenchmarkMultiScalarMul()
+    {
+        Banderwagon.MultiScalarMul(_crs.BasisG, _a);
+    }
 }

@@ -78,8 +78,8 @@ internal readonly struct ExtendedPoint
         FpE f = b - e;
         FpE g = b + e;
 
-        FpE x3 = a * f * ((x1 + y1) * (x2 + y2) - c - d);
-        FpE y3 = a * g * (d - A * c);
+        FpE x3 = a * f * (((x1 + y1) * (x2 + y2)) - c - d);
+        FpE y3 = a * g * (d - (A * c));
         FpE z3 = f * g;
 
         return new ExtendedPoint(x3, y3, z3);
@@ -105,8 +105,8 @@ internal readonly struct ExtendedPoint
         FpE f = b - e;
         FpE g = b + e;
 
-        FpE x3 = z1 * f * ((x1 + y1) * (x2 + y2) - c - d);
-        FpE y3 = z1 * g * (d - A * c);
+        FpE x3 = z1 * f * (((x1 + y1) * (x2 + y2)) - c - d);
+        FpE y3 = z1 * g * (d - (A * c));
         FpE z3 = f * g;
 
         return new ExtendedPoint(x3, y3, z3);
@@ -148,10 +148,7 @@ internal readonly struct ExtendedPoint
         for (int i = len; i >= 0; i--)
         {
             result = Double(result);
-            if (scalar.Bit(i))
-            {
-                result += point;
-            }
+            if (scalar.Bit(i)) result += point;
         }
 
         return result;

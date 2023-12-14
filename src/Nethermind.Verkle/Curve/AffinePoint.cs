@@ -1,32 +1,31 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
-using System.Buffers.Binary;
-using System.Collections.Specialized;
-using System.Numerics;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Curve;
 
 /// <summary>
-/// Bandersnatch using affine co-ordinates
+///     Bandersnatch using affine co-ordinates
 /// </summary>
 public readonly struct AffinePoint
 {
     /// <summary>
-    /// serialization constants
+    ///     serialization constants
     /// </summary>
     private const byte MCompressedNegative = 128;
+
     private const byte MCompressedPositive = 0;
 
     /// <summary>
-    /// affine coordinates of the point
+    ///     affine coordinates of the point
     /// </summary>
     public readonly FpE X;
+
     public readonly FpE Y;
 
-    public static AffinePoint Identity =  new(FpE.Zero, FpE.One);
+    public static AffinePoint Identity = new(FpE.Zero, FpE.One);
     public static AffinePoint Generator = new(CurveParams.XTe, CurveParams.YTe);
 
     public AffinePoint(FpE x, FpE y)
@@ -36,10 +35,11 @@ public readonly struct AffinePoint
     }
 
     /// <summary>
-    /// bandersnatch curve parameters
+    ///     bandersnatch curve parameters
     /// </summary>
-    private static FpE A = CurveParams.A;
-    private static FpE D = CurveParams.D;
+    private static readonly FpE A = CurveParams.A;
+
+    private static readonly FpE D = CurveParams.D;
 
     public static AffinePoint Neg(AffinePoint p)
     {
@@ -137,13 +137,11 @@ public readonly struct AffinePoint
 
         for (int i = 0; i < scalar.BitLen(); i++)
         {
-            if (scalar.Bit(i))
-            {
-                result = Add(result, point);
-            }
+            if (scalar.Bit(i)) result = Add(result, point);
 
             point = Double(point);
         }
+
         return result;
     }
 
@@ -151,8 +149,8 @@ public readonly struct AffinePoint
     {
         FpE one = FpE.One;
         FpE num = x * x;
-        FpE den = num * D - one;
-        num = num * A - one;
+        FpE den = (num * D) - one;
+        num = (num * A) - one;
 
         FpE.Divide(in num, in den, out FpE y);
 

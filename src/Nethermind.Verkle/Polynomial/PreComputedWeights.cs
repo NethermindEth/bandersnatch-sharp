@@ -4,14 +4,13 @@ namespace Nethermind.Verkle.Polynomial;
 
 public class PreComputedWeights
 {
-    public static readonly PreComputedWeights Instance = new PreComputedWeights();
-
     private const int VerkleNodeWidth = 256;
-    private MonomialBasis A;
+    public static readonly PreComputedWeights Instance = new();
     public readonly FrE[] APrimeDomain;
     public readonly FrE[] APrimeDomainInv;
     public readonly FrE[] Domain;
     public readonly FrE[] DomainInv;
+    private readonly MonomialBasis A;
 
     private PreComputedWeights()
     {
@@ -31,7 +30,7 @@ public class PreComputedWeights
             APrimeDomainInv[i] = aPrimeXInv;
         }
 
-        DomainInv = new FrE[2 * VerkleNodeWidth - 1];
+        DomainInv = new FrE[(2 * VerkleNodeWidth) - 1];
 
         int index = 0;
         for (int i = 0; i < VerkleNodeWidth; i++)
@@ -52,16 +51,10 @@ public class PreComputedWeights
         FrE az = A.Evaluate(z);
 
         FrE[] elems = new FrE[VerkleNodeWidth];
-        for (int i = 0; i < VerkleNodeWidth; i++)
-        {
-            elems[i] = z - Domain[i];
-        }
+        for (int i = 0; i < VerkleNodeWidth; i++) elems[i] = z - Domain[i];
 
         elems = FrE.MultiInverse(elems);
-        for (int i = 0; i < VerkleNodeWidth; i++)
-        {
-            elems[i] = az * APrimeDomainInv[i] * elems[i];
-        }
+        for (int i = 0; i < VerkleNodeWidth; i++) elems[i] = az * APrimeDomainInv[i] * elems[i];
 
         return elems;
     }

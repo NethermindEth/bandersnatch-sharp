@@ -16,13 +16,13 @@ public class CRS
     public readonly Banderwagon[] BasisG;
     public readonly Banderwagon BasisQ;
 
-    public static CRS Instance { get; } = new CRS(CrsStruct.Generate());
-
     private CRS(Banderwagon[] basisG)
     {
         BasisG = basisG;
         BasisQ = Banderwagon.Generator;
     }
+
+    public static CRS Instance { get; } = new(CrsStruct.Generate());
 
     public static CRS Generate(long numPoints)
     {
@@ -51,7 +51,7 @@ public class CRS
             Banderwagon? pointFound = Banderwagon.FromBytes(xAsBytes);
             if (pointFound is null) continue;
             points[generatedPoints] = pointFound.Value;
-                generatedPoints += 1;
+            generatedPoints += 1;
         }
 
         return new CRS(points);
@@ -69,7 +69,8 @@ public class CRS
             scalars.Add(keyVal.Value);
         }
 
-        Banderwagon commitment = Banderwagon.MultiScalarMul(CollectionsMarshal.AsSpan(points), CollectionsMarshal.AsSpan(scalars));
+        Banderwagon commitment =
+            Banderwagon.MultiScalarMul(CollectionsMarshal.AsSpan(points), CollectionsMarshal.AsSpan(scalars));
         return commitment;
     }
 
@@ -348,10 +349,7 @@ public struct CrsStruct
         int crsLength = _constants.Length;
         Banderwagon[] points = new Banderwagon[crsLength];
 
-        for (int i = 0; i < crsLength; i++)
-        {
-            points[i] = new Banderwagon(_constants[i]);
-        }
+        for (int i = 0; i < crsLength; i++) points[i] = new Banderwagon(_constants[i]);
 
         return points;
     }

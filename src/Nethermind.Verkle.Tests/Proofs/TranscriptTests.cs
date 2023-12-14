@@ -1,5 +1,5 @@
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Tests.Proofs;
@@ -10,12 +10,12 @@ public class TranscriptTests
     public void TestProverVerifierConsistency()
     {
         Banderwagon point = Banderwagon.Generator;
-        Random random = new Random();
+        Random random = new();
         byte[] data = new byte[32];
         random.NextBytes(data);
         FrE scalar = FrE.FromBytesReduced(data);
 
-        Transcript proverTranscript = new Transcript("protocol_name");
+        Transcript proverTranscript = new("protocol_name");
 
         proverTranscript.AppendPoint(point, "D");
         proverTranscript.DomainSep("sub_protocol_name");
@@ -23,7 +23,7 @@ public class TranscriptTests
 
         FrE proverQ = proverTranscript.ChallengeScalar("q");
 
-        Transcript verifierTranscript = new Transcript("protocol_name");
+        Transcript verifierTranscript = new("protocol_name");
 
         verifierTranscript.AppendPoint(point, "D");
         verifierTranscript.DomainSep("sub_protocol_name");
@@ -37,7 +37,7 @@ public class TranscriptTests
     [Test]
     public void TestVector0()
     {
-        Transcript transcript = new Transcript("foo");
+        Transcript transcript = new("foo");
         FrE firstChallenge = transcript.ChallengeScalar("f");
         FrE secondChallenge = transcript.ChallengeScalar("f");
         Assert.That(firstChallenge, Is.Not.EqualTo(secondChallenge));
@@ -46,7 +46,7 @@ public class TranscriptTests
     [Test]
     public void TestVector1()
     {
-        Transcript transcript = new Transcript("simple_protocol");
+        Transcript transcript = new("simple_protocol");
         FrE challenge = transcript.ChallengeScalar("simple_challenge");
         Assert.That(Convert.ToHexString(challenge.ToBytes()).ToLower()
             .SequenceEqual("c2aa02607cbdf5595f00ee0dd94a2bbff0bed6a2bf8452ada9011eadb538d003"));
@@ -55,7 +55,7 @@ public class TranscriptTests
     [Test]
     public void TestVector2()
     {
-        Transcript transcript = new Transcript("simple_protocol");
+        Transcript transcript = new("simple_protocol");
         FrE scalar = FrE.SetElement(5);
 
         transcript.AppendScalar(scalar, "five");
@@ -69,7 +69,7 @@ public class TranscriptTests
     [Test]
     public void TestVector3()
     {
-        Transcript transcript = new Transcript("simple_protocol");
+        Transcript transcript = new("simple_protocol");
         FrE minusOne = FrE.SetElement(-1);
         FrE one = FrE.SetElement(1);
         transcript.AppendScalar(minusOne, "-1");
@@ -86,7 +86,7 @@ public class TranscriptTests
     [Test]
     public void TestVector4()
     {
-        Transcript transcript = new Transcript("simple_protocol");
+        Transcript transcript = new("simple_protocol");
 
         Banderwagon generator = Banderwagon.Generator;
 

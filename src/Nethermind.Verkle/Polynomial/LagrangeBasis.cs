@@ -56,10 +56,7 @@ public class LagrangeBasis
     {
         FrE[] result = new FrE[poly.Evaluations.Length];
 
-        for (int i = 0; i < poly.Evaluations.Length; i++)
-        {
-            result[i] = poly.Evaluations[i] * constant;
-        }
+        for (int i = 0; i < poly.Evaluations.Length; i++) result[i] = poly.Evaluations[i] * constant;
 
         return new LagrangeBasis(result);
     }
@@ -67,10 +64,7 @@ public class LagrangeBasis
     private FrE[] GenerateDomainPoly()
     {
         FrE[] domain = new FrE[_domain];
-        for (int i = 0; i < _domain; i++)
-        {
-            domain[i] = FrE.SetElement(i);
-        }
+        for (int i = 0; i < _domain; i++) domain[i] = FrE.SetElement(i);
 
         return domain;
     }
@@ -82,13 +76,15 @@ public class LagrangeBasis
         FrE az = a.Evaluate(z);
 
         if (az.IsZero)
+        {
             throw new InvalidOperationException(
                 "vanishing polynomial evaluated to zero. z is therefore a point on the domain");
+        }
 
 
         FrE[] inverses = FrE.MultiInverse(domain.Select(x => z - x).ToArray());
         IEnumerable<FrE> helperVector = precomputedWeights.Evaluations.Zip(Evaluations)
-            .Select(((elements, _) => elements.First * elements.Second));
+            .Select((elements, _) => elements.First * elements.Second);
         FrE r = helperVector.Zip(inverses).Select((elem, i) => elem.First * elem.Second)
             .Aggregate(FrE.Zero, (current, elem) => current + elem);
 
@@ -117,16 +113,10 @@ public class LagrangeBasis
         for (int i = 0; i < xs.Length; i++)
         {
             FrE ySlice = ys[i] * invDenominators[i];
-            for (int j = 0; j < ys.Length; j++)
-            {
-                b[j] += nums[i].Coeffs[j] * ySlice;
-            }
+            for (int j = 0; j < ys.Length; j++) b[j] += nums[i].Coeffs[j] * ySlice;
         }
 
-        while (b.Length > 0 && b[^1].IsZero)
-        {
-            Array.Resize(ref b, b.Length - 1);
-        }
+        while (b.Length > 0 && b[^1].IsZero) Array.Resize(ref b, b.Length - 1);
 
         return new MonomialBasis(b);
     }

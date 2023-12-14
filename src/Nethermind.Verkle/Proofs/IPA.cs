@@ -8,10 +8,7 @@ public static class Ipa
     public static FrE InnerProduct(Span<FrE> a, Span<FrE> b)
     {
         FrE res = FrE.Zero;
-        for (int i = 0; i < a.Length; i++)
-        {
-            res += a[i] * b[i];
-        }
+        for (int i = 0; i < a.Length; i++) res += a[i] * b[i];
 
         return res;
     }
@@ -51,8 +48,8 @@ public static class Ipa
             FrE zL = InnerProduct(aR, bL);
             FrE zR = InnerProduct(aL, bR);
 
-            Banderwagon cL = Banderwagon.MultiScalarMul(gL, aR) + q * zL;
-            Banderwagon cR = Banderwagon.MultiScalarMul(gR, aL) + q * zR;
+            Banderwagon cL = Banderwagon.MultiScalarMul(gL, aR) + (q * zL);
+            Banderwagon cR = Banderwagon.MultiScalarMul(gR, aL) + (q * zR);
 
             l[round] = cL;
             r[round] = cR;
@@ -64,23 +61,14 @@ public static class Ipa
             FrE.Inverse(x, out FrE xInv);
 
             a = new FrE[m];
-            for (int i = 0; i < m; i++)
-            {
-                a[i] = aL[i] + x * aR[i];
-            }
+            for (int i = 0; i < m; i++) a[i] = aL[i] + (x * aR[i]);
 
             b = new FrE[m];
-            for (int i = 0; i < m; i++)
-            {
-                b[i] = bL[i] + xInv * bR[i];
-            }
+            for (int i = 0; i < m; i++) b[i] = bL[i] + (xInv * bR[i]);
 
 
             currentBasis = new Banderwagon[m];
-            for (int i = 0; i < m; i++)
-            {
-                currentBasis[i] = gL[i] + gR[i] * xInv;
-            }
+            for (int i = 0; i < m; i++) currentBasis[i] = gL[i] + (gR[i] * xInv);
 
             n = m;
             m = n / 2;
@@ -125,7 +113,7 @@ public static class Ipa
 
         Banderwagon cLScaled = Banderwagon.MultiScalarMul(commitL, xs);
         Banderwagon cRScaled = Banderwagon.MultiScalarMul(commitR, xInvList);
-        Banderwagon currentCommitment = c + q * y + cLScaled + cRScaled;
+        Banderwagon currentCommitment = c + (q * y) + cLScaled + cRScaled;
 
         Span<Banderwagon> currentBasis = crs.BasisG;
 
@@ -139,18 +127,14 @@ public static class Ipa
             // We iterate on the bits of the challenge index from the MSB to LSB
             // and accumulate in scalar for the corresponding challenge.
             for (int challengeIdx = 0; challengeIdx < numRounds; challengeIdx++)
-            {
                 if ((i & (1 << (numRounds - 1 - challengeIdx))) > 0)
-                {
                     scalar *= xInvList[challengeIdx];
-                }
-            }
             foldingScalars[i] = scalar;
         }
 
         FrE b0 = InnerProduct(b, foldingScalars);
         Banderwagon g0 = Banderwagon.MultiScalarMul(currentBasis, foldingScalars);
-        Banderwagon gotCommitment = g0 * ipaProof.A + q * (ipaProof.A * b0);
+        Banderwagon gotCommitment = (g0 * ipaProof.A) + (q * (ipaProof.A * b0));
 
         return currentCommitment == gotCommitment;
     }

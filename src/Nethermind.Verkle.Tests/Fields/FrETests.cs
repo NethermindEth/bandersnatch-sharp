@@ -166,10 +166,7 @@ public class FrETests
         FE?[] expectedInverse = NaiveMultiInverse(values);
 
         Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
-        for (int i = 0; i < gotInverse.Length; i++)
-        {
-            Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i]!.Value));
-        }
+        for (int i = 0; i < gotInverse.Length; i++) Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i]!.Value));
     }
 
     private static FE?[] NaiveMultiInverse(IReadOnlyList<FE> values)

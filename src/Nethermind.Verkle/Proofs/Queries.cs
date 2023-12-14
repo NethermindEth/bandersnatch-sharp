@@ -9,10 +9,10 @@ namespace Nethermind.Verkle.Proofs;
 
 public class IpaProverQuery
 {
-    public readonly FrE[] Polynomial;
     public readonly Banderwagon Commitment;
     public readonly FrE Point;
     public readonly FrE[] PointEvaluations;
+    public readonly FrE[] Polynomial;
 
     public IpaProverQuery(FrE[] polynomial, Banderwagon commitment, FrE point,
         FrE[] pointEvaluations)
@@ -27,10 +27,10 @@ public class IpaProverQuery
 public class IpaVerifierQuery
 {
     public readonly Banderwagon Commitment;
+    public readonly IpaProofStruct IpaProof;
+    public readonly FrE OutputPoint;
     public readonly FrE Point;
     public readonly FrE[] PointEvaluations;
-    public readonly FrE OutputPoint;
-    public readonly IpaProofStruct IpaProof;
 
     public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint,
         IpaProofStruct ipaProof)
@@ -42,8 +42,6 @@ public class IpaVerifierQuery
         IpaProof = ipaProof;
     }
 }
-
-
 
 public struct VerkleProverQuery
 {

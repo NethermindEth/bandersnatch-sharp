@@ -1,12 +1,12 @@
-using System.Buffers.Binary;
-using Nethermind.Verkle.Polynomial;
 using Nethermind.Verkle.Fields.FrEElement;
+using Nethermind.Verkle.Polynomial;
 
 namespace Nethermind.Verkle.Proofs;
 
 public static class Quotient
 {
-    public static void ComputeQuotientInsideDomain(PreComputedWeights preComp, LagrangeBasis f, byte index, Span<FrE> quotient)
+    public static void ComputeQuotientInsideDomain(PreComputedWeights preComp, LagrangeBasis f, byte index,
+        Span<FrE> quotient)
     {
         int domainSize = f.Evaluations.Length;
 
@@ -20,11 +20,12 @@ public static class Quotient
         {
             if (i == index) continue;
 
-            int firstIndex = (i - index) < 0 ? (inverses.Length + (i - index)) : (i - index);
-            int secondIndex = (index - i) < 0 ? (inverses.Length + index - i) : (index - i);
+            int firstIndex = i - index < 0 ? inverses.Length + (i - index) : i - index;
+            int secondIndex = index - i < 0 ? inverses.Length + index - i : index - i;
 
             quotient[i] = (f.Evaluations[i] - y) * inverses[firstIndex];
-            quotient[index] += (f.Evaluations[i] - y) * inverses[secondIndex] * aPrimeDomain[index] * aPrimeDomainInv[i];
+            quotient[index] += (f.Evaluations[i] - y) * inverses[secondIndex] * aPrimeDomain[index] *
+                               aPrimeDomainInv[i];
         }
     }
 

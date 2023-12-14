@@ -1,6 +1,5 @@
-using System.Diagnostics;
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
 
 // ReSharper disable InconsistentNaming
@@ -10,8 +9,8 @@ namespace Nethermind.Verkle.Proofs;
 public class MultiProof
 {
     private readonly CRS Crs;
-    private readonly PreComputedWeights PreComp;
     private readonly int DomainSize;
+    private readonly PreComputedWeights PreComp;
 
     public MultiProof(CRS cRs, PreComputedWeights preComp)
     {
@@ -29,10 +28,7 @@ public class MultiProof
 
 
         Banderwagon[] commitPoints = new Banderwagon[queries.Count];
-        for (int i = 0; i < queries.Count; i++)
-        {
-            commitPoints[i] = queries[i].NodeCommitPoint;
-        }
+        for (int i = 0; i < queries.Count; i++) commitPoints[i] = queries[i].NodeCommitPoint;
         AffinePoint[] normalizedCommitments = Banderwagon.BatchNormalize(commitPoints);
 
         transcript.DomainSep("multiproof");
@@ -46,10 +42,7 @@ public class MultiProof
         FrE r = transcript.ChallengeScalar("r");
         FrE[] powersOfR = new FrE[queries.Count];
         powersOfR[0] = FrE.One;
-        for (int i = 1; i < queries.Count; i++)
-        {
-            FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
-        }
+        for (int i = 1; i < queries.Count; i++) FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
 
         // We aggregate all the polynomials in evaluation form per domain point
         // to avoid work downstream.
@@ -66,6 +59,7 @@ public class MultiProof
                 aggregatedPolyMap[evaluationPoint] = scaledF;
                 continue;
             }
+
             aggregatedPolyMap[evaluationPoint] = poly + scaledF;
         }
 
@@ -89,29 +83,21 @@ public class MultiProof
         // We only will calculate inverses for domain points that are actually queried.
         FrE[] denomInvs = new FrE[domainSize];
         foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
-        {
             denomInvs[pointAndPoly.Key] = t - PreComp.Domain[pointAndPoly.Key];
-        }
         denomInvs = FrE.MultiInverse(denomInvs);
 
         FrE[] h = new FrE[domainSize];
         foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
         {
             LagrangeBasis f = pointAndPoly.Value;
-            for (int j = 0; j < f.Evaluations.Length; j++)
-            {
-                h[j] += f.Evaluations[j] * denomInvs[pointAndPoly.Key];
-            }
+            for (int j = 0; j < f.Evaluations.Length; j++) h[j] += f.Evaluations[j] * denomInvs[pointAndPoly.Key];
         }
 
         Banderwagon e = Crs.Commit(h);
         transcript.AppendPoint(e, "E");
 
         FrE[] hMinusG = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++)
-        {
-            hMinusG[i] = h[i] - g[i];
-        }
+        for (int i = 0; i < domainSize; i++) hMinusG[i] = h[i] - g[i];
 
         Banderwagon ipaCommitment = e - d;
 
@@ -131,14 +117,12 @@ public class MultiProof
             transcript.AppendScalar(query.ChildIndex, "z");
             transcript.AppendScalar(query.ChildHash, "y");
         }
+
         FrE r = transcript.ChallengeScalar("r");
 
         FrE[] powersOfR = new FrE[queries.Length];
         powersOfR[0] = FrE.One;
-        for (int i = 1; i < queries.Length; i++)
-        {
-            powersOfR[i] = powersOfR[i - 1] * r;
-        }
+        for (int i = 1; i < queries.Length; i++) powersOfR[i] = powersOfR[i - 1] * r;
 
         Banderwagon d = proof.D;
         IpaProofStruct ipaProof = proof.IpaProof;
@@ -148,16 +132,12 @@ public class MultiProof
         // Calculate groupedEvals = r * y_i.
         FrE[] groupedEvals = new FrE[DomainSize];
         for (int i = 0; i < queries.Length; i++)
-        {
             groupedEvals[queries[i].ChildIndex] += powersOfR[i] * queries[i].ChildHash;
-        }
 
         // Compute helperScalarsDen = 1 / (t - z_i).
         FrE[] helperScalarDens = new FrE[DomainSize];
         foreach (byte childIndex in queries.Select(x => x.ChildIndex).Distinct())
-        {
-            helperScalarDens[childIndex] = t - FrE.SetElement(u0: childIndex);
-        }
+            helperScalarDens[childIndex] = t - FrE.SetElement(childIndex);
         helperScalarDens = FrE.MultiInverse(helperScalarDens);
 
         // g2T = SUM [r^i * y_i] * [1 / (t - z_i)]

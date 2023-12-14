@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Verkle.Bench.BenchmarkIpaProve-20230527-154234</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Verkle.Bench.BenchmarkIpaProve-20230527-154234</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,14 +36,38 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
   [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
   .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
 </code></pre>
 
 <table>
-<thead><tr><th>     Method</th><th>EnvironmentVariables</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
-</tr>
-</thead><tbody><tr><td>TestBasicIpaProve</td><td>Empty</td><td>170.9 ms</td><td>1.64 ms</td><td>1.46 ms</td><td>2.76 MB</td>
-</tr><tr><td>TestBasicIpaProve</td><td>DOTNET_EnableHWIntrinsic=0</td><td>224.7 ms</td><td>2.21 ms</td><td>1.96 ms</td><td>2.76 MB</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th>EnvironmentVariables</th>
+        <th>Mean</th>
+        <th>Error</th>
+        <th>StdDev</th>
+        <th>Allocated</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>TestBasicIpaProve</td>
+        <td>Empty</td>
+        <td>170.9 ms</td>
+        <td>1.64 ms</td>
+        <td>1.46 ms</td>
+        <td>2.76 MB</td>
+    </tr>
+    <tr>
+        <td>TestBasicIpaProve</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>224.7 ms</td>
+        <td>2.21 ms</td>
+        <td>1.96 ms</td>
+        <td>2.76 MB</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

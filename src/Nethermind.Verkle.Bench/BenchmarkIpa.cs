@@ -10,11 +10,15 @@ using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Bench;
 
-[SimpleJob(RuntimeMoniker.Net70)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class BenchmarkIpaProve
 {
+    private readonly CRS _crs;
+
+    private readonly FrE[] _lagPoly;
+
     private readonly FrE[] _poly =
     {
         FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5),
@@ -26,24 +30,16 @@ public class BenchmarkIpaProve
         FrE.SetElement(31), FrE.SetElement(32)
     };
 
-    private readonly FrE[] _lagPoly;
     private readonly PreComputedWeights _weights;
-    private readonly CRS _crs;
 
     public BenchmarkIpaProve()
     {
         FrE[] domain = new FrE[256];
-        for (int i = 0; i < 256; i++)
-        {
-            domain[i] = FrE.SetElement(i);
-        }
+        for (int i = 0; i < 256; i++) domain[i] = FrE.SetElement(i);
 
-        List<FrE> lagrangePoly = new List<FrE>();
+        List<FrE> lagrangePoly = new();
 
-        for (int i = 0; i < 8; i++)
-        {
-            lagrangePoly.AddRange(_poly);
-        }
+        for (int i = 0; i < 8; i++) lagrangePoly.AddRange(_poly);
 
         _lagPoly = lagrangePoly.ToArray();
         _weights = PreComputedWeights.Instance;
@@ -57,16 +53,21 @@ public class BenchmarkIpaProve
         FrE inputPoint = FrE.SetElement(2101);
         FrE[] b = _weights.BarycentricFormulaConstants(inputPoint);
         IpaProverQuery query = new(_lagPoly, commitment, inputPoint, b);
-        Transcript proverTranscript = new Transcript("test");
+        Transcript proverTranscript = new("test");
         Ipa.MakeIpaProof(_crs, proverTranscript, query, out FrE outputPoint);
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net70)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class BenchmarkIpaVerify
 {
+    private readonly Banderwagon _commitment;
+    private readonly CRS _crs;
+    private readonly FrE _inputPoint;
+    private readonly FrE _outputPoint;
+
     private readonly FrE[] _poly =
     {
         FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5),
@@ -79,26 +80,16 @@ public class BenchmarkIpaVerify
     };
 
     private readonly IpaProofStruct _proof;
-    private readonly Banderwagon _commitment;
-    private readonly FrE _inputPoint;
-    private readonly FrE _outputPoint;
-    private readonly CRS _crs;
     private readonly PreComputedWeights _weights;
 
     public BenchmarkIpaVerify()
     {
         FrE[] domain = new FrE[256];
-        for (int i = 0; i < 256; i++)
-        {
-            domain[i] = FrE.SetElement(i);
-        }
+        for (int i = 0; i < 256; i++) domain[i] = FrE.SetElement(i);
 
-        List<FrE> lagrangePoly = new List<FrE>();
+        List<FrE> lagrangePoly = new();
 
-        for (int i = 0; i < 8; i++)
-        {
-            lagrangePoly.AddRange(_poly);
-        }
+        for (int i = 0; i < 8; i++) lagrangePoly.AddRange(_poly);
 
         FrE[] lagPoly = lagrangePoly.ToArray();
 
@@ -107,7 +98,7 @@ public class BenchmarkIpaVerify
         _crs = CRS.Instance;
         _commitment = _crs.Commit(lagPoly);
 
-        Transcript proverTranscript = new Transcript("test");
+        Transcript proverTranscript = new("test");
 
         _inputPoint = FrE.SetElement(2101);
         FrE[] b = _weights.BarycentricFormulaConstants(_inputPoint);

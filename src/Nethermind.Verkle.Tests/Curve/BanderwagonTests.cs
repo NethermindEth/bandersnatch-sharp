@@ -94,7 +94,7 @@ public class BanderwagonTests
             "3fa4384b2fa0ecc3c0582223602921daaa893a97b64bdf94dcaa504e8b7b9e5f"
         };
 
-        List<Banderwagon> points = new List<Banderwagon>();
+        List<Banderwagon> points = new();
         Banderwagon point = Banderwagon.Generator;
 
         foreach (string? bitString in expectedBitStrings)
@@ -110,7 +110,7 @@ public class BanderwagonTests
         {
             string bitString = expectedBitStrings[i];
             Banderwagon expectedPoint = points[i];
-            Banderwagon decodedPoint = new Banderwagon(bitString);
+            Banderwagon decodedPoint = new(bitString);
             Assert.NotNull(point);
             Assert.IsTrue(decodedPoint == expectedPoint);
         }

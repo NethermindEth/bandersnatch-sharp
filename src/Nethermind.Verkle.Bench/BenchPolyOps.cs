@@ -8,8 +8,8 @@ using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Bench;
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class BenchPolyOps
 {
@@ -18,10 +18,7 @@ public class BenchPolyOps
 
     public BenchPolyOps()
     {
-        _a = new[]
-        {
-            FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
-        };
+        _a = new[] { FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5) };
 
         _b = new[]
         {
@@ -30,5 +27,8 @@ public class BenchPolyOps
     }
 
     [Benchmark]
-    public void BenchmarkInnerProduct() => Ipa.InnerProduct(_a, _b);
+    public void BenchmarkInnerProduct()
+    {
+        Ipa.InnerProduct(_a, _b);
+    }
 }

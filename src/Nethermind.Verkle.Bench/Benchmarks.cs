@@ -9,9 +9,12 @@ namespace Nethermind.Verkle.Bench;
 
 public class BenchmarkVerkleBase
 {
+    private static IEnumerable<byte[]> Values => RandomBytes(1);
+    public static IEnumerable<(byte[], UInt256)> ValuesTuple => Values.Select(x => (x, new UInt256(x)));
+
     private static IEnumerable<byte[]> RandomBytes(int count)
     {
-        Random rand = new Random(1);
+        Random rand = new(1);
         byte[] data = new byte[32];
         for (int i = 0; i < count; i++)
         {
@@ -19,16 +22,17 @@ public class BenchmarkVerkleBase
             yield return data;
         }
     }
-
-    private static IEnumerable<byte[]> Values => RandomBytes(1);
-    public static IEnumerable<(byte[], UInt256)> ValuesTuple => Values.Select(x => (x, new UInt256(x)));
 }
 
 public class BenchmarkOpsBase
 {
+    private static IEnumerable<byte[]> Values => RandomBytes(5);
+    public static IEnumerable<FpE> ValuesFpETuple => Values.Select(x => FpE.FromBytesReduced(x));
+    public static IEnumerable<FrE> ValuesFrETuple => Values.Select(x => FrE.FromBytesReduced(x));
+
     private static IEnumerable<byte[]> RandomBytes(int count)
     {
-        Random rand = new Random(1);
+        Random rand = new(1);
         byte[] data = new byte[32];
         for (int i = 0; i < count; i++)
         {
@@ -36,8 +40,4 @@ public class BenchmarkOpsBase
             yield return data;
         }
     }
-
-    private static IEnumerable<byte[]> Values => RandomBytes(5);
-    public static IEnumerable<FpE> ValuesFpETuple => Values.Select(x => FpE.FromBytesReduced(x));
-    public static IEnumerable<FrE> ValuesFrETuple => Values.Select(x => FrE.FromBytesReduced(x));
 }

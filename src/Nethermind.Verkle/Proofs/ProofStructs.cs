@@ -2,15 +2,15 @@
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
 using System.Text;
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Proofs;
 
 public class IpaProofStruct
 {
-    public readonly Banderwagon[] L;
     public readonly FrE A;
+    public readonly Banderwagon[] L;
     public readonly Banderwagon[] R;
 
     public IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
@@ -24,15 +24,9 @@ public class IpaProofStruct
     {
         List<byte> encoded = new();
 
-        foreach (Banderwagon l in L)
-        {
-            encoded.AddRange(l.ToBytes());
-        }
+        foreach (Banderwagon l in L) encoded.AddRange(l.ToBytes());
 
-        foreach (Banderwagon r in R)
-        {
-            encoded.AddRange(r.ToBytes());
-        }
+        foreach (Banderwagon r in R) encoded.AddRange(r.ToBytes());
 
         encoded.AddRange(A.ToBytes());
 
@@ -41,7 +35,7 @@ public class IpaProofStruct
 
     public override string ToString()
     {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new();
         stringBuilder.Append("\n#[_l]#\n");
         foreach (Banderwagon l in L)
         {
@@ -64,8 +58,8 @@ public class IpaProofStruct
 
 public class VerkleProofStruct
 {
-    public readonly IpaProofStruct IpaProof;
     public readonly Banderwagon D;
+    public readonly IpaProofStruct IpaProof;
 
     public VerkleProofStruct(IpaProofStruct ipaProof, Banderwagon d)
     {
@@ -75,9 +69,9 @@ public class VerkleProofStruct
 
     public override string ToString()
     {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new();
         stringBuilder.Append("\n##[IPA Proof]##\n");
-        stringBuilder.Append(IpaProof.ToString());
+        stringBuilder.Append(IpaProof);
         stringBuilder.Append("\n##[_d]##\n");
         stringBuilder.AppendJoin(", ", D.ToBytes());
         return stringBuilder.ToString();
@@ -85,7 +79,7 @@ public class VerkleProofStruct
 
     public byte[] Encode()
     {
-        List<byte> encoded = new List<byte>();
+        List<byte> encoded = new();
 
         encoded.AddRange(D.ToBytes());
         encoded.AddRange(IpaProof.Encode());

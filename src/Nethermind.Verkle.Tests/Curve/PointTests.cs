@@ -1,5 +1,5 @@
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Tests.Curve;
 
