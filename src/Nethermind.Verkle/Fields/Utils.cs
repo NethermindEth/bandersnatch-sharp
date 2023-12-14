@@ -44,7 +44,7 @@ public static class FieldUtils
     {
         int byteCount = bytes.Length;
         int unalignedBytes = byteCount % 8;
-        int dwordCount = byteCount / 8 + (unalignedBytes == 0 ? 0 : 1);
+        int dwordCount = (byteCount / 8) + (unalignedBytes == 0 ? 0 : 1);
 
         ulong cs0 = 0;
         ulong cs1 = 0;
@@ -62,10 +62,7 @@ public static class FieldUtils
             for (int j = 8; j > 0; j--)
             {
                 cs0 <<= 8;
-                if (j <= byteCount)
-                {
-                    cs0 |= bytes[byteCount - j];
-                }
+                if (j <= byteCount) cs0 |= bytes[byteCount - j];
             }
         }
 
@@ -74,10 +71,7 @@ public static class FieldUtils
             for (int j = 16; j > 8; j--)
             {
                 cs1 <<= 8;
-                if (j <= byteCount)
-                {
-                    cs1 |= bytes[byteCount - j];
-                }
+                if (j <= byteCount) cs1 |= bytes[byteCount - j];
             }
         }
 
@@ -86,10 +80,7 @@ public static class FieldUtils
             for (int j = 24; j > 16; j--)
             {
                 cs2 <<= 8;
-                if (j <= byteCount)
-                {
-                    cs2 |= bytes[byteCount - j];
-                }
+                if (j <= byteCount) cs2 |= bytes[byteCount - j];
             }
         }
 
@@ -98,10 +89,7 @@ public static class FieldUtils
             for (int j = 32; j > 24; j--)
             {
                 cs3 <<= 8;
-                if (j <= byteCount)
-                {
-                    cs3 |= bytes[byteCount - j];
-                }
+                if (j <= byteCount) cs3 |= bytes[byteCount - j];
             }
         }
 

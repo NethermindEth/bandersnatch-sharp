@@ -106,8 +106,8 @@ public readonly partial struct Banderwagon
         FpE f = b - e;
         FpE g = b + e;
 
-        FpE x3 = a * f * ((x1 + y1) * (x2 + y2) - c - d);
-        FpE y3 = a * g * (d - A * c);
+        FpE x3 = a * f * (((x1 + y1) * (x2 + y2)) - c - d);
+        FpE y3 = a * g * (d - (A * c));
         FpE z3 = f * g;
 
         return new Banderwagon(x3, y3, z3);
@@ -133,8 +133,8 @@ public readonly partial struct Banderwagon
         FpE f = b - e;
         FpE g = b + e;
 
-        FpE x3 = z1 * f * ((x1 + y1) * (x2 + y2) - c - d);
-        FpE y3 = z1 * g * (d - A * c);
+        FpE x3 = z1 * f * (((x1 + y1) * (x2 + y2)) - c - d);
+        FpE y3 = z1 * g * (d - (A * c));
         FpE z3 = f * g;
 
         return new Banderwagon(x3, y3, z3);
@@ -205,10 +205,7 @@ public readonly partial struct Banderwagon
     public static byte[] ToBytes(in AffinePoint normalizedPoint)
     {
         FpE x = normalizedPoint.X;
-        if (normalizedPoint.Y.LexicographicallyLargest() == false)
-        {
-            x = x.Negative();
-        }
+        if (normalizedPoint.Y.LexicographicallyLargest() == false) x = x.Negative();
 
         return x.ToBytesBigEndian();
     }
@@ -217,10 +214,7 @@ public readonly partial struct Banderwagon
     {
         AffinePoint affine = ToAffine();
         FpE x = affine.X;
-        if (affine.Y.LexicographicallyLargest() == false)
-        {
-            x = affine.X.Negative();
-        }
+        if (affine.Y.LexicographicallyLargest() == false) x = affine.X.Negative();
 
         return x.ToBytesBigEndian();
     }
@@ -229,10 +223,7 @@ public readonly partial struct Banderwagon
     {
         AffinePoint affine = ToAffine();
         FpE x = affine.X;
-        if (affine.Y.LexicographicallyLargest() == false)
-        {
-            x = affine.X.Negative();
-        }
+        if (affine.Y.LexicographicallyLargest() == false) x = affine.X.Negative();
 
         return x.ToBytes();
     }
@@ -273,15 +264,11 @@ public readonly partial struct Banderwagon
         for (int i = len; i >= 0; i--)
         {
             result = Double(result);
-            if (scalar.Bit(i))
-            {
-                result += point;
-            }
+            if (scalar.Bit(i)) result += point;
         }
 
         return result;
     }
-
 
 
     public static Banderwagon TwoTorsionPoint()

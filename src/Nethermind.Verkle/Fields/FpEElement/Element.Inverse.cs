@@ -17,7 +17,7 @@ public readonly partial struct FpE
         FE a = x;
         FE b = qElement;
 
-        FE u = new FE(1);
+        FE u = new(1);
 
         // Update factors: we get [u; v] ← [f₀ g₀; f₁ g₁] [u; v]
         // cᵢ = fᵢ + 2³¹ - 1 + 2³² * (gᵢ + 2³¹ - 1)
@@ -49,9 +49,7 @@ public readonly partial struct FpE
                 // |f₀| + |f₁| < 2ʲ⁺¹
 
                 if ((aApprox & 1) == 0)
-                {
                     aApprox = aApprox / 2;
-                }
                 else
                 {
                     ulong borrow = 0;
@@ -92,9 +90,9 @@ public readonly partial struct FpE
 
             // right-shift a by k-1 bits
 
-            ulong t0 = (a.u0 >> approxLowBitsN) | ((a.u1) << approxHighBitsN);
-            ulong t1 = (a.u1 >> approxLowBitsN) | ((a.u2) << approxHighBitsN);
-            ulong t2 = (a.u2 >> approxLowBitsN) | ((a.u3) << approxHighBitsN);
+            ulong t0 = (a.u0 >> approxLowBitsN) | (a.u1 << approxHighBitsN);
+            ulong t1 = (a.u1 >> approxLowBitsN) | (a.u2 << approxHighBitsN);
+            ulong t2 = (a.u2 >> approxLowBitsN) | (a.u3 << approxHighBitsN);
             ulong t3 = (a.u3 >> approxLowBitsN) | (aHi << approxHighBitsN);
             a = new FE(t0, t1, t2, t3);
 
@@ -109,9 +107,9 @@ public readonly partial struct FpE
             }
 
             // right-shift b by k-1 bits
-            t0 = (b.u0 >> approxLowBitsN) | ((b.u1) << approxHighBitsN);
-            t1 = (b.u1 >> approxLowBitsN) | ((b.u2) << approxHighBitsN);
-            t2 = (b.u2 >> approxLowBitsN) | ((b.u3) << approxHighBitsN);
+            t0 = (b.u0 >> approxLowBitsN) | (b.u1 << approxHighBitsN);
+            t1 = (b.u1 >> approxLowBitsN) | (b.u2 << approxHighBitsN);
+            t2 = (b.u2 >> approxLowBitsN) | (b.u3 << approxHighBitsN);
             t3 = (b.u3 >> approxLowBitsN) | (bHi << approxHighBitsN);
             b = new FE(t0, t1, t2, t3);
 
@@ -125,10 +123,10 @@ public readonly partial struct FpE
                 // So |F₀| < 2²ᵏ⁻¹ meaning it fits in a 2k-bit signed register
 
                 // c₀ aliases f₀, c₁ aliases g₁
-                (c0, g0, f1, c1) = (c0 * pf0 + g0 * pf1,
-                    c0 * pg0 + g0 * pg1,
-                    f1 * pf0 + c1 * pf1,
-                    f1 * pg0 + c1 * pg1);
+                (c0, g0, f1, c1) = ((c0 * pf0) + (g0 * pf1),
+                    (c0 * pg0) + (g0 * pg1),
+                    (f1 * pf0) + (c1 * pf1),
+                    (f1 * pg0) + (c1 * pg1));
 
                 s = u;
 
@@ -235,7 +233,7 @@ public readonly partial struct FpE
         int hiWordIndex = (nBits - 1) / 64;
 
 
-        int hiWordBitsAvailable = nBits - hiWordIndex * 64;
+        int hiWordBitsAvailable = nBits - (hiWordIndex * 64);
         int hiWordBitsUsed = Math.Min(hiWordBitsAvailable, approxHighBitsN);
 
         ulong mask1 = CalculateMask(hiWordBitsAvailable - hiWordBitsUsed);
@@ -286,7 +284,7 @@ public readonly partial struct FpE
         xHi &= signBitRemover;
         // with this a negative X is now represented as 2⁶³ r + X
 
-        U7 t = new U7 { u0 = 0 };
+        U7 t = new() { u0 = 0 };
 
         ulong m = x.u0 * QInvNeg;
 
@@ -303,7 +301,7 @@ public readonly partial struct FpE
         // xHi + C < 2⁶³ + 2⁶³ = 2⁶⁴
 
 
-        U4 z = new U4();
+        U4 z = new();
         // <standard SOS>
 
         m = t.u1 * QInvNeg;
@@ -335,10 +333,7 @@ public readonly partial struct FpE
         Unsafe.SkipInit(out res);
         Unsafe.As<FE, U4>(ref res) = z;
 
-        if (!LessThan(res, qElement))
-        {
-            SubtractUnderflow(res, qElement, out res);
-        }
+        if (!LessThan(res, qElement)) SubtractUnderflow(res, qElement, out res);
         // </standard SOS>
 
         if (mustNeg)

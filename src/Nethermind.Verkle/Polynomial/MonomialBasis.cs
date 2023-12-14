@@ -11,28 +11,24 @@ public class MonomialBasis
         Coeffs = coeffs;
     }
 
-    public static MonomialBasis Empty() => new MonomialBasis(Array.Empty<FrE>());
+    public static MonomialBasis Empty()
+    {
+        return new MonomialBasis(Array.Empty<FrE>());
+    }
 
     private static MonomialBasis Mul(MonomialBasis a, MonomialBasis b)
     {
         FrE[] output = new FrE[a.Length() + b.Length() - 1];
         for (int i = 0; i < a.Length(); i++)
-        {
-            for (int j = 0; j < b.Length(); j++)
-            {
-                output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
-            }
-        }
+        for (int j = 0; j < b.Length(); j++)
+            output[i + j] += a.Coeffs[i]! * b.Coeffs[j]!;
 
         return new MonomialBasis(output);
     }
 
     public static MonomialBasis Div(MonomialBasis a, MonomialBasis b)
     {
-        if (a.Length() < b.Length())
-        {
-            throw new Exception();
-        }
+        if (a.Length() < b.Length()) throw new Exception();
 
         FrE[] x = a.Coeffs.ToArray();
         List<FrE> output = new();
@@ -45,10 +41,7 @@ public class MonomialBasis
         {
             FrE quot = x[aPos]! / b.Coeffs[bPos]!;
             output.Insert(0, quot!);
-            for (int i = bPos; i > -1; i--)
-            {
-                x[diff + i] -= b.Coeffs[i] * quot;
-            }
+            for (int i = bPos; i > -1; i--) x[diff + i] -= b.Coeffs[i] * quot;
 
             aPos -= 1;
             diff -= 1;
@@ -85,14 +78,11 @@ public class MonomialBasis
 
     public static MonomialBasis VanishingPoly(IEnumerable<FrE> xs)
     {
-        List<FrE> root = new List<FrE> { FrE.One };
+        List<FrE> root = new() { FrE.One };
         foreach (FrE x in xs)
         {
             root.Insert(0, FrE.Zero);
-            for (int i = 0; i < root.Count - 1; i++)
-            {
-                root[i] -= root[i + 1] * x;
-            }
+            for (int i = 0; i < root.Count - 1; i++) root[i] -= root[i + 1] * x;
         }
 
         return new MonomialBasis(root.ToArray());

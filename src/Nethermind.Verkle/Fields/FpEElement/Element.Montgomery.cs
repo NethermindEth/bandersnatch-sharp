@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.Runtime.CompilerServices;
 using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
@@ -7,7 +6,8 @@ namespace Nethermind.Verkle.Fields.FpEElement;
 public readonly partial struct FpE
 {
     /// <summary>
-    /// Compute the Legendre symbol z|p using Euler's criterion. p is a prime, z is relatively prime to p (if p divides z, then z|p = 0).
+    ///     Compute the Legendre symbol z|p using Euler's criterion. p is a prime, z is relatively prime to p (if p divides z,
+    ///     then z|p = 0).
     /// </summary>
     /// <param name="z"></param>
     /// <returns>1 if a has a square root modulo p, -1 otherwise</returns>
@@ -40,7 +40,7 @@ public readonly partial struct FpE
         FE u = qElement;
         // initialize s = r^2
         FE s = rSquare;
-        FE r = new FE(0);
+        FE r = new(0);
         FE v = x;
 
 
@@ -49,10 +49,7 @@ public readonly partial struct FpE
             while ((v.u0 & 1) == 0)
             {
                 v.RightShiftByOne(out v);
-                if ((s.u0 & 1) == 1)
-                {
-                    AddOverflow(s, qElement, out s);
-                }
+                if ((s.u0 & 1) == 1) AddOverflow(s, qElement, out s);
 
                 s.RightShiftByOne(out s);
             }
@@ -60,10 +57,7 @@ public readonly partial struct FpE
             while ((u.u0 & 1) == 0)
             {
                 u.RightShiftByOne(out u);
-                if ((r.u0 & 1) == 1)
-                {
-                    AddOverflow(r, qElement, out r);
-                }
+                if ((r.u0 & 1) == 1) AddOverflow(r, qElement, out r);
 
                 r.RightShiftByOne(out r);
             }
@@ -150,10 +144,7 @@ public readonly partial struct FpE
 
         Unsafe.SkipInit(out res);
         Unsafe.As<FE, U4>(ref res) = z;
-        if (LessThan(qElement, res))
-        {
-            SubtractUnderflow(res, qElement, out res);
-        }
+        if (LessThan(qElement, res)) SubtractUnderflow(res, qElement, out res);
     }
 
     public static FE[] MultiInverse(FE[] values)
@@ -190,9 +181,9 @@ public readonly partial struct FpE
     }
 
     /// <summary>
-    /// Sqrt z = √x (mod q)
-    /// if the square root doesn't exist (x is not a square mod q)
-    /// Sqrt returns false
+    ///     Sqrt z = √x (mod q)
+    ///     if the square root doesn't exist (x is not a square mod q)
+    ///     Sqrt returns false
     /// </summary>
     /// <param name="x"></param>
     /// <param name="z"></param>
@@ -218,10 +209,7 @@ public readonly partial struct FpE
         // t = x^((q-1)/2) = r-1 squaring of xˢ
         FE t = b;
 
-        for (ulong i = 0; i < r - 1; i++)
-        {
-            MultiplyMod(in t, in t, out t);
-        }
+        for (ulong i = 0; i < r - 1; i++) MultiplyMod(in t, in t, out t);
 
         if (t.IsZero)
         {

@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Verkle.Bench.BenchPolyOps-20230527-154439</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Verkle.Bench.BenchPolyOps-20230527-154439</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,14 +36,47 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
   [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
   .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
 </code></pre>
 
 <table>
-<thead><tr><th>         Method</th><th>EnvironmentVariables</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>BenchmarkInnerProduct</td><td>Empty</td><td>399.1 ns</td><td>4.10 ns</td><td>3.84 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
-</tr><tr><td>BenchmarkInnerProduct</td><td>DOTNET_EnableHWIntrinsic=0</td><td>623.6 ns</td><td>4.66 ns</td><td>4.36 ns</td><td>1.56</td><td>0.02</td><td>-</td><td>NA</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th> Method</th>
+        <th>EnvironmentVariables</th>
+        <th>Mean</th>
+        <th>Error</th>
+        <th>StdDev</th>
+        <th>Ratio</th>
+        <th>RatioSD</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>BenchmarkInnerProduct</td>
+        <td>Empty</td>
+        <td>399.1 ns</td>
+        <td>4.10 ns</td>
+        <td>3.84 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>BenchmarkInnerProduct</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>623.6 ns</td>
+        <td>4.66 ns</td>
+        <td>4.36 ns</td>
+        <td>1.56</td>
+        <td>0.02</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

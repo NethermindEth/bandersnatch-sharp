@@ -83,7 +83,10 @@ public readonly partial struct FpE
         return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
     }
 
-    public bool Equals(long other) => other >= 0 && Equals((ulong)other);
+    public bool Equals(long other)
+    {
+        return other >= 0 && Equals((ulong)other);
+    }
 
     public bool Equals(ulong other)
     {
@@ -92,10 +95,8 @@ public readonly partial struct FpE
             Vector256<ulong> v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
             return v == Vector256.CreateScalar(other);
         }
-        else
-        {
-            return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
-        }
+
+        return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
     }
 
     public override bool Equals(object? obj)

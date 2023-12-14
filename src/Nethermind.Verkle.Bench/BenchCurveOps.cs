@@ -32,5 +32,8 @@ public class BenchCurveOps
     }
 
     [Benchmark]
-    public void BenchmarkMultiScalarMul() => Banderwagon.MultiScalarMul(_crs.BasisG, _a);
+    public void BenchmarkMultiScalarMul()
+    {
+        Banderwagon.MultiScalarMul(_crs.BasisG, _a);
+    }
 }

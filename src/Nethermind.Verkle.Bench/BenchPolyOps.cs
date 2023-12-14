@@ -18,10 +18,7 @@ public class BenchPolyOps
 
     public BenchPolyOps()
     {
-        _a = new[]
-        {
-            FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
-        };
+        _a = new[] { FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5) };
 
         _b = new[]
         {
@@ -30,5 +27,8 @@ public class BenchPolyOps
     }
 
     [Benchmark]
-    public void BenchmarkInnerProduct() => Ipa.InnerProduct(_a, _b);
+    public void BenchmarkInnerProduct()
+    {
+        Ipa.InnerProduct(_a, _b);
+    }
 }

@@ -20,27 +20,22 @@ public class LagrangeBasisTests
             FrE.SetElement(7)
         };
 
-        LagrangeBasis a = new LagrangeBasis(domainSq);
-        LagrangeBasis b = new LagrangeBasis(domain2);
+        LagrangeBasis a = new(domainSq);
+        LagrangeBasis b = new(domain2);
 
         FrE[] expected =
         {
             FrE.SetElement(2), FrE.SetElement(4), FrE.SetElement(8), FrE.SetElement(14), FrE.SetElement(22),
             FrE.SetElement(32)
         };
-        LagrangeBasis ex = new LagrangeBasis(expected);
+        LagrangeBasis ex = new(expected);
         LagrangeBasis result = a + b;
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
-        {
             Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
-        }
 
         ex -= b;
-        for (int i = 0; i < ex.Evaluations.Length; i++)
-        {
-            Assert.That(ex.Evaluations[i], Is.EqualTo(a.Evaluations[i]));
-        }
+        for (int i = 0; i < ex.Evaluations.Length; i++) Assert.That(ex.Evaluations[i], Is.EqualTo(a.Evaluations[i]));
     }
 
     [Test]
@@ -58,15 +53,13 @@ public class LagrangeBasisTests
         };
 
 
-        LagrangeBasis a = new LagrangeBasis(domainSq);
+        LagrangeBasis a = new(domainSq);
         LagrangeBasis result = a * a;
 
-        LagrangeBasis ex = new LagrangeBasis(domainPow4);
+        LagrangeBasis ex = new(domainPow4);
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
-        {
             Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
-        }
     }
 
     [Test]
@@ -80,7 +73,7 @@ public class LagrangeBasisTests
 
         FrE constant = FrE.SetElement(10);
 
-        LagrangeBasis a = new LagrangeBasis(domainSq);
+        LagrangeBasis a = new(domainSq);
         LagrangeBasis result = a * constant;
 
         FrE[] expected =
@@ -88,12 +81,10 @@ public class LagrangeBasisTests
             FrE.SetElement(), FrE.SetElement(10), FrE.SetElement(40), FrE.SetElement(90), FrE.SetElement(160),
             FrE.SetElement(250)
         };
-        LagrangeBasis ex = new LagrangeBasis(expected);
+        LagrangeBasis ex = new(expected);
 
         for (int i = 0; i < ex.Evaluations.Length; i++)
-        {
             Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
-        }
     }
 
     [Test]
@@ -105,15 +96,13 @@ public class LagrangeBasisTests
             FrE.SetElement(25)
         };
 
-        LagrangeBasis xSquaredLagrange = new LagrangeBasis(domainSq);
+        LagrangeBasis xSquaredLagrange = new(domainSq);
         MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
 
-        MonomialBasis expectedXSquaredCoeff = new MonomialBasis(
+        MonomialBasis expectedXSquaredCoeff = new(
             new[] { FrE.Zero, FrE.Zero, FrE.One });
 
         for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
-        {
             Assert.That(expectedXSquaredCoeff.Coeffs[i], Is.EqualTo(xSquaredCoeff.Coeffs[i]));
-        }
     }
 }

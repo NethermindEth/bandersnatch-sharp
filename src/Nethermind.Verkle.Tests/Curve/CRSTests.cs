@@ -20,11 +20,8 @@ public class CRSTests
         Assert.IsTrue(got256ThPoint.SequenceEqual(expected256ThPoint));
 
         SHA256? hasher = SHA256.Create();
-        List<byte> hashData = new List<byte>();
-        foreach (Banderwagon point in crs)
-        {
-            hashData.AddRange(point.ToBytes());
-        }
+        List<byte> hashData = new();
+        foreach (Banderwagon point in crs) hashData.AddRange(point.ToBytes());
 
         string? result = Convert.ToHexString(hasher.ComputeHash(hashData.ToArray())).ToLower();
 
@@ -37,10 +34,7 @@ public class CRSTests
         Banderwagon[]? crs = CrsStruct.Generate();
         Banderwagon? generator = Banderwagon.Generator;
 
-        foreach (Banderwagon? point in crs)
-        {
-            Assert.IsTrue(generator != point);
-        }
+        foreach (Banderwagon? point in crs) Assert.IsTrue(generator != point);
     }
 
     [Test]
@@ -49,16 +43,10 @@ public class CRSTests
         CRS x = CRS.Generate(256);
         Banderwagon generator = Banderwagon.Generator;
 
-        foreach (Banderwagon? point in x.BasisG)
-        {
-            Assert.IsTrue(generator != point);
-        }
+        foreach (Banderwagon? point in x.BasisG) Assert.IsTrue(generator != point);
 
         Banderwagon[] crs = CrsStruct.Generate();
 
-        for (int i = 0; i < 256; i++)
-        {
-            Assert.IsTrue(x.BasisG[i] == crs[i]);
-        }
+        for (int i = 0; i < 256; i++) Assert.IsTrue(x.BasisG[i] == crs[i]);
     }
 }

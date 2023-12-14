@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Proofs;
 

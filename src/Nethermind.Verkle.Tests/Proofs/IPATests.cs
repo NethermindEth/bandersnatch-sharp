@@ -1,5 +1,5 @@
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
 using Nethermind.Verkle.Proofs;
 
@@ -7,6 +7,9 @@ namespace Nethermind.Verkle.Tests.Proofs;
 
 public class IpaTests
 {
+    private static readonly PreComputedWeights _weights = PreComputedWeights.Instance;
+    private static readonly CRS _crs = CRS.Instance;
+
     private readonly FrE[] _poly =
     {
         FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5),
@@ -18,25 +21,16 @@ public class IpaTests
         FrE.SetElement(31), FrE.SetElement(32)
     };
 
-    private static readonly PreComputedWeights _weights = PreComputedWeights.Instance;
-    private static readonly CRS _crs = CRS.Instance;
-
 
     [Test]
     public void TestBasicIpaProof()
     {
         FrE[] domain = new FrE[256];
-        for (int i = 0; i < 256; i++)
-        {
-            domain[i] = FrE.SetElement(i);
-        }
+        for (int i = 0; i < 256; i++) domain[i] = FrE.SetElement(i);
 
-        List<FrE> lagrangePoly = new List<FrE>();
+        List<FrE> lagrangePoly = new();
 
-        for (int i = 0; i < 8; i++)
-        {
-            lagrangePoly.AddRange(_poly);
-        }
+        for (int i = 0; i < 8; i++) lagrangePoly.AddRange(_poly);
 
 
         Banderwagon commitment = _crs.Commit(lagrangePoly.ToArray());
@@ -44,24 +38,18 @@ public class IpaTests
         Assert.That(Convert.ToHexString(commitment.ToBytes()).ToLower()
             .SequenceEqual("1b9dff8f5ebbac250d291dfe90e36283a227c64b113c37f1bfb9e7a743cdb128"));
 
-        Transcript proverTranscript = new Transcript("test");
+        Transcript proverTranscript = new("test");
 
         FrE inputPoint = FrE.SetElement(2101);
         FrE[] b = _weights.BarycentricFormulaConstants(inputPoint);
-        IpaProverQuery query = new IpaProverQuery(lagrangePoly.ToArray(), commitment, inputPoint, b);
+        IpaProverQuery query = new(lagrangePoly.ToArray(), commitment, inputPoint, b);
 
-        List<byte> cache = new List<byte>();
-        foreach (FrE i in lagrangePoly)
-        {
-            cache.AddRange(i.ToBytes().ToArray());
-        }
+        List<byte> cache = new();
+        foreach (FrE i in lagrangePoly) cache.AddRange(i.ToBytes().ToArray());
 
         cache.AddRange(commitment.ToBytes());
         cache.AddRange(inputPoint.ToBytes().ToArray());
-        foreach (FrE i in b)
-        {
-            cache.AddRange(i.ToBytes().ToArray());
-        }
+        foreach (FrE i in b) cache.AddRange(i.ToBytes().ToArray());
 
         IpaProofStruct proof = Ipa.MakeIpaProof(_crs, proverTranscript, query, out FrE outputPoint);
         FrE pChallenge = proverTranscript.ChallengeScalar("state");
@@ -69,9 +57,9 @@ public class IpaTests
         Assert.That(Convert.ToHexString(pChallenge.ToBytes()).ToLower()
             .SequenceEqual("0a81881cbfd7d7197a54ebd67ed6a68b5867f3c783706675b34ece43e85e7306"));
 
-        Transcript verifierTranscript = new Transcript("test");
+        Transcript verifierTranscript = new("test");
 
-        IpaVerifierQuery queryX = new IpaVerifierQuery(commitment, inputPoint, b, outputPoint, proof);
+        IpaVerifierQuery queryX = new(commitment, inputPoint, b, outputPoint, proof);
 
         bool ok = Ipa.CheckIpaProof(_crs, verifierTranscript, queryX);
 

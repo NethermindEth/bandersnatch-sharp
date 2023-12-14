@@ -8,14 +8,13 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Nethermind.Int256;
-using FE = Nethermind.Verkle.Fields.FrEElement.FrE;
 
 [assembly: InternalsVisibleTo("Nethermind.Field.Montgomery.Test")]
 
 namespace Nethermind.Verkle.Fields.FrEElement;
 
 /// <summary>
-/// This is the scalar field associated with the bandersnatch curve
+///     This is the scalar field associated with the bandersnatch curve
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
 public readonly partial struct FrE
@@ -44,26 +43,24 @@ public readonly partial struct FrE
                 Vector256<ulong> v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
                 return Avx.TestZ(v, v);
             }
-            else
-            {
-                return (u0 | u1 | u2 | u3) == 0;
-            }
+
+            return (u0 | u1 | u2 | u3) == 0;
         }
     }
+
     public bool IsOne => Equals(One);
+
     public bool IsRegularOne
     {
         get
         {
             if (Avx.IsSupported)
             {
-                var v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+                Vector256<ulong> v = Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
                 return v == Vector256.CreateScalar(1UL);
             }
-            else
-            {
-                return ((u0 ^ 1UL) | u1 | u2 | u3) == 0;
-            }
+
+            return ((u0 ^ 1UL) | u1 | u2 | u3) == 0;
         }
     }
 
@@ -117,22 +114,16 @@ public readonly partial struct FrE
             }
         }
         else
-        {
             FieldUtils.Create(bytes, out u0, out u1, out u2, out u3);
-        }
     }
 
     private FrE(BigInteger value)
     {
         UInt256 res;
         if (value.Sign < 0)
-        {
             SubtractMod(UInt256.Zero, (UInt256)(-value), _modulus.Value, out res);
-        }
         else
-        {
             UInt256.Mod((UInt256)value, _modulus.Value, out res);
-        }
 
         u0 = res.u0;
         u1 = res.u1;

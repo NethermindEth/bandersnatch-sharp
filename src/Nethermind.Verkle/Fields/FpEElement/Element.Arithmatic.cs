@@ -29,9 +29,9 @@ public readonly partial struct FpE
     private void RightShiftByOne(out FE res)
     {
         res = new FE(
-            u0 >> 1 | u1 << 63,
-            u1 >> 1 | u2 << 63,
-            u2 >> 1 | u3 << 63,
+            (u0 >> 1) | (u1 << 63),
+            (u1 >> 1) | (u2 << 63),
+            (u2 >> 1) | (u3 << 63),
             u3 >> 1
         );
     }
@@ -48,9 +48,7 @@ public readonly partial struct FpE
         if (!LessThanSubModulus(res))
         {
             if (SubtractUnderflow(res, qElement, out res))
-            {
                 throw new InvalidConstraintException("this should now be possible");
-            }
         }
     }
 
@@ -74,10 +72,7 @@ public readonly partial struct FpE
         int len = e.BitLen;
         for (int i = 0; i < len; i++)
         {
-            if (e.Bit(i))
-            {
-                MultiplyMod(result, bs, out result);
-            }
+            if (e.Bit(i)) MultiplyMod(result, bs, out result);
 
             MultiplyMod(bs, bs, out bs);
         }
@@ -315,7 +310,7 @@ public readonly partial struct FpE
 
             // Use ints to work out the Vector cross lane cascades
             // Move borrow to next bit and add cascade
-            borrow = cascade + 2 * borrow; // lea
+            borrow = cascade + (2 * borrow); // lea
             // Remove cascades not effected by borrow
             cascade ^= borrow;
             // Choice of 16 vectors
@@ -370,7 +365,7 @@ public readonly partial struct FpE
 
             // Use ints to work out the Vector cross lane cascades
             // Move carry to next bit and add cascade
-            carry = cascade + 2 * carry; // lea
+            carry = cascade + (2 * carry); // lea
             // Remove cascades not effected by carry
             cascade ^= carry;
             // Choice of 16 vectors

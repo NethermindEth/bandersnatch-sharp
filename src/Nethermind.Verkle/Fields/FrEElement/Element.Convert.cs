@@ -14,9 +14,7 @@ public readonly partial struct FrE
         if (LessThan(in qElement, in elem))
         {
             if (SubtractUnderflow(elem, qElement, out modElem))
-            {
                 throw new InvalidConstraintException("this should now be possible");
-            }
         }
     }
 
@@ -29,7 +27,7 @@ public readonly partial struct FrE
     {
         int bucket = n / 64 % 4;
         int position = n % 64;
-        return (this[bucket] & (ulong)1 << position) != 0;
+        return (this[bucket] & ((ulong)1 << position)) != 0;
     }
 
     public int BitLen()
@@ -45,14 +43,14 @@ public readonly partial struct FrE
 
     public static FE SetElement(ulong u0 = 0, ulong u1 = 0, ulong u2 = 0, ulong u3 = 0)
     {
-        FE newElem = new FE(u0, u1, u2, u3);
+        FE newElem = new(u0, u1, u2, u3);
         ToMontgomery(in newElem, out FE res);
         return res;
     }
 
     public static FE SetElement(BigInteger value)
     {
-        FE newElem = new FE(value);
+        FE newElem = new(value);
         ToMontgomery(in newElem, out FE res);
         return res;
     }
@@ -136,9 +134,6 @@ public readonly partial struct FrE
         z.u3 = c;
         Unsafe.SkipInit(out res);
         Unsafe.As<FE, U4>(ref res) = z;
-        if (LessThan(qElement, res))
-        {
-            SubtractUnderflow(res, qElement, out res);
-        }
+        if (LessThan(qElement, res)) SubtractUnderflow(res, qElement, out res);
     }
 }

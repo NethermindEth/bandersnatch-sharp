@@ -19,7 +19,7 @@ public class NoIntrinsicsJobAttribute : JobConfigBaseAttribute
         int invocationCount, RunStrategy? runStrategy, bool baseline,
         RuntimeMoniker runtimeMoniker = RuntimeMoniker.HostProcess)
     {
-        Job job = new Job(id);
+        Job job = new(id);
         int num = 0;
         if (launchCount != -1)
         {
@@ -57,10 +57,7 @@ public class NoIntrinsicsJobAttribute : JobConfigBaseAttribute
             num++;
         }
 
-        if (baseline)
-        {
-            job.Meta.Baseline = true;
-        }
+        if (baseline) job.Meta.Baseline = true;
 
         if (runtimeMoniker != 0)
         {
@@ -68,10 +65,7 @@ public class NoIntrinsicsJobAttribute : JobConfigBaseAttribute
             num++;
         }
 
-        if (id == null && num == 1 && runtimeMoniker != 0)
-        {
-            job = job.WithId(runtimeMoniker.GetRuntime().Name);
-        }
+        if (id == null && num == 1 && runtimeMoniker != 0) job = job.WithId(runtimeMoniker.GetRuntime().Name);
 
         return job.Freeze();
     }

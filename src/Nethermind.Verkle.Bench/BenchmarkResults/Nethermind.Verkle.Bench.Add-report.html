@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-<meta charset='utf-8' />
-<title>Nethermind.Verkle.Bench.Add-20230527-153605</title>
+    <meta charset='utf-8'/>
+    <title>Nethermind.Verkle.Bench.Add-20230527-153605</title>
 
-<style type="text/css">
-	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
-	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
-	tr { background-color: #fff; border-top: 1px solid #ccc; }
-	tr:nth-child(even) { background: #f8f8f8; }
-</style>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+            display: block;
+            width: 100%;
+            overflow: auto;
+        }
+
+        td, th {
+            padding: 6px 13px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+
+        tr {
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <pre><code>
@@ -19,28 +36,235 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
   [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
   .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0  
+<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
 </code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>EnvironmentVariables</th><th>            A</th><th>            B</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
-</tr>
-</thead><tbody><tr><td>Add_FpE</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>5.484 ns</td><td>0.0348 ns</td><td>0.0309 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>56.569 ns</td><td>0.2496 ns</td><td>0.2212 ns</td><td>10.32</td><td>0.06</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>8.813 ns</td><td>0.0531 ns</td><td>0.0497 ns</td><td>1.61</td><td>0.01</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)935) [121]</td><td>75.437 ns</td><td>0.7964 ns</td><td>0.7450 ns</td><td>13.77</td><td>0.14</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>5.464 ns</td><td>0.0346 ns</td><td>0.0307 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>Empty</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>56.174 ns</td><td>0.3372 ns</td><td>0.3154 ns</td><td>10.28</td><td>0.07</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>8.920 ns</td><td>0.0535 ns</td><td>0.0500 ns</td><td>1.63</td><td>0.01</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)935) [121]</td><td>(Net(...)658) [119]</td><td>76.863 ns</td><td>0.2359 ns</td><td>0.2091 ns</td><td>14.07</td><td>0.08</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>5.348 ns</td><td>0.0413 ns</td><td>0.0366 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>56.101 ns</td><td>0.4494 ns</td><td>0.4203 ns</td><td>10.49</td><td>0.13</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>8.858 ns</td><td>0.0380 ns</td><td>0.0356 ns</td><td>1.66</td><td>0.01</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)935) [121]</td><td>75.097 ns</td><td>0.1854 ns</td><td>0.1644 ns</td><td>14.04</td><td>0.10</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>5.062 ns</td><td>0.0777 ns</td><td>0.0727 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>Empty</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>23.274 ns</td><td>0.0815 ns</td><td>0.0763 ns</td><td>4.60</td><td>0.08</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_FpE</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>8.804 ns</td><td>0.0657 ns</td><td>0.0582 ns</td><td>1.74</td><td>0.03</td><td>-</td><td>NA</td>
-</tr><tr><td>Add_UInt256</td><td>DOTNET_EnableHWIntrinsic=0</td><td>(Net(...)658) [119]</td><td>(Net(...)658) [119]</td><td>9.067 ns</td><td>0.0289 ns</td><td>0.0271 ns</td><td>1.79</td><td>0.03</td><td>-</td><td>NA</td>
-</tr></tbody></table>
+    <thead>
+    <tr>
+        <th>Method</th>
+        <th>EnvironmentVariables</th>
+        <th> A</th>
+        <th> B</th>
+        <th>Mean</th>
+        <th>Error</th>
+        <th>StdDev</th>
+        <th>Ratio</th>
+        <th>RatioSD</th>
+        <th>Allocated</th>
+        <th>Alloc Ratio</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Add_FpE</td>
+        <td>Empty</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>5.484 ns</td>
+        <td>0.0348 ns</td>
+        <td>0.0309 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>Empty</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>56.569 ns</td>
+        <td>0.2496 ns</td>
+        <td>0.2212 ns</td>
+        <td>10.32</td>
+        <td>0.06</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>8.813 ns</td>
+        <td>0.0531 ns</td>
+        <td>0.0497 ns</td>
+        <td>1.61</td>
+        <td>0.01</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>75.437 ns</td>
+        <td>0.7964 ns</td>
+        <td>0.7450 ns</td>
+        <td>13.77</td>
+        <td>0.14</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>Empty</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>5.464 ns</td>
+        <td>0.0346 ns</td>
+        <td>0.0307 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>Empty</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>56.174 ns</td>
+        <td>0.3372 ns</td>
+        <td>0.3154 ns</td>
+        <td>10.28</td>
+        <td>0.07</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>8.920 ns</td>
+        <td>0.0535 ns</td>
+        <td>0.0500 ns</td>
+        <td>1.63</td>
+        <td>0.01</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)935) [121]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>76.863 ns</td>
+        <td>0.2359 ns</td>
+        <td>0.2091 ns</td>
+        <td>14.07</td>
+        <td>0.08</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>Empty</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>5.348 ns</td>
+        <td>0.0413 ns</td>
+        <td>0.0366 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>Empty</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>56.101 ns</td>
+        <td>0.4494 ns</td>
+        <td>0.4203 ns</td>
+        <td>10.49</td>
+        <td>0.13</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>8.858 ns</td>
+        <td>0.0380 ns</td>
+        <td>0.0356 ns</td>
+        <td>1.66</td>
+        <td>0.01</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)935) [121]</td>
+        <td>75.097 ns</td>
+        <td>0.1854 ns</td>
+        <td>0.1644 ns</td>
+        <td>14.04</td>
+        <td>0.10</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>Empty</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>5.062 ns</td>
+        <td>0.0777 ns</td>
+        <td>0.0727 ns</td>
+        <td>1.00</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>Empty</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>23.274 ns</td>
+        <td>0.0815 ns</td>
+        <td>0.0763 ns</td>
+        <td>4.60</td>
+        <td>0.08</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_FpE</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>8.804 ns</td>
+        <td>0.0657 ns</td>
+        <td>0.0582 ns</td>
+        <td>1.74</td>
+        <td>0.03</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    <tr>
+        <td>Add_UInt256</td>
+        <td>DOTNET_EnableHWIntrinsic=0</td>
+        <td>(Net(...)658) [119]</td>
+        <td>(Net(...)658) [119]</td>
+        <td>9.067 ns</td>
+        <td>0.0289 ns</td>
+        <td>0.0271 ns</td>
+        <td>1.79</td>
+        <td>0.03</td>
+        <td>-</td>
+        <td>NA</td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>
