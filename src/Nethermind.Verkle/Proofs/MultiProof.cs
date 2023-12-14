@@ -78,6 +78,7 @@ public class MultiProof
             for (int j = 0; j < g.Length; j++)
             {
                 g[j] += quotient[j];
+                quotient[j] = FrE.Zero;
             }
         }
 
