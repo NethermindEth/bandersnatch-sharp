@@ -99,8 +99,8 @@ public class TwoParamFpEBenchmarkBase : FpEBenchmarkBase
 }
 
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class Add : TwoParamFpEBenchmarkBase
 {
@@ -119,8 +119,8 @@ public class Add : TwoParamFpEBenchmarkBase
 }
 
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class Subtract : TwoParamFpEBenchmarkBase
 {
@@ -138,8 +138,8 @@ public class Subtract : TwoParamFpEBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class Multiply : TwoParamFpEBenchmarkBase
 {
@@ -158,8 +158,8 @@ public class Multiply : TwoParamFpEBenchmarkBase
 }
 
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class ExpMod : TwoParamFpEBenchmarkBase
 {
@@ -178,8 +178,8 @@ public class ExpMod : TwoParamFpEBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class Inverse : TwoParamFpEBenchmarkBase
 {
@@ -198,8 +198,8 @@ public class Inverse : TwoParamFpEBenchmarkBase
     }
 }
 
-[SimpleJob(RuntimeMoniker.Net70)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class Sqrt : TwoParamFpEBenchmarkBase
 {

@@ -8,8 +8,8 @@ using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Bench;
 
-[SimpleJob(RuntimeMoniker.Net70, baseline: true)]
-[NoIntrinsicsJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
 public class BenchPolyOps
 {

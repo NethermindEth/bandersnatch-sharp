@@ -114,7 +114,7 @@ internal static class RuntimeMonikerExtensions
                 return CoreRuntime.Core50;
             case RuntimeMoniker.Net60:
                 return CoreRuntime.Core60;
-            case RuntimeMoniker.Net70:
+            case RuntimeMoniker.Net80:
                 return CoreRuntime.Core70;
             // case RuntimeMoniker.Net80:
             //     return CoreRuntime.Core80;
@@ -123,7 +123,7 @@ internal static class RuntimeMonikerExtensions
             // case RuntimeMoniker.NativeAot60:
             //     return NativeAotRuntime.Net60;
             // case RuntimeMoniker.NativeAot70:
-            //     return NativeAotRuntime.Net70;
+            //     return NativeAotRuntime.Net80;
             // case RuntimeMoniker.NativeAot80:
             //     return NativeAotRuntime.Net80;
             // case RuntimeMoniker.Mono60:

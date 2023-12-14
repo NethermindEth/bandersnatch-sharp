@@ -267,4 +267,43 @@ public class MultiProofTests
 
         Assert.That(multiproof.CheckMultiProof(proverTranscript, queries.ToArray(), proof), Is.True);
     }
+
+    [Test]
+    public void TestRandomProofGenerationAndVerification()
+    {
+         MultiProof prover = new (CRS.Instance, PreComputedWeights.Instance);
+         var proverQueries = GenerateRandomQueries(2).ToArray();
+         Transcript proverTranscript = new("test");
+         var proof = prover.MakeMultiProof(proverTranscript, new(proverQueries));
+
+         var verifierQueries = proverQueries
+             .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
+         Transcript verifierTranscript = new("test");
+         bool verification = prover.CheckMultiProof(verifierTranscript, verifierQueries, proof);
+         Assert.IsTrue(verification);
+    }
+
+    public static List<VerkleProverQuery> GenerateRandomQueries(int numOfQueries)
+    {
+        CRS crs = CRS.Instance;
+        List<VerkleProverQuery> proverQueries = new();
+        Random rand = new(0);
+        using IEnumerator<FrE> randFre = FrE.GetRandom().GetEnumerator();
+        for (int i = 0; i < numOfQueries; i++)
+        {
+            randFre.MoveNext();
+            FrE[] poly = new FrE[256];
+            for (int j = 0; j < 256; j++)
+            {
+                poly[j] = randFre.Current;
+                randFre.MoveNext();
+            }
+
+            Banderwagon commit = crs.Commit(poly);
+            byte childIndex = (byte)rand.Next(255);
+
+            proverQueries.Add(new VerkleProverQuery(new LagrangeBasis(poly), commit, childIndex, poly[childIndex]));
+        }
+        return proverQueries;
+    }
 }
