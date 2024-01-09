@@ -258,4 +258,123 @@ public readonly partial struct FpE
             r = m;
         }
     }
+
+    public void sqrtAlg_ComputeRelevantPowers(FE z, FE squareRootCandidate, FE rootOfUnity)
+    {
+        void SquareEqNTimes(FE z, int n)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                MultiplyMod(in z, in z, out z);
+            }
+        }
+
+        FE z2 = new();
+        FE z3 = new();
+        FE z7 = new();
+        FE z6 = new();
+        FE z9 = new();
+        FE z11 = new();
+        FE z13 = new();
+        FE z19 = new();
+        FE z21 = new();
+        FE z25 = new();
+        FE z27 = new();
+        FE z29 = new();
+        FE z31 = new();
+        FE z255 = new();
+        FE acc = new();
+
+        MultiplyMod(in z, in z, out z2);
+        MultiplyMod(in z, in z2, out z3);
+        MultiplyMod(in z3, in z3, out z6);
+        MultiplyMod(in z, in z6, out z7);
+        MultiplyMod(in z7, in z2, out z9);
+        MultiplyMod(in z9, in z2, out z11);
+        MultiplyMod(in z11, in z2, out z13);
+        MultiplyMod(in z13, in z6, out z19);
+        MultiplyMod(in z2, in z19, out z21);
+        MultiplyMod(in z19, in z6, out z25);
+        MultiplyMod(in z25, in z2, out z27);
+        MultiplyMod(in z27, in z2, out z29);
+        MultiplyMod(in z29, in z2, out z31);
+        MultiplyMod(in z27, in z29, out acc);
+        MultiplyMod(in acc, in acc, out acc);
+        MultiplyMod(in acc, in acc, out acc);
+        MultiplyMod(in acc, in z31, out z255);
+        MultiplyMod(in acc, in acc, out acc);
+        MultiplyMod(in acc, in acc, out acc);
+        MultiplyMod(in acc, in z31, out acc);
+        SquareEqNTimes(acc, 6);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, 6);
+        MultiplyMod(in acc, in z19, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z21, out acc);
+        SquareEqNTimes(acc, 7);
+        MultiplyMod(in acc, in z25, out acc);
+        SquareEqNTimes(acc, 6);
+        MultiplyMod(in acc, in z19, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z7, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z11, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z29, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z9, out acc);
+        SquareEqNTimes(acc, 7);
+        MultiplyMod(in acc, in z3, out acc);
+        SquareEqNTimes(acc, 7);
+        MultiplyMod(in acc, in z25, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z25, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, 8);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, 8);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, 6);
+        MultiplyMod(in acc, in z13, out acc);
+        SquareEqNTimes(acc, 7);
+        MultiplyMod(in acc, in z7, out acc);
+        SquareEqNTimes(acc, 3);
+        MultiplyMod(in acc, in z3, out acc);
+        SquareEqNTimes(acc, 13);
+        MultiplyMod(in acc, in z21, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z9, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, 5);
+        MultiplyMod(in acc, in z9, out acc);
+        SquareEqNTimes(acc, 10);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, 7);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, 6);
+        MultiplyMod(in acc, in z11, out acc);
+        SquareEqNTimes(acc, 9);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, 2);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, 7);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+
+        MultiplyMod(in acc, in acc, out rootOfUnity);
+        MultiplyMod(in rootOfUnity, in z, out rootOfUnity);
+        MultiplyMod(in acc, in z, out squareRootCandidate);
+    }
+
 }
