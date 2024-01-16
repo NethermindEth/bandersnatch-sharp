@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'/>
-    <title>Nethermind.Verkle.Bench.BenchCurveOps-20230527-154159</title>
+    <title>Nethermind.Verkle.Bench.BenchCurveOps-20240117-180427</title>
 
     <style type="text/css">
         table {
@@ -30,19 +30,19 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
+<pre><code>Job=.NET 8.0  Runtime=.NET 8.0
 </code></pre>
 
 <table>
     <thead>
     <tr>
-        <th> Method</th>
+        <th>Method</th>
         <th>EnvironmentVariables</th>
         <th>Mean</th>
         <th>Error</th>
@@ -57,23 +57,23 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
     <tr>
         <td>BenchmarkMultiScalarMul</td>
         <td>Empty</td>
-        <td>3.098 ms</td>
-        <td>0.0145 ms</td>
-        <td>0.0136 ms</td>
+        <td>2.205 ms</td>
+        <td>0.0067 ms</td>
+        <td>0.0063 ms</td>
         <td>1.00</td>
         <td>7.8125</td>
-        <td>504.21 KB</td>
+        <td>504.26 KB</td>
         <td>1.00</td>
     </tr>
     <tr>
         <td>BenchmarkMultiScalarMul</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>4.127 ms</td>
-        <td>0.0125 ms</td>
-        <td>0.0111 ms</td>
-        <td>1.33</td>
+        <td>2.175 ms</td>
+        <td>0.0062 ms</td>
+        <td>0.0052 ms</td>
+        <td>0.99</td>
         <td>7.8125</td>
-        <td>504.22 KB</td>
+        <td>504.26 KB</td>
         <td>1.00</td>
     </tr>
     </tbody>

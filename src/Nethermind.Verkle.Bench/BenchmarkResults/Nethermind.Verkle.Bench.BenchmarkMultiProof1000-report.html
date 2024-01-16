@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'/>
-    <title>Nethermind.Verkle.Bench.BenchmarkMultiProof1000-20230614-143253</title>
+    <title>Nethermind.Verkle.Bench.BenchmarkMultiProof1000-20240117-180711</title>
 
     <style type="text/css">
         table {
@@ -30,26 +30,24 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
+<pre><code>Job=.NET 8.0  Runtime=.NET 8.0
 </code></pre>
 
 <table>
     <thead>
     <tr>
-        <th> Method</th>
+        <th>Method</th>
         <th>EnvironmentVariables</th>
         <th>Mean</th>
         <th>Error</th>
         <th>StdDev</th>
         <th>Gen0</th>
-        <th>Gen1</th>
-        <th>Gen2</th>
         <th>Allocated</th>
     </tr>
     </thead>
@@ -57,46 +55,38 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
     <tr>
         <td>BenchmarkBasicMultiProof1000</td>
         <td>Empty</td>
-        <td>270.92 ms</td>
-        <td>3.007 ms</td>
-        <td>2.665 ms</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>20.7 MB</td>
+        <td>169.55 ms</td>
+        <td>1.408 ms</td>
+        <td>1.317 ms</td>
+        <td>333.3333</td>
+        <td>20.01 MB</td>
     </tr>
     <tr>
         <td>BenchmarkVerification1000</td>
         <td>Empty</td>
-        <td>22.80 ms</td>
-        <td>0.306 ms</td>
-        <td>0.287 ms</td>
-        <td>31.2500</td>
-        <td>31.2500</td>
-        <td>31.2500</td>
-        <td>2.44 MB</td>
+        <td>15.96 ms</td>
+        <td>0.100 ms</td>
+        <td>0.094 ms</td>
+        <td>-</td>
+        <td>2.28 MB</td>
     </tr>
     <tr>
         <td>BenchmarkBasicMultiProof1000</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>342.95 ms</td>
-        <td>3.375 ms</td>
-        <td>3.157 ms</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>20.65 MB</td>
+        <td>176.84 ms</td>
+        <td>1.023 ms</td>
+        <td>0.957 ms</td>
+        <td>333.3333</td>
+        <td>20.01 MB</td>
     </tr>
     <tr>
         <td>BenchmarkVerification1000</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>29.31 ms</td>
-        <td>0.270 ms</td>
-        <td>0.253 ms</td>
-        <td>31.2500</td>
-        <td>31.2500</td>
-        <td>31.2500</td>
-        <td>2.44 MB</td>
+        <td>16.47 ms</td>
+        <td>0.183 ms</td>
+        <td>0.171 ms</td>
+        <td>-</td>
+        <td>2.28 MB</td>
     </tr>
     </tbody>
 </table>

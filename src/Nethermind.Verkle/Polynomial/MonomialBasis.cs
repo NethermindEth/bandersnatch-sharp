@@ -31,7 +31,7 @@ public class MonomialBasis
         if (a.Length() < b.Length()) throw new Exception();
 
         FrE[] x = a.Coeffs.ToArray();
-        List<FrE> output = new();
+        List<FrE> output = [];
 
         int aPos = a.Length() - 1;
         int bPos = b.Length() - 1;
@@ -78,7 +78,7 @@ public class MonomialBasis
 
     public static MonomialBasis VanishingPoly(IEnumerable<FrE> xs)
     {
-        List<FrE> root = new() { FrE.One };
+        List<FrE> root = [FrE.One];
         foreach (FrE x in xs)
         {
             root.Insert(0, FrE.Zero);

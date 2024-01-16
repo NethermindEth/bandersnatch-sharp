@@ -1,33 +1,30 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
-Job=.NET 7.0  Runtime=.NET 7.0
+Job=.NET 8.0  Runtime=.NET 8.0
 
 ```
 
-| Method      | EnvironmentVariables       | A                       | B                       |         Mean |         Error |        StdDev |    Ratio |  RatioSD | Allocated | Alloc Ratio |
-|-------------|----------------------------|-------------------------|-------------------------|-------------:|--------------:|--------------:|---------:|---------:|----------:|------------:|
-| **Add_FpE** | **Empty**                  | **(Net(...)935) [121]** | **(Net(...)935) [121]** | **5.484 ns** | **0.0348 ns** | **0.0309 ns** | **1.00** | **0.00** |     **-** |      **NA** |
-| Add_UInt256 | Empty                      | (Net(...)935) [121]     | (Net(...)935) [121]     |    56.569 ns |     0.2496 ns |     0.2212 ns |    10.32 |     0.06 |         - |          NA |
-| Add_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)935) [121]     |     8.813 ns |     0.0531 ns |     0.0497 ns |     1.61 |     0.01 |         - |          NA |
-| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)935) [121]     |    75.437 ns |     0.7964 ns |     0.7450 ns |    13.77 |     0.14 |         - |          NA |
-|             |                            |                         |                         |              |               |               |          |          |           |             |
-| **Add_FpE** | **Empty**                  | **(Net(...)935) [121]** | **(Net(...)658) [119]** | **5.464 ns** | **0.0346 ns** | **0.0307 ns** | **1.00** | **0.00** |     **-** |      **NA** |
-| Add_UInt256 | Empty                      | (Net(...)935) [121]     | (Net(...)658) [119]     |    56.174 ns |     0.3372 ns |     0.3154 ns |    10.28 |     0.07 |         - |          NA |
-| Add_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)658) [119]     |     8.920 ns |     0.0535 ns |     0.0500 ns |     1.63 |     0.01 |         - |          NA |
-| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)658) [119]     |    76.863 ns |     0.2359 ns |     0.2091 ns |    14.07 |     0.08 |         - |          NA |
-|             |                            |                         |                         |              |               |               |          |          |           |             |
-| **Add_FpE** | **Empty**                  | **(Net(...)658) [119]** | **(Net(...)935) [121]** | **5.348 ns** | **0.0413 ns** | **0.0366 ns** | **1.00** | **0.00** |     **-** |      **NA** |
-| Add_UInt256 | Empty                      | (Net(...)658) [119]     | (Net(...)935) [121]     |    56.101 ns |     0.4494 ns |     0.4203 ns |    10.49 |     0.13 |         - |          NA |
-| Add_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)935) [121]     |     8.858 ns |     0.0380 ns |     0.0356 ns |     1.66 |     0.01 |         - |          NA |
-| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)935) [121]     |    75.097 ns |     0.1854 ns |     0.1644 ns |    14.04 |     0.10 |         - |          NA |
-|             |                            |                         |                         |              |               |               |          |          |           |             |
-| **Add_FpE** | **Empty**                  | **(Net(...)658) [119]** | **(Net(...)658) [119]** | **5.062 ns** | **0.0777 ns** | **0.0727 ns** | **1.00** | **0.00** |     **-** |      **NA** |
-| Add_UInt256 | Empty                      | (Net(...)658) [119]     | (Net(...)658) [119]     |    23.274 ns |     0.0815 ns |     0.0763 ns |     4.60 |     0.08 |         - |          NA |
-| Add_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)658) [119]     |     8.804 ns |     0.0657 ns |     0.0582 ns |     1.74 |     0.03 |         - |          NA |
-| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)658) [119]     |     9.067 ns |     0.0289 ns |     0.0271 ns |     1.79 |     0.03 |         - |          NA |
+| Method      | EnvironmentVariables       | A                   | B                   |      Mean |     Error |    StdDev | Ratio | RatioSD | Allocated | Alloc Ratio |
+|-------------|----------------------------|---------------------|---------------------|----------:|----------:|----------:|------:|--------:|----------:|------------:|
+| Add_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] |  5.039 ns | 0.0371 ns | 0.0347 ns |  1.00 |    0.00 |         - |          NA |
+| Add_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] |  5.238 ns | 0.0385 ns | 0.0360 ns |  1.04 |    0.01 |         - |          NA |
+| Add_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] |  4.859 ns | 0.0616 ns | 0.0546 ns |  0.96 |    0.01 |         - |          NA |
+| Add_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] |  4.756 ns | 0.0485 ns | 0.0453 ns |  0.94 |    0.01 |         - |          NA |
+| Add_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 40.870 ns | 0.0778 ns | 0.0728 ns |  8.11 |    0.06 |         - |          NA |
+| Add_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 41.455 ns | 0.1296 ns | 0.1212 ns |  8.23 |    0.07 |         - |          NA |
+| Add_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 40.052 ns | 0.1170 ns | 0.1095 ns |  7.95 |    0.06 |         - |          NA |
+| Add_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 46.162 ns | 0.0475 ns | 0.0421 ns |  9.16 |    0.06 |         - |          NA |
+| Add_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] |  8.025 ns | 0.0205 ns | 0.0181 ns |  1.59 |    0.01 |         - |          NA |
+| Add_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] |  8.053 ns | 0.0050 ns | 0.0047 ns |  1.60 |    0.01 |         - |          NA |
+| Add_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] |  8.234 ns | 0.0309 ns | 0.0289 ns |  1.63 |    0.01 |         - |          NA |
+| Add_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] |  8.127 ns | 0.0043 ns | 0.0041 ns |  1.61 |    0.01 |         - |          NA |
+| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 57.044 ns | 0.1892 ns | 0.1677 ns | 11.32 |    0.08 |         - |          NA |
+| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 57.269 ns | 0.1727 ns | 0.1615 ns | 11.37 |    0.09 |         - |          NA |
+| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 58.763 ns | 0.1373 ns | 0.1284 ns | 11.66 |    0.09 |         - |          NA |
+| Add_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 63.562 ns | 0.3111 ns | 0.2910 ns | 12.61 |    0.09 |         - |          NA |

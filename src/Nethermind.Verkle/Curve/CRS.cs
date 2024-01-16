@@ -74,7 +74,7 @@ public class CRS
         return commitment;
     }
 
-    public Banderwagon Commit(FrE[] values)
+    public Banderwagon Commit(in Span<FrE> values)
     {
         Span<Banderwagon> elements = BasisG;
         elements = elements[..values.Length];
@@ -85,7 +85,7 @@ public class CRS
 public struct CrsStruct
 {
     private static readonly string[] _constants =
-    {
+    [
         "01587ad1336675eb912550ec2a28eb8923b824b490dd2ba82e48f14590a298a0",
         "6c6e607df0723edfff382fa914bfc38136f3300ab2e06fb97007b559fd323b82",
         "326be3bebfd97ed9d0d4ca1b8bc47e036a24b129f1488110b71c2cae1463db8f",
@@ -342,7 +342,7 @@ public struct CrsStruct
         "1610b8e9138aee6dbf4fdadecc70f83da279050176eb62c164907774cc473cbb",
         "3102a5884d3dce8d94a8cf6d5ab2d3a4c76ec8b00f4554caa68c028aedf5970f",
         "3de2be346b539395b0c0de56a5ccca54a317f1b5c80107b0802af9a62276a4d8"
-    };
+    ];
 
     public static Banderwagon[] Generate()
     {

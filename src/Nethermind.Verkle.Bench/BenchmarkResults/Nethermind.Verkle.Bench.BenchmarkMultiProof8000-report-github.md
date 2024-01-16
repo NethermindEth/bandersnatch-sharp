@@ -1,18 +1,18 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
-Job=.NET 7.0  Runtime=.NET 7.0
+Job=.NET 8.0  Runtime=.NET 8.0
 
 ```
 
-| Method                       | EnvironmentVariables       |     Mean |    Error |   StdDev |      Gen0 |      Gen1 | Allocated |
-|------------------------------|----------------------------|---------:|---------:|---------:|----------:|----------:|----------:|
-| BenchmarkBasicMultiProof8000 | Empty                      | 603.0 ms | 11.55 ms | 15.42 ms | 2000.0000 | 1000.0000 | 160.78 MB |
-| BenchmarkVerification8000    | Empty                      | 104.2 ms |  1.78 ms |  1.66 ms |         - |         - |  10.87 MB |
-| BenchmarkBasicMultiProof8000 | DOTNET_EnableHWIntrinsic=0 | 741.7 ms | 14.58 ms | 14.97 ms | 2000.0000 | 1000.0000 |  161.3 MB |
-| BenchmarkVerification8000    | DOTNET_EnableHWIntrinsic=0 | 126.8 ms |  1.29 ms |  1.14 ms |         - |         - |  10.87 MB |
+| Method                       | EnvironmentVariables       |      Mean |    Error |   StdDev |      Gen0 |      Gen1 |     Gen2 | Allocated |
+|------------------------------|----------------------------|----------:|---------:|---------:|----------:|----------:|---------:|----------:|
+| BenchmarkBasicMultiProof8000 | Empty                      | 204.44 ms | 2.015 ms | 1.786 ms | 3000.0000 | 2000.0000 | 500.0000 | 155.06 MB |
+| BenchmarkVerification8000    | Empty                      |  75.69 ms | 0.473 ms | 0.442 ms |  142.8571 |  142.8571 | 142.8571 |  10.15 MB |
+| BenchmarkBasicMultiProof8000 | DOTNET_EnableHWIntrinsic=0 | 240.63 ms | 4.654 ms | 5.716 ms | 3000.0000 | 2000.0000 | 500.0000 | 155.42 MB |
+| BenchmarkVerification8000    | DOTNET_EnableHWIntrinsic=0 |  73.91 ms | 0.750 ms | 0.702 ms |  142.8571 |  142.8571 | 142.8571 |  10.15 MB |

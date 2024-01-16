@@ -135,8 +135,10 @@ public readonly partial struct FrE
         byte[] returnEncoding = new byte[32];
         Span<byte> target = returnEncoding;
         if (Avx.IsSupported)
+        {
             Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(target)) =
                 Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+        }
         else
         {
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);

@@ -22,7 +22,7 @@ public class IpaProofStruct
 
     public byte[] Encode()
     {
-        List<byte> encoded = new();
+        List<byte> encoded = [];
 
         foreach (Banderwagon l in L) encoded.AddRange(l.ToBytes());
 
@@ -79,7 +79,7 @@ public class VerkleProofStruct
 
     public byte[] Encode()
     {
-        List<byte> encoded = new();
+        List<byte> encoded = [];
 
         encoded.AddRange(D.ToBytes());
         encoded.AddRange(IpaProof.Encode());

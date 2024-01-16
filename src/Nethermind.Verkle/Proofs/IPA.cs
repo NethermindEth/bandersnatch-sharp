@@ -5,7 +5,7 @@ namespace Nethermind.Verkle.Proofs;
 
 public static class Ipa
 {
-    public static FrE InnerProduct(Span<FrE> a, Span<FrE> b)
+    public static FrE InnerProduct(in ReadOnlySpan<FrE> a, in ReadOnlySpan<FrE> b)
     {
         FrE res = FrE.Zero;
         for (int i = 0; i < a.Length; i++) res += a[i] * b[i];
@@ -17,13 +17,12 @@ public static class Ipa
     {
         transcript.DomainSep("ipa");
 
-        int n = query.Polynomial.Length;
-        int m = n / 2;
+        int m = 128;
         Span<FrE> a = query.Polynomial;
         Span<FrE> b = query.PointEvaluations;
         y = InnerProduct(a, b);
 
-        int numRounds = (int)Math.Log2(n);
+        const int numRounds = 8;
         Banderwagon[] l = new Banderwagon[numRounds];
         Banderwagon[] r = new Banderwagon[numRounds];
 
@@ -70,8 +69,7 @@ public static class Ipa
             currentBasis = new Banderwagon[m];
             for (int i = 0; i < m; i++) currentBasis[i] = gL[i] + (gR[i] * xInv);
 
-            n = m;
-            m = n / 2;
+            m /= 2;
         }
 
         return new IpaProofStruct(l, a[0], r);
@@ -117,7 +115,7 @@ public static class Ipa
 
         Span<Banderwagon> currentBasis = crs.BasisG;
 
-        // We apply a known optimization for the verifier unrolling the loop to 
+        // We apply a known optimization for the verifier unrolling the loop to
         // generate the final g0 and b0.
         FrE[] foldingScalars = new FrE[currentBasis.Length];
         for (int i = 0; i < foldingScalars.Length; i++)

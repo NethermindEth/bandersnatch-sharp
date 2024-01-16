@@ -13,22 +13,19 @@ namespace Nethermind.Verkle.Bench;
 [MemoryDiagnoser]
 public class BenchPolyOps
 {
-    private readonly FrE[] _a;
-    private readonly FrE[] _b;
+    private static FrE[] A =>
+    [
+        FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5)
+    ];
 
-    public BenchPolyOps()
-    {
-        _a = new[] { FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5) };
-
-        _b = new[]
-        {
-            FrE.SetElement(10), FrE.SetElement(12), FrE.SetElement(13), FrE.SetElement(14), FrE.SetElement(15)
-        };
-    }
+    private static FrE[] B =>
+    [
+        FrE.SetElement(10), FrE.SetElement(12), FrE.SetElement(13), FrE.SetElement(14), FrE.SetElement(15)
+    ];
 
     [Benchmark]
-    public void BenchmarkInnerProduct()
+    public FrE BenchmarkInnerProduct()
     {
-        Ipa.InnerProduct(_a, _b);
+        return Ipa.InnerProduct(A, B);
     }
 }

@@ -1,4 +1,6 @@
+using System.Collections.Concurrent;
 using Nethermind.Verkle.Curve;
+using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
 
@@ -6,30 +8,25 @@ using Nethermind.Verkle.Polynomial;
 
 namespace Nethermind.Verkle.Proofs;
 
-public class MultiProof
+public class MultiProof(CRS cRs, PreComputedWeights preComp)
 {
-    private readonly CRS Crs;
-    private readonly int DomainSize;
-    private readonly PreComputedWeights PreComp;
+    private readonly int DomainSize = preComp.Domain.Length;
 
-    public MultiProof(CRS cRs, PreComputedWeights preComp)
+    private static void BatchNormalize(IReadOnlyList<VerkleProverQuery> queries, in Span<AffinePoint> normalizedPoints)
     {
-        PreComp = preComp;
-        Crs = cRs;
-        DomainSize = preComp.Domain.Length;
+        int numOfPoints = queries.Count;
+        Span<FpE> zs = stackalloc FpE[numOfPoints];
+        for (int i = 0; i < numOfPoints; i++) zs[i] = queries[i].NodeCommitPoint.Z;
+        FpE[] inverses = FpE.MultiInverse(zs);
+        for (int i = 0; i < numOfPoints; i++) normalizedPoints[i] = queries[i].NodeCommitPoint.ToAffine(inverses[i]);
     }
+
 
     public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
     {
-        int domainSize = PreComp.Domain.Length;
-
-        // Stopwatch watch = new();
-        // watch.Start();
-
-
-        Banderwagon[] commitPoints = new Banderwagon[queries.Count];
-        for (int i = 0; i < queries.Count; i++) commitPoints[i] = queries[i].NodeCommitPoint;
-        AffinePoint[] normalizedCommitments = Banderwagon.BatchNormalize(commitPoints);
+        // batch normalize the NodeCommitPoints for the query
+        Span<AffinePoint> normalizedCommitments = stackalloc AffinePoint[queries.Count];
+        BatchNormalize(queries, normalizedCommitments);
 
         transcript.DomainSep("multiproof");
         for (int i = 0; i < queries.Count; i++)
@@ -39,36 +36,72 @@ public class MultiProof
             transcript.AppendScalar(queries[i].ChildHash, "y");
         }
 
+        // calculate powers of r
         FrE r = transcript.ChallengeScalar("r");
         FrE[] powersOfR = new FrE[queries.Count];
         powersOfR[0] = FrE.One;
-        for (int i = 1; i < queries.Count; i++) FrE.MultiplyMod(in powersOfR[i - 1], in r, out powersOfR[i]);
+        FrE accumulator = FrE.One;
+        for (int i = 1; i < queries.Count; i++)
+        {
+            FrE.MultiplyMod(in accumulator, in r, out accumulator);
+            powersOfR[i] = accumulator;
+        }
 
         // We aggregate all the polynomials in evaluation form per domain point
         // to avoid work downstream.
-        Dictionary<byte, LagrangeBasis> aggregatedPolyMap = new();
-        for (int i = 0; i < queries.Count; i++)
+        HashSet<byte> evaluationPoints = [];
+        foreach (VerkleProverQuery query in queries) evaluationPoints.Add(query.ChildIndex);
+
+        LagrangeBasis[] scaledFArray = new LagrangeBasis[queries.Count];
+        Parallel.ForEach(Partitioner.Create(0, queries.Count), partition =>
         {
-            LagrangeBasis f = queries[i].ChildHashPoly;
-            byte evaluationPoint = queries[i].ChildIndex;
+            for (int i = partition.Item1; i < partition.Item2; i++)
+                scaledFArray[i] = queries[i].ChildHashPoly * powersOfR[i];
+        });
 
-            LagrangeBasis scaledF = f * powersOfR[i];
+        int processorCount = Environment.ProcessorCount * 3;
+        int rangeSize = (queries.Count + processorCount - 1) / processorCount;
+        int numPartitions = (queries.Count + rangeSize - 1) / rangeSize;
+        LagrangeBasis?[][] maps = new LagrangeBasis[numPartitions][];
+        LagrangeBasis?[] aggregatedPolyMap = new LagrangeBasis[256];
 
-            if (!aggregatedPolyMap.TryGetValue(evaluationPoint, out LagrangeBasis? poly))
+        Parallel.ForEach(Partitioner.Create(0, queries.Count, rangeSize), tuple =>
+        {
+            LagrangeBasis?[] polyMap = new LagrangeBasis[256];
+            for (int i = tuple.Item1; i < tuple.Item2; i++)
             {
-                aggregatedPolyMap[evaluationPoint] = scaledF;
-                continue;
+                byte evaluationPoint = queries[i].ChildIndex;
+                // evaluationPoints.Add(evaluationPoint);
+                LagrangeBasis scaledF = scaledFArray[i];
+
+                LagrangeBasis? poly = polyMap[evaluationPoint];
+                if (poly is null)
+                {
+                    polyMap[evaluationPoint] = scaledF;
+                    continue;
+                }
+
+                polyMap[evaluationPoint] = poly + scaledF;
             }
 
-            aggregatedPolyMap[evaluationPoint] = poly + scaledF;
-        }
+            maps[tuple.Item1 / rangeSize] = polyMap;
+        });
 
-
-        FrE[] g = new FrE[domainSize];
-        Span<FrE> quotient = new FrE[domainSize];
-        foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
+        Parallel.ForEach(evaluationPoints, i =>
         {
-            Quotient.ComputeQuotientInsideDomain(PreComp, pointAndPoly.Value, pointAndPoly.Key, quotient);
+            for (int j = 0; j < numPartitions; j++)
+            {
+                if (maps[j][i] is null) continue;
+                if (aggregatedPolyMap[i] is null) aggregatedPolyMap[i] = maps[j][i];
+                else aggregatedPolyMap[i] += maps[j][i];
+            }
+        });
+
+        Span<FrE> g = stackalloc FrE[256];
+        Span<FrE> quotient = stackalloc FrE[256];
+        foreach (byte i in evaluationPoints)
+        {
+            Quotient.ComputeQuotientInsideDomain(preComp, aggregatedPolyMap[i]!, i, quotient);
             for (int j = 0; j < g.Length; j++)
             {
                 g[j] += quotient[j];
@@ -76,34 +109,35 @@ public class MultiProof
             }
         }
 
-        Banderwagon d = Crs.Commit(g);
+        Banderwagon d = cRs.Commit(g);
         transcript.AppendPoint(d, "D");
 
         FrE t = transcript.ChallengeScalar("t");
         // We only will calculate inverses for domain points that are actually queried.
-        FrE[] denomInvs = new FrE[domainSize];
-        foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
-            denomInvs[pointAndPoly.Key] = t - PreComp.Domain[pointAndPoly.Key];
-        denomInvs = FrE.MultiInverse(denomInvs);
+        Span<FrE> denominatorsInverse = stackalloc FrE[256];
+        foreach (byte i in evaluationPoints) denominatorsInverse[i] = t - preComp.Domain[i];
 
-        FrE[] h = new FrE[domainSize];
-        foreach (KeyValuePair<byte, LagrangeBasis> pointAndPoly in aggregatedPolyMap)
+        denominatorsInverse = FrE.MultiInverse(denominatorsInverse);
+
+        Span<FrE> h = stackalloc FrE[256];
+        foreach (byte i in evaluationPoints)
         {
-            LagrangeBasis f = pointAndPoly.Value;
-            for (int j = 0; j < f.Evaluations.Length; j++) h[j] += f.Evaluations[j] * denomInvs[pointAndPoly.Key];
+            LagrangeBasis poly = aggregatedPolyMap[i]!;
+            for (int j = 0; j < 256; j++) h[j] += poly.Evaluations[j] * denominatorsInverse[i];
         }
 
-        Banderwagon e = Crs.Commit(h);
+        Banderwagon e = cRs.Commit(h);
         transcript.AppendPoint(e, "E");
 
-        FrE[] hMinusG = new FrE[domainSize];
-        for (int i = 0; i < domainSize; i++) hMinusG[i] = h[i] - g[i];
+        Span<FrE> hMinusG = stackalloc FrE[256];
+        for (int i = 0; i < 256; i++) hMinusG[i] = h[i] - g[i];
 
         Banderwagon ipaCommitment = e - d;
 
-        FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
+        Span<FrE> inputPointVector = stackalloc FrE[256];
+        preComp.BarycentricFormulaConstants(t, inputPointVector);
         IpaProverQuery pQuery = new(hMinusG, ipaCommitment, t, inputPointVector);
-        IpaProofStruct ipaProof = Ipa.MakeIpaProof(Crs, transcript, pQuery, out _);
+        IpaProofStruct ipaProof = Ipa.MakeIpaProof(cRs, transcript, pQuery, out _);
 
         return new VerkleProofStruct(ipaProof, d);
     }
@@ -160,10 +194,10 @@ public class MultiProof
 
         transcript.AppendPoint(g1Comm, "E");
 
-        FrE[] inputPointVector = PreComp.BarycentricFormulaConstants(t);
+        FrE[] inputPointVector = preComp.BarycentricFormulaConstants(t);
         Banderwagon ipaCommitment = g1Comm - d;
         IpaVerifierQuery queryX = new(ipaCommitment, t, inputPointVector, g2T, ipaProof);
 
-        return Ipa.CheckIpaProof(Crs, transcript, queryX);
+        return Ipa.CheckIpaProof(cRs, transcript, queryX);
     }
 }

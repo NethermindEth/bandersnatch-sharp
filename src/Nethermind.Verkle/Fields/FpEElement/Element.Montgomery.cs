@@ -147,7 +147,7 @@ public readonly partial struct FpE
         if (LessThan(qElement, res)) SubtractUnderflow(res, qElement, out res);
     }
 
-    public static FE[] MultiInverse(FE[] values)
+    public static FE[] MultiInverse(in ReadOnlySpan<FE> values)
     {
         if (values.Length == 0) return Array.Empty<FE>();
 

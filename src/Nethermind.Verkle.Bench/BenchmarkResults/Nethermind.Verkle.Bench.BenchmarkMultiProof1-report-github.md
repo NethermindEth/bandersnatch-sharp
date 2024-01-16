@@ -1,18 +1,18 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
-Job=.NET 7.0  Runtime=.NET 7.0
+Job=.NET 8.0  Runtime=.NET 8.0
 
 ```
 
-| Method                    | EnvironmentVariables       |       Mean |     Error |    StdDev |  Allocated |
-|---------------------------|----------------------------|-----------:|----------:|----------:|-----------:|
-| BenchmarkBasicMultiProof1 | Empty                      | 184.576 ms | 1.3973 ms | 1.3071 ms |  3393.7 KB |
-| BenchmarkVerification1    | Empty                      |   9.627 ms | 0.1909 ms | 0.5509 ms |  792.45 KB |
-| BenchmarkBasicMultiProof1 | DOTNET_EnableHWIntrinsic=0 | 233.458 ms | 1.9130 ms | 1.7894 ms | 3396.52 KB |
-| BenchmarkVerification1    | DOTNET_EnableHWIntrinsic=0 |  12.260 ms | 0.2875 ms | 0.8477 ms |  792.69 KB |
+| Method                    | EnvironmentVariables       |       Mean |     Error |    StdDev |   Gen0 |  Allocated |
+|---------------------------|----------------------------|-----------:|----------:|----------:|-------:|-----------:|
+| BenchmarkBasicMultiProof1 | Empty                      | 102.014 ms | 0.3419 ms | 0.3198 ms |      - | 3354.38 KB |
+| BenchmarkVerification1    | Empty                      |   5.602 ms | 0.0116 ms | 0.0097 ms | 7.8125 |  793.11 KB |
+| BenchmarkBasicMultiProof1 | DOTNET_EnableHWIntrinsic=0 | 114.958 ms | 0.2365 ms | 0.2212 ms |      - |    3356 KB |
+| BenchmarkVerification1    | DOTNET_EnableHWIntrinsic=0 |   5.792 ms | 0.0313 ms | 0.0292 ms | 7.8125 |  793.12 KB |

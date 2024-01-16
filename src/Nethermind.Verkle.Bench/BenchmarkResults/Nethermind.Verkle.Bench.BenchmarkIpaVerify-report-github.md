@@ -1,16 +1,16 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
-Job=.NET 7.0  Runtime=.NET 7.0
+Job=.NET 8.0  Runtime=.NET 8.0
 
 ```
 
-| Method             | EnvironmentVariables       |     Mean |   Error |  StdDev | Allocated |
-|--------------------|----------------------------|---------:|--------:|--------:|----------:|
-| TestBasicIpaVerify | Empty                      | 144.8 ms | 1.19 ms | 1.11 ms | 210.26 KB |
-| TestBasicIpaVerify | DOTNET_EnableHWIntrinsic=0 | 185.0 ms | 0.84 ms | 0.79 ms | 210.46 KB |
+| Method             | EnvironmentVariables       |     Mean |     Error |    StdDev |   Gen0 | Allocated |
+|--------------------|----------------------------|---------:|----------:|----------:|-------:|----------:|
+| TestBasicIpaVerify | Empty                      | 4.913 ms | 0.0160 ms | 0.0149 ms | 7.8125 | 690.91 KB |
+| TestBasicIpaVerify | DOTNET_EnableHWIntrinsic=0 | 5.302 ms | 0.0212 ms | 0.0188 ms | 7.8125 | 690.88 KB |

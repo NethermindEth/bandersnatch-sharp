@@ -1,18 +1,18 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
-Job=.NET 7.0  Runtime=.NET 7.0
+Job=.NET 8.0  Runtime=.NET 8.0
 
 ```
 
-| Method                       | EnvironmentVariables       |      Mean |    Error |    StdDev |      Gen0 |     Gen1 |     Gen2 | Allocated |
-|------------------------------|----------------------------|----------:|---------:|----------:|----------:|---------:|---------:|----------:|
-| BenchmarkBasicMultiProof4000 | Empty                      | 410.33 ms | 7.929 ms |  7.417 ms |         - |        - |        - |  79.75 MB |
-| BenchmarkVerification4000    | Empty                      |  65.68 ms | 1.310 ms |  1.703 ms |  125.0000 | 125.0000 | 125.0000 |   7.02 MB |
-| BenchmarkBasicMultiProof4000 | DOTNET_EnableHWIntrinsic=0 | 526.31 ms | 9.815 ms | 10.080 ms | 1000.0000 |        - |        - |  80.63 MB |
-| BenchmarkVerification4000    | DOTNET_EnableHWIntrinsic=0 |  78.26 ms | 1.186 ms |  1.052 ms |  142.8571 | 142.8571 | 142.8571 |   7.02 MB |
+| Method                       | EnvironmentVariables       |      Mean |    Error |   StdDev |      Gen0 |     Gen1 |     Gen2 | Allocated |
+|------------------------------|----------------------------|----------:|---------:|---------:|----------:|---------:|---------:|----------:|
+| BenchmarkBasicMultiProof4000 | Empty                      | 168.95 ms | 1.217 ms | 1.138 ms | 1333.3333 | 666.6667 |        - |   77.9 MB |
+| BenchmarkVerification4000    | Empty                      |  42.08 ms | 0.663 ms | 0.620 ms |  166.6667 | 166.6667 | 166.6667 |   6.41 MB |
+| BenchmarkBasicMultiProof4000 | DOTNET_EnableHWIntrinsic=0 | 197.95 ms | 1.176 ms | 1.100 ms | 1333.3333 | 666.6667 |        - |  77.85 MB |
+| BenchmarkVerification4000    | DOTNET_EnableHWIntrinsic=0 |  43.18 ms | 0.535 ms | 0.500 ms |  166.6667 | 166.6667 | 166.6667 |    6.4 MB |

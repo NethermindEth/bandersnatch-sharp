@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'/>
-    <title>Nethermind.Verkle.Bench.BenchmarkMultiProof1-20230614-142943</title>
+    <title>Nethermind.Verkle.Bench.BenchmarkMultiProof1-20240117-180601</title>
 
     <style type="text/css">
         table {
@@ -30,23 +30,24 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
+<pre><code>Job=.NET 8.0  Runtime=.NET 8.0
 </code></pre>
 
 <table>
     <thead>
     <tr>
-        <th> Method</th>
+        <th>Method</th>
         <th>EnvironmentVariables</th>
         <th>Mean</th>
         <th>Error</th>
         <th>StdDev</th>
+        <th>Gen0</th>
         <th>Allocated</th>
     </tr>
     </thead>
@@ -54,34 +55,38 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
     <tr>
         <td>BenchmarkBasicMultiProof1</td>
         <td>Empty</td>
-        <td>184.576 ms</td>
-        <td>1.3973 ms</td>
-        <td>1.3071 ms</td>
-        <td>3393.7 KB</td>
+        <td>102.014 ms</td>
+        <td>0.3419 ms</td>
+        <td>0.3198 ms</td>
+        <td>-</td>
+        <td>3354.38 KB</td>
     </tr>
     <tr>
         <td>BenchmarkVerification1</td>
         <td>Empty</td>
-        <td>9.627 ms</td>
-        <td>0.1909 ms</td>
-        <td>0.5509 ms</td>
-        <td>792.45 KB</td>
+        <td>5.602 ms</td>
+        <td>0.0116 ms</td>
+        <td>0.0097 ms</td>
+        <td>7.8125</td>
+        <td>793.11 KB</td>
     </tr>
     <tr>
         <td>BenchmarkBasicMultiProof1</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>233.458 ms</td>
-        <td>1.9130 ms</td>
-        <td>1.7894 ms</td>
-        <td>3396.52 KB</td>
+        <td>114.958 ms</td>
+        <td>0.2365 ms</td>
+        <td>0.2212 ms</td>
+        <td>-</td>
+        <td>3356 KB</td>
     </tr>
     <tr>
         <td>BenchmarkVerification1</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>12.260 ms</td>
-        <td>0.2875 ms</td>
-        <td>0.8477 ms</td>
-        <td>792.69 KB</td>
+        <td>5.792 ms</td>
+        <td>0.0313 ms</td>
+        <td>0.0292 ms</td>
+        <td>7.8125</td>
+        <td>793.12 KB</td>
     </tr>
     </tbody>
 </table>

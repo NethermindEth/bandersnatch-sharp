@@ -16,12 +16,12 @@ public readonly partial struct FrE
         return res;
     }
 
-    public void LeftShift(int n, out FE res)
+    private void LeftShift(int n, out FE res)
     {
         Lsh(this, n, out res);
     }
 
-    public void RightShift(int n, out FE res)
+    private void RightShift(int n, out FE res)
     {
         Rsh(this, n, out res);
     }
@@ -38,12 +38,13 @@ public readonly partial struct FrE
 
     public static void AddMod(in FE a, in FE b, out FE res)
     {
-        bool overflow = AddOverflow(a, b, out res);
-        if (overflow)
-        {
-            SubtractUnderflow(res, qElement, out res);
-            return;
-        }
+        AddOverflow(a, b, out res);
+        // dont need this here because of small modulus - it never causes overflow
+        // if (overflow)
+        // {
+        //     SubtractUnderflow(res, qElement, out res);
+        //     return;
+        // }
 
         if (!LessThanSubModulus(res))
         {
@@ -59,7 +60,7 @@ public readonly partial struct FrE
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SubtractMod(in FE a, in FE b, out FE res)
+    private static void SubtractMod(in FE a, in FE b, out FE res)
     {
         if (SubtractUnderflow(a, b, out res))
             AddOverflow(qElement, res, out res);

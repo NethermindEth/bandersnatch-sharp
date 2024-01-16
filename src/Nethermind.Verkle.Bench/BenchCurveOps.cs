@@ -14,7 +14,6 @@ namespace Nethermind.Verkle.Bench;
 public class BenchCurveOps
 {
     private readonly FrE[] _a;
-    private readonly CRS _crs;
 
     public BenchCurveOps()
     {
@@ -27,13 +26,13 @@ public class BenchCurveOps
             _a[i] = rand.Current;
             rand.MoveNext();
         }
-
-        _crs = CRS.Instance;
     }
+
+    private static CRS Crs => CRS.Instance;
 
     [Benchmark]
     public void BenchmarkMultiScalarMul()
     {
-        Banderwagon.MultiScalarMul(_crs.BasisG, _a);
+        Banderwagon.MultiScalarMul(Crs.BasisG, _a);
     }
 }

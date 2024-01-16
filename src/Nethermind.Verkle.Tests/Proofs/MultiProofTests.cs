@@ -189,6 +189,21 @@ public class MultiProofTests
     };
 
     [Test]
+    public void TestBasicMSM()
+    {
+        List<FrE> polyEvalA = new();
+
+        for (int i = 0; i < 256; i++) polyEvalA.Add(FrE.SetElement(i));
+
+        CRS crs = CRS.Instance;
+        for (int i = 0; i < 1000; i++)
+        {
+            Banderwagon cA = crs.Commit(polyEvalA.ToArray());
+            Console.WriteLine(cA.ToBytes());
+        }
+    }
+
+    [Test]
     public void TestBasicMultiProof()
     {
         List<FrE> polyEvalA = new();
@@ -266,7 +281,7 @@ public class MultiProofTests
     public void TestRandomProofGenerationAndVerification()
     {
         MultiProof prover = new(CRS.Instance, PreComputedWeights.Instance);
-        VerkleProverQuery[] proverQueries = GenerateRandomQueries(2).ToArray();
+        VerkleProverQuery[] proverQueries = GenerateRandomQueries(400).ToArray();
         Transcript proverTranscript = new("test");
         VerkleProofStruct proof = prover.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(proverQueries));
 

@@ -7,49 +7,46 @@ public class LagrangeBasis
     private readonly int _domain;
     public readonly FrE[] Evaluations;
 
-    private LagrangeBasis() : this(Array.Empty<FrE>())
-    {
-    }
-
     public LagrangeBasis(FrE[] evaluations)
     {
         Evaluations = evaluations;
         _domain = evaluations.Length;
     }
 
-    private static LagrangeBasis ArithmeticOp(LagrangeBasis lhs, LagrangeBasis rhs, ArithmeticOps op)
+    private static LagrangeBasis Add(LagrangeBasis lhs, LagrangeBasis rhs)
     {
-        if (lhs._domain != rhs._domain) throw new ArgumentException("Domain should be same");
-
         FrE[] result = new FrE[lhs.Evaluations.Length];
 
         Parallel.For(0, lhs.Evaluations.Length, i =>
         {
-            result[i] = op switch
-            {
-                ArithmeticOps.Add => lhs.Evaluations[i] + rhs.Evaluations[i],
-                ArithmeticOps.Sub => lhs.Evaluations[i] - rhs.Evaluations[i],
-                ArithmeticOps.Mul => lhs.Evaluations[i] * rhs.Evaluations[i],
-                _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
-            };
+            result[i] = lhs.Evaluations[i] + rhs.Evaluations[i];
         });
 
         return new LagrangeBasis(result);
     }
 
-    private static LagrangeBasis Add(LagrangeBasis lhs, LagrangeBasis rhs)
-    {
-        return ArithmeticOp(lhs, rhs, ArithmeticOps.Add);
-    }
-
     private static LagrangeBasis Sub(LagrangeBasis lhs, LagrangeBasis rhs)
     {
-        return ArithmeticOp(lhs, rhs, ArithmeticOps.Sub);
+        FrE[] result = new FrE[lhs.Evaluations.Length];
+
+        Parallel.For(0, lhs.Evaluations.Length, i =>
+        {
+            result[i] = lhs.Evaluations[i] - rhs.Evaluations[i];
+        });
+
+        return new LagrangeBasis(result);
     }
 
     private static LagrangeBasis Mul(LagrangeBasis lhs, LagrangeBasis rhs)
     {
-        return ArithmeticOp(lhs, rhs, ArithmeticOps.Mul);
+        FrE[] result = new FrE[lhs.Evaluations.Length];
+
+        Parallel.For(0, lhs.Evaluations.Length, i =>
+        {
+            result[i] = lhs.Evaluations[i] * rhs.Evaluations[i];
+        });
+
+        return new LagrangeBasis(result);
     }
 
     private static LagrangeBasis Scale(LagrangeBasis poly, FrE constant)

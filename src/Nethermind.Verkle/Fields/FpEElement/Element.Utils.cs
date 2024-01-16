@@ -55,7 +55,7 @@ public readonly partial struct FpE
     private static void AddWithCarry(ulong x, ulong y, ref ulong carry, out ulong sum)
     {
         sum = x + y + carry;
-        carry = sum < x || sum < y ? 1UL : 0UL;
+        carry = ((x & y) | ((x | y) & ~sum)) >> 63;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -135,8 +135,10 @@ public readonly partial struct FpE
         byte[] returnEncoding = new byte[32];
         Span<byte> target = returnEncoding;
         if (Avx.IsSupported)
+        {
             Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(target)) =
                 Unsafe.As<ulong, Vector256<ulong>>(ref Unsafe.AsRef(in u0));
+        }
         else
         {
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(0, 8), u0);

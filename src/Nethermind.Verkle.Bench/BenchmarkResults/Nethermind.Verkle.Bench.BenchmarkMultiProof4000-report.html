@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'/>
-    <title>Nethermind.Verkle.Bench.BenchmarkMultiProof4000-20230614-144608</title>
+    <title>Nethermind.Verkle.Bench.BenchmarkMultiProof4000-20240117-181326</title>
 
     <style type="text/css">
         table {
@@ -30,19 +30,19 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
+<pre><code>Job=.NET 8.0  Runtime=.NET 8.0
 </code></pre>
 
 <table>
     <thead>
     <tr>
-        <th> Method</th>
+        <th>Method</th>
         <th>EnvironmentVariables</th>
         <th>Mean</th>
         <th>Error</th>
@@ -57,46 +57,46 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
     <tr>
         <td>BenchmarkBasicMultiProof4000</td>
         <td>Empty</td>
-        <td>410.33 ms</td>
-        <td>7.929 ms</td>
-        <td>7.417 ms</td>
+        <td>168.95 ms</td>
+        <td>1.217 ms</td>
+        <td>1.138 ms</td>
+        <td>1333.3333</td>
+        <td>666.6667</td>
         <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>79.75 MB</td>
+        <td>77.9 MB</td>
     </tr>
     <tr>
         <td>BenchmarkVerification4000</td>
         <td>Empty</td>
-        <td>65.68 ms</td>
-        <td>1.310 ms</td>
-        <td>1.703 ms</td>
-        <td>125.0000</td>
-        <td>125.0000</td>
-        <td>125.0000</td>
-        <td>7.02 MB</td>
+        <td>42.08 ms</td>
+        <td>0.663 ms</td>
+        <td>0.620 ms</td>
+        <td>166.6667</td>
+        <td>166.6667</td>
+        <td>166.6667</td>
+        <td>6.41 MB</td>
     </tr>
     <tr>
         <td>BenchmarkBasicMultiProof4000</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>526.31 ms</td>
-        <td>9.815 ms</td>
-        <td>10.080 ms</td>
-        <td>1000.0000</td>
+        <td>197.95 ms</td>
+        <td>1.176 ms</td>
+        <td>1.100 ms</td>
+        <td>1333.3333</td>
+        <td>666.6667</td>
         <td>-</td>
-        <td>-</td>
-        <td>80.63 MB</td>
+        <td>77.85 MB</td>
     </tr>
     <tr>
         <td>BenchmarkVerification4000</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>78.26 ms</td>
-        <td>1.186 ms</td>
-        <td>1.052 ms</td>
-        <td>142.8571</td>
-        <td>142.8571</td>
-        <td>142.8571</td>
-        <td>7.02 MB</td>
+        <td>43.18 ms</td>
+        <td>0.535 ms</td>
+        <td>0.500 ms</td>
+        <td>166.6667</td>
+        <td>166.6667</td>
+        <td>166.6667</td>
+        <td>6.4 MB</td>
     </tr>
     </tbody>
 </table>

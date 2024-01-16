@@ -2,16 +2,16 @@ using System.Numerics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Nethermind.Int256;
-using Nethermind.Verkle.Fields.FpEElement;
+using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Bench;
 
-public class FpEBenchmarkBase
+public class FrEBenchmarkBase
 {
-    protected static UInt256 _uMod = FpE._modulus.Value;
+    protected static UInt256 _uMod = FrE._modulus.Value;
     private static IEnumerable<BigInteger> Values => new[] { Numbers.UInt256Max }.Concat(UnaryOps.RandomUnsigned(1));
 
-    public static IEnumerable<(FpE, UInt256)> ValuesTuple => Values.Select(x => ((FpE)x, (UInt256)x));
+    public static IEnumerable<(FrE, UInt256)> ValuesTuple => Values.Select(x => (FrE.qElement, FrE._modulus.Value));
 
     protected static UInt256? ModSqrt(UInt256 a, UInt256 p)
     {
@@ -88,20 +88,20 @@ public class FpEBenchmarkBase
     }
 }
 
-public class TwoParamFpEBenchmarkBase : FpEBenchmarkBase
+public class TwoParamFrEBenchmarkBase : FrEBenchmarkBase
 {
-    [ParamsSource(nameof(ValuesTuple))] public (FpE, UInt256) A;
+    [ParamsSource(nameof(ValuesTuple))] public (FrE, UInt256) A;
 
-    [ParamsSource(nameof(ValuesTuple))] public (FpE, UInt256) B;
+    [ParamsSource(nameof(ValuesTuple))] public (FrE, UInt256) B;
 }
 
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class Add : TwoParamFpEBenchmarkBase
+public class Add : TwoParamFrEBenchmarkBase
 {
     [Benchmark(Baseline = true)]
-    public FpE Add_FpE()
+    public FrE Add_FrE()
     {
         return A.Item1 + B.Item1;
     }
@@ -117,10 +117,10 @@ public class Add : TwoParamFpEBenchmarkBase
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class Subtract : TwoParamFpEBenchmarkBase
+public class Subtract : TwoParamFrEBenchmarkBase
 {
     [Benchmark(Baseline = true)]
-    public FpE Subtract_FpE()
+    public FrE Subtract_FrE()
     {
         return A.Item1 - B.Item1;
     }
@@ -136,10 +136,10 @@ public class Subtract : TwoParamFpEBenchmarkBase
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class Multiply : TwoParamFpEBenchmarkBase
+public class Multiply : TwoParamFrEBenchmarkBase
 {
     [Benchmark(Baseline = true)]
-    public FpE Multiply_FpE()
+    public FrE Multiply_FrE()
     {
         return A.Item1 * B.Item1;
     }
@@ -155,12 +155,12 @@ public class Multiply : TwoParamFpEBenchmarkBase
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class ExpMod : TwoParamFpEBenchmarkBase
+public class ExpMod : TwoParamFrEBenchmarkBase
 {
     [Benchmark(Baseline = true)]
-    public FpE ExpMod_FpE()
+    public FrE ExpMod_FrE()
     {
-        FpE.Exp(A.Item1, B.Item2, out FpE res);
+        FrE.Exp(A.Item1, B.Item2, out FrE res);
         return res;
     }
 
@@ -175,12 +175,12 @@ public class ExpMod : TwoParamFpEBenchmarkBase
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class Inverse : TwoParamFpEBenchmarkBase
+public class Inverse : TwoParamFrEBenchmarkBase
 {
     [Benchmark(Baseline = true)]
-    public FpE Inverse_FpE()
+    public FrE Inverse_FrE()
     {
-        FpE.Exp(A.Item1, B.Item2, out FpE res);
+        FrE.Exp(A.Item1, B.Item2, out FrE res);
         return res;
     }
 
@@ -195,12 +195,12 @@ public class Inverse : TwoParamFpEBenchmarkBase
 [SimpleJob(RuntimeMoniker.Net80)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class Sqrt : TwoParamFpEBenchmarkBase
+public class Sqrt : TwoParamFrEBenchmarkBase
 {
     [Benchmark]
-    public FpE? Sqrt_FpE()
+    public FrE? Sqrt_FrE()
     {
-        return FpE.Sqrt(A.Item1, out FpE res) ? res : null!;
+        return FrE.Sqrt(A.Item1, out FrE res) ? res : null!;
     }
 
     [Benchmark]

@@ -6,11 +6,11 @@ public class PreComputedWeights
 {
     private const int VerkleNodeWidth = 256;
     public static readonly PreComputedWeights Instance = new();
+    private readonly MonomialBasis A;
     public readonly FrE[] APrimeDomain;
     public readonly FrE[] APrimeDomainInv;
     public readonly FrE[] Domain;
     public readonly FrE[] DomainInv;
-    private readonly MonomialBasis A;
 
     private PreComputedWeights()
     {
@@ -57,5 +57,15 @@ public class PreComputedWeights
         for (int i = 0; i < VerkleNodeWidth; i++) elems[i] = az * APrimeDomainInv[i] * elems[i];
 
         return elems;
+    }
+
+    public void BarycentricFormulaConstants(in FrE z, in Span<FrE> elems)
+    {
+        FrE az = A.Evaluate(z);
+
+        for (int i = 0; i < VerkleNodeWidth; i++) elems[i] = z - Domain[i];
+
+        FrE.MultiInverse(elems).CopyTo(elems);
+        for (int i = 0; i < VerkleNodeWidth; i++) elems[i] = az * APrimeDomainInv[i] * elems[i];
     }
 }

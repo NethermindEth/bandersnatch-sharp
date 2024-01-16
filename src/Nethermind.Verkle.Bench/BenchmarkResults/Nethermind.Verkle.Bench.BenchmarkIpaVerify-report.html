@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
     <meta charset='utf-8'/>
-    <title>Nethermind.Verkle.Bench.BenchmarkIpaVerify-20230527-154304</title>
+    <title>Nethermind.Verkle.Bench.BenchmarkIpaVerify-20240117-180527</title>
 
     <style type="text/css">
         table {
@@ -30,23 +30,24 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 </code></pre>
-<pre><code>Job=.NET 7.0  Runtime=.NET 7.0
+<pre><code>Job=.NET 8.0  Runtime=.NET 8.0
 </code></pre>
 
 <table>
     <thead>
     <tr>
-        <th> Method</th>
+        <th>Method</th>
         <th>EnvironmentVariables</th>
         <th>Mean</th>
         <th>Error</th>
         <th>StdDev</th>
+        <th>Gen0</th>
         <th>Allocated</th>
     </tr>
     </thead>
@@ -54,18 +55,20 @@ AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
     <tr>
         <td>TestBasicIpaVerify</td>
         <td>Empty</td>
-        <td>144.8 ms</td>
-        <td>1.19 ms</td>
-        <td>1.11 ms</td>
-        <td>210.26 KB</td>
+        <td>4.913 ms</td>
+        <td>0.0160 ms</td>
+        <td>0.0149 ms</td>
+        <td>7.8125</td>
+        <td>690.91 KB</td>
     </tr>
     <tr>
         <td>TestBasicIpaVerify</td>
         <td>DOTNET_EnableHWIntrinsic=0</td>
-        <td>185.0 ms</td>
-        <td>0.84 ms</td>
-        <td>0.79 ms</td>
-        <td>210.46 KB</td>
+        <td>5.302 ms</td>
+        <td>0.0212 ms</td>
+        <td>0.0188 ms</td>
+        <td>7.8125</td>
+        <td>690.88 KB</td>
     </tr>
     </tbody>
 </table>

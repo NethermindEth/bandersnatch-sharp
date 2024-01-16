@@ -7,40 +7,30 @@ using Nethermind.Verkle.Polynomial;
 
 namespace Nethermind.Verkle.Proofs;
 
-public class IpaProverQuery
+public readonly ref struct IpaProverQuery(
+    Span<FrE> polynomial,
+    Banderwagon commitment,
+    FrE point,
+    Span<FrE> pointEvaluations)
 {
-    public readonly Banderwagon Commitment;
-    public readonly FrE Point;
-    public readonly FrE[] PointEvaluations;
-    public readonly FrE[] Polynomial;
-
-    public IpaProverQuery(FrE[] polynomial, Banderwagon commitment, FrE point,
-        FrE[] pointEvaluations)
-    {
-        Polynomial = polynomial;
-        Commitment = commitment;
-        Point = point;
-        PointEvaluations = pointEvaluations;
-    }
+    public readonly Banderwagon Commitment = commitment;
+    public readonly FrE Point = point;
+    public readonly Span<FrE> PointEvaluations = pointEvaluations;
+    public readonly Span<FrE> Polynomial = polynomial;
 }
 
-public class IpaVerifierQuery
+public class IpaVerifierQuery(
+    Banderwagon commitment,
+    FrE point,
+    FrE[] pointEvaluations,
+    FrE outputPoint,
+    IpaProofStruct ipaProof)
 {
-    public readonly Banderwagon Commitment;
-    public readonly IpaProofStruct IpaProof;
-    public readonly FrE OutputPoint;
-    public readonly FrE Point;
-    public readonly FrE[] PointEvaluations;
-
-    public IpaVerifierQuery(Banderwagon commitment, FrE point, FrE[] pointEvaluations, FrE outputPoint,
-        IpaProofStruct ipaProof)
-    {
-        Commitment = commitment;
-        Point = point;
-        PointEvaluations = pointEvaluations;
-        OutputPoint = outputPoint;
-        IpaProof = ipaProof;
-    }
+    public readonly Banderwagon Commitment = commitment;
+    public readonly IpaProofStruct IpaProof = ipaProof;
+    public readonly FrE OutputPoint = outputPoint;
+    public readonly FrE Point = point;
+    public readonly FrE[] PointEvaluations = pointEvaluations;
 }
 
 public struct VerkleProverQuery

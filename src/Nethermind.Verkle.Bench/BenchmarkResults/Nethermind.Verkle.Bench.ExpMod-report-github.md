@@ -1,33 +1,30 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.2, OS=pop 22.04
+BenchmarkDotNet v0.13.10, Pop!_OS 22.04 LTS
 AMD Ryzen 9 7900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK=7.0.302
-  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
-  .NET 7.0 : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+.NET SDK 8.0.100
+  [Host]   : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
-Job=.NET 7.0  Runtime=.NET 7.0
+Job=.NET 8.0  Runtime=.NET 8.0
 
 ```
 
-| Method         | EnvironmentVariables       | A                       | B                       |         Mean |        Error |       StdDev |       Median |    Ratio |  RatioSD | Allocated | Alloc Ratio |
-|----------------|----------------------------|-------------------------|-------------------------|-------------:|-------------:|-------------:|-------------:|---------:|---------:|----------:|------------:|
-| **ExpMod_FpE** | **Empty**                  | **(Net(...)935) [121]** | **(Net(...)935) [121]** | **38.56 μs** | **0.170 μs** | **0.142 μs** | **38.58 μs** | **1.00** | **0.00** |     **-** |      **NA** |
-| ExpMod_UInt256 | Empty                      | (Net(...)935) [121]     | (Net(...)935) [121]     |     61.07 μs |     0.314 μs |     0.293 μs |     61.06 μs |     1.59 |     0.01 |         - |          NA |
-| ExpMod_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)935) [121]     |     60.44 μs |     0.351 μs |     0.328 μs |     60.28 μs |     1.57 |     0.01 |         - |          NA |
-| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)935) [121]     |     99.39 μs |     0.537 μs |     0.419 μs |     99.27 μs |     2.58 |     0.01 |         - |          NA |
-|                |                            |                         |                         |              |              |              |              |          |          |           |             |
-| **ExpMod_FpE** | **Empty**                  | **(Net(...)935) [121]** | **(Net(...)658) [119]** | **28.49 μs** | **0.100 μs** | **0.094 μs** | **28.47 μs** | **1.00** | **0.00** |     **-** |      **NA** |
-| ExpMod_UInt256 | Empty                      | (Net(...)935) [121]     | (Net(...)658) [119]     |     45.95 μs |     0.095 μs |     0.084 μs |     45.96 μs |     1.61 |     0.01 |         - |          NA |
-| ExpMod_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)658) [119]     |     43.91 μs |     0.181 μs |     0.161 μs |     43.90 μs |     1.54 |     0.01 |         - |          NA |
-| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)935) [121]     | (Net(...)658) [119]     |     75.01 μs |     0.119 μs |     0.111 μs |     75.00 μs |     2.63 |     0.01 |         - |          NA |
-|                |                            |                         |                         |              |              |              |              |          |          |           |             |
-| **ExpMod_FpE** | **Empty**                  | **(Net(...)658) [119]** | **(Net(...)935) [121]** | **38.73 μs** | **0.215 μs** | **0.201 μs** | **38.63 μs** | **1.00** | **0.00** |     **-** |      **NA** |
-| ExpMod_UInt256 | Empty                      | (Net(...)658) [119]     | (Net(...)935) [121]     |     61.70 μs |     1.232 μs |     1.806 μs |     63.29 μs |     1.59 |     0.05 |         - |          NA |
-| ExpMod_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)935) [121]     |     62.43 μs |     0.158 μs |     0.148 μs |     62.40 μs |     1.61 |     0.01 |         - |          NA |
-| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)935) [121]     |    100.86 μs |     1.965 μs |     2.184 μs |     99.86 μs |     2.62 |     0.06 |         - |          NA |
-|                |                            |                         |                         |              |              |              |              |          |          |           |             |
-| **ExpMod_FpE** | **Empty**                  | **(Net(...)658) [119]** | **(Net(...)658) [119]** | **28.92 μs** | **0.067 μs** | **0.063 μs** | **28.91 μs** | **1.00** | **0.00** |     **-** |      **NA** |
-| ExpMod_UInt256 | Empty                      | (Net(...)658) [119]     | (Net(...)658) [119]     |     46.27 μs |     0.249 μs |     0.195 μs |     46.31 μs |     1.60 |     0.01 |         - |          NA |
-| ExpMod_FpE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)658) [119]     |     45.07 μs |     0.256 μs |     0.239 μs |     45.06 μs |     1.56 |     0.01 |         - |          NA |
-| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)658) [119]     | (Net(...)658) [119]     |     73.75 μs |     1.141 μs |     1.067 μs |     72.87 μs |     2.55 |     0.04 |         - |          NA |
+| Method         | EnvironmentVariables       | A                   | B                   |     Mean |    Error |   StdDev | Ratio | Allocated | Alloc Ratio |
+|----------------|----------------------------|---------------------|---------------------|---------:|---------:|---------:|------:|----------:|------------:|
+| ExpMod_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 29.68 μs | 0.214 μs | 0.200 μs |  1.00 |         - |          NA |
+| ExpMod_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 30.13 μs | 0.090 μs | 0.084 μs |  1.01 |         - |          NA |
+| ExpMod_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 29.80 μs | 0.132 μs | 0.123 μs |  1.00 |         - |          NA |
+| ExpMod_FrE     | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 30.58 μs | 0.101 μs | 0.095 μs |  1.03 |         - |          NA |
+| ExpMod_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 10.07 μs | 0.014 μs | 0.013 μs |  0.34 |         - |          NA |
+| ExpMod_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 10.44 μs | 0.011 μs | 0.011 μs |  0.35 |         - |          NA |
+| ExpMod_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 10.60 μs | 0.034 μs | 0.031 μs |  0.36 |         - |          NA |
+| ExpMod_UInt256 | Empty                      | (Net(...)801) [120] | (Net(...)801) [120] | 10.44 μs | 0.022 μs | 0.018 μs |  0.35 |         - |          NA |
+| ExpMod_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 30.70 μs | 0.150 μs | 0.140 μs |  1.03 |         - |          NA |
+| ExpMod_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 30.97 μs | 0.089 μs | 0.083 μs |  1.04 |         - |          NA |
+| ExpMod_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 30.15 μs | 0.129 μs | 0.121 μs |  1.02 |         - |          NA |
+| ExpMod_FrE     | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 30.18 μs | 0.072 μs | 0.067 μs |  1.02 |         - |          NA |
+| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 23.32 μs | 0.019 μs | 0.018 μs |  0.79 |         - |          NA |
+| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 23.80 μs | 0.042 μs | 0.037 μs |  0.80 |         - |          NA |
+| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 23.81 μs | 0.064 μs | 0.060 μs |  0.80 |         - |          NA |
+| ExpMod_UInt256 | DOTNET_EnableHWIntrinsic=0 | (Net(...)801) [120] | (Net(...)801) [120] | 23.65 μs | 0.017 μs | 0.016 μs |  0.80 |         - |          NA |
