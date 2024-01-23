@@ -46,11 +46,9 @@ public readonly partial struct FrE
         //     return;
         // }
 
-        if (!LessThanSubModulus(res))
-        {
-            if (SubtractUnderflow(res, qElement, out res))
-                throw new InvalidConstraintException("this should now be possible");
-        }
+        if (LessThan(res, qElement)) return;
+        if (SubtractUnderflow(res, qElement, out res))
+            throw new InvalidConstraintException("this should now be possible");
     }
 
     public static void Divide(in FE x, in FE y, out FE z)
