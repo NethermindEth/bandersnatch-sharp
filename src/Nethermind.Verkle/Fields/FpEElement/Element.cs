@@ -31,7 +31,7 @@ public readonly partial struct FpE
         1 => u1,
         2 => u2,
         3 => u3,
-        _ => throw new IndexOutOfRangeException()
+        _ => ThrowIndexOutOfRangeException()
     };
 
     public bool IsZero => (u0 | u1 | u2 | u3) == 0;

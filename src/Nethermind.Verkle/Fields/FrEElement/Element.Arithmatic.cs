@@ -1,4 +1,6 @@
 using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
@@ -47,9 +49,10 @@ public readonly partial struct FrE
         // }
 
         if (LessThan(res, qElement)) return;
-        if (SubtractUnderflow(res, qElement, out res))
-            throw new InvalidConstraintException("this should now be possible");
+        if (SubtractUnderflow(res, qElement, out res)) ThrowInvalidConstraintException();
     }
+
+
 
     public static void Divide(in FE x, in FE y, out FE z)
     {

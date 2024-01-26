@@ -1,3 +1,6 @@
+using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Polynomial;
@@ -26,9 +29,9 @@ public class MonomialBasis
         return new MonomialBasis(output);
     }
 
-    public static MonomialBasis Div(MonomialBasis a, MonomialBasis b)
+    private static MonomialBasis Div(MonomialBasis a, MonomialBasis b)
     {
-        if (a.Length() < b.Length()) throw new Exception();
+        if (a.Length() < b.Length()) ThrowLengthConstraintException();
 
         FrE[] x = a.Coeffs.ToArray();
         List<FrE> output = [];
@@ -102,4 +105,9 @@ public class MonomialBasis
     {
         return Mul(a, b);
     }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowLengthConstraintException() =>
+        throw new InvalidConstraintException("Both operands must be of same length");
 }

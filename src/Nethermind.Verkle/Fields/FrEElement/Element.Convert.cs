@@ -13,8 +13,7 @@ public readonly partial struct FrE
         modElem = elem;
         if (LessThan(in qElement, in elem))
         {
-            if (SubtractUnderflow(elem, qElement, out modElem))
-                throw new InvalidConstraintException("this should now be possible");
+            if (SubtractUnderflow(elem, qElement, out modElem)) ThrowInvalidConstraintException();
         }
     }
 

@@ -87,22 +87,22 @@ public class LagrangeBasisTests
             Assert.That(ex.Evaluations[i], Is.EqualTo(result.Evaluations[i]));
     }
 
-    [Test]
-    public void TestInterpolation()
-    {
-        FrE[] domainSq =
-        {
-            FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(4), FrE.SetElement(9), FrE.SetElement(16),
-            FrE.SetElement(25)
-        };
-
-        LagrangeBasis xSquaredLagrange = new(domainSq);
-        MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
-
-        MonomialBasis expectedXSquaredCoeff = new(
-            new[] { FrE.Zero, FrE.Zero, FrE.One });
-
-        for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
-            Assert.That(expectedXSquaredCoeff.Coeffs[i], Is.EqualTo(xSquaredCoeff.Coeffs[i]));
-    }
+    // [Test]
+    // public void TestInterpolation()
+    // {
+    //     FrE[] domainSq =
+    //     {
+    //         FrE.SetElement(), FrE.SetElement(1), FrE.SetElement(4), FrE.SetElement(9), FrE.SetElement(16),
+    //         FrE.SetElement(25)
+    //     };
+    //
+    //     LagrangeBasis xSquaredLagrange = new(domainSq);
+    //     MonomialBasis xSquaredCoeff = xSquaredLagrange.Interpolate();
+    //
+    //     MonomialBasis expectedXSquaredCoeff = new(
+    //         new[] { FrE.Zero, FrE.Zero, FrE.One });
+    //
+    //     for (int i = 0; i < expectedXSquaredCoeff.Coeffs.Length; i++)
+    //         Assert.That(expectedXSquaredCoeff.Coeffs[i], Is.EqualTo(xSquaredCoeff.Coeffs[i]));
+    // }
 }

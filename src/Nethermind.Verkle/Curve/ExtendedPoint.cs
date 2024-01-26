@@ -1,6 +1,9 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
+using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -157,7 +160,7 @@ internal readonly struct ExtendedPoint
     public AffinePoint ToAffine()
     {
         if (IsZero) return AffinePoint.Identity;
-        if (Z.IsZero) throw new Exception();
+        if (Z.IsZero) ThrowInvalidConstraintException();
         if (Z.IsOne) return new AffinePoint(X, Y);
 
         FpE.Inverse(Z, out FpE zInv);
@@ -170,7 +173,7 @@ internal readonly struct ExtendedPoint
     public AffinePoint ToAffine(in FpE zInv)
     {
         if (IsZero) return AffinePoint.Identity;
-        if (Z.IsZero) throw new Exception();
+        if (Z.IsZero) ThrowInvalidConstraintException();
         if (Z.IsOne) return new AffinePoint(X, Y);
 
         FpE xAff = X * zInv;
@@ -229,4 +232,9 @@ internal readonly struct ExtendedPoint
     {
         return HashCode.Combine(X, Y, Z);
     }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowInvalidConstraintException() =>
+        throw new InvalidConstraintException("Z cannot be zero when converting to Affine");
 }

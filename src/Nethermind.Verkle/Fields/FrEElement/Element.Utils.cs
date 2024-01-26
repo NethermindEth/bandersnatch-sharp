@@ -2,6 +2,9 @@
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
 using System.Buffers.Binary;
+using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -182,4 +185,12 @@ public readonly partial struct FrE
         0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowInvalidConstraintException() => throw new InvalidConstraintException("this should not be possible");
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static ulong ThrowIndexOutOfRangeException() => throw new IndexOutOfRangeException();
 }

@@ -47,8 +47,7 @@ public readonly partial struct FpE
 
         if (!LessThanSubModulus(res))
         {
-            if (SubtractUnderflow(res, qElement, out res))
-                throw new InvalidConstraintException("this should now be possible");
+            if (SubtractUnderflow(res, qElement, out res)) ThrowInvalidConstraintException();
         }
     }
 
