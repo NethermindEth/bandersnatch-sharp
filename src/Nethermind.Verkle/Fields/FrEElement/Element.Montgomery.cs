@@ -11,6 +11,7 @@ public readonly partial struct FrE
     /// </summary>
     /// <param name="z"></param>
     /// <returns>1 if a has a square root modulo p, -1 otherwise</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Legendre(in FE z)
     {
         Exp(z, _bLegendreExponentElement.Value, out FE res);

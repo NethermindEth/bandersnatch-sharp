@@ -8,15 +8,6 @@ namespace Nethermind.Verkle.Fields.FpEElement;
 
 public readonly partial struct FpE
 {
-    public static void Mod(in FE elem, out FE modElem)
-    {
-        modElem = elem;
-        if (LessThan(in qElement, in elem))
-        {
-            if (SubtractUnderflow(elem, qElement, out modElem)) ThrowInvalidConstraintException();
-        }
-    }
-
     public new string ToString()
     {
         return $"{nameof(FE)} [{u0} {u1} {u2} {u3}]";
@@ -76,7 +67,10 @@ public readonly partial struct FpE
     public static FE FromBytesReduced(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
     {
         FE inp = new(byteEncoded, isBigEndian);
-        Mod(in inp, out inp);
+        if (LessThan(in qElement, in inp))
+        {
+            if (SubtractUnderflow(inp, qElement, out inp)) ThrowInvalidConstraintException();
+        }
         ToMontgomery(inp, out FE resF);
         return resF;
     }

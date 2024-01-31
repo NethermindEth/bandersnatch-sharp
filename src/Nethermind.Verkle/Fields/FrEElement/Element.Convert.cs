@@ -8,20 +8,12 @@ namespace Nethermind.Verkle.Fields.FrEElement;
 
 public readonly partial struct FrE
 {
-    public static void Mod(in FE elem, out FE modElem)
-    {
-        modElem = elem;
-        if (LessThan(in qElement, in elem))
-        {
-            if (SubtractUnderflow(elem, qElement, out modElem)) ThrowInvalidConstraintException();
-        }
-    }
-
     public new string ToString()
     {
         return $"{nameof(FE)} [{u0} {u1} {u2} {u3}]";
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Bit(int n)
     {
         int bucket = n / 64 % 4;
@@ -76,7 +68,10 @@ public readonly partial struct FrE
     public static FE FromBytesReduced(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
     {
         FE inp = new(byteEncoded, isBigEndian);
-        Mod(in inp, out inp);
+        if (LessThan(in qElement, in inp))
+        {
+            if (SubtractUnderflow(inp, qElement, out inp)) ThrowInvalidConstraintException();
+        }
         ToMontgomery(inp, out FE resF);
         return resF;
     }
@@ -90,6 +85,7 @@ public readonly partial struct FrE
         return elem;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ToMontgomery(in FE x, out FE z)
     {
         MultiplyMod(x, rSquare, out z);

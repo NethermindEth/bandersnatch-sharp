@@ -29,6 +29,7 @@ public readonly partial struct FrE
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void SubtractMod(in UInt256 a, in UInt256 b, in UInt256 m, out UInt256 res)
     {
         if (UInt256.SubtractUnderflow(a, b, out res))

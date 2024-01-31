@@ -12,22 +12,26 @@ namespace Nethermind.Verkle.Fields.FrEElement;
 
 public readonly partial struct FrE
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FE Negative()
     {
         SubtractMod(Zero, this, out FE res);
         return res;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void LeftShift(int n, out FE res)
     {
         Lsh(this, n, out res);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RightShift(int n, out FE res)
     {
         Rsh(this, n, out res);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void RightShiftByOne(out FE res)
     {
         res = new FE(
@@ -38,6 +42,7 @@ public readonly partial struct FrE
         );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void AddMod(in FE a, in FE b, out FE res)
     {
         AddOverflow(a, b, out res);
@@ -53,7 +58,7 @@ public readonly partial struct FrE
     }
 
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Divide(in FE x, in FE y, out FE z)
     {
         Inverse(y, out FE yInv);
@@ -67,6 +72,7 @@ public readonly partial struct FrE
             AddOverflow(qElement, res, out res);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Exp(in FE b, in UInt256 e, out FE result)
     {
         result = One;
@@ -80,6 +86,7 @@ public readonly partial struct FrE
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Lsh(in FE x, int n, out FE res)
     {
         if (n % 64 == 0)
@@ -155,7 +162,7 @@ public readonly partial struct FrE
         res = new FE(z0, z1, z2, z3);
     }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Rsh(in FE x, int n, out FE res)
     {
         // n % 64 == 0
@@ -285,6 +292,7 @@ public readonly partial struct FrE
         res = new FE(u3);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool SubtractUnderflow(in FE a, in FE b, out FE res)
     {
         if (Avx2.IsSupported)
@@ -343,6 +351,7 @@ public readonly partial struct FrE
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool AddOverflow(in FE a, in FE b, out FE res)
     {
         if (Avx2.IsSupported)

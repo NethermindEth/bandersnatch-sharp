@@ -68,26 +68,31 @@ public readonly partial struct FrE
         return a0 < Q0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool LessThanSubModulus(FE x)
     {
         return LessThan(x, qElement);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(int other)
     {
         return other >= 0 && u0 == (uint)other && u1 == 0 && u2 == 0 && u3 == 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(uint other)
     {
         return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(long other)
     {
         return other >= 0 && Equals((ulong)other);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(ulong other)
     {
         if (Avx.IsSupported)
@@ -99,6 +104,7 @@ public readonly partial struct FrE
         return u0 == other && u1 == 0 && u2 == 0 && u3 == 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj)
     {
         return obj is FE other && Equals(other);
