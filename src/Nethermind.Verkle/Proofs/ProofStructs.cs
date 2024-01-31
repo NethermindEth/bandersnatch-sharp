@@ -7,18 +7,11 @@ using Nethermind.Verkle.Fields.FrEElement;
 
 namespace Nethermind.Verkle.Proofs;
 
-public class IpaProofStruct
+public readonly struct IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
 {
-    public readonly FrE A;
-    public readonly Banderwagon[] L;
-    public readonly Banderwagon[] R;
-
-    public IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
-    {
-        L = l;
-        A = a;
-        R = r;
-    }
+    public readonly FrE A = a;
+    public readonly Banderwagon[] L = l;
+    public readonly Banderwagon[] R = r;
 
     public byte[] Encode()
     {
@@ -56,7 +49,7 @@ public class IpaProofStruct
     }
 }
 
-public class VerkleProofStruct
+public readonly struct VerkleProofStruct
 {
     public readonly Banderwagon D;
     public readonly IpaProofStruct IpaProof;
