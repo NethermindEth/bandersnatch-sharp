@@ -13,7 +13,7 @@ public class PointTests
 
         ExtendedPoint resultDouble = ExtendedPoint.Double(gen);
 
-        Assert.IsTrue(resultAdd == resultDouble);
+        Assert.That(resultAdd == resultDouble);
     }
 
     [Test]
@@ -24,8 +24,8 @@ public class PointTests
 
         ExtendedPoint negGen = ExtendedPoint.Neg(gen);
 
-        Assert.IsTrue(gen == gen2);
-        Assert.IsTrue(gen != negGen);
+        Assert.That(gen == gen2);
+        Assert.That(gen != negGen);
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class PointTests
         ExtendedPoint expected = ExtendedPoint.Identity;
         ExtendedPoint result = gen + ExtendedPoint.Neg(gen);
 
-        Assert.IsTrue(expected == result);
+        Assert.That(expected == result);
     }
 
     [Test]
@@ -55,7 +55,7 @@ public class PointTests
         FrE scalar = FrE.SetElement(2);
         ExtendedPoint result = gen * scalar;
         ExtendedPoint twoGen = ExtendedPoint.Double(gen);
-        Assert.IsTrue(twoGen == result);
+        Assert.That(twoGen == result);
     }
 
     [Test]

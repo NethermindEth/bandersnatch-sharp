@@ -289,7 +289,7 @@ public class MultiProofTests
             .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
         Transcript verifierTranscript = new("test");
         bool verification = prover.CheckMultiProof(verifierTranscript, verifierQueries, proof);
-        Assert.IsTrue(verification);
+        Assert.That(verification);
     }
 
     public static List<VerkleProverQuery> GenerateRandomQueries(int numOfQueries)

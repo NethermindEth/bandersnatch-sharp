@@ -13,7 +13,7 @@ public class BanderwagonTests
 
         Banderwagon resultDouble = Banderwagon.Double(gen);
 
-        Assert.IsTrue(resultAdd == resultDouble);
+        Assert.That(resultAdd == resultDouble);
     }
 
     [Test]
@@ -24,8 +24,8 @@ public class BanderwagonTests
 
         Banderwagon negGen = Banderwagon.Neg(gen);
 
-        Assert.IsTrue(gen == gen2);
-        Assert.IsTrue(gen != negGen);
+        Assert.That(gen == gen2);
+        Assert.That(gen != negGen);
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class BanderwagonTests
         Banderwagon expected = Banderwagon.Identity;
         Banderwagon result = gen + Banderwagon.Neg(gen);
 
-        Assert.IsTrue(expected == result);
+        Assert.That(expected == result);
     }
 
     [Test]
@@ -55,7 +55,7 @@ public class BanderwagonTests
         FrE scalar = FrE.SetElement(2);
         Banderwagon result = gen * scalar;
         Banderwagon twoGen = Banderwagon.Double(gen);
-        Assert.IsTrue(twoGen == result);
+        Assert.That(twoGen == result);
     }
 
     [Test]
@@ -111,8 +111,8 @@ public class BanderwagonTests
             string bitString = expectedBitStrings[i];
             Banderwagon expectedPoint = points[i];
             Banderwagon decodedPoint = new(bitString);
-            Assert.NotNull(point);
-            Assert.IsTrue(decodedPoint == expectedPoint);
+            Assert.That(point != null);
+            Assert.That(decodedPoint == expectedPoint);
         }
     }
 
@@ -123,6 +123,6 @@ public class BanderwagonTests
         Banderwagon twoTorsion = Banderwagon.TwoTorsionPoint();
         Banderwagon result = Banderwagon.Add(gen, twoTorsion);
 
-        Assert.IsTrue(result == gen);
+        Assert.That(result == gen);
     }
 }

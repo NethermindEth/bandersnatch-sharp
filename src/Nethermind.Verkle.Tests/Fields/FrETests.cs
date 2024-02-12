@@ -13,7 +13,7 @@ public class FrETests
             FE x = set.Current;
             FE y = 0 - x;
             FE z = y + x;
-            Assert.IsTrue(z.IsZero);
+            Assert.That(z.IsZero);
             set.MoveNext();
         }
     }
@@ -24,7 +24,7 @@ public class FrETests
         FE X = FE.qElement - 1;
         FE Y = X + X;
         FE Z = Y - X;
-        Assert.IsTrue(Z.Equals(X));
+        Assert.That(Z.Equals(X));
 
         using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
         for (int i = 0; i < 1000; i++)
@@ -32,7 +32,7 @@ public class FrETests
             FE x = set.Current;
             FE y = x + x + x + x;
             FE z = y - x - x - x - x;
-            Assert.IsTrue(z.IsZero);
+            Assert.That(z.IsZero);
             set.MoveNext();
         }
     }
@@ -47,7 +47,7 @@ public class FrETests
             FE x = set.Current * set.Current;
             FE.Inverse(in current, out FE y);
 
-            Assert.IsTrue(current.Equals(x * y));
+            Assert.That(current.Equals(x * y));
         }
     }
 
@@ -66,7 +66,7 @@ public class FrETests
 
             FE.Inverse(x, out FE y);
             FE.Inverse(y, out FE z);
-            Assert.IsTrue(z.Equals(x));
+            Assert.That(z.Equals(x));
             set.MoveNext();
         }
     }
@@ -86,7 +86,7 @@ public class FrETests
 
             FE.Inverse(x, out FE y);
             FE.MultiplyMod(x, y, out FE z);
-            Assert.IsTrue(z.IsOne);
+            Assert.That(z.IsOne);
             set.MoveNext();
         }
     }
@@ -118,7 +118,7 @@ public class FrETests
             FE x = set.Current;
             Span<byte> bytes = x.ToBytes();
             FE elem = FE.FromBytes(bytes.ToArray());
-            Assert.IsTrue(x.Equals(elem));
+            Assert.That(x.Equals(elem));
             set.MoveNext();
         }
     }
@@ -132,7 +132,7 @@ public class FrETests
             FE x = set.Current;
             Span<byte> bytes = x.ToBytesBigEndian();
             FE elem = FE.FromBytes(bytes.ToArray(), true);
-            Assert.IsTrue(x.Equals(elem));
+            Assert.That(x.Equals(elem));
             set.MoveNext();
         }
     }
@@ -152,7 +152,7 @@ public class FrETests
 
             FE.Sqrt(x, out FE sqrtElem);
             FE.Exp(sqrtElem, 2, out FE res);
-            Assert.IsTrue(x.Equals(res));
+            Assert.That(x.Equals(res));
             set.MoveNext();
         }
     }
@@ -165,8 +165,8 @@ public class FrETests
         FE[] gotInverse = FE.MultiInverse(values);
         FE?[] expectedInverse = NaiveMultiInverse(values);
 
-        Assert.IsTrue(gotInverse.Length == expectedInverse.Length);
-        for (int i = 0; i < gotInverse.Length; i++) Assert.IsTrue(gotInverse[i].Equals(expectedInverse[i]!.Value));
+        Assert.That(gotInverse.Length == expectedInverse.Length);
+        for (int i = 0; i < gotInverse.Length; i++) Assert.That(gotInverse[i].Equals(expectedInverse[i]!.Value));
     }
 
     private static FE?[] NaiveMultiInverse(IReadOnlyList<FE> values)
