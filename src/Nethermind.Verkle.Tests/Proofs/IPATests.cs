@@ -67,6 +67,39 @@ public class IpaTests
     }
 
     [Test]
+    public void TestIpaProofCreateVerify()
+    {
+        FrE[] lagrangePoly = new FrE[256];
+        for (int i = 0; i < 256; i++)
+        {
+            lagrangePoly[i] = FrE.Zero;
+        }
+        for (int i = 1; i < 15; i++)
+        {
+            lagrangePoly[i - 1] = FrE.SetElement(i);
+        }
+
+        Banderwagon commitment = _crs.Commit(lagrangePoly);
+
+        Transcript proverTranscript = new("ipa");
+
+        FrE inputPoint = FrE.SetElement(123456789);
+        FrE[] b = _weights.BarycentricFormulaConstants(inputPoint);
+        IpaProverQuery query = new(lagrangePoly.ToArray(), commitment, inputPoint, b);
+
+        IpaProofStruct proof = Ipa.MakeIpaProof(_crs, proverTranscript, query, out FrE outputPoint);
+        Console.WriteLine(Convert.ToHexString(proof.Encode()));
+
+        Transcript verifierTranscript = new("ipa");
+
+        IpaVerifierQuery queryX = new(commitment, inputPoint, b, outputPoint, proof);
+
+        bool ok = Ipa.CheckIpaProof(_crs, verifierTranscript, queryX);
+
+        Assert.That(ok);
+    }
+
+    [Test]
     public void TestInnerProduct()
     {
         FrE[] a = { FrE.SetElement(1), FrE.SetElement(2), FrE.SetElement(3), FrE.SetElement(4), FrE.SetElement(5) };
