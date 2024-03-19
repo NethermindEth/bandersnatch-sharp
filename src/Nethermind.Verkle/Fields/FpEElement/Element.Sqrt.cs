@@ -7,7 +7,7 @@ using FE = Nethermind.Verkle.Fields.FpEElement.FpE;
 
 namespace Nethermind.Verkle.Fields.FpEElement;
 
-public readonly partial struct FpE{
+public static class LookUpTable{
     private const ulong RU0 = 17662759726869145328;
     private const ulong RU1 = 5064093798700299342;
     private const ulong RU2 = 10063401387408601010;
@@ -69,18 +69,17 @@ public readonly partial struct FpE{
         }
         return map;
     }
-    public static FE r(in FE n){
-        // w = n^CONST, where CONST=((q-1)/2))
-        Exp(in n, _bSqrtExponentElement.Value, out FE w);
 
-        // y = n^((q+1)/2)) = w * n
-        MultiplyMod(n, w, out FE y);
-
-        // b = n^q = w * w * n = y * n
-        MultiplyMod(w, y, out FE res);
-
-        return y;
+    public static readonly FE[,] table;
+    public static readonly Dictionary<FE, ulong> mapG2_24;
+    static LookUpTable(){
+        table = GenerateLookUpTable();
+        mapG2_24 = lookUpTableG2_24(table);
     }
+    
+}
+public readonly partial struct FpE{
+
 //Given n, whose square root needs to be found, this method returns n^(Q*2^24), n^(Q*2^16), n^(Q*2^8), n^(Q) where p-1 = Q*2^s where s is 32 for this curve.
     public static FE[] powersOfNq(in FE n){
         FE[] arr = new FE[4];
@@ -140,8 +139,8 @@ public readonly partial struct FpE{
 
         ulong x0, x1, x2, x3;
 
-        FE[,] table = GenerateLookUpTable();
-        Dictionary<FE, ulong> mapG2_24 = lookUpTableG2_24(table);
+        FE[,] table = LookUpTable.table;
+        Dictionary<FE, ulong> mapG2_24 = LookUpTable.mapG2_24;
 
         // x3 = dLog(arrOfN[3], lookUpTableG2_24);
         x3 = mapG2_24[arrOfN[3]];
