@@ -79,7 +79,6 @@ public static class LookUpTable{
 
 }
 public readonly partial struct FpE{
-// , out FE squareRootCandidate, out FE rootOfUnity
     public static FE computeRelevantPowers(in FE z, out FE squareRootCandidate, out FE rootOfUnity){
         void SquareEqNTimes(FE x, out FE y, int n){
             for (int i = 0; i < n; i++){
@@ -216,6 +215,7 @@ public readonly partial struct FpE{
         return arr;
     }
 
+//Given a number x, this method returns y0, y1, y2, y3: where x = (2^24)*y0 + (2^16)*y1 + (2^8)*y2 + (2^0)*y3
     public static ulong[] decomposeNumber(ulong x){
         ulong y0 = (x >> 24) & 0xFF; // Shift right by 24 bits and mask out the last 8 bits
         ulong y1 = (x >> 16) & 0xFF; // Shift right by 16 bits and mask out the last 8 bits
@@ -225,6 +225,7 @@ public readonly partial struct FpE{
         return arr;
     }
 
+//this method decomposes x as defined above and then calculates value for each y0. y1, y2, y3 using the lookup table
     public static void computePower(ulong x, FE[,] table, out FE res){
         ulong[] arr = decomposeNumber(x);
         // FE.MultiplyMod(lookUpTableG2_24[arr[0]], lookUpTableG2_16[arr[1]], out res);
@@ -235,6 +236,7 @@ public readonly partial struct FpE{
         MultiplyMod(res, table[0,arr[3]], out res);
     }
 
+//implementing the main algo
     public static void SqrtNew(in FE n, out FE final){
         computeRelevantPowers(n, out FE squareRootCandidate, out FE rootOfUnity);
         FE[] arrOfN = powersOfNq(rootOfUnity);
