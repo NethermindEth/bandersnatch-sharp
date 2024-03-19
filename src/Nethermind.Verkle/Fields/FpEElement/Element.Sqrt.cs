@@ -76,23 +76,132 @@ public static class LookUpTable{
         table = GenerateLookUpTable();
         mapG2_24 = lookUpTableG2_24(table);
     }
-    
+
 }
 public readonly partial struct FpE{
+// , out FE squareRootCandidate, out FE rootOfUnity
+    public static FE computeRelevantPowers(in FE z, out FE squareRootCandidate, out FE rootOfUnity){
+        void SquareEqNTimes(FE x, out FE y, int n){
+            for (int i = 0; i < n; i++){
+                MultiplyMod(in x, in x, out x);
+            }
+            y = x;
+        }
 
-//Given n, whose square root needs to be found, this method returns n^(Q*2^24), n^(Q*2^16), n^(Q*2^8), n^(Q) where p-1 = Q*2^s where s is 32 for this curve.
+        FE z2 = new();
+        FE z3 = new();
+        FE z7 = new();
+        FE z6 = new();
+        FE z9 = new();
+        FE z11 = new();
+        FE z13 = new();
+        FE z19 = new();
+        FE z21 = new();
+        FE z25 = new();
+        FE z27 = new();
+        FE z29 = new();
+        FE z31 = new();
+        FE z255 = new();
+        FE acc = new();
+
+        MultiplyMod(in z, in z, out z2); // 0b10
+        MultiplyMod(in z, in z2, out z3); // 0b11
+        MultiplyMod(in z3, in z3, out z6); // 0b110
+        MultiplyMod(in z, in z6, out z7);
+        MultiplyMod(in z7, in z2, out z9);
+        MultiplyMod(in z9, in z2, out z11);
+        MultiplyMod(in z11, in z2, out z13);
+        MultiplyMod(in z13, in z6, out z19);
+        MultiplyMod(in z2, in z19, out z21);
+        MultiplyMod(in z19, in z6, out z25);
+        MultiplyMod(in z25, in z2, out z27);
+        MultiplyMod(in z27, in z2, out z29);
+        MultiplyMod(in z29, in z2, out z31);
+        MultiplyMod(in z27, in z29, out acc); //56
+        MultiplyMod(in acc, in acc, out acc); //112
+        MultiplyMod(in acc, in acc, out acc); //224
+        MultiplyMod(in acc, in z31, out z255);//255
+        MultiplyMod(in acc, in acc, out acc);//448
+        MultiplyMod(in acc, in acc, out acc);//896
+        MultiplyMod(in acc, in z31, out acc);//927
+        SquareEqNTimes(acc, out acc, 6);//59328
+        MultiplyMod(in acc, in z27, out acc);//59355
+        SquareEqNTimes(acc, out acc, 6);//3798720
+        MultiplyMod(in acc, in z19, out acc);//3798739
+        SquareEqNTimes(acc, out acc, 5);//121559648
+        MultiplyMod(in acc, in z21, out acc);//121559669
+        SquareEqNTimes(acc, out acc, 7);
+        MultiplyMod(in acc, in z25, out acc);
+        SquareEqNTimes(acc, out acc, 6);
+        MultiplyMod(in acc, in z19, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z7, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z11, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z29, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z9, out acc);
+        SquareEqNTimes(acc, out acc, 7);
+        MultiplyMod(in acc, in z3, out acc);
+        SquareEqNTimes(acc, out acc, 7);
+        MultiplyMod(in acc, in z25, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z25, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, out acc, 8);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, out acc, 8);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, out acc, 6);
+        MultiplyMod(in acc, in z13, out acc);
+        SquareEqNTimes(acc, out acc, 7);
+        MultiplyMod(in acc, in z7, out acc);
+        SquareEqNTimes(acc, out acc, 3);
+        MultiplyMod(in acc, in z3, out acc);
+        SquareEqNTimes(acc, out acc, 13);
+        MultiplyMod(in acc, in z21, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z9, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z27, out acc);
+        SquareEqNTimes(acc, out acc, 5);
+        MultiplyMod(in acc, in z9, out acc);
+        SquareEqNTimes(acc, out acc, 10);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, out acc, 7);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, out acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, out acc, 6);
+        MultiplyMod(in acc, in z11, out acc);
+        SquareEqNTimes(acc, out acc, 9);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, out acc, 2);
+        MultiplyMod(in acc, in z, out acc);
+        SquareEqNTimes(acc, out acc, 7);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, out acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, out acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+        SquareEqNTimes(acc, out acc, 8);
+        MultiplyMod(in acc, in z255, out acc);
+//acc = n^(Q-1)/2
+        MultiplyMod(in acc, in acc, out rootOfUnity);
+        MultiplyMod(in rootOfUnity, in z, out rootOfUnity);//n^Q
+        MultiplyMod(in acc, in z, out squareRootCandidate);//n^(Q+1)/2
+
+        return acc;
+    }
+
+//Given n, whose square root needs to be found, this method returns n^(Q*2^24), n^(Q*2^16), n^(Q*2^8), n^(Q) where p-1 = Q*2^s where s is 32 for this curve. This method takes n^Q as argument.
     public static FE[] powersOfNq(in FE n){
         FE[] arr = new FE[4];
-
-        // w = n^CONST, where CONST=((q-1)/2))
-        Exp(in n, _bSqrtExponentElement.Value, out FE w);
-
-        // y = n^((q+1)/2)) = w * n
-        MultiplyMod(n, w, out FE y);
-
-        // b = n^q = w * w * n = y * n
-        MultiplyMod(w, y, out FE res);
-
+        FE res = n;
         arr[0] = res;
 
         for(int i=0;i<24;i++){
@@ -103,9 +212,7 @@ public readonly partial struct FpE{
                 arr[2] = res;
             }
         }
-
         arr[3] = res;
-
         return arr;
     }
 
@@ -129,13 +236,8 @@ public readonly partial struct FpE{
     }
 
     public static void SqrtNew(in FE n, out FE final){
-        FE[] arrOfN = powersOfNq(n);
-
-        // w = n^CONST, where CONST=((q-1)/2))
-        Exp(in n, _bSqrtExponentElement.Value, out FE w);
-
-        // y = n^((q+1)/2)) = w * n
-        MultiplyMod(n, w, out FE y);
+        computeRelevantPowers(n, out FE squareRootCandidate, out FE rootOfUnity);
+        FE[] arrOfN = powersOfNq(rootOfUnity);
 
         ulong x0, x1, x2, x3;
 
@@ -172,7 +274,7 @@ public readonly partial struct FpE{
         ulong xBy2 = ((ulong)1<<23)*x0 + ((ulong)1<<15)*x1 + ((ulong)1<<7)*x2 + x3/2;
         xBy2 = ((ulong)1<<32) - xBy2;
         computePower(xBy2, table, out final);
-        MultiplyMod(final, y, out final);
+        MultiplyMod(final, squareRootCandidate, out final);
     }
 
     public static void TestSqrt(){
