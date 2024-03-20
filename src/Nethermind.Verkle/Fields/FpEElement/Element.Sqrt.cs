@@ -246,13 +246,11 @@ public readonly partial struct FpE{
         FE[,] table = LookUpTable.table;
         Dictionary<FE, ulong> mapG2_24 = LookUpTable.mapG2_24;
 
-        // x3 = dLog(arrOfN[3], lookUpTableG2_24);
         x3 = mapG2_24[arrOfN[3]];
 
         computePower((((ulong)1<<32)-((ulong)1<<16)*x3), table, out FE secEq);
         MultiplyMod(secEq, arrOfN[2], out secEq);
 
-        // x2 = dLog(secEq, lookUpTableG2_24);
         x2 = mapG2_24[secEq];
 
         computePower((((ulong)1<<32)-((ulong)1<<16)*x2), table, out FE thirdEq1);
@@ -260,7 +258,6 @@ public readonly partial struct FpE{
         MultiplyMod(thirdEq1, thirdEq2, out FE thirdEq);
         MultiplyMod(arrOfN[1], thirdEq, out thirdEq);
 
-        // x1 = dLog(thirdEq, lookUpTableG2_24);
         x1 = mapG2_24[thirdEq];
 
         computePower((((ulong)1<<32)-((ulong)1<<16)*x1), table, out FE fourthEq1);
@@ -270,7 +267,6 @@ public readonly partial struct FpE{
         MultiplyMod(fourthEq, fourthEq3, out fourthEq);
         MultiplyMod(arrOfN[0], fourthEq, out fourthEq);
 
-        // x0 = dLog(fourthEq, lookUpTableG2_24);
         x0 = mapG2_24[fourthEq];
 
         ulong xBy2 = ((ulong)1<<23)*x0 + ((ulong)1<<15)*x1 + ((ulong)1<<7)*x2 + x3/2;
@@ -296,7 +292,7 @@ public readonly partial struct FpE{
 
             Exp(sqrtElem, 2, out FE res);
             if(x.Equals(res)){
-                Console.WriteLine($"Time taken by OLD ALGO: {timeOldAlgoNs} ms");
+                Console.WriteLine($"Time taken by OLD ALGO: {timeOldAlgoNs} ns");
             }else{
                 Console.WriteLine("OLD ALGO FAILED");
             }
@@ -308,7 +304,7 @@ public readonly partial struct FpE{
 
             Exp(sqrtElemImp, 2, out FE resImp);
             if(x.Equals(resImp)){
-                Console.WriteLine($"Time taken by NEW ALGO: {timeNewAlgoNs} ms");
+                Console.WriteLine($"Time taken by NEW ALGO: {timeNewAlgoNs} ns");
             }else{
                 Console.WriteLine("NEW ALGORITHM FAILED");
             }
