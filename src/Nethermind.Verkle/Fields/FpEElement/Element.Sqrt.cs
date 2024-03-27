@@ -48,30 +48,57 @@ public static class LookUpTable{
     //inverse of dyadicRootOfUnity, that is inverse of 2^32 th primitive root.
     public static readonly FE gInv = new(gInv_0, gInv_1, gInv_2, gInv_3);
 
+    private const ulong gInv8_0 = 15118332175617490275;
+    private const ulong gInv8_1 = 6984912174216846004;
+    private const ulong gInv8_2 = 17331013002699678324;
+    private const ulong gInv8_3 = 7916174170450263136;
+
+    public static readonly FE gInv8 = new(gInv8_0, gInv8_1, gInv8_2, gInv8_3);
+
+    private const ulong gInv16_0 = 16405696411196864266;
+    private const ulong gInv16_1 = 2972828062941467037;
+    private const ulong gInv16_2 = 3105686916971696149;
+    private const ulong gInv16_3 = 6689846928035436105;
+
+    public static readonly FE gInv16 = new(gInv16_0, gInv16_1, gInv16_2, gInv16_3);
+
+    private const ulong gInv24_0 = 13332407645450386590;
+    private const ulong gInv24_1 = 16711928638495282130;
+    private const ulong gInv24_2 = 6785075770842394458;
+    private const ulong gInv24_3 = 7173692049422626809;
+
+    public static readonly FE gInv24 = new(gInv24_0, gInv24_1, gInv24_2, gInv24_3);
+
     public static FE[,] GenerateLookUpTable(){
         FE[,] table = new FE[4, 256];
-        FE[] gValues = {dyadicRootofUnity, g8, g16, g24};
+        FE[] gValues = {gInv, gInv8, gInv16, gInv24};
 
-        for(int i=0;i<4;i++){
-            table[i,0] = FE.One;
-            for(int j=1;j<256;j++){
-                FE.MultiplyMod(gValues[i], table[i,j-1], out table[i,j]);
+        
+
+        for(int i=0;i<4;i++) {
+            table[i, 0] = FE.One;
+            for (int j = 1; j < 256; j++) {
+                FE.MultiplyMod(gValues[i], table[i, j - 1], out table[i, j]);
             }
         }
 
         return table;
     }
 
-    public static Dictionary<FE, ulong> lookUpTableG2_24(FE[,] arr){
-        Dictionary<FE, ulong> map = new Dictionary<FE, ulong>();
-        for(ulong i=0;i<256;i++){
-            map[arr[3,i]] = i;
+    public static Dictionary<FE, byte> lookUpTableG2_24(FE[,] arr){
+        Dictionary<FE, byte> map = new Dictionary<FE, byte>();
+        FE res = FE.One;
+        byte i=0;
+        for(;i<255;i++){
+            map[res] = i;
+            FE.MultiplyMod(res, g24, out res);
         }
+        map[res] = i;
         return map;
     }
 
     public static readonly FE[,] table;
-    public static readonly Dictionary<FE, ulong> mapG2_24;
+    public static readonly Dictionary<FE, byte> mapG2_24;
     static LookUpTable(){
         table = GenerateLookUpTable();
         mapG2_24 = lookUpTableG2_24(table);
@@ -198,8 +225,7 @@ public readonly partial struct FpE{
     }
 
 //Given n, whose square root needs to be found, this method returns n^(Q*2^24), n^(Q*2^16), n^(Q*2^8), n^(Q) where p-1 = Q*2^s where s is 32 for this curve. This method takes n^Q as argument.
-    public static FE[] powersOfNq(in FE n){
-        FE[] arr = new FE[4];
+    public static void powersOfNq(in FE n, in Span<FE> arr){
         FE res = n;
         arr[0] = res;
 
@@ -212,105 +238,67 @@ public readonly partial struct FpE{
             }
         }
         arr[3] = res;
-        return arr;
+        // return arr;
     }
 
 //Given a number x, this method returns y0, y1, y2, y3: where x = (2^24)*y0 + (2^16)*y1 + (2^8)*y2 + (2^0)*y3
-    public static ulong[] decomposeNumber(ulong x){
-        ulong y0 = (x >> 24) & 0xFF; // Shift right by 24 bits and mask out the last 8 bits
-        ulong y1 = (x >> 16) & 0xFF; // Shift right by 16 bits and mask out the last 8 bits
-        ulong y2 = (x >> 8) & 0xFF;  // Shift right by 8 bits and mask out the last 8 bits
-        ulong y3 = x & 0xFF;         // Mask out the last 8 bits
-        ulong[] arr = {y0, y1, y2, y3}; 
-        return arr;
+    public static void decomposeNumber(int x, in Span<byte> arr){
+        arr[0] = (byte)((x >> 24) & 0xFF); // Shift right by 24 bits and mask out the last 8 bits
+        arr[1] = (byte)((x >> 16) & 0xFF); // Shift right by 16 bits and mask out the last 8 bits
+        arr[2] = (byte)((x >> 8) & 0xFF);  // Shift right by 8 bits and mask out the last 8 bits
+        arr[3] = (byte)(x & 0xFF);         // Mask out the last 8 bits
     }
 
 //this method decomposes x as defined above and then calculates value for each y0. y1, y2, y3 using the lookup table
-    public static void computePower(ulong x, FE[,] table, out FE res){
-        ulong[] arr = decomposeNumber(x);
-        // FE.MultiplyMod(lookUpTableG2_24[arr[0]], lookUpTableG2_16[arr[1]], out res);
-        MultiplyMod(table[3,arr[0]], table[2,arr[1]], out res);
-        // FE.MultiplyMod(res, lookUpTableG2_8[arr[2]], out res);
-        MultiplyMod(res, table[1,arr[2]], out res);
-        // FE.MultiplyMod(res, lookUpTableG2_0[arr[3]], out res);
-        MultiplyMod(res, table[0,arr[3]], out res);
+    public static void computePower(int x, FE[,] table, out FE res){
+        Span<byte> arr = stackalloc byte[4];
+        decomposeNumber(x, arr);
+        FE.MultiplyMod(table[3,arr[0]], table[2,arr[1]], out res);
+        FE.MultiplyMod(res, table[1,arr[2]], out res);
+        FE.MultiplyMod(res, table[0,arr[3]], out res);
     }
 
 //implementing the main algo
-    public static void SqrtNew(in FE n, out FE final){
+    public static bool SqrtNew(in FE n, out FE sqrt){
         computeRelevantPowers(n, out FE squareRootCandidate, out FE rootOfUnity);
-        FE[] arrOfN = powersOfNq(rootOfUnity);
+        
+        Span<FE> arrOfN = stackalloc FE[4];
+        powersOfNq(rootOfUnity, arrOfN);
 
-        ulong x0, x1, x2, x3;
-
+        byte x0, x1, x2, x3;
+        
         FE[,] table = LookUpTable.table;
-        Dictionary<FE, ulong> mapG2_24 = LookUpTable.mapG2_24;
+        Dictionary<FE, byte> mapG2_24 = LookUpTable.mapG2_24;
 
         x3 = mapG2_24[arrOfN[3]];
 
-        computePower((((ulong)1<<32)-((ulong)1<<16)*x3), table, out FE secEq);
-        MultiplyMod(secEq, arrOfN[2], out secEq);
+//If x3 is odd, then there is no square root.
+        if(x3%2 == 1){
+            sqrt = FE.Zero;
+            return false;
+        }
+
+        FE.MultiplyMod(arrOfN[2], table[2,x3], out FE secEq);
 
         x2 = mapG2_24[secEq];
-
-        computePower((((ulong)1<<32)-((ulong)1<<16)*x2), table, out FE thirdEq1);
-        computePower((((ulong)1<<32)-((ulong)1<<8)*x3), table, out FE thirdEq2);
-        MultiplyMod(thirdEq1, thirdEq2, out FE thirdEq);
-        MultiplyMod(arrOfN[1], thirdEq, out thirdEq);
+        FE.MultiplyMod(arrOfN[1], table[2,x2], out FE thirdEq);
+        FE.MultiplyMod(thirdEq, table[1,x3], out thirdEq);
 
         x1 = mapG2_24[thirdEq];
-
-        computePower((((ulong)1<<32)-((ulong)1<<16)*x1), table, out FE fourthEq1);
-        computePower((((ulong)1<<32)-((ulong)1<<8)*x2), table, out FE fourthEq2);
-        computePower((((ulong)1<<32)-x3), table, out FE fourthEq3);
-        MultiplyMod(fourthEq1, fourthEq2, out FE fourthEq);
-        MultiplyMod(fourthEq, fourthEq3, out fourthEq);
-        MultiplyMod(arrOfN[0], fourthEq, out fourthEq);
+        FE.MultiplyMod(arrOfN[0], table[2,x1], out FE fourthEq);
+        FE.MultiplyMod(fourthEq, table[1,x2], out fourthEq);
+        FE.MultiplyMod(fourthEq, table[0,x3], out fourthEq);
 
         x0 = mapG2_24[fourthEq];
 
-        ulong xBy2 = ((ulong)1<<23)*x0 + ((ulong)1<<15)*x1 + ((ulong)1<<7)*x2 + x3/2;
-        xBy2 = ((ulong)1<<32) - xBy2;
-        computePower(xBy2, table, out final);
-        MultiplyMod(final, squareRootCandidate, out final);
-    }
+        int xBy2 = (1<<23)*x0 + (1<<15)*x1 + (1<<7)*x2 + x3/2;
 
-    public static void TestSqrt(){
-        using IEnumerator<FE> set = GetRandom().GetEnumerator();
-        Stopwatch stopwatch = new Stopwatch();
-        for (int i = 0; i < 1000; i++){
-            FE x = set.Current;
-            if (Legendre(x) != 1){
-                set.MoveNext();
-                continue;
-            }
 
-            stopwatch.Restart();
-            Sqrt(x, out FE sqrtElem);
-            stopwatch.Stop();
-            long timeOldAlgoNs = (long)((double)stopwatch.ElapsedTicks / Stopwatch.Frequency * 1_000_000_000);
+        computePower(xBy2, table, out sqrt);
 
-            Exp(sqrtElem, 2, out FE res);
-            if(x.Equals(res)){
-                Console.WriteLine($"Time taken by OLD ALGO: {timeOldAlgoNs} ns");
-            }else{
-                Console.WriteLine("OLD ALGO FAILED");
-            }
+        FE.MultiplyMod(sqrt, squareRootCandidate, out sqrt);
 
-            stopwatch.Restart();
-            SqrtNew(x, out FE sqrtElemImp);
-            stopwatch.Stop();
-            long timeNewAlgoNs = (long)((double)stopwatch.ElapsedTicks / Stopwatch.Frequency * 1_000_000_000);
-
-            Exp(sqrtElemImp, 2, out FE resImp);
-            if(x.Equals(resImp)){
-                Console.WriteLine($"Time taken by NEW ALGO: {timeNewAlgoNs} ns");
-            }else{
-                Console.WriteLine("NEW ALGORITHM FAILED");
-            }
-
-            set.MoveNext();
-        }
+        return true;
     }
 
 }
