@@ -72,15 +72,13 @@ public static class LookUpTable{
     public static FE[,] GenerateLookUpTable(){
         FE[,] table = new FE[4, 256];
         FE[] gValues = {gInv, gInv8, gInv16, gInv24};
-
-        
-
-        for(int i=0;i<4;i++) {
+        Parallel.For(0, 4, i => {
             table[i, 0] = FE.One;
-            for (int j = 1; j < 256; j++) {
+            for (int j = 1; j < 256; j++)
+            {
                 FE.MultiplyMod(gValues[i], table[i, j - 1], out table[i, j]);
             }
-        }
+        });
 
         return table;
     }
