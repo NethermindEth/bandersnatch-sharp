@@ -186,6 +186,27 @@ public class FpETests
     }
 
     [Test]
+    public void TestSqrtNew()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE x = set.Current;
+            if (FE.Legendre(x) != 1)
+            {
+                set.MoveNext();
+                continue;
+            }
+
+            FE.Sqrt(x, out FE sqrtElem);
+            FE.Sqrt(x, out FE sqrtElemNew);
+            Assert.That(sqrtElem.Equals(sqrtElemNew));
+            set.MoveNext();
+        }
+    }
+
+
+    [Test]
     public void TestMultiInv()
     {
         FE[] values = { FE.SetElement(1), FE.SetElement(2), FE.SetElement(3) };
