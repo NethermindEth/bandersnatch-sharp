@@ -1,4 +1,3 @@
-using System.Data;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Nethermind.Int256;
@@ -69,9 +68,8 @@ public readonly partial struct FrE
     {
         FE inp = new(byteEncoded, isBigEndian);
         if (LessThan(in qElement, in inp))
-        {
-            if (SubtractUnderflow(inp, qElement, out inp)) ThrowInvalidConstraintException();
-        }
+            if (SubtractUnderflow(inp, qElement, out inp))
+                ThrowInvalidConstraintException();
         ToMontgomery(inp, out FE resF);
         return resF;
     }

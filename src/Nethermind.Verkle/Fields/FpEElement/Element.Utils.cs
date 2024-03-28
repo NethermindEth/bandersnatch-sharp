@@ -188,9 +188,15 @@ public readonly partial struct FpE
 
     [DoesNotReturn]
     [StackTraceHidden]
-    private static void ThrowInvalidConstraintException() => throw new InvalidConstraintException("this should not be possible");
+    private static void ThrowInvalidConstraintException()
+    {
+        throw new InvalidConstraintException("this should not be possible");
+    }
 
     [DoesNotReturn]
     [StackTraceHidden]
-    private static ulong ThrowIndexOutOfRangeException() => throw new IndexOutOfRangeException();
+    private static ulong ThrowIndexOutOfRangeException()
+    {
+        throw new IndexOutOfRangeException();
+    }
 }
