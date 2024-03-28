@@ -1,4 +1,3 @@
-using System.Data;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
@@ -46,9 +45,8 @@ public readonly partial struct FpE
         }
 
         if (!LessThanSubModulus(res))
-        {
-            if (SubtractUnderflow(res, qElement, out res)) ThrowInvalidConstraintException();
-        }
+            if (SubtractUnderflow(res, qElement, out res))
+                ThrowInvalidConstraintException();
     }
 
     public static void Divide(in FE x, in FE y, out FE z)

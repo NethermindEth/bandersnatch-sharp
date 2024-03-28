@@ -166,7 +166,7 @@ public class FpETests
     }
 
     [Test]
-    public void TestSqrt()
+    public void TestSqrtOld()
     {
         using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
         for (int i = 0; i < 1000; i++)
@@ -178,12 +178,33 @@ public class FpETests
                 continue;
             }
 
-            FE.Sqrt(x, out FE sqrtElem);
+            FE.SqrtOld(x, out FE sqrtElem);
             FE.Exp(sqrtElem, 2, out FE res);
             Assert.That(x.Equals(res));
             set.MoveNext();
         }
     }
+
+    [Test]
+    public void TestSqrtNew()
+    {
+        using IEnumerator<FE> set = FE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 1000; i++)
+        {
+            FE x = set.Current;
+            if (FE.Legendre(x) != 1)
+            {
+                set.MoveNext();
+                continue;
+            }
+
+            FE.Sqrt(x, out FE sqrtElemNew);
+            FE.Exp(sqrtElemNew, 2, out FE res);
+            Assert.That(x.Equals(res));
+            set.MoveNext();
+        }
+    }
+
 
     [Test]
     public void TestMultiInv()

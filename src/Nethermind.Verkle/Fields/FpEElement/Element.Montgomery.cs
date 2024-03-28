@@ -188,7 +188,7 @@ public readonly partial struct FpE
     /// <param name="x"></param>
     /// <param name="z"></param>
     /// <returns>if the square root doesn't exist Sqrt returns false, else true</returns>
-    public static bool Sqrt(in FE x, out FE z)
+    public static bool SqrtOld(in FE x, out FE z)
     {
         // q ≡ 1 (mod 4)
         // see modSqrtTonelliShanks in math/big/int.go
