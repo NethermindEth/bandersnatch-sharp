@@ -45,10 +45,10 @@ public static class LookUpTable
     private const ulong gInv24_3 = 7173692049422626809;
 
     // g is 2^32 th primitive root. it is denoted by dyadicRootOfUnity.
-    public static readonly FE dyadicRootofUnity = new(RU0, RU1, RU2, RU3);
+    public static readonly FE dyadicRootOfUnity = new(RU0, RU1, RU2, RU3);
 
     //g^(2^24)
-    public static readonly FE g24 = new(g24_0, g24_1, g24_2, g24_3);
+    private static readonly FE g24 = new(g24_0, g24_1, g24_2, g24_3);
 
     //g^(2^16)
     public static readonly FE g16 = new(g16_0, g16_1, g16_2, g16_3);
@@ -57,27 +57,27 @@ public static class LookUpTable
     public static readonly FE g8 = new(g8_0, g8_1, g8_2, g8_3);
 
     //inverse of dyadicRootOfUnity, that is inverse of 2^32 th primitive root.
-    public static readonly FE gInv = new(gInv_0, gInv_1, gInv_2, gInv_3);
+    private static readonly FE gInv = new(gInv_0, gInv_1, gInv_2, gInv_3);
 
-    public static readonly FE gInv8 = new(gInv8_0, gInv8_1, gInv8_2, gInv8_3);
+    private static readonly FE gInv8 = new(gInv8_0, gInv8_1, gInv8_2, gInv8_3);
 
-    public static readonly FE gInv16 = new(gInv16_0, gInv16_1, gInv16_2, gInv16_3);
+    private static readonly FE gInv16 = new(gInv16_0, gInv16_1, gInv16_2, gInv16_3);
 
-    public static readonly FE gInv24 = new(gInv24_0, gInv24_1, gInv24_2, gInv24_3);
+    private static readonly FE gInv24 = new(gInv24_0, gInv24_1, gInv24_2, gInv24_3);
 
-    public static readonly FE[,] table;
+    public static readonly FE[,] _table;
     public static readonly Dictionary<FE, byte> mapG2_24;
 
     static LookUpTable()
     {
-        table = GenerateLookUpTable();
-        mapG2_24 = lookUpTableG2_24(table);
+        _table = GenerateLookUpTable();
+        mapG2_24 = LookUpTableG2_24();
     }
 
-    public static FE[,] GenerateLookUpTable()
+    private static FE[,] GenerateLookUpTable()
     {
         FE[,] table = new FE[4, 256];
-        FE[] gValues = { gInv, gInv8, gInv16, gInv24 };
+        FE[] gValues = [gInv, gInv8, gInv16, gInv24];
         Parallel.For(0, 4, i =>
         {
             table[i, 0] = FE.One;
@@ -87,7 +87,7 @@ public static class LookUpTable
         return table;
     }
 
-    public static Dictionary<FE, byte> lookUpTableG2_24(FE[,] arr)
+    private static Dictionary<FE, byte> LookUpTableG2_24()
     {
         Dictionary<FE, byte> map = new();
         FE res = FE.One;
@@ -105,7 +105,7 @@ public static class LookUpTable
 
 public readonly partial struct FpE
 {
-    public static FE computeRelevantPowers(in FE z, out FE squareRootCandidate, out FE rootOfUnity)
+    private static FE ComputeRelevantPowers(in FE z, out FE squareRootCandidate, out FE rootOfUnity)
     {
         void SquareEqNTimes(FE x, out FE y, int n)
         {
@@ -215,16 +215,16 @@ public readonly partial struct FpE
         MultiplyMod(in acc, in z255, out acc);
         SquareEqNTimes(acc, out acc, 8);
         MultiplyMod(in acc, in z255, out acc);
-//acc = n^(Q-1)/2
+        // acc = n^(Q-1)/2
         MultiplyMod(in acc, in acc, out rootOfUnity);
-        MultiplyMod(in rootOfUnity, in z, out rootOfUnity); //n^Q
-        MultiplyMod(in acc, in z, out squareRootCandidate); //n^(Q+1)/2
+        MultiplyMod(in rootOfUnity, in z, out rootOfUnity); // n^Q
+        MultiplyMod(in acc, in z, out squareRootCandidate); // n^(Q+1)/2
 
         return acc;
     }
 
-//Given n, whose square root needs to be found, this method returns n^(Q*2^24), n^(Q*2^16), n^(Q*2^8), n^(Q) where p-1 = Q*2^s where s is 32 for this curve. This method takes n^Q as argument.
-    public static void powersOfNq(in FE n, in Span<FE> arr)
+    // Given n, whose square root needs to be found, this method returns n^(Q*2^24), n^(Q*2^16), n^(Q*2^8), n^(Q) where p-1 = Q*2^s where s is 32 for this curve. This method takes n^Q as argument.
+    private static void PowersOfNq(in FE n, in Span<FE> arr)
     {
         FE res = n;
         arr[0] = res;
@@ -232,17 +232,22 @@ public readonly partial struct FpE
         for (int i = 0; i < 24; i++)
         {
             MultiplyMod(res, res, out res);
-            if (i == 7)
-                arr[1] = res;
-            else if (i == 15) arr[2] = res;
+            switch (i)
+            {
+                case 7:
+                    arr[1] = res;
+                    break;
+                case 15:
+                    arr[2] = res;
+                    break;
+            }
         }
 
         arr[3] = res;
-        // return arr;
     }
 
-//Given a number x, this method returns y0, y1, y2, y3: where x = (2^24)*y0 + (2^16)*y1 + (2^8)*y2 + (2^0)*y3
-    public static void decomposeNumber(int x, in Span<byte> arr)
+    // Given a number x, this method returns y0, y1, y2, y3: where x = (2^24)*y0 + (2^16)*y1 + (2^8)*y2 + (2^0)*y3
+    private static void DecomposeNumber(int x, in Span<byte> arr)
     {
         arr[0] = (byte)((x >> 24) & 0xFF); // Shift right by 24 bits and mask out the last 8 bits
         arr[1] = (byte)((x >> 16) & 0xFF); // Shift right by 16 bits and mask out the last 8 bits
@@ -250,32 +255,32 @@ public readonly partial struct FpE
         arr[3] = (byte)(x & 0xFF); // Mask out the last 8 bits
     }
 
-//this method decomposes x as defined above and then calculates value for each y0. y1, y2, y3 using the lookup table
-    public static void computePower(int x, FE[,] table, out FE res)
+    // this method decomposes x as defined above and then calculates value for each y0. y1, y2, y3 using the lookup table
+    private static void ComputePower(int x, FE[,] table, out FE res)
     {
         Span<byte> arr = stackalloc byte[4];
-        decomposeNumber(x, arr);
+        DecomposeNumber(x, in arr);
         MultiplyMod(table[3, arr[0]], table[2, arr[1]], out res);
         MultiplyMod(res, table[1, arr[2]], out res);
         MultiplyMod(res, table[0, arr[3]], out res);
     }
 
-//implementing the main algo
-    public static bool SqrtNew(in FE n, out FE sqrt)
+    // implementing the main algo
+    public static bool Sqrt(in FE n, out FE sqrt)
     {
-        computeRelevantPowers(n, out FE squareRootCandidate, out FE rootOfUnity);
+        ComputeRelevantPowers(n, out FE squareRootCandidate, out FE rootOfUnity);
 
         Span<FE> arrOfN = stackalloc FE[4];
-        powersOfNq(rootOfUnity, arrOfN);
+        PowersOfNq(rootOfUnity, in arrOfN);
 
         byte x0, x1, x2, x3;
 
-        FE[,] table = LookUpTable.table;
+        FE[,] table = LookUpTable._table;
         Dictionary<FE, byte> mapG2_24 = LookUpTable.mapG2_24;
 
         x3 = mapG2_24[arrOfN[3]];
 
-//If x3 is odd, then there is no square root.
+        // If x3 is odd, then there is no square root.
         if (x3 % 2 == 1)
         {
             sqrt = Zero;
@@ -298,7 +303,7 @@ public readonly partial struct FpE
         int xBy2 = ((1 << 23) * x0) + ((1 << 15) * x1) + ((1 << 7) * x2) + (x3 / 2);
 
 
-        computePower(xBy2, table, out sqrt);
+        ComputePower(xBy2, table, out sqrt);
 
         MultiplyMod(sqrt, squareRootCandidate, out sqrt);
 
