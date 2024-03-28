@@ -198,9 +198,9 @@ public class FpETests
                 continue;
             }
 
-            FE.Sqrt(x, out FE sqrtElem);
-            FE.Sqrt(x, out FE sqrtElemNew);
-            Assert.That(sqrtElem.Equals(sqrtElemNew));
+            FE.SqrtNew(x, out FE sqrtElemNew);
+            FE.Exp(sqrtElemNew, 2, out FE res);
+            Assert.That(x.Equals(res));
             set.MoveNext();
         }
     }
