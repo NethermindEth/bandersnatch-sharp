@@ -412,7 +412,7 @@ public readonly partial struct Banderwagon{
                     uint scalarBitPos = k + PrecompMSM2.T - t_i - 1;
                     if (scalarBitPos < 253 && !scalars[s_i].IsZero)
                     {
-                        ulong limb = scalars[s_i][scalarBitPos / 64];
+                        ulong limb = scalars[s_i].GetUlongAtIndex((int)(scalarBitPos / 64));
                         ulong bit = (limb >> (int)(scalarBitPos % 64)) & 1;
                         windowScalar |= (int)(bit << (PrecompMSM2.B - windowBitPos - 1));
                     }
