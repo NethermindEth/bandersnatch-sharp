@@ -1,3 +1,4 @@
+using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
@@ -290,6 +291,33 @@ public class MultiProofTests
         Transcript verifierTranscript = new("test");
         bool verification = prover.CheckMultiProof(verifierTranscript, verifierQueries, proof);
         Assert.That(verification);
+    }
+
+    [Test]
+    public void TestRustRandomProofGenerationAndVerification()
+    {
+        MultiProof prover = new(CRS.Instance, PreComputedWeights.Instance);
+        VerkleProverQuery[] proverQueries = GenerateRandomQueries(400).ToArray();
+        Transcript proverTranscript = new("verkle");
+
+        List<byte> input = new();
+        foreach (VerkleProverQuery query in proverQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            foreach (FrE eval in query.ChildHashPoly.Evaluations)
+            {
+                input.AddRange(eval.ToBytes());
+            }
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProve(ctx, input.ToArray(), (UIntPtr)input.Count, output);
+
+        VerkleProofStruct proof = prover.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(proverQueries));
+        output.Should().BeEquivalentTo(proof.Encode());
     }
 
     public static List<VerkleProverQuery> GenerateRandomQueries(int numOfQueries)

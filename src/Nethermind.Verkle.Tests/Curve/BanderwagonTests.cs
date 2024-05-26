@@ -1,3 +1,4 @@
+using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -5,6 +6,59 @@ namespace Nethermind.Verkle.Tests.Curve;
 
 public class BanderwagonTests
 {
+    [Test]
+    public void MSM()
+    {
+        using IEnumerator<FrE> rand = FrE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 10; i++) rand.MoveNext();
+
+        var _a = new FrE[256];
+        var res = new List<byte>();
+
+        for (int i = 0; i < 256; i++)
+        {
+            _a[i] = rand.Current;
+            res.AddRange(rand.Current.ToBytes());
+            rand.MoveNext();
+        }
+
+        Console.WriteLine(res.Count);
+        Console.WriteLine(Convert.ToHexString(res.ToArray()));
+
+        var data = Banderwagon.MultiScalarMul(CRS.Instance.BasisG, _a);
+
+        Console.WriteLine($"{Convert.ToHexString(data.ToBytes())}");
+
+
+    }
+
+    [Test]
+    public void MSMRust()
+    {
+        var context = RustVerkleLib.VerkleContextNew();
+        using IEnumerator<FrE> rand = FrE.GetRandom().GetEnumerator();
+        for (int i = 0; i < 10; i++) rand.MoveNext();
+
+        var _a = new FrE[256];
+        var res = new List<byte>();
+
+        for (int i = 0; i < 256; i++)
+        {
+            _a[i] = rand.Current;
+            res.AddRange(rand.Current.ToBytes());
+            rand.MoveNext();
+        }
+
+        Console.WriteLine(res.Count);
+        Console.WriteLine(Convert.ToHexString(res.ToArray()));
+        var outhash = new byte[32];
+        RustVerkleLib.VerkleMSM(context, res.ToArray(), (UIntPtr)res.Count, outhash);
+
+        Console.WriteLine($"{Convert.ToHexString(outhash)}");
+
+
+    }
+
     [Test]
     public void TestAddition()
     {
