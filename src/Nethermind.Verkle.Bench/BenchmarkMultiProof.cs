@@ -47,7 +47,7 @@ public class BenchmarkMultiProofBase
 
     private VerkleProofStruct GenerateProof(VerkleProverQuery[] queries)
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, [..queries]);
     }
 }
@@ -60,14 +60,14 @@ public class BenchmarkMultiProof1() : BenchmarkMultiProofBase(1)
     [Benchmark]
     public VerkleProofStruct BenchmarkBasicMultiProof1()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, _proverQueries);
     }
 
     [Benchmark]
     public bool BenchmarkVerification1()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
 }
@@ -80,14 +80,14 @@ public class BenchmarkMultiProof1000() : BenchmarkMultiProofBase(1000)
     [Benchmark]
     public VerkleProofStruct BenchmarkBasicMultiProof1000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, _proverQueries);
     }
 
     [Benchmark]
     public bool BenchmarkVerification1000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
 }
@@ -100,14 +100,14 @@ public class BenchmarkMultiProof2000() : BenchmarkMultiProofBase(2000)
     [Benchmark]
     public VerkleProofStruct BenchmarkBasicMultiProof2000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, _proverQueries);
     }
 
     [Benchmark]
     public bool BenchmarkVerification2000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
 }
@@ -120,14 +120,14 @@ public class BenchmarkMultiProof4000() : BenchmarkMultiProofBase(4000)
     [Benchmark]
     public VerkleProofStruct BenchmarkBasicMultiProof4000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, _proverQueries);
     }
 
     [Benchmark]
     public bool BenchmarkVerification4000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
 }
@@ -142,6 +142,13 @@ public class BenchmarkMultiProof8000() : BenchmarkMultiProofBase(8000)
     {
         Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, _proverQueries);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification8000()
+    {
+        Transcript proverTranscript = new("verkle");
+        return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
 
     [Benchmark]
@@ -161,12 +168,19 @@ public class BenchmarkMultiProof16000() : BenchmarkMultiProofBase(16000)
     [Benchmark]
     public VerkleProofStruct BenchmarkBasicMultiProof16000()
     {
-        Transcript proverTranscript = new("test");
+        Transcript proverTranscript = new("verkle");
         return Prover.MakeMultiProof(proverTranscript, _proverQueries);
     }
 
     [Benchmark]
-    public bool BenchmarkBasicMultiProof8000Rust()
+    public bool BenchmarkVerification16000()
+    {
+        Transcript proverTranscript = new("verkle");
+        return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
+    }
+
+    [Benchmark]
+    public bool BenchmarkBasicMultiProof16000Rust()
     {
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProve(Context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
