@@ -159,17 +159,14 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProve(ctx, input.ToArray(), (UIntPtr)input.Count, output);
 
-        int startRIndex = 32 + proverQueries.Count * 32;
-        byte[] l = output[32..startRIndex];
-
-        int startAIndex = startRIndex + proverQueries.Count * 32;
-        byte[] r = output[startRIndex..startAIndex];
-
-        byte[] a = output[startAIndex..(startAIndex + 32)];
+        byte[] d = output[0..32];
+        byte[] l = output[32..288];
+        byte[] r = output[288..544];
+        byte[] a = output[544..576];
 
         IpaProofStructSerialized ipa_proof = new(a, l, r);
 
-        return new VerkleProofStructSerialized(ipa_proof, output[..32]);
+        return new VerkleProofStructSerialized(ipa_proof, d);
     }
 
     public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
