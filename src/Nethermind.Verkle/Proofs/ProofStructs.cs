@@ -49,6 +49,32 @@ public readonly struct IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
     }
 }
 
+public readonly struct IpaProofStructSerialized(byte[] a, byte[] l, byte[] r)
+{
+    public readonly byte[] A = a;
+    public readonly byte[] L = l;
+    public readonly byte[] R = r;
+
+    public byte[] Encode()
+    {
+        List<byte> encoded = [.. L, .. A, .. R];
+        return encoded.ToArray();
+    }
+
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.Append("\n#[_l]#\n");
+        stringBuilder.AppendJoin(", ", L);
+        stringBuilder.Append("\n#[_a]#\n");
+        stringBuilder.AppendJoin(", ", A);
+        stringBuilder.Append("\n#[_r]#\n");
+        stringBuilder.AppendJoin(", ", R);
+        stringBuilder.Append('\n');
+        return stringBuilder.ToString();
+    }
+}
+
 public readonly struct VerkleProofStruct
 {
     public readonly Banderwagon D;
@@ -78,5 +104,26 @@ public readonly struct VerkleProofStruct
         encoded.AddRange(IpaProof.Encode());
 
         return encoded.ToArray();
+    }
+}
+
+public readonly struct VerkleProofStructSerialized(IpaProofStructSerialized ipaProofSerialized, byte[] d)
+{
+    public readonly byte[] D = d;
+    public readonly IpaProofStructSerialized IpaProofSerialized = ipaProofSerialized;
+
+    public byte[] Encode()
+    {
+        List<byte> encoded = [.. D, .. IpaProofSerialized.Encode()];
+        return encoded.ToArray();
+    }
+
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.Append("\n#[_d]#\n");
+        stringBuilder.AppendJoin(", ", D);
+        stringBuilder.Append(IpaProofSerialized.ToString());
+        return stringBuilder.ToString();
     }
 }
