@@ -323,6 +323,33 @@ public class MultiProofTests
     }
 
     [Test]
+    public void TestProofVerificationFromSerialization()
+    {
+        List<VerkleProverQuery> proverQueries = GenerateRandomQueries(400);
+
+        MultiProof multiproof = new(CRS.Instance, PreComputedWeights.Instance);
+
+        VerkleProofStructSerialized proofStructSerialized = multiproof.MakeMultiProofSerialized(proverQueries);
+
+        VerkleVerifierQuery[] verifierQueries = proverQueries
+            .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
+
+        List<byte> input = new(proofStructSerialized.Encode());
+
+        foreach (VerkleVerifierQuery query in verifierQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        bool result = RustVerkleLib.VerkleVerify(ctx, input.ToArray(), (UIntPtr)input.Count);
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
     public void TestProofVerificationCtoRust()
     {
         MultiProof prover = new(CRS.Instance, PreComputedWeights.Instance);
