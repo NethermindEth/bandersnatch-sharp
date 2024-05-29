@@ -33,8 +33,8 @@ public class BenchmarkMultiProofBase
 
         _proof = GenerateProof(_proverQueries.ToArray());
         _verifierQueries = GetVerifierQueriesFromProverQueries(_proverQueries);
-        List<byte> input = new(_proof.Encode());
-        _verifierQueryInput = SerializeVerifierQueriesForRust(_verifierQueries, input);
+
+        _verifierQueryInput = SerializeVerifierQueriesForRust(_verifierQueries, _proof);
     }
 
     protected static MultiProof Prover => new(CRS.Instance, PreComputedWeights.Instance);
@@ -67,8 +67,9 @@ public class BenchmarkMultiProofBase
         return input.ToArray();
     }
 
-    private static byte[] SerializeVerifierQueriesForRust(VerkleVerifierQuery[] queries, List<byte> input)
+    private static byte[] SerializeVerifierQueriesForRust(VerkleVerifierQuery[] queries, VerkleProofStruct proof)
     {
+        List<byte> input = new(proof.Encode());
         foreach (VerkleVerifierQuery query in queries)
         {
             input.AddRange(query.NodeCommitPoint.ToBytes());
