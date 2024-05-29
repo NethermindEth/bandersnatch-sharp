@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
@@ -20,8 +21,6 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         FpE[] inverses = FpE.MultiInverse(zs);
         for (int i = 0; i < numOfPoints; i++) normalizedPoints[i] = queries[i].NodeCommitPoint.ToAffine(inverses[i]);
     }
-
-
     public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
     {
         // batch normalize the NodeCommitPoints for the query
@@ -140,6 +139,37 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         IpaProofStruct ipaProof = Ipa.MakeIpaProof(cRs, transcript, pQuery, out _);
 
         return new VerkleProofStruct(ipaProof, d);
+    }
+    public VerkleProofStructSerialized MakeMultiProofSerialized(List<VerkleProverQuery> proverQueries)
+    {
+        List<byte> input = new();
+        foreach (VerkleProverQuery query in proverQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            foreach (FrE eval in query.ChildHashPoly.Evaluations)
+            {
+                input.AddRange(eval.ToBytes());
+            }
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProve(ctx, input.ToArray(), (UIntPtr)input.Count, output);
+
+        int startRIndex = 32 + proverQueries.Count * 32;
+        byte[] l = output[32..startRIndex];
+
+        int startAIndex = startRIndex + proverQueries.Count * 32;
+        byte[] r = output[startRIndex..startAIndex];
+
+        byte[] a = output[startAIndex..(startAIndex + 32)];
+
+        IpaProofStructSerialized ipa_proof = new(a, l, r);
+
+        return new VerkleProofStructSerialized(ipa_proof, output[..32]);
     }
 
     public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
