@@ -18,6 +18,7 @@ public class BenchmarkMultiProofBase
     protected readonly List<VerkleProverQuery> _proverQueries;
     protected readonly VerkleVerifierQuery[] _verifierQueries;
     protected readonly byte[] _proverQueryInput;
+    protected readonly byte[] _verifierQueryInput;
     protected readonly IntPtr Context;
 
     protected BenchmarkMultiProofBase(int numPoly)
@@ -41,6 +42,15 @@ public class BenchmarkMultiProofBase
         _proof = GenerateProof(_proverQueries.ToArray());
         _verifierQueries = _proverQueries
             .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
+
+        List<byte> verify_input = new(_proof.Encode());
+        foreach (var query in _verifierQueries)
+        {
+            verify_input.AddRange(query.NodeCommitPoint.ToBytes());
+            verify_input.Add(query.ChildIndex);
+            verify_input.AddRange(query.ChildHash.ToBytes());
+        }
+        _verifierQueryInput = verify_input.ToArray();
     }
 
     protected static MultiProof Prover => new(CRS.Instance, PreComputedWeights.Instance);
@@ -48,7 +58,7 @@ public class BenchmarkMultiProofBase
     private VerkleProofStruct GenerateProof(VerkleProverQuery[] queries)
     {
         Transcript proverTranscript = new("test");
-        return Prover.MakeMultiProof(proverTranscript, [..queries]);
+        return Prover.MakeMultiProof(proverTranscript, [.. queries]);
     }
 }
 
@@ -70,6 +80,12 @@ public class BenchmarkMultiProof1() : BenchmarkMultiProofBase(1)
         Transcript proverTranscript = new("test");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
+
+    [Benchmark]
+    public bool BenchmarkVerification1Rust()
+    {
+        return RustVerkleLib.VerkleVerify(Context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -89,6 +105,12 @@ public class BenchmarkMultiProof1000() : BenchmarkMultiProofBase(1000)
     {
         Transcript proverTranscript = new("test");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification1000Rust()
+    {
+        return RustVerkleLib.VerkleVerify(Context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
     }
 }
 
@@ -110,6 +132,12 @@ public class BenchmarkMultiProof2000() : BenchmarkMultiProofBase(2000)
         Transcript proverTranscript = new("test");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
     }
+
+    [Benchmark]
+    public bool BenchmarkVerification2000Rust()
+    {
+        return RustVerkleLib.VerkleVerify(Context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -129,6 +157,12 @@ public class BenchmarkMultiProof4000() : BenchmarkMultiProofBase(4000)
     {
         Transcript proverTranscript = new("test");
         return Prover.CheckMultiProof(proverTranscript, _verifierQueries, _proof);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification4000Rust()
+    {
+        return RustVerkleLib.VerkleVerify(Context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
     }
 }
 
@@ -166,7 +200,7 @@ public class BenchmarkMultiProof16000() : BenchmarkMultiProofBase(16000)
     }
 
     [Benchmark]
-    public bool BenchmarkBasicMultiProof8000Rust()
+    public bool BenchmarkBasicMultiProof16000Rust()
     {
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProve(Context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
