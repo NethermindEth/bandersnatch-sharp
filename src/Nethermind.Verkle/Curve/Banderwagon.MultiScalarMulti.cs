@@ -69,7 +69,7 @@ public readonly partial struct Banderwagon
 
         Banderwagon[] windowSums = new Banderwagon[windowsStart.Count];
 
-        ActionBlock<int> windowAction = new ActionBlock<int>((w) =>
+        ActionBlock<int> windowAction = new((w) =>
         {
             int winStart = windowsStart[w];
 
