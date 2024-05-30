@@ -1,6 +1,7 @@
 // Copyright 2022 Demerzel Solutions Limited
 // Licensed under Apache-2.0.For full terms, see LICENSE in the project root.
 
+using System.Threading.Tasks.Dataflow;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
 
@@ -18,25 +19,32 @@ public readonly partial struct Banderwagon
         for (int i = 0; i < numOfPoints; i++) normalizedPoints[i] = points[i].ToAffine(inverses[i]);
     }
 
-    public static Banderwagon MultiScalarMul(in ReadOnlySpan<Banderwagon> points, Span<FrE> scalars)
+    public static Banderwagon MultiScalarMul(in ReadOnlySpan<Banderwagon> points, Span<FrE> scalars, int threadCount = 0)
     {
         AffinePoint[] normalizedPoint = new AffinePoint[points.Length];
         BatchNormalize(points, normalizedPoint);
-        return MultiScalarMulFast(normalizedPoint, scalars.ToArray());
+        return MultiScalarMulFast(normalizedPoint, scalars.ToArray(), threadCount);
     }
 
-    private static FrE[] BatchConvertFromMontgomery(FrE[] scalarsMont)
+    private static FrE[] BatchConvertFromMontgomery(FrE[] scalarsMont, ExecutionDataflowBlockOptions options)
     {
         FrE[] scalars = new FrE[scalarsMont.Length];
-        Parallel.For(0, scalarsMont.Length, i =>
+        ActionBlock<int> setBlock = new ActionBlock<int>((i) =>
         {
             FrE.FromMontgomery(in scalarsMont[i], out scalars[i]);
-        });
+        }, options);
+        for (int i = 0; i < scalarsMont.Length; i++)
+        {
+            setBlock.Post(i);
+        }
+        setBlock.Complete();
+        setBlock.Completion.Wait();
+
         return scalars;
     }
 
 
-    private static Banderwagon MultiScalarMulFast(IReadOnlyList<AffinePoint> points, FrE[] scalars)
+    private static Banderwagon MultiScalarMulFast(IReadOnlyList<AffinePoint> points, FrE[] scalars, int threadCount)
     {
         int numOfPoints = points.Count;
         int windowsSize = numOfPoints < 32 ? 3 : (int)(Math.Log2(numOfPoints) * 69 / 100) + 2;
@@ -53,11 +61,15 @@ public readonly partial struct Banderwagon
 
         ulong bucketSize = ((ulong)1 << windowsSize) - 1;
 
-        FrE[] scalarsReg = BatchConvertFromMontgomery(scalars);
+        ExecutionDataflowBlockOptions options = new()
+        {
+            MaxDegreeOfParallelism = threadCount == 0 ? Environment.ProcessorCount : threadCount
+        };
+        FrE[] scalarsReg = BatchConvertFromMontgomery(scalars, options);
 
         Banderwagon[] windowSums = new Banderwagon[windowsStart.Count];
 
-        Parallel.For(0, windowsStart.Count, w =>
+        ActionBlock<int> windowAction = new((w) =>
         {
             int winStart = windowsStart[w];
 
@@ -90,7 +102,14 @@ public readonly partial struct Banderwagon
             }
 
             windowSums[w] = res;
-        });
+        }, options);
+
+        for (int j = 0; j < windowsStart.Count; j++)
+        {
+            windowAction.Post(j);
+        }
+        windowAction.Complete();
+        windowAction.Completion.Wait();
 
         Banderwagon lowest = windowSums[0];
 
