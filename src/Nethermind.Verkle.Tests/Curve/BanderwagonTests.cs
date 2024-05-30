@@ -97,9 +97,9 @@ public class BanderwagonTests
     {
         Banderwagon gen = Banderwagon.Generator;
 
-        byte[]? serialized = gen.ToBytes();
-        const string expected = "4A2C7486FD924882BF02C6908DE395122843E3E05264D7991E18E7985DAD51E9";
-        Convert.ToHexString(serialized).Should().BeEquivalentTo(expected);
+        byte[]? serialized = gen.ToBytesUncompressed();
+        Banderwagon res = Banderwagon.FromBytesUncompressedUnchecked(serialized);
+        Assert.That(res == gen);
     }
 
     [Test]
