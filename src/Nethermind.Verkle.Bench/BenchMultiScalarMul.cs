@@ -12,18 +12,17 @@ namespace Nethermind.Verkle.Bench;
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class BenchCurveOps
+public class BenchMultiScalarMul
 {
     [Params(1, 2, 4, 8, 16, 32, 256)]
-    // [Params(256)]
     public int InputSize { get; set; }
 
-    [Params(1, 4)]
+    [Params(1, 4, 8, 12)]
     public int Parallelism { get; set; }
 
     private readonly FrE[] _a;
 
-    public BenchCurveOps()
+    public BenchMultiScalarMul()
     {
         using IEnumerator<FrE> rand = FrE.GetRandom().GetEnumerator();
         for (int i = 0; i < 10; i++) rand.MoveNext();
@@ -47,10 +46,10 @@ public class BenchCurveOps
     [Benchmark]
     public void BenchmarkScalarMul()
     {
-        SpinLock accumulationLock = new SpinLock();
+        SpinLock accumulationLock = new();
         Banderwagon accumulation = Banderwagon.Identity;
 
-        ActionBlock<int> accumulator = new ActionBlock<int>((i) =>
+        ActionBlock<int> accumulator = new((i) =>
         {
             Banderwagon multiplierd = Banderwagon.ScalarMul(Crs.BasisG[i], _a[i]);
             bool locked = false;
