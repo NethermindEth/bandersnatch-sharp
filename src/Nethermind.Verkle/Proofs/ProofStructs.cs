@@ -49,7 +49,7 @@ public readonly struct IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
     }
 }
 
-public readonly struct IpaProofStructSerialized(byte[] a, byte[][] l, byte[][] r)
+public readonly struct IpaProofStructSerialized(byte[][] l, byte[] a, byte[][] r)
 {
     public readonly byte[] A = a;
     public readonly byte[][] L = l;
