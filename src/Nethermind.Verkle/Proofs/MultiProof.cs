@@ -145,7 +145,7 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         List<byte> input = new();
         foreach (VerkleProverQuery query in proverQueries)
         {
-            input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.AddRange(query.NodeCommitPoint.ToBytesUncompressed());
             foreach (FrE eval in query.ChildHashPoly.Evaluations)
             {
                 input.AddRange(eval.ToBytes());
@@ -157,7 +157,7 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         IntPtr ctx = RustVerkleLib.VerkleContextNew();
 
         byte[] output = new byte[576];
-        RustVerkleLib.VerkleProve(ctx, input.ToArray(), (UIntPtr)input.Count, output);
+        RustVerkleLib.VerkleProveUncompressed(ctx, input.ToArray(), (UIntPtr)input.Count, output);
 
         int startIndex = 32;
 
