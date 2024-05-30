@@ -71,14 +71,14 @@ public readonly partial struct Banderwagon
         return SubgroupCheck(x) != 1 ? null : new Banderwagon(x, y.Value);
     }
 
-    public static Banderwagon FromBytesUncompressedUnchecked(byte[] bytes, bool isBigEndian = true)
+    public static Banderwagon FromBytesUncompressedUnchecked(ReadOnlySpan<byte> bytes, bool isBigEndian = true)
     {
-        FpE x = FpE.FromBytes(bytes.AsSpan()[..32], isBigEndian);
-        FpE y = FpE.FromBytes(bytes.AsSpan()[32..], isBigEndian);
+        FpE x = FpE.FromBytes(bytes[..32], isBigEndian);
+        FpE y = FpE.FromBytes(bytes[32..], isBigEndian);
         return new Banderwagon(x, y);
     }
 
-    public static int SubgroupCheck(FpE x)
+    private static int SubgroupCheck(FpE x)
     {
         FpE.MultiplyMod(x, x, out FpE res);
         FpE.MultiplyMod(res, A, out res);
