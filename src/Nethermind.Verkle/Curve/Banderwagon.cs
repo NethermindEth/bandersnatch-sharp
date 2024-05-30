@@ -71,6 +71,13 @@ public readonly partial struct Banderwagon
         return SubgroupCheck(x) != 1 ? null : new Banderwagon(x, y.Value);
     }
 
+    public static Banderwagon FromBytesUncompressedUnchecked(byte[] bytes, bool isBigEndian = true)
+    {
+        FpE x = FpE.FromBytes(bytes.AsSpan()[..32], isBigEndian);
+        FpE y = FpE.FromBytes(bytes.AsSpan()[32..], isBigEndian);
+        return new Banderwagon(x, y);
+    }
+
     public static int SubgroupCheck(FpE x)
     {
         FpE.MultiplyMod(x, x, out FpE res);
@@ -220,6 +227,18 @@ public readonly partial struct Banderwagon
         if (affine.Y.LexicographicallyLargest() == false) x = affine.X.Negative();
 
         return x.ToBytesBigEndian();
+    }
+
+    public byte[] ToBytesUncompressed()
+    {
+        byte[] uncompressed = new byte[64];
+        Span<byte> ucSpan = uncompressed;
+        AffinePoint affine = ToAffine();
+
+        affine.X.ToBytesBigEndian().CopyTo(ucSpan[..32]);
+        affine.Y.ToBytesBigEndian().CopyTo(ucSpan[32..]);
+
+        return uncompressed;
     }
 
     public byte[] ToBytesLittleEndian()
