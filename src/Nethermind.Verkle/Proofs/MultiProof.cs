@@ -239,4 +239,20 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         return Ipa.CheckIpaProof(cRs, transcript, queryX);
     }
+
+    public bool CheckMultiProofSerialized(VerkleVerifierQuery[] queries, VerkleProofStructSerialized proof)
+    {
+        List<byte> input = new(proof.Encode());
+
+        foreach (VerkleVerifierQuery query in queries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        return RustVerkleLib.VerkleVerify(ctx, input.ToArray(), (UIntPtr)input.Count);
+    }
 }
