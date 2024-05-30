@@ -49,15 +49,18 @@ public readonly struct IpaProofStruct(Banderwagon[] l, FrE a, Banderwagon[] r)
     }
 }
 
-public readonly struct IpaProofStructSerialized(byte[] a, byte[] l, byte[] r)
+public readonly struct IpaProofStructSerialized(byte[] a, byte[][] l, byte[][] r)
 {
     public readonly byte[] A = a;
-    public readonly byte[] L = l;
-    public readonly byte[] R = r;
+    public readonly byte[][] L = l;
+    public readonly byte[][] R = r;
 
     public byte[] Encode()
     {
-        List<byte> encoded = [.. L, .. A, .. R];
+        List<byte> encoded = [];
+        foreach (byte[] l in L) encoded.AddRange(l);
+        foreach (byte[] r in R) encoded.AddRange(r);
+        encoded.AddRange(A);
         return encoded.ToArray();
     }
 
@@ -65,12 +68,19 @@ public readonly struct IpaProofStructSerialized(byte[] a, byte[] l, byte[] r)
     {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.Append("\n#[_l]#\n");
-        stringBuilder.AppendJoin(", ", L);
+        foreach (byte[] l in L)
+        {
+            stringBuilder.AppendJoin(", ", l.Select(b => b.ToString("X2")));
+            stringBuilder.Append('\n');
+        }
         stringBuilder.Append("\n#[_a]#\n");
         stringBuilder.AppendJoin(", ", A);
         stringBuilder.Append("\n#[_r]#\n");
-        stringBuilder.AppendJoin(", ", R);
-        stringBuilder.Append('\n');
+        foreach (byte[] r in R)
+        {
+            stringBuilder.AppendJoin(", ", r.Select(b => b.ToString("X2")));
+            stringBuilder.Append('\n');
+        }
         return stringBuilder.ToString();
     }
 }
