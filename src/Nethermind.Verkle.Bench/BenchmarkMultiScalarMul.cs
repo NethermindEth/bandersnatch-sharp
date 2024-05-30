@@ -12,20 +12,20 @@ namespace Nethermind.Verkle.Bench;
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [NoIntrinsicsJob(RuntimeMoniker.Net80)]
 [MemoryDiagnoser]
-public class BenchCurveOps
+public class BenchmarkMultiScalarMul
 {
     private readonly FrE[] _a;
     private readonly byte[] _input;
 
-    private static IntPtr VerkleContext = RustVerkleLib.VerkleContextNew();
+    private static readonly IntPtr _verkleContext = RustVerkleLib.VerkleContextNew();
 
-    public BenchCurveOps()
+    public BenchmarkMultiScalarMul()
     {
         using IEnumerator<FrE> rand = FrE.GetRandom().GetEnumerator();
         for (int i = 0; i < 10; i++) rand.MoveNext();
 
         _a = new FrE[256];
-        var inp = new List<byte>();
+        List<byte> inp = [];
         for (int i = 0; i < 256; i++)
         {
             _a[i] = rand.Current;
@@ -39,15 +39,15 @@ public class BenchCurveOps
     private static CRS Crs => CRS.Instance;
 
     [Benchmark]
-    public void BenchmarkMultiScalarMul()
+    public void MultiScalarMulCSharp()
     {
         Banderwagon.MultiScalarMul(Crs.BasisG, _a);
     }
 
     [Benchmark]
-    public void BenchmarkMultiScalarMulRust()
+    public void MultiScalarMulRust()
     {
-        var outhash = new byte[32];
-        RustVerkleLib.VerkleMSM(VerkleContext, _input, 8192, outhash);
+        byte[] outhash = new byte[32];
+        RustVerkleLib.VerkleMSM(_verkleContext, _input, 8192, outhash);
     }
 }
