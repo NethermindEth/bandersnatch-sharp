@@ -334,18 +334,7 @@ public class MultiProofTests
         VerkleVerifierQuery[] verifierQueries = proverQueries
             .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
 
-        List<byte> input = new(proofStructSerialized.Encode());
-
-        foreach (VerkleVerifierQuery query in verifierQueries)
-        {
-            input.AddRange(query.NodeCommitPoint.ToBytes());
-            input.Add(query.ChildIndex);
-            input.AddRange(query.ChildHash.ToBytes());
-        }
-
-        IntPtr ctx = RustVerkleLib.VerkleContextNew();
-
-        bool result = RustVerkleLib.VerkleVerify(ctx, input.ToArray(), (UIntPtr)input.Count);
+        bool result = multiproof.CheckMultiProofSerialized(verifierQueries, proofStructSerialized);
         Assert.That(result, Is.True);
     }
 
