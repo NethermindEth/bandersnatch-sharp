@@ -159,24 +159,9 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProveUncompressed(ctx, input.ToArray(), (UIntPtr)input.Count, output);
 
-        int startIndex = 32;
-
         byte[] d = output[0..32];
-        byte[] a = output[544..576];
-        byte[][] l = new byte[8][];
-        byte[][] r = new byte[8][];
 
-        for (int i = 0; i < 8; i++)
-        {
-            int sliceStartL = startIndex + i * 32;
-            int sliceStartR = startIndex + 256 + i * 32;
-
-            l[i] = new byte[32];
-            r[i] = new byte[32];
-            Array.Copy(output, sliceStartL, l[i], 0, 32);
-            Array.Copy(output, sliceStartR, r[i], 0, 32);
-        }
-        IpaProofStructSerialized ipa_proof = new(l, a, r);
+        IpaProofStructSerialized ipa_proof = IpaProofStructSerialized.CreateIpaProofSerialized(output);
 
         return new VerkleProofStructSerialized(ipa_proof, d);
     }
