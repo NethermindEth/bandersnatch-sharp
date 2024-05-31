@@ -55,6 +55,27 @@ public readonly struct IpaProofStructSerialized(byte[][] l, byte[] a, byte[][] r
     public readonly byte[][] L = l;
     public readonly byte[][] R = r;
 
+    public static IpaProofStructSerialized CreateIpaProofSerialized(byte[] proof)
+    {
+        int startIndex = 32;
+
+        byte[] a = proof[544..576];
+        byte[][] l = new byte[8][];
+        byte[][] r = new byte[8][];
+
+        for (int i = 0; i < 8; i++)
+        {
+            int sliceStartL = startIndex + i * 32;
+            int sliceStartR = startIndex + 256 + i * 32;
+
+            l[i] = new byte[32];
+            r[i] = new byte[32];
+            Array.Copy(proof, sliceStartL, l[i], 0, 32);
+            Array.Copy(proof, sliceStartR, r[i], 0, 32);
+        }
+        return new IpaProofStructSerialized(l, a, r);
+    }
+
     public byte[] Encode()
     {
         List<byte> encoded = [];
@@ -84,7 +105,6 @@ public readonly struct IpaProofStructSerialized(byte[][] l, byte[] a, byte[][] r
         return stringBuilder.ToString();
     }
 }
-
 public readonly struct VerkleProofStruct
 {
     public readonly Banderwagon D;
