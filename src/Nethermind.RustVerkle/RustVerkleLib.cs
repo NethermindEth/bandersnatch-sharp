@@ -46,4 +46,7 @@ public class RustVerkleLib
 
     [DllImport("c_verkle", EntryPoint = "create_proof_uncompressed", CallingConvention = CallingConvention.Cdecl)]
     public static extern void VerkleProveUncompressed(IntPtr ct, byte[] input, UIntPtr length, byte[] outHash);
+
+    [DllImport("c_verkle", EntryPoint = "verify_proof_uncompressed", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool VerkleVerifyUncompressed(IntPtr ct, byte[] input, UIntPtr length);
 }

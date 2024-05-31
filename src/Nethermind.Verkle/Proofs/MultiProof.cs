@@ -231,7 +231,7 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         foreach (VerkleVerifierQuery query in queries)
         {
-            input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.AddRange(query.NodeCommitPoint.ToBytesUncompressed());
             input.Add(query.ChildIndex);
             input.AddRange(query.ChildHash.ToBytes());
         }
