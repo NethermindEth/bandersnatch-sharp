@@ -238,6 +238,6 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         IntPtr ctx = RustVerkleLib.VerkleContextNew();
 
-        return RustVerkleLib.VerkleVerify(ctx, input.ToArray(), (UIntPtr)input.Count);
+        return RustVerkleLib.VerkleVerifyUncompressed(ctx, input.ToArray(), (UIntPtr)input.Count);
     }
 }
