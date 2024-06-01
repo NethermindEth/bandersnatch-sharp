@@ -16,7 +16,9 @@ public class BenchmarkMultiProofBase
     protected readonly List<VerkleProverQuery> _proverQueries;
     protected readonly VerkleVerifierQuery[] _verifierQueries;
     protected readonly byte[] _proverQueryInput;
+    protected readonly byte[] _proverQueryInputUncompressed;
     protected readonly byte[] _verifierQueryInput;
+    protected readonly byte[] _verifierQueryInputUncompressed;
     protected readonly IntPtr _context;
 
     public static List<VerkleProverQuery> GenerateProverQueries(int numberOfOpenings)
@@ -28,6 +30,7 @@ public class BenchmarkMultiProofBase
     {
         _proverQueries = MultiProofTests.GenerateRandomQueries(numPoly);
         _proverQueryInput = SerializeProverQueriesForRust(_proverQueries);
+        _proverQueryInputUncompressed = SerializeProverQueriesForRustUncompressed(_proverQueries);
 
         _context = RustVerkleLib.VerkleContextNew();
 
@@ -35,6 +38,7 @@ public class BenchmarkMultiProofBase
         _verifierQueries = GetVerifierQueriesFromProverQueries(_proverQueries);
 
         _verifierQueryInput = SerializeVerifierQueriesForRust(_verifierQueries, _proof);
+        _verifierQueryInputUncompressed = SerializeVerifierQueriesForRustUncompressed(_verifierQueries, _proof);
     }
 
     protected static MultiProof Prover => new(CRS.Instance, PreComputedWeights.Instance);
@@ -67,12 +71,40 @@ public class BenchmarkMultiProofBase
         return input.ToArray();
     }
 
+    private static byte[] SerializeProverQueriesForRustUncompressed(List<VerkleProverQuery> queries)
+    {
+        List<byte> input = [];
+        foreach (VerkleProverQuery query in queries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytesUncompressed());
+            foreach (FrE eval in query.ChildHashPoly.Evaluations)
+            {
+                input.AddRange(eval.ToBytes());
+            }
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+        return input.ToArray();
+    }
+
     private static byte[] SerializeVerifierQueriesForRust(VerkleVerifierQuery[] queries, VerkleProofStruct proof)
     {
         List<byte> input = new(proof.Encode());
         foreach (VerkleVerifierQuery query in queries)
         {
             input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+        return input.ToArray();
+    }
+
+    private static byte[] SerializeVerifierQueriesForRustUncompressed(VerkleVerifierQuery[] queries, VerkleProofStruct proof)
+    {
+        List<byte> input = new(proof.Encode());
+        foreach (VerkleVerifierQuery query in queries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytesUncompressed());
             input.Add(query.ChildIndex);
             input.AddRange(query.ChildHash.ToBytes());
         }
