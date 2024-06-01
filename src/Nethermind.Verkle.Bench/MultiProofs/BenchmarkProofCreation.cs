@@ -21,11 +21,23 @@ public class BenchmarkProofCreation1Opening() : BenchmarkMultiProofBase(1)
     }
 
     [Benchmark]
-    public void ProofCreation1OpeningsRust()
+    public void ProofCreation1OpeningRust()
     {
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProve(_context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
 
+    }
+
+    [Benchmark]
+    public void ProofCreation1OpeningRustUncompressed()
+    {
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProveUncompressed(
+            _context,
+            _proverQueryInputUncompressed,
+            (UIntPtr)_proverQueryInputUncompressed.Length,
+            output
+        );
     }
 }
 
@@ -46,7 +58,18 @@ public class BenchmarkProofCreation1000Openings() : BenchmarkMultiProofBase(1000
     {
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProve(_context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
+    }
 
+    [Benchmark]
+    public void ProofCreation1000OpeningsRustUncompressed()
+    {
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProveUncompressed(
+            _context,
+            _proverQueryInputUncompressed,
+            (UIntPtr)_proverQueryInputUncompressed.Length,
+            output
+        );
     }
 }
 
@@ -69,6 +92,17 @@ public class BenchmarkProofCreation2000Openings() : BenchmarkMultiProofBase(2000
         RustVerkleLib.VerkleProve(_context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
     }
 
+    [Benchmark]
+    public void ProofCreation2000peningsRustUncompressed()
+    {
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProveUncompressed(
+            _context,
+            _proverQueryInputUncompressed,
+            (UIntPtr)_proverQueryInputUncompressed.Length,
+            output
+        );
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -91,6 +125,17 @@ public class BenchmarkProofCreation4000Openings() : BenchmarkMultiProofBase(4000
 
     }
 
+    [Benchmark]
+    public void ProofCreation4000peningsRustUncompressed()
+    {
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProveUncompressed(
+            _context,
+            _proverQueryInputUncompressed,
+            (UIntPtr)_proverQueryInputUncompressed.Length,
+            output
+        );
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -112,6 +157,18 @@ public class BenchmarkProofCreation8000Openings() : BenchmarkMultiProofBase(8000
         RustVerkleLib.VerkleProve(_context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
 
     }
+
+    [Benchmark]
+    public void ProofCreation8000peningsRustUncompressed()
+    {
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProveUncompressed(
+            _context,
+            _proverQueryInputUncompressed,
+            (UIntPtr)_proverQueryInputUncompressed.Length,
+            output
+        );
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -132,6 +189,18 @@ public class BenchmarkProofCreation16000Openings() : BenchmarkMultiProofBase(160
         byte[] output = new byte[576];
         RustVerkleLib.VerkleProve(_context, _proverQueryInput, (UIntPtr)_proverQueryInput.Length, output);
 
+    }
+
+    [Benchmark]
+    public void ProofCreation16000peningsRustUncompressed()
+    {
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProveUncompressed(
+            _context,
+            _proverQueryInputUncompressed,
+            (UIntPtr)_proverQueryInputUncompressed.Length,
+            output
+        );
     }
 }
 
