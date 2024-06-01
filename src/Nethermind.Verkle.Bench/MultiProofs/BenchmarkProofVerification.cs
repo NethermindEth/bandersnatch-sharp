@@ -22,9 +22,19 @@ public class BenchmarkProofVerification1Opening() : BenchmarkMultiProofBase(1)
     }
 
     [Benchmark]
-    public bool BenchmarkVerification1OpeningsRust()
+    public bool BenchmarkVerification1OpeningRust()
     {
         return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification1OpeningRustUncompressed()
+    {
+        return RustVerkleLib.VerkleVerifyUncompressed(
+            _context,
+            _verifierQueryInputUncompressed,
+            (UIntPtr)_verifierQueryInputUncompressed.Length
+        );
     }
 }
 
@@ -44,6 +54,16 @@ public class BenchmarkProofVerification1000Openings() : BenchmarkMultiProofBase(
     public bool BenchmarkVerification1000OpeningsRust()
     {
         return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification1000OpeningRustUncompressed()
+    {
+        return RustVerkleLib.VerkleVerifyUncompressed(
+            _context,
+            _verifierQueryInputUncompressed,
+            (UIntPtr)_verifierQueryInputUncompressed.Length
+        );
     }
 }
 
@@ -65,6 +85,16 @@ public class BenchmarkProofVerification2000Openings() : BenchmarkMultiProofBase(
     {
         return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
     }
+
+    [Benchmark]
+    public bool BenchmarkVerification2000OpeningRustUncompressed()
+    {
+        return RustVerkleLib.VerkleVerifyUncompressed(
+            _context,
+            _verifierQueryInputUncompressed,
+            (UIntPtr)_verifierQueryInputUncompressed.Length
+        );
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -84,6 +114,16 @@ public class BenchmarkProofVerification4000Openings() : BenchmarkMultiProofBase(
     public bool BenchmarkVerification4000OpeningsRust()
     {
         return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification4000OpeningRustUncompressed()
+    {
+        return RustVerkleLib.VerkleVerifyUncompressed(
+            _context,
+            _verifierQueryInputUncompressed,
+            (UIntPtr)_verifierQueryInputUncompressed.Length
+        );
     }
 }
 
@@ -105,6 +145,16 @@ public class BenchmarkProofVerification8000Openings() : BenchmarkMultiProofBase(
     {
         return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
     }
+
+    [Benchmark]
+    public bool BenchmarkVerification8000OpeningRustUncompressed()
+    {
+        return RustVerkleLib.VerkleVerifyUncompressed(
+            _context,
+            _verifierQueryInputUncompressed,
+            (UIntPtr)_verifierQueryInputUncompressed.Length
+        );
+    }
 }
 
 [SimpleJob(RuntimeMoniker.Net80)]
@@ -123,6 +173,16 @@ public class BenchmarkProofVerification16000Openings() : BenchmarkMultiProofBase
     public bool BenchmarkVerification16000OpeningsRust()
     {
         return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
+    }
+
+    [Benchmark]
+    public bool BenchmarkVerification16000OpeningRustUncompressed()
+    {
+        return RustVerkleLib.VerkleVerifyUncompressed(
+            _context,
+            _verifierQueryInputUncompressed,
+            (UIntPtr)_verifierQueryInputUncompressed.Length
+        );
     }
 }
 
