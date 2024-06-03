@@ -8,15 +8,38 @@ namespace Nethermind.Verkle.Proofs;
 
 public class Transcript
 {
-    private List<byte> _currentHash = new(792000);
+    private List<byte> _currentHash;
+
+
+    // we can use a simple formula to calculate the maximum size.
+    // 189 - this should be the minimum size
+    // 99 for each query
+    // 10 for multiproof label
+    // 6 for verkle label
+    // size = max(189, 10 + 6 + 99 * numOfQueries)
+    public Transcript(IEnumerable<byte> label, int size)
+    {
+        _currentHash = new List<byte>(size);
+        _currentHash.AddRange(label);
+
+    }
+
+    public Transcript(string label, int size)
+    {
+        _currentHash = new List<byte>(size);
+        _currentHash.AddRange(Encoding.ASCII.GetBytes(label));
+    }
 
     public Transcript(IEnumerable<byte> label)
     {
+        _currentHash = new(792000);
         _currentHash.AddRange(label);
+
     }
 
     public Transcript(string label)
     {
+        _currentHash = new(792000);
         _currentHash.AddRange(Encoding.ASCII.GetBytes(label));
     }
 
