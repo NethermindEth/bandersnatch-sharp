@@ -140,18 +140,12 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         return new VerkleProofStruct(ipaProof, d);
     }
-    public VerkleProofStructSerialized MakeMultiProofSerialized(List<VerkleProverQuery> proverQueries)
+    public VerkleProofStructSerialized MakeMultiProofSerialized(List<VerkleProverQuerySerialized> proverQueries)
     {
         List<byte> input = new();
-        foreach (VerkleProverQuery query in proverQueries)
+        foreach (VerkleProverQuerySerialized query in proverQueries)
         {
-            input.AddRange(query.NodeCommitPoint.ToBytesUncompressed());
-            foreach (FrE eval in query.ChildHashPoly.Evaluations)
-            {
-                input.AddRange(eval.ToBytes());
-            }
-            input.Add(query.ChildIndex);
-            input.AddRange(query.ChildHash.ToBytes());
+            input.AddRange(query.Encode());
         }
 
         IntPtr ctx = RustVerkleLib.VerkleContextNew();
@@ -225,15 +219,13 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         return Ipa.CheckIpaProof(cRs, transcript, queryX);
     }
 
-    public bool CheckMultiProofSerialized(VerkleVerifierQuery[] queries, VerkleProofStructSerialized proof)
+    public bool CheckMultiProofSerialized(VerkleVerifierQuerySerialized[] queries, VerkleProofStructSerialized proof)
     {
         List<byte> input = new(proof.Encode());
 
-        foreach (VerkleVerifierQuery query in queries)
+        foreach (VerkleVerifierQuerySerialized query in queries)
         {
-            input.AddRange(query.NodeCommitPoint.ToBytesUncompressed());
-            input.Add(query.ChildIndex);
-            input.AddRange(query.ChildHash.ToBytes());
+            input.AddRange(query.Encode());
         }
 
         IntPtr ctx = RustVerkleLib.VerkleContextNew();
