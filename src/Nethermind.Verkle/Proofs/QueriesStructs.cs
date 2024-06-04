@@ -1,3 +1,4 @@
+using System.Text;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Proofs;
 
@@ -10,7 +11,6 @@ public readonly struct VerkleProverQuerySerialized(byte[][] childHashPoly, byte[
 
     public static VerkleProverQuerySerialized CreateProverQuerySerialized(VerkleProverQuery query)
     {
-
         byte[] nodeCommitPoint = query.NodeCommitPoint.ToBytesUncompressed();
         List<byte[]> childHashPoly = new List<byte[]>();
         foreach (FrE eval in query.ChildHashPoly.Evaluations)
@@ -31,11 +31,50 @@ public readonly struct VerkleProverQuerySerialized(byte[][] childHashPoly, byte[
         encoded.AddRange(ChildHash);
         return encoded.ToArray();
     }
+
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append("\n#[_ChildHashPoly]#\n");
+        foreach (byte[] eval in ChildHashPoly)
+        {
+            stringBuilder.AppendJoin(", ", eval);
+            stringBuilder.Append('\n');
+        }
+        stringBuilder.Append("\n#[_NodeCommitPoint]#\n");
+        stringBuilder.AppendJoin(", ", NodeCommitPoint);
+        stringBuilder.Append("\n#[_ChildIndex]#\n");
+        stringBuilder.AppendJoin(", ", ChildIndex);
+        stringBuilder.Append("\n#[_ChildHash]#\n");
+        stringBuilder.AppendJoin(", ", ChildHash);
+        return stringBuilder.ToString();
+    }
 }
 
-public readonly struct VerkleVerifierQuerySerialized(byte[][] NodeCommitPoint, byte ChildIndex, byte[] ChildHash)
+public readonly struct VerkleVerifierQuerySerialized(byte[] NodeCommitPoint, byte ChildIndex, byte[] ChildHash)
 {
-    public readonly byte[][] NodeCommitPoint = NodeCommitPoint;
+    public readonly byte[] NodeCommitPoint = NodeCommitPoint;
     public readonly byte ChildIndex = ChildIndex;
     public readonly byte[] ChildHash = ChildHash;
+
+    public byte[] Encode()
+    {
+        List<byte> encoded = [];
+        encoded.AddRange(NodeCommitPoint);
+        encoded.Add(ChildIndex);
+        encoded.AddRange(ChildHash);
+        return encoded.ToArray();
+    }
+
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append("\n#[_NodeCommitPoint]#\n");
+        stringBuilder.AppendJoin(", ", NodeCommitPoint);
+        stringBuilder.Append("\n#[_ChildIndex]#\n");
+        stringBuilder.AppendJoin(", ", ChildIndex);
+        stringBuilder.Append("\n#[_ChildHash]#\n");
+        stringBuilder.AppendJoin(", ", ChildHash);
+        return stringBuilder.ToString();
+    }
 }
