@@ -327,12 +327,23 @@ public class MultiProofTests
     {
         List<VerkleProverQuery> proverQueries = GenerateRandomQueries(400);
 
+        List<VerkleProverQuerySerialized> proverQueriesSerialized = proverQueries
+            .Select(VerkleProverQuerySerialized
+            .CreateProverQuerySerialized)
+            .ToList();
+
         MultiProof multiproof = new(CRS.Instance, PreComputedWeights.Instance);
 
-        VerkleProofStructSerialized proofStructSerialized = multiproof.MakeMultiProofSerialized(proverQueries);
+        VerkleProofStructSerialized proofStructSerialized = multiproof.MakeMultiProofSerialized(proverQueriesSerialized);
 
-        VerkleVerifierQuery[] verifierQueries = proverQueries
-            .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
+        VerkleVerifierQuerySerialized[] verifierQueries = proverQueries
+            .Select(
+                x => new VerkleVerifierQuerySerialized(
+                    x.NodeCommitPoint.ToBytesUncompressed(),
+                    x.ChildIndex,
+                    x.ChildHash.ToBytes()
+                )
+            ).ToArray();
 
         bool result = multiproof.CheckMultiProofSerialized(verifierQueries, proofStructSerialized);
         Assert.That(result, Is.True);
