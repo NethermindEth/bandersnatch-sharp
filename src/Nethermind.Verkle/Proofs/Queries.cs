@@ -61,24 +61,37 @@ public readonly struct VerkleProverQuerySerialized(byte[][] childHashPoly, byte[
     public static VerkleProverQuerySerialized CreateProverQuerySerialized(VerkleProverQuery query)
     {
         byte[] nodeCommitPoint = query.NodeCommitPoint.ToBytesUncompressed();
-        List<byte[]> childHashPoly = new List<byte[]>();
+        byte[][] childHashPoly = new byte[256][];
+        int i = 0;
         foreach (FrE eval in query.ChildHashPoly.Evaluations)
         {
-            childHashPoly.Add(eval.ToBytes());
+            childHashPoly[i] = eval.ToBytes();
+            i++;
         }
         byte childIndex = query.ChildIndex;
         byte[] childHash = query.ChildHash.ToBytes();
 
-        return new VerkleProverQuerySerialized(childHashPoly.ToArray(), nodeCommitPoint, childIndex, childHash);
+        return new VerkleProverQuerySerialized(childHashPoly, nodeCommitPoint, childIndex, childHash);
     }
 
     public byte[] Encode()
     {
-        List<byte> encoded = [.. NodeCommitPoint];
-        foreach (byte[] eval in ChildHashPoly) encoded.AddRange(eval);
-        encoded.Add(ChildIndex);
-        encoded.AddRange(ChildHash);
-        return encoded.ToArray();
+        byte[] encoded = new byte[8289];
+        Span<byte> span = encoded;
+
+        NodeCommitPoint.CopyTo(span.Slice(0, 64));
+        int offset = 64;
+
+        foreach (byte[] eval in ChildHashPoly)
+        {
+            eval.CopyTo(span.Slice(offset, 32));
+            offset += 32;
+        }
+
+        span[8256] = ChildIndex;
+        ChildHash.CopyTo(span.Slice(8257, 32));
+
+        return encoded;
     }
 
     public override string ToString()
@@ -122,11 +135,14 @@ public readonly struct VerkleVerifierQuerySerialized(byte[] NodeCommitPoint, byt
 
     public byte[] Encode()
     {
-        List<byte> encoded = [];
-        encoded.AddRange(NodeCommitPoint);
-        encoded.Add(ChildIndex);
-        encoded.AddRange(ChildHash);
-        return encoded.ToArray();
+        byte[] encoded = new byte[97];
+        Span<byte> span = encoded;
+
+        NodeCommitPoint.CopyTo(span.Slice(0, 64));
+        span[64] = ChildIndex;
+        ChildHash.CopyTo(span.Slice(65, 32));
+
+        return encoded;
     }
 
     public override string ToString()
