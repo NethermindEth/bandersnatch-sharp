@@ -221,15 +221,20 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
     public bool CheckMultiProofSerialized(VerkleVerifierQuerySerialized[] queries, VerkleProofStructSerialized proof)
     {
-        List<byte> input = new(proof.Encode());
+        byte[] input = new byte[576 + 97 * queries.Length];
+        Span<byte> span = input;
+
+        proof.Encode().CopyTo(span.Slice(0, 576));
+        int offset = 576;
 
         foreach (VerkleVerifierQuerySerialized query in queries)
         {
-            input.AddRange(query.Encode());
+            query.Encode().CopyTo(span.Slice(offset, 97));
+            offset += 97;
         }
 
         IntPtr ctx = RustVerkleLib.VerkleContextNew();
 
-        return RustVerkleLib.VerkleVerifyUncompressed(ctx, input.ToArray(), (UIntPtr)input.Count);
+        return RustVerkleLib.VerkleVerifyUncompressed(ctx, input, (UIntPtr)input.Length);
     }
 }
