@@ -71,7 +71,7 @@ public readonly partial struct Banderwagon
         return SubgroupCheck(x) != 1 ? null : new Banderwagon(x, y.Value);
     }
 
-    public static Banderwagon FromBytesUncompressedUnchecked(ReadOnlySpan<byte> bytes, bool isBigEndian = true)
+    public static Banderwagon FromBytesUncompressedUnchecked(ReadOnlySpan<byte> bytes, bool isBigEndian = false)
     {
         FpE x = FpE.FromBytes(bytes[..32], isBigEndian);
         FpE y = FpE.FromBytes(bytes[32..], isBigEndian);
@@ -235,8 +235,8 @@ public readonly partial struct Banderwagon
         Span<byte> ucSpan = uncompressed;
         AffinePoint affine = ToAffine();
 
-        affine.X.ToBytesBigEndian().CopyTo(ucSpan[..32]);
-        affine.Y.ToBytesBigEndian().CopyTo(ucSpan[32..]);
+        affine.X.ToBytes().CopyTo(ucSpan[..32]);
+        affine.Y.ToBytes().CopyTo(ucSpan[32..]);
 
         return uncompressed;
     }
