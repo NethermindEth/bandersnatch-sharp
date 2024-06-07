@@ -24,16 +24,10 @@ public class BenchmarkProofVerification1Opening() : BenchmarkMultiProofBase(1)
     [Benchmark]
     public bool BenchmarkVerification1OpeningRust()
     {
-        return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
-    }
-
-    [Benchmark]
-    public bool BenchmarkVerification1OpeningRustUncompressed()
-    {
         return RustVerkleLib.VerkleVerifyUncompressed(
             _context,
-            _verifierQueryInputUncompressed,
-            (UIntPtr)_verifierQueryInputUncompressed.Length
+            _verifierQueryInput,
+            (UIntPtr)_verifierQueryInput.Length
         );
     }
 }
@@ -51,18 +45,12 @@ public class BenchmarkProofVerification1000Openings() : BenchmarkMultiProofBase(
     }
 
     [Benchmark]
-    public bool BenchmarkVerification1000OpeningsRust()
-    {
-        return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
-    }
-
-    [Benchmark]
-    public bool BenchmarkVerification1000OpeningRustUncompressed()
+    public bool BenchmarkVerification1000OpeningRust()
     {
         return RustVerkleLib.VerkleVerifyUncompressed(
             _context,
-            _verifierQueryInputUncompressed,
-            (UIntPtr)_verifierQueryInputUncompressed.Length
+            _verifierQueryInput,
+            (UIntPtr)_verifierQueryInput.Length
         );
     }
 }
@@ -81,18 +69,12 @@ public class BenchmarkProofVerification2000Openings() : BenchmarkMultiProofBase(
     }
 
     [Benchmark]
-    public bool BenchmarkVerification2000OpeningsRust()
-    {
-        return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
-    }
-
-    [Benchmark]
-    public bool BenchmarkVerification2000OpeningRustUncompressed()
+    public bool BenchmarkVerification2000OpeningRust()
     {
         return RustVerkleLib.VerkleVerifyUncompressed(
             _context,
-            _verifierQueryInputUncompressed,
-            (UIntPtr)_verifierQueryInputUncompressed.Length
+            _verifierQueryInput,
+            (UIntPtr)_verifierQueryInput.Length
         );
     }
 }
@@ -111,18 +93,12 @@ public class BenchmarkProofVerification4000Openings() : BenchmarkMultiProofBase(
     }
 
     [Benchmark]
-    public bool BenchmarkVerification4000OpeningsRust()
-    {
-        return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
-    }
-
-    [Benchmark]
-    public bool BenchmarkVerification4000OpeningRustUncompressed()
+    public bool BenchmarkVerification4000OpeningRust()
     {
         return RustVerkleLib.VerkleVerifyUncompressed(
             _context,
-            _verifierQueryInputUncompressed,
-            (UIntPtr)_verifierQueryInputUncompressed.Length
+            _verifierQueryInput,
+            (UIntPtr)_verifierQueryInput.Length
         );
     }
 }
@@ -141,18 +117,12 @@ public class BenchmarkProofVerification8000Openings() : BenchmarkMultiProofBase(
     }
 
     [Benchmark]
-    public bool BenchmarkVerification8000OpeningsRust()
-    {
-        return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
-    }
-
-    [Benchmark]
-    public bool BenchmarkVerification8000OpeningRustUncompressed()
+    public bool BenchmarkVerification8000OpeningRust()
     {
         return RustVerkleLib.VerkleVerifyUncompressed(
             _context,
-            _verifierQueryInputUncompressed,
-            (UIntPtr)_verifierQueryInputUncompressed.Length
+            _verifierQueryInput,
+            (UIntPtr)_verifierQueryInput.Length
         );
     }
 }
@@ -170,18 +140,12 @@ public class BenchmarkProofVerification16000Openings() : BenchmarkMultiProofBase
     }
 
     [Benchmark]
-    public bool BenchmarkVerification16000OpeningsRust()
-    {
-        return RustVerkleLib.VerkleVerify(_context, _verifierQueryInput, (UIntPtr)_verifierQueryInput.Length);
-    }
-
-    [Benchmark]
     public bool BenchmarkVerification16000OpeningRustUncompressed()
     {
         return RustVerkleLib.VerkleVerifyUncompressed(
             _context,
-            _verifierQueryInputUncompressed,
-            (UIntPtr)_verifierQueryInputUncompressed.Length
+            _verifierQueryInput,
+            (UIntPtr)_verifierQueryInput.Length
         );
     }
 }
