@@ -60,7 +60,7 @@ public readonly struct VerkleProverQuerySerialized(byte[][] childHashPoly, byte[
 
     public static VerkleProverQuerySerialized CreateProverQuerySerialized(VerkleProverQuery query)
     {
-        byte[] nodeCommitPoint = query.NodeCommitPoint.ToBytesUncompressed();
+        byte[] nodeCommitPoint = query.NodeCommitPoint.ToBytesUncompressedLittleEndian();
         byte[][] childHashPoly = new byte[256][];
         int i = 0;
         foreach (FrE eval in query.ChildHashPoly.Evaluations)
