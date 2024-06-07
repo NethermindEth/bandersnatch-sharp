@@ -327,10 +327,9 @@ public class MultiProofTests
     {
         List<VerkleProverQuery> proverQueries = GenerateRandomQueries(400);
 
-        List<VerkleProverQuerySerialized> proverQueriesSerialized = proverQueries
-            .Select(VerkleProverQuerySerialized
-            .CreateProverQuerySerialized)
-            .ToList();
+        VerkleProverQuerySerialized[] proverQueriesSerialized = proverQueries
+            .Select(VerkleProverQuerySerialized.CreateProverQuerySerialized)
+            .ToArray();
 
         MultiProof multiproof = new(CRS.Instance, PreComputedWeights.Instance);
 
@@ -339,7 +338,7 @@ public class MultiProofTests
         VerkleVerifierQuerySerialized[] verifierQueries = proverQueries
             .Select(
                 x => new VerkleVerifierQuerySerialized(
-                    x.NodeCommitPoint.ToBytesUncompressed(),
+                    x.NodeCommitPoint.ToBytesUncompressedLittleEndian(),
                     x.ChildIndex,
                     x.ChildHash.ToBytes()
                 )

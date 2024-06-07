@@ -140,9 +140,9 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         return new VerkleProofStruct(ipaProof, d);
     }
-    public VerkleProofStructSerialized MakeMultiProofSerialized(List<VerkleProverQuerySerialized> proverQueries)
+    public VerkleProofStructSerialized MakeMultiProofSerialized(VerkleProverQuerySerialized[] proverQueries)
     {
-        byte[] input = new byte[proverQueries.Count * 8289];
+        byte[] input = new byte[proverQueries.Length * 8289];
         Span<byte> span = input;
 
         int offset = 0;
