@@ -155,10 +155,10 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         IntPtr ctx = RustVerkleLib.VerkleContextNew();
 
-        byte[] output = new byte[576];
+        byte[] output = new byte[1120];
         RustVerkleLib.VerkleProveUncompressed(ctx, input, (UIntPtr)input.Length, output);
 
-        byte[] d = output[0..32];
+        byte[] d = output[0..64];
 
         IpaProofStructSerialized ipa_proof = IpaProofStructSerialized.CreateIpaProofSerialized(output);
 
@@ -226,11 +226,11 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
     public bool CheckMultiProofSerialized(VerkleVerifierQuerySerialized[] queries, VerkleProofStructSerialized proof)
     {
-        byte[] input = new byte[576 + 97 * queries.Length];
+        byte[] input = new byte[1120 + 97 * queries.Length];
         Span<byte> span = input;
 
-        proof.Encode().CopyTo(span.Slice(0, 576));
-        int offset = 576;
+        proof.Encode().CopyTo(span.Slice(0, 1120));
+        int offset = 1120;
 
         foreach (VerkleVerifierQuerySerialized query in queries)
         {

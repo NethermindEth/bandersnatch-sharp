@@ -57,21 +57,21 @@ public readonly struct IpaProofStructSerialized(byte[][] l, byte[] a, byte[][] r
 
     public static IpaProofStructSerialized CreateIpaProofSerialized(byte[] proof)
     {
-        int startIndex = 32;
+        int startIndex = 64;
 
-        byte[] a = proof[544..576];
         byte[][] l = new byte[8][];
         byte[][] r = new byte[8][];
+        byte[] a = proof[1088..1120];
 
         for (int i = 0; i < 8; i++)
         {
-            int sliceStartL = startIndex + i * 32;
-            int sliceStartR = startIndex + 256 + i * 32;
+            int sliceStartL = startIndex + i * 64;
+            int sliceStartR = startIndex + 512 + i * 64;
 
-            l[i] = new byte[32];
-            r[i] = new byte[32];
-            Array.Copy(proof, sliceStartL, l[i], 0, 32);
-            Array.Copy(proof, sliceStartR, r[i], 0, 32);
+            l[i] = new byte[64];
+            r[i] = new byte[64];
+            Array.Copy(proof, sliceStartL, l[i], 0, 64);
+            Array.Copy(proof, sliceStartR, r[i], 0, 64);
         }
         return new IpaProofStructSerialized(l, a, r);
     }
