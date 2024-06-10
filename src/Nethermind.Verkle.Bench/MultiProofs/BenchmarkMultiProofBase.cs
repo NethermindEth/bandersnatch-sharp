@@ -3,7 +3,6 @@
 
 using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
-using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
 using Nethermind.Verkle.Proofs;
 using Nethermind.Verkle.Tests.Proofs;
@@ -15,6 +14,7 @@ public class BenchmarkMultiProofBase
     protected readonly VerkleProofStruct _proof;
     protected readonly byte[] _proofUncompressed;
     protected readonly List<VerkleProverQuery> _proverQueries;
+    protected readonly VerkleProverQuerySerialized[] _proverQueriesSerialized;
     protected readonly byte[] _proverQueryInput;
     protected readonly VerkleVerifierQuery[] _verifierQueries;
     protected readonly byte[] _verifierQueryInput;
@@ -28,13 +28,14 @@ public class BenchmarkMultiProofBase
     protected BenchmarkMultiProofBase(int numPoly)
     {
         _proverQueries = MultiProofTests.GenerateRandomQueries(numPoly);
+        _proverQueriesSerialized = MultiProofTests.GenerateRandomQueriesSerialized(numPoly);
 
-        _proverQueryInput = SerializeProverQueriesForRust(_proverQueries);
+        _proverQueryInput = SerializeProverQueriesForRust(_proverQueriesSerialized);
 
         _context = RustVerkleLib.VerkleContextNew();
 
         _proof = GenerateProof(_proverQueries.ToArray());
-        _proofUncompressed = GenerateProofSerialized(_proverQueries.ToArray());
+        _proofUncompressed = GenerateProofSerialized(_proverQueriesSerialized);
 
         _verifierQueries = GetVerifierQueries(_proverQueries);
 
@@ -49,12 +50,9 @@ public class BenchmarkMultiProofBase
         return Prover.MakeMultiProof(proverTranscript, [.. queries]);
     }
 
-    private static byte[] GenerateProofSerialized(VerkleProverQuery[] queries)
+    private static byte[] GenerateProofSerialized(VerkleProverQuerySerialized[] queries)
     {
-        VerkleProverQuerySerialized[] queriesSerialized = queries
-            .Select(VerkleProverQuerySerialized.CreateProverQuerySerialized)
-            .ToArray();
-        VerkleProofStructSerialized proof = Prover.MakeMultiProofSerialized(queriesSerialized);
+        VerkleProofStructSerialized proof = Prover.MakeMultiProofSerialized(queries);
         return proof.Encode();
     }
 
@@ -65,35 +63,9 @@ public class BenchmarkMultiProofBase
             .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
     }
 
-    private static VerkleVerifierQuerySerialized[] GetVerifierQueriesSerialized(List<VerkleProverQuery> queries)
+    private static byte[] SerializeProverQueriesForRust(VerkleProverQuerySerialized[] queries)
     {
-
-        VerkleVerifierQuerySerialized[] verifierQueries = queries
-            .Select(
-                x => new VerkleVerifierQuerySerialized(
-                    x.NodeCommitPoint.ToBytesUncompressedLittleEndian(),
-                    x.ChildIndex,
-                    x.ChildHash.ToBytes()
-                )
-            ).ToArray();
-
-        return verifierQueries;
-    }
-
-    private static byte[] SerializeProverQueriesForRust(List<VerkleProverQuery> queries)
-    {
-        List<byte> input = [];
-        foreach (VerkleProverQuery query in queries)
-        {
-            input.AddRange(query.NodeCommitPoint.ToBytesUncompressedLittleEndian());
-            foreach (FrE eval in query.ChildHashPoly.Evaluations)
-            {
-                input.AddRange(eval.ToBytes());
-            }
-            input.Add(query.ChildIndex);
-            input.AddRange(query.ChildHash.ToBytes());
-        }
-        return input.ToArray();
+        return queries.SelectMany(query => query.Encode()).ToArray();
     }
 
     private static byte[] SerializeVerifierQueriesForRust(VerkleVerifierQuery[] queries, byte[] proof)
