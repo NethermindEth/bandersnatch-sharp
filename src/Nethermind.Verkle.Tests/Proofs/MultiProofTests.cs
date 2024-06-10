@@ -451,4 +451,38 @@ public class MultiProofTests
 
         return proverQueries;
     }
+
+    public static VerkleProverQuerySerialized[] GenerateRandomQueriesSerialized(int numOfQueries)
+    {
+        CRS crs = CRS.Instance;
+        VerkleProverQuerySerialized[] proverQueries = new VerkleProverQuerySerialized[numOfQueries];
+
+        Random rand = new(0);
+        using IEnumerator<FrE> randFre = FrE.GetRandom().GetEnumerator();
+
+        for (int i = 0; i < numOfQueries; i++)
+        {
+            randFre.MoveNext();
+            FrE[] poly = new FrE[256];
+            byte[][] bytesPoly = new byte[256][];
+            for (int j = 0; j < 256; j++)
+            {
+                poly[j] = randFre.Current;
+                bytesPoly[j] = randFre.Current.ToBytes();
+                randFre.MoveNext();
+            }
+
+            Banderwagon commit = crs.Commit(poly);
+            byte childIndex = (byte)rand.Next(255);
+
+            proverQueries[i] = new VerkleProverQuerySerialized(
+                bytesPoly,
+                commit.ToBytesUncompressedLittleEndian(),
+                childIndex,
+                bytesPoly[childIndex]
+            );
+        }
+
+        return proverQueries;
+    }
 }
