@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;
@@ -20,8 +21,6 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         FpE[] inverses = FpE.MultiInverse(zs);
         for (int i = 0; i < numOfPoints; i++) normalizedPoints[i] = queries[i].NodeCommitPoint.ToAffine(inverses[i]);
     }
-
-
     public VerkleProofStruct MakeMultiProof(Transcript transcript, List<VerkleProverQuery> queries)
     {
         // batch normalize the NodeCommitPoints for the query
@@ -141,6 +140,30 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
 
         return new VerkleProofStruct(ipaProof, d);
     }
+    public VerkleProofStructSerialized MakeMultiProofSerialized(VerkleProverQuerySerialized[] proverQueries)
+    {
+        byte[] input = new byte[proverQueries.Length * 8289];
+        Span<byte> span = input;
+
+        int offset = 0;
+
+        foreach (VerkleProverQuerySerialized query in proverQueries)
+        {
+            query.Encode().CopyTo(span.Slice(offset, 8289));
+            offset += 8289;
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        byte[] output = new byte[1120];
+        RustVerkleLib.VerkleProveUncompressed(ctx, input, (UIntPtr)input.Length, output);
+
+        byte[] d = output[0..64];
+
+        IpaProofStructSerialized ipa_proof = IpaProofStructSerialized.CreateIpaProofSerialized(output);
+
+        return new VerkleProofStructSerialized(ipa_proof, d);
+    }
 
     public bool CheckMultiProof(Transcript transcript, VerkleVerifierQuery[] queries, VerkleProofStruct proof)
     {
@@ -199,5 +222,24 @@ public class MultiProof(CRS cRs, PreComputedWeights preComp)
         IpaVerifierQuery queryX = new(ipaCommitment, t, inputPointVector, g2T, ipaProof);
 
         return Ipa.CheckIpaProof(cRs, transcript, queryX);
+    }
+
+    public bool CheckMultiProofSerialized(VerkleVerifierQuerySerialized[] queries, VerkleProofStructSerialized proof)
+    {
+        byte[] input = new byte[1120 + 97 * queries.Length];
+        Span<byte> span = input;
+
+        proof.Encode().CopyTo(span.Slice(0, 1120));
+        int offset = 1120;
+
+        foreach (VerkleVerifierQuerySerialized query in queries)
+        {
+            query.Encode().CopyTo(span.Slice(offset, 97));
+            offset += 97;
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        return RustVerkleLib.VerkleVerifyUncompressed(ctx, input, (UIntPtr)input.Length);
     }
 }

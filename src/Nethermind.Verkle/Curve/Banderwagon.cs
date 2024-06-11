@@ -241,6 +241,18 @@ public readonly partial struct Banderwagon
         return uncompressed;
     }
 
+    public byte[] ToBytesUncompressedLittleEndian()
+    {
+        byte[] uncompressed = new byte[64];
+        Span<byte> ucSpan = uncompressed;
+        AffinePoint affine = ToAffine();
+
+        affine.X.ToBytes().CopyTo(ucSpan[..32]);
+        affine.Y.ToBytes().CopyTo(ucSpan[32..]);
+
+        return uncompressed;
+    }
+
     public byte[] ToBytesLittleEndian()
     {
         AffinePoint affine = ToAffine();

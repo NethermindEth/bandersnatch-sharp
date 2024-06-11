@@ -34,4 +34,19 @@ public class RustVerkleLib
     /// This function assumes that the domain is always 256 values and commitment is 32bytes.
     [DllImport("c_verkle", EntryPoint = "create_proof", CallingConvention = CallingConvention.Cdecl)]
     public static extern void VerkleProve(IntPtr ct, byte[] input, UIntPtr length, byte[] outHash);
+
+    /// Receives a proof and a tuple (C_i, z_i, y_i)
+    /// Where C_i is a commitment to f_i(X) serialized as 64 bytes (uncompressed commitment)
+    /// z_i is index of the point in the polynomial: 1 byte (number from 1 to 256)
+    /// y_i is the evaluation of the polynomial at z_i i.e value we are opening: 32 bytes or Fr (scalar field element)
+    /// Returns true of false.
+    /// Proof is verified or not.
+    [DllImport("c_verkle", EntryPoint = "verify_proof", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool VerkleVerify(IntPtr ct, byte[] input, UIntPtr length);
+
+    [DllImport("c_verkle", EntryPoint = "create_proof_uncompressed", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void VerkleProveUncompressed(IntPtr ct, byte[] input, UIntPtr length, byte[] outHash);
+
+    [DllImport("c_verkle", EntryPoint = "verify_proof_uncompressed", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool VerkleVerifyUncompressed(IntPtr ct, byte[] input, UIntPtr length);
 }
