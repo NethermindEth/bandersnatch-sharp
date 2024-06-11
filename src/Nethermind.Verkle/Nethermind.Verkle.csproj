@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Nethermind">
-    <Version>0.2.6-alpha</Version>
+    <Version>0.2.7-alpha</Version>
     <Authors>Tanishq Jasoria</Authors>
     <Company>Nethermind</Company>
     <Copyright>Demerzel Solutions Limited</Copyright>
@@ -30,7 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.RustVerkle\Nethermind.RustVerkle.csproj" />
+    <ProjectReference Include="..\Nethermind.RustVerkle\Nethermind.RustVerkle.csproj">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
