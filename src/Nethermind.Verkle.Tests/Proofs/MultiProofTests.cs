@@ -1,3 +1,4 @@
+using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
@@ -256,11 +257,13 @@ public class MultiProofTests
     {
         Transcript proverTranscript = new("vt");
         MultiProof multiproof = new(CRS.Instance, PreComputedWeights.Instance);
-        List<VerkleVerifierQuery> queries = (from queryString in _basicTestVerifierQueries
+        List<VerkleVerifierQuery> queries = (
+            from queryString in _basicTestVerifierQueries
             let point = new Banderwagon(queryString[0])
             let childIndex = Convert.FromHexString(queryString[1])[0]
             let childHash = FrE.FromBytesReduced(Convert.FromHexString(queryString[2]))
-            select new VerkleVerifierQuery(point, childIndex, childHash)).ToList();
+            select new VerkleVerifierQuery(point, childIndex, childHash)
+        ).ToList();
 
         Banderwagon d = new(_basicProofStruct[0]);
         FrE a = FrE.FromBytesReduced(Convert.FromHexString(_basicProofStruct[1]));
@@ -292,6 +295,138 @@ public class MultiProofTests
         Assert.That(verification);
     }
 
+    [Test]
+    public void TestRustRandomProofGenerationAndVerification()
+    {
+        MultiProof prover = new(CRS.Instance, PreComputedWeights.Instance);
+        VerkleProverQuery[] proverQueries = GenerateRandomQueries(400).ToArray();
+        Transcript proverTranscript = new("verkle");
+
+        List<byte> input = new();
+        foreach (VerkleProverQuery query in proverQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            foreach (FrE eval in query.ChildHashPoly.Evaluations)
+            {
+                input.AddRange(eval.ToBytes());
+            }
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProve(ctx, input.ToArray(), (UIntPtr)input.Count, output);
+
+        VerkleProofStruct proof = prover.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(proverQueries));
+        output.Should().BeEquivalentTo(proof.Encode());
+    }
+
+    [Test]
+    public void TestProofVerificationFromSerialization()
+    {
+        List<VerkleProverQuery> proverQueries = GenerateRandomQueries(400);
+
+        VerkleProverQuerySerialized[] proverQueriesSerialized = proverQueries
+            .Select(VerkleProverQuerySerialized.CreateProverQuerySerialized)
+            .ToArray();
+
+        MultiProof multiproof = new(CRS.Instance, PreComputedWeights.Instance);
+
+        VerkleProofStructSerialized proofStructSerialized = multiproof.MakeMultiProofSerialized(proverQueriesSerialized);
+
+        VerkleVerifierQuerySerialized[] verifierQueries = proverQueries
+            .Select(
+                x => new VerkleVerifierQuerySerialized(
+                    x.NodeCommitPoint.ToBytesUncompressedLittleEndian(),
+                    x.ChildIndex,
+                    x.ChildHash.ToBytes()
+                )
+            ).ToArray();
+
+        bool result = multiproof.CheckMultiProofSerialized(verifierQueries, proofStructSerialized);
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public void TestProofVerificationCtoRust()
+    {
+        MultiProof prover = new(CRS.Instance, PreComputedWeights.Instance);
+        VerkleProverQuery[] proverQueries = GenerateRandomQueries(400).ToArray();
+        Transcript proverTranscript = new("verkle");
+
+        List<byte> input = new();
+        foreach (VerkleProverQuery query in proverQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            foreach (FrE eval in query.ChildHashPoly.Evaluations)
+            {
+                input.AddRange(eval.ToBytes());
+            }
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        VerkleProofStruct proof = prover.MakeMultiProof(proverTranscript, new List<VerkleProverQuery>(proverQueries));
+
+        VerkleVerifierQuery[] verifierQueries = proverQueries
+            .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
+
+        input.Clear();
+        input.AddRange(proof.Encode());
+        foreach (VerkleVerifierQuery query in verifierQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        bool result = RustVerkleLib.VerkleVerify(ctx, input.ToArray(), (UIntPtr)input.Count);
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public void TestProofVerificationRust()
+    {
+        MultiProof prover = new(CRS.Instance, PreComputedWeights.Instance);
+        VerkleProverQuery[] proverQueries = GenerateRandomQueries(400).ToArray();
+        Transcript proverTranscript = new("verkle");
+
+        List<byte> input = new();
+        foreach (VerkleProverQuery query in proverQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            foreach (FrE eval in query.ChildHashPoly.Evaluations)
+            {
+                input.AddRange(eval.ToBytes());
+            }
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        IntPtr ctx = RustVerkleLib.VerkleContextNew();
+
+        byte[] output = new byte[576];
+        RustVerkleLib.VerkleProve(ctx, input.ToArray(), (UIntPtr)input.Count, output);
+
+        VerkleVerifierQuery[] verifierQueries = proverQueries
+            .Select(x => new VerkleVerifierQuery(x.NodeCommitPoint, x.ChildIndex, x.ChildHash)).ToArray();
+
+        input.Clear();
+        input.AddRange(output);
+        foreach (VerkleVerifierQuery query in verifierQueries)
+        {
+            input.AddRange(query.NodeCommitPoint.ToBytes());
+            input.Add(query.ChildIndex);
+            input.AddRange(query.ChildHash.ToBytes());
+        }
+
+        bool result = RustVerkleLib.VerkleVerify(ctx, input.ToArray(), (UIntPtr)input.Count);
+        Assert.That(result, Is.True);
+    }
+
     public static List<VerkleProverQuery> GenerateRandomQueries(int numOfQueries)
     {
         CRS crs = CRS.Instance;
@@ -312,6 +447,40 @@ public class MultiProofTests
             byte childIndex = (byte)rand.Next(255);
 
             proverQueries.Add(new VerkleProverQuery(new LagrangeBasis(poly), commit, childIndex, poly[childIndex]));
+        }
+
+        return proverQueries;
+    }
+
+    public static VerkleProverQuerySerialized[] GenerateRandomQueriesSerialized(int numOfQueries)
+    {
+        CRS crs = CRS.Instance;
+        VerkleProverQuerySerialized[] proverQueries = new VerkleProverQuerySerialized[numOfQueries];
+
+        Random rand = new(0);
+        using IEnumerator<FrE> randFre = FrE.GetRandom().GetEnumerator();
+
+        for (int i = 0; i < numOfQueries; i++)
+        {
+            randFre.MoveNext();
+            FrE[] poly = new FrE[256];
+            byte[][] bytesPoly = new byte[256][];
+            for (int j = 0; j < 256; j++)
+            {
+                poly[j] = randFre.Current;
+                bytesPoly[j] = randFre.Current.ToBytes();
+                randFre.MoveNext();
+            }
+
+            Banderwagon commit = crs.Commit(poly);
+            byte childIndex = (byte)rand.Next(255);
+
+            proverQueries[i] = new VerkleProverQuerySerialized(
+                bytesPoly,
+                commit.ToBytesUncompressedLittleEndian(),
+                childIndex,
+                bytesPoly[childIndex]
+            );
         }
 
         return proverQueries;

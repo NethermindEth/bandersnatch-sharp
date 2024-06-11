@@ -29,4 +29,8 @@
     <PackageReference Include="Nethermind.Numerics.Int256" Version="1.2.0"/>
   </ItemGroup>
 
+    <ItemGroup>
+    <ProjectReference Include="..\Nethermind.RustVerkle\Nethermind.RustVerkle.csproj" />
+  </ItemGroup>
+
 </Project>

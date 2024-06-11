@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Nethermind.RustVerkle\Nethermind.RustVerkle.csproj" />
     <ProjectReference Include="..\Nethermind.Verkle\Nethermind.Verkle.csproj"/>
   </ItemGroup>
 
