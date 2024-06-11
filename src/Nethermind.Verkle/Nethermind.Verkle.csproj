@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Nethermind">
-    <Version>0.2.5-alpha</Version>
+    <Version>0.2.6-alpha</Version>
     <Authors>Tanishq Jasoria</Authors>
     <Company>Nethermind</Company>
     <Copyright>Demerzel Solutions Limited</Copyright>
@@ -29,7 +29,7 @@
     <PackageReference Include="Nethermind.Numerics.Int256" Version="1.2.0"/>
   </ItemGroup>
 
-    <ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Nethermind.RustVerkle\Nethermind.RustVerkle.csproj" />
   </ItemGroup>
 
