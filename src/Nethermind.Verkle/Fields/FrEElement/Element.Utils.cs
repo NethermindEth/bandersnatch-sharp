@@ -121,23 +121,18 @@ public readonly partial struct FrE
         return 64 - BitOperations.LeadingZeroCount(x);
     }
 
-    private static byte[] ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
-        scoped in ulong u3)
+    private static void ToBigEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
+        scoped in ulong u3, in Span<byte> target)
     {
-        byte[] returnEncoding = new byte[32];
-        Span<byte> target = returnEncoding;
         BinaryPrimitives.WriteUInt64BigEndian(target.Slice(0, 8), u3);
         BinaryPrimitives.WriteUInt64BigEndian(target.Slice(8, 8), u2);
         BinaryPrimitives.WriteUInt64BigEndian(target.Slice(16, 8), u1);
         BinaryPrimitives.WriteUInt64BigEndian(target.Slice(24, 8), u0);
-        return returnEncoding;
     }
 
-    private static byte[] ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
-        scoped in ulong u3)
+    private static void ToLittleEndian(scoped in ulong u0, scoped in ulong u1, scoped in ulong u2,
+        scoped in ulong u3, in Span<byte> target)
     {
-        byte[] returnEncoding = new byte[32];
-        Span<byte> target = returnEncoding;
         if (Avx.IsSupported)
         {
             Unsafe.As<byte, Vector256<ulong>>(ref MemoryMarshal.GetReference(target)) =
@@ -150,8 +145,6 @@ public readonly partial struct FrE
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(16, 8), u2);
             BinaryPrimitives.WriteUInt64LittleEndian(target.Slice(24, 8), u3);
         }
-
-        return returnEncoding;
     }
 
     private static ReadOnlySpan<byte> SBroadcastLookup => new byte[]

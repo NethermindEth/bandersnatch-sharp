@@ -103,6 +103,16 @@ public class BanderwagonTests
     }
 
     [Test]
+    public void TestSerialiseGenLittle()
+    {
+        Banderwagon gen = Banderwagon.Generator;
+
+        byte[]? serialized = gen.ToBytesUncompressedLittleEndian();
+        Banderwagon res = Banderwagon.FromBytesUncompressedUnchecked(serialized, false);
+        Assert.That(res == gen);
+    }
+
+    [Test]
     public void TestScalarMulSmoke()
     {
         Banderwagon gen = Banderwagon.Generator;

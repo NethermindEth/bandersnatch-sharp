@@ -46,14 +46,32 @@ public readonly partial struct FpE
 
     public byte[] ToBytes()
     {
+        byte[] returnEncoding = new byte[32];
+        Span<byte> target = returnEncoding;
         ToRegular(in this, out FE x);
-        return ToLittleEndian(x.u0, x.u1, x.u2, x.u3);
+        ToLittleEndian(x.u0, x.u1, x.u2, x.u3, in target);
+        return returnEncoding;
+    }
+
+    public void ToBytes(in Span<byte> target)
+    {
+        ToRegular(in this, out FE x);
+        ToLittleEndian(x.u0, x.u1, x.u2, x.u3, in target);
     }
 
     public byte[] ToBytesBigEndian()
     {
+        byte[] returnEncoding = new byte[32];
+        Span<byte> target = returnEncoding;
         ToRegular(in this, out FE x);
-        return ToBigEndian(x.u0, x.u1, x.u2, x.u3);
+        ToBigEndian(x.u0, x.u1, x.u2, x.u3, in target);
+        return returnEncoding;
+    }
+
+    public void ToBytesBigEndian(in Span<byte> target)
+    {
+        ToRegular(in this, out FE x);
+        ToBigEndian(x.u0, x.u1, x.u2, x.u3, in target);
     }
 
     public static FE FromBytes(in ReadOnlySpan<byte> byteEncoded, bool isBigEndian = false)
