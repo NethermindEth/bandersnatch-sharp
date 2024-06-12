@@ -78,6 +78,54 @@ public readonly partial struct Banderwagon
         return new Banderwagon(x, y);
     }
 
+    public byte[] ToBytesUncompressed()
+    {
+        byte[] uncompressed = new byte[64];
+        Span<byte> ucSpan = uncompressed;
+        AffinePoint affine = ToAffine();
+
+        Span<byte> x = ucSpan[..32];
+        affine.X.ToBytesBigEndian(in x);
+        Span<byte> y = ucSpan[32..];
+        affine.Y.ToBytesBigEndian(in y);
+
+        return uncompressed;
+    }
+
+    public void ToBytesUncompressed(in Span<byte> target)
+    {
+        AffinePoint affine = ToAffine();
+
+        Span<byte> x = target[..32];
+        affine.X.ToBytesBigEndian(in x);
+        Span<byte> y = target[32..];
+        affine.Y.ToBytesBigEndian(in y);
+    }
+
+    public byte[] ToBytesUncompressedLittleEndian()
+    {
+        byte[] uncompressed = new byte[64];
+        Span<byte> ucSpan = uncompressed;
+        AffinePoint affine = ToAffine();
+
+        Span<byte> x = ucSpan[..32];
+        affine.X.ToBytes(in x);
+        Span<byte> y = ucSpan[32..];
+        affine.Y.ToBytes(in y);
+
+        return uncompressed;
+    }
+
+    public void ToBytesUncompressedLittleEndian(in Span<byte> target)
+    {
+        AffinePoint affine = ToAffine();
+
+        Span<byte> x = target[..32];
+        affine.X.ToBytes(in x);
+        Span<byte> y = target[32..];
+        affine.Y.ToBytes(in y);
+    }
+
     private static int SubgroupCheck(FpE x)
     {
         FpE.MultiplyMod(x, x, out FpE res);
@@ -227,30 +275,6 @@ public readonly partial struct Banderwagon
         if (affine.Y.LexicographicallyLargest() == false) x = affine.X.Negative();
 
         return x.ToBytesBigEndian();
-    }
-
-    public byte[] ToBytesUncompressed()
-    {
-        byte[] uncompressed = new byte[64];
-        Span<byte> ucSpan = uncompressed;
-        AffinePoint affine = ToAffine();
-
-        affine.X.ToBytesBigEndian().CopyTo(ucSpan[..32]);
-        affine.Y.ToBytesBigEndian().CopyTo(ucSpan[32..]);
-
-        return uncompressed;
-    }
-
-    public byte[] ToBytesUncompressedLittleEndian()
-    {
-        byte[] uncompressed = new byte[64];
-        Span<byte> ucSpan = uncompressed;
-        AffinePoint affine = ToAffine();
-
-        affine.X.ToBytes().CopyTo(ucSpan[..32]);
-        affine.Y.ToBytes().CopyTo(ucSpan[32..]);
-
-        return uncompressed;
     }
 
     public byte[] ToBytesLittleEndian()
