@@ -6,8 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle", "Nether
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.Verkle.Tests", "Nethermind.Verkle.Tests\Nethermind.Verkle.Tests.csproj", "{7A18E6E4-1924-4292-A404-195A819FE629}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nethermind.RustVerkle", "Nethermind.RustVerkle\Nethermind.RustVerkle.csproj", "{98ECB6A5-5D84-4C2B-B0F7-B2F945B4A8CA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,10 +24,6 @@ Global
 		{7A18E6E4-1924-4292-A404-195A819FE629}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A18E6E4-1924-4292-A404-195A819FE629}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A18E6E4-1924-4292-A404-195A819FE629}.Release|Any CPU.Build.0 = Release|Any CPU
-		{98ECB6A5-5D84-4C2B-B0F7-B2F945B4A8CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98ECB6A5-5D84-4C2B-B0F7-B2F945B4A8CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98ECB6A5-5D84-4C2B-B0F7-B2F945B4A8CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98ECB6A5-5D84-4C2B-B0F7-B2F945B4A8CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

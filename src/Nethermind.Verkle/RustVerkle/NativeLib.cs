@@ -57,12 +57,12 @@ public static class NativeLib
         OsPlatform platform = GetPlatform();
         string libPath = platform switch
         {
-            OsPlatform.Linux => $"runtimes/linux-x64/lib{libraryName}.so",
-            OsPlatform.Mac => $"runtimes/osx-x64/native/lib{libraryName}.dylib",
-            OsPlatform.Windows => $"runtimes\\win-x64\\{libraryName}.dll",
-            OsPlatform.LinuxArm => $"runtimes/linux-arm/lib{libraryName}.so",
-            OsPlatform.LinuxArm64 => $"runtimes/linux-arm64/lib{libraryName}.so",
-            OsPlatform.MacArm64 => $"runtimes/osx-arm64/lib{libraryName}.dylib",
+            OsPlatform.Linux => $"RustVerkle/runtimes/linux-x64/lib{libraryName}.so",
+            OsPlatform.Mac => $"RustVerkle/runtimes/osx-x64/native/lib{libraryName}.dylib",
+            OsPlatform.Windows => $"RustVerkle/runtimes\\win-x64\\{libraryName}.dll",
+            OsPlatform.LinuxArm => $"RustVerkle/runtimes/linux-arm/lib{libraryName}.so",
+            OsPlatform.LinuxArm64 => $"RustVerkle/runtimes/linux-arm64/lib{libraryName}.so",
+            OsPlatform.MacArm64 => $"RustVerkle/runtimes/osx-arm64/lib{libraryName}.dylib",
             _ => throw new NotSupportedException($"Platform support missing: {platform}")
         };
 

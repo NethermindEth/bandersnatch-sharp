@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Nethermind">
-    <Version>0.2.8-alpha</Version>
+    <Version>0.2.9-alpha</Version>
     <Authors>Tanishq Jasoria</Authors>
     <Company>Nethermind</Company>
     <Copyright>Demerzel Solutions Limited</Copyright>
@@ -30,10 +30,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nethermind.RustVerkle\Nethermind.RustVerkle.csproj">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </ProjectReference>
+    <Content Include="RustVerkle\runtimes\linux-arm64\libc_verkle.so" Pack="true" PackagePath="RustVerkle\runtimes\linux-arm64\libc_verkle.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RustVerkle\runtimes\linux-arm\libc_verkle.so" Pack="true" PackagePath="RustVerkle\runtimes\linux-arm\libc_verkle.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RustVerkle\runtimes\linux-x64\libc_verkle.so" Pack="true" PackagePath="RustVerkle\runtimes\linux-x64\libc_verkle.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RustVerkle\runtimes\osx-x64\libc_verkle.dylib" Pack="true" PackagePath="RustVerkle\runtimes\osx-x64\libc_verkle.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RustVerkle\runtimes\osx-arm64\libc_verkle.dylib" Pack="true" PackagePath="RustVerkle\runtimes\osx-arm64\libc_verkle.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="RustVerkle\runtimes\win-x64\c_verkle.dll" Pack="true" PackagePath="RustVerkle\runtimes\win-x64\c_verkle.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
