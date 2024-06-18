@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FpEElement;
 using Nethermind.Verkle.Fields.FrEElement;

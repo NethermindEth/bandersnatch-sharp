@@ -4,7 +4,6 @@
 using System.Threading.Tasks.Dataflow;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FrEElement;
 

@@ -3,7 +3,6 @@
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Nethermind.RustVerkle;
 using Nethermind.Verkle.Proofs;
 
 namespace Nethermind.Verkle.Bench.MultiProofs;

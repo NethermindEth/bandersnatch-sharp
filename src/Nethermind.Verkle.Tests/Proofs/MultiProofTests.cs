@@ -1,4 +1,3 @@
-using Nethermind.RustVerkle;
 using Nethermind.Verkle.Curve;
 using Nethermind.Verkle.Fields.FrEElement;
 using Nethermind.Verkle.Polynomial;
