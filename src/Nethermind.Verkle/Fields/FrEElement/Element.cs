@@ -130,4 +130,16 @@ public readonly partial struct FrE
         u2 = res.u2;
         u3 = res.u3;
     }
+
+    public ulong GetUlongAtIndex(int index)
+    {
+        return index switch
+        {
+            0 => u0,
+            1 => u1,
+            2 => u2,
+            3 => u3,
+            _ => throw new IndexOutOfRangeException("Index must be between 0 and 3.")
+        };
+    }
 }
